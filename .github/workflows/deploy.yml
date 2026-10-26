@@ -27,6 +27,8 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
+      - name: Test astronomy calculations
+        run: npm test
       - name: Build site
         run: npm run build
       - name: Upload Pages artifact
