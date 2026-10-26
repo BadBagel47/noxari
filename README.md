@@ -1,6 +1,6 @@
 # Noxari — React + TypeScript prototype
 
-A mobile-first planetarium prototype with a calculated sky map, object positions and altitude curves.
+A mobile-first planetarium prototype with a swipeable, calculated eye-level sky view, an all-sky map, object positions and altitude curves.
 
 ## Start locally
 
@@ -23,7 +23,8 @@ To test on a phone on the same Wi-Fi network, use the `Network` URL printed by V
 
 ## Included
 
-- **Sky** — a zenith-centered, azimuthal equidistant projection of 4,105 HYG stars brighter than magnitude 5.8. The outer circle is the geometric horizon; north is up. Above-horizon catalog objects, the Moon, Jupiter, Saturn and the Sun use calculated positions and respond to the chosen time and location. Stars fade and deep-sky/planet markers are hidden in daylight and bright twilight; the Sun and Moon remain available.
+- **Look around** — the default eye-level, 90° horizontal perspective of 4,105 HYG stars brighter than magnitude 5.8. Drag or swipe to turn a full 360° and look up, or use the direction buttons or arrow keys. The displayed heading and pitch are manual; they do not track the phone. The flat ground and level line mark the geometric horizon, not the local landscape.
+- **Sky map** — a switchable zenith-centered, azimuthal equidistant projection of the same stars. Its outer circle is the geometric horizon; north is up. Both views share calculated above-horizon positions for catalog objects, the Moon, Jupiter, Saturn and the Sun. Stars fade and deep-sky/planet markers are hidden in daylight and bright twilight; the Sun and Moon remain available.
 - **Observation controls** — selected date/time and preset or manual latitude/longitude with an IANA timezone. Times and night curves use the selected observation timezone, including daylight saving changes; coordinates are stored locally in the browser.
 - **Tonight** — calculated altitude charts on one local 18:00–06:00 scale, with twilight and astronomical darkness shading. The list is not yet ranked by observing quality.
 - **Explore** — search by English/Swedish name, object ID or constellation; category filters and a zodiac constellation name reference.
@@ -35,7 +36,7 @@ To test on a phone on the same Wi-Fi network, use the `Network` URL printed by V
 
 ## Important scientific limitations
 
-**The sky map shows calculated directions, but is not a navigation instrument.** Star brightness and daylight fading are stylized. The projection omits atmospheric refraction, terrain and light pollution. The star subset is limited to magnitude 5.8, uses J2000 coordinates without proper motion, and does not yet draw the 88 constellation boundaries or stick figures. Orion and Ursa Major have no single catalog center, so their altitude curves remain marked as demos. The stars in object-detail artwork are decorative.
+**The sky views show calculated directions, but are not navigation instruments.** The eye-level view uses a 90° rectilinear horizontal field of view and a generic level horizon. Star brightness and daylight fading are stylized. Both projections omit atmospheric refraction, terrain and light pollution. The star subset is limited to magnitude 5.8, uses J2000 coordinates without proper motion, and does not yet draw the 88 constellation boundaries or stick figures. Orion and Ursa Major have no single catalog center, so their altitude curves remain marked as demos. The stars in object-detail artwork are decorative.
 
 The Sun, Moon, Jupiter and Saturn are calculated with [Astronomy Engine](https://github.com/cosinekitty/astronomy) (MIT license). [Luxon](https://moment.github.io/luxon/) (MIT license) handles the observation timezone. Selected deep-sky objects and Sirius use fixed J2000/ICRS centers; their current altitude and azimuth are calculated for the chosen coordinates and time. The mini and detail charts sample geometric altitude through the local night. Twilight shading uses the calculated solar altitude: astronomical darkness below −18° and twilight from −18° to −6°. Atmospheric refraction, terrain, weather, light pollution, lunar brightness, horizon obstructions and star proper motion are not modeled. “Highest” means the highest sampled altitude while the Sun is below −6° and the object is above the geometric horizon; it is not an observing recommendation. Planet distances and magnitudes remain labeled variable.
 
@@ -47,9 +48,9 @@ The initial release does not embed astronomical photos. Before adding per-object
 
 ## Next implementation milestones
 
-1. Add proper motion, more stars, the 88 constellation figures/boundaries and optional map zoom and pan.
-2. Add the remaining planets and rank Tonight using target altitude, lunar brightness, equipment and observing conditions.
-3. Offer device geolocation with explicit consent and automatic timezone lookup for manual coordinates.
+1. With explicit permission, use phone geolocation to set the observing position and compass/gyro sensors to synchronize the eye-level view with the direction the phone faces. Include a manual fallback and calibration guidance. A live-camera overlay can be considered later.
+2. Add proper motion, more stars, the 88 constellation figures/boundaries and optional map zoom and pan.
+3. Add the remaining planets and rank Tonight using target altitude, lunar brightness, equipment and observing conditions.
 4. Add curated licensed object photos with individual source credits and a real device-sensor Guided Finder.
 5. Add server-rendered Open Graph previews for shared object links and, later, complete observation-list sharing.
 

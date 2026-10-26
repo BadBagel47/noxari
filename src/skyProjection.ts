@@ -4,6 +4,7 @@ import type {ObservingLocation, SkyPosition} from './astronomy';
 
 export type MapPoint = {x: number; y: number};
 export type ProjectedStar = MapPoint & {magnitude: number; name?: string};
+export type HorizontalStar = SkyPosition & {magnitude: number; name?: string};
 const RAD = Math.PI / 180;
 const DEG = 180 / Math.PI;
 
@@ -33,19 +34,43 @@ export function catalogStarPosition(raHours: number, decDegrees: number, time: D
   return {altitude: Math.asin(horizontal.z) * DEG, azimuth: (Math.atan2(-horizontal.y, horizontal.x) * DEG + 360) % 360};
 }
 
-export function projectBrightStars(time: Date, location: ObservingLocation, width: number, height: number): ProjectedStar[] {
-  if (width <= 0 || height <= 0) return [];
+export function horizontalBrightStars(time: Date, location: ObservingLocation): HorizontalStar[] {
   const observer = new Observer(location.latitude, location.longitude, 0);
   const instant = new AstroTime(time);
   const rotation = Rotation_EQJ_HOR(instant, observer);
-  const visible: ProjectedStar[] = [];
+  const visible: HorizontalStar[] = [];
   for (const star of vectors) {
     const horizontal = RotateVector(rotation, new Vector(star.x, star.y, star.z, instant));
     if (horizontal.z <= 0) continue;
     const altitude = Math.asin(horizontal.z) * DEG;
     const azimuth = (Math.atan2(-horizontal.y, horizontal.x) * DEG + 360) % 360;
-    const point = projectHorizontal({altitude, azimuth}, width, height)!;
-    visible.push({...point, magnitude: star.magnitude, name: star.name});
+    visible.push({altitude, azimuth, magnitude: star.magnitude, name: star.name});
   }
   return visible;
+}
+
+export function projectBrightStars(time: Date, location: ObservingLocation, width: number, height: number): ProjectedStar[] {
+  if (width <= 0 || height <= 0) return [];
+  return horizontalBrightStars(time, location).map(star => ({
+    ...projectHorizontal(star, width, height)!, magnitude: star.magnitude, name: star.name,
+  }));
+}
+
+export type ViewDirection = {heading: number; pitch: number};
+
+// Rectilinear eye-level view. Heading is clockwise from north, pitch is above
+// the geometric horizon. The camera has no roll; the horizon stays level.
+export function projectPerspective(position: SkyPosition, view: ViewDirection, width: number, height: number): MapPoint | null {
+  if (width <= 0 || height <= 0 || position.altitude < 0) return null;
+  const delta = ((position.azimuth - view.heading + 540) % 360 - 180) * RAD;
+  const altitude = position.altitude * RAD;
+  const pitch = view.pitch * RAD;
+  const depth = Math.cos(altitude) * Math.cos(delta) * Math.cos(pitch) + Math.sin(altitude) * Math.sin(pitch);
+  if (depth <= 0) return null;
+  const right = Math.cos(altitude) * Math.sin(delta);
+  const up = Math.sin(altitude) * Math.cos(pitch) - Math.cos(altitude) * Math.cos(delta) * Math.sin(pitch);
+  const focal = width / 2; // 90-degree horizontal field of view.
+  const x = width / 2 + focal * right / depth;
+  const y = height / 2 - focal * up / depth;
+  return x >= 0 && x <= width && y >= 0 && y <= height ? {x, y} : null;
 }

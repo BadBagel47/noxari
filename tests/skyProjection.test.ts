@@ -2,7 +2,7 @@ import {describe, expect, it} from 'vitest';
 import {brightStars} from '../src/generated/brightStars';
 import {objects} from '../src/data';
 import {objectPosition, stockholm} from '../src/astronomy';
-import {catalogStarPosition, projectBrightStars, projectHorizontal} from '../src/skyProjection';
+import {catalogStarPosition, projectBrightStars, projectHorizontal, projectPerspective} from '../src/skyProjection';
 
 describe('real all-sky projection', () => {
   it('puts zenith at center and the cardinal horizons on the circle', () => {
@@ -41,5 +41,23 @@ describe('real all-sky projection', () => {
     expect(first.length).toBeLessThan(3000);
     expect(first[0].x).not.toBeCloseTo(later[0].x, 1);
     expect(first.every(star => Number.isFinite(star.x) && Number.isFinite(star.y))).toBe(true);
+  });
+});
+
+describe('eye-level horizon projection', () => {
+  it('centers the facing direction and keeps the horizon level', () => {
+    expect(projectPerspective({altitude: 0, azimuth: 90}, {heading: 90, pitch: 0}, 400, 300)).toEqual({x: 200, y: 150});
+    expect(projectPerspective({altitude: 0, azimuth: 60}, {heading: 90, pitch: 0}, 400, 300)!.y).toBeCloseTo(150);
+    expect(projectPerspective({altitude: 0, azimuth: 120}, {heading: 90, pitch: 0}, 400, 300)!.y).toBeCloseTo(150);
+    expect(projectPerspective({altitude: 30, azimuth: 90}, {heading: 90, pitch: 30}, 400, 300)!.x).toBeCloseTo(200);
+    expect(projectPerspective({altitude: 30, azimuth: 90}, {heading: 90, pitch: 30}, 400, 300)!.y).toBeCloseTo(150);
+  });
+
+  it('wraps direction through north and clips objects behind or below the viewer', () => {
+    const view = {heading: 350, pitch: 0};
+    expect(projectPerspective({altitude: 0, azimuth: 10}, view, 400, 300)!.x).toBeGreaterThan(200);
+    expect(projectPerspective({altitude: 0, azimuth: 330}, view, 400, 300)!.x).toBeLessThan(200);
+    expect(projectPerspective({altitude: 0, azimuth: 170}, view, 400, 300)).toBeNull();
+    expect(projectPerspective({altitude: -1, azimuth: 350}, view, 400, 300)).toBeNull();
   });
 });

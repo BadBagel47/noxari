@@ -7,6 +7,8 @@ import {Body} from 'astronomy-engine';
 import {DateTime} from 'luxon';
 import {VisibilityChart, peakSample} from './VisibilityChart';
 import {SkyMap} from './SkyMap';
+import {HorizonView} from './HorizonView';
+import type {ViewDirection} from './skyProjection';
 import './style.css';
 
 type Tab = 'Sky'|'Tonight'|'Explore'|'Saved';
@@ -47,6 +49,8 @@ function App() {
   const [settings, setSettings] = useState(false);
   const [toast, setToast] = useState('');
   const [finder, setFinder] = useState(false);
+  const [skyMode, setSkyMode] = useState<'horizon' | 'map'>('horizon');
+  const [viewDirection, setViewDirection] = useState<ViewDirection>({heading: 180, pitch: 24});
 
   useEffect(() => { localStorage.setItem('noxari-saved', JSON.stringify(saved)); }, [saved]);
   useEffect(() => { localStorage.setItem('noxari-lang', lang); }, [lang]);
@@ -118,7 +122,7 @@ function App() {
   return <div className="app">
     <header className="topbar"><button className="brand" onClick={() => setTab('Sky')}><span className="brand-symbol">✦</span><span>Noxari</span></button><div className="top-actions"><span className="demo-pill">CALCULATED SKY</span><button className="icon-btn" title="Settings" onClick={() => setSettings(true)}><Settings2 size={20}/></button></div></header>
     <main>
-      <div className="main-head"><div><div className="eyebrow">{t(lang, 'YOUR WINDOW TO THE UNIVERSE', 'DITT FÖNSTER MOT UNIVERSUM')}</div><h1>{tab === 'Sky' ? t(lang, 'Explore the sky', 'Utforska himlen') : tab === 'Tonight' ? t(lang, 'Tonight’s objects', 'Kvällens objekt') : tab === 'Explore' ? t(lang, 'Explore objects', 'Utforska objekt') : t(lang, 'Saved objects', 'Sparade objekt')}</h1><p className="subhead">{tab === 'Sky' ? t(lang, 'A calculated map of the sky above your selected location.', 'En beräknad karta över himlen från din valda plats.') : tab === 'Tonight' ? t(lang, 'Calculated altitude, without observation-quality ranking yet.', 'Beräknad höjd, ännu utan rangordning av observationskvalitet.') : tab === 'Explore' ? t(lang, 'Search the universe, one object at a time.', 'Sök bland universums objekt.') : t(lang, 'Your personal observing shortlist.', 'Din personliga observationslista.')}</p></div><div className="location"><MapPin size={15}/>{location.name} · {location.latitude.toFixed(2)}°, {location.longitude.toFixed(2)}°</div></div>
+      <div className="main-head"><div><div className="eyebrow">{t(lang, 'YOUR WINDOW TO THE UNIVERSE', 'DITT FÖNSTER MOT UNIVERSUM')}</div><h1>{tab === 'Sky' ? t(lang, 'Explore the sky', 'Utforska himlen') : tab === 'Tonight' ? t(lang, 'Tonight’s objects', 'Kvällens objekt') : tab === 'Explore' ? t(lang, 'Explore objects', 'Utforska objekt') : t(lang, 'Saved objects', 'Sparade objekt')}</h1><p className="subhead">{tab === 'Sky' ? t(lang, 'Look around a calculated sky from your selected location.', 'Se dig omkring under en beräknad himmel från din valda plats.') : tab === 'Tonight' ? t(lang, 'Calculated altitude, without observation-quality ranking yet.', 'Beräknad höjd, ännu utan rangordning av observationskvalitet.') : tab === 'Explore' ? t(lang, 'Search the universe, one object at a time.', 'Sök bland universums objekt.') : t(lang, 'Your personal observing shortlist.', 'Din personliga observationslista.')}</p></div><div className="location"><MapPin size={15}/>{location.name} · {location.latitude.toFixed(2)}°, {location.longitude.toFixed(2)}°</div></div>
 
       <section className="observation-controls" aria-label="Observation settings">
         <label><span><Clock3 size={15}/>{t(lang, 'Date and time', 'Datum och tid')}</span><input type="datetime-local" value={localDateTimeValue(time, location.timeZone)} onChange={event => { const next = selectedLocalTime(event.target.value, location.timeZone); if (next) setTime(next); else if (event.target.value) notify(t(lang, 'This local time does not exist in the selected timezone.', 'Denna lokala tid finns inte i den valda tidszonen.')); }}/></label>
@@ -133,9 +137,9 @@ function App() {
 
       {tab === 'Sky' && <>
         <section className="sky-panel">
-          <div className="sky-toolbar"><div className="chip"><Clock3 size={15}/>{clockTime(time, location.timeZone)} <span>· {t(lang, 'selected time', 'vald tid')}</span></div><span className="sky-map-note">{t(lang, 'Zenith-centered · north up · above the horizon', 'Zenit i mitten · norr uppåt · ovanför horisonten')}</span></div>
-          <SkyMap time={time} location={location} label={object => display(object, lang)} sunLabel={t(lang, 'Sun', 'Solen')} onSelect={setSelected}/>
-          <div className="sky-bottom"><span><Info size={14}/>{sun.altitude >= -6 ? t(lang, 'Daylight/twilight: deep-sky markers are hidden. The outer circle is the geometric horizon.', 'Dagsljus/skymning: djuprymdsmarkörer döljs. Yttre cirkeln är geometrisk horisont.') : t(lang, 'Outer circle is the geometric horizon. Star brightness is stylized; terrain, atmosphere and light pollution are excluded.', 'Yttre cirkeln är geometrisk horisont. Stjärnljus är stiliserat; terräng, atmosfär och ljusföroreningar ingår inte.')}</span><span>{t(lang, 'Sun altitude', 'Solens höjd')}: {sun.altitude.toFixed(1)}°</span></div>
+          <div className="sky-toolbar"><div className="chip"><Clock3 size={15}/>{clockTime(time, location.timeZone)} <span>· {t(lang, 'selected time', 'vald tid')}</span></div><div className="sky-mode" role="group" aria-label={t(lang, 'Sky view', 'Himmelsvy')}><button className={skyMode === 'horizon' ? 'active' : ''} aria-pressed={skyMode === 'horizon'} onClick={() => setSkyMode('horizon')}>{t(lang, 'Look around', 'Se dig omkring')}</button><button className={skyMode === 'map' ? 'active' : ''} aria-pressed={skyMode === 'map'} onClick={() => setSkyMode('map')}>{t(lang, 'Sky map', 'Himmelskarta')}</button></div></div>
+          {skyMode === 'horizon' ? <HorizonView time={time} location={location} label={object => display(object, lang)} sunLabel={t(lang, 'Sun', 'Solen')} onSelect={setSelected} language={lang} view={viewDirection} onViewChange={setViewDirection}/> : <SkyMap time={time} location={location} label={object => display(object, lang)} sunLabel={t(lang, 'Sun', 'Solen')} onSelect={setSelected}/>}
+          <div className="sky-bottom"><span><Info size={14}/>{sun.altitude >= -6 ? t(lang, 'Daylight/twilight: deep-sky markers are hidden. The horizon is geometric.', 'Dagsljus/skymning: djuprymdsmarkörer döljs. Horisonten är geometrisk.') : t(lang, 'Directions are calculated. Star brightness is stylized; terrain, atmosphere and light pollution are excluded.', 'Riktningarna är beräknade. Stjärnljus är stiliserat; terräng, atmosfär och ljusföroreningar ingår inte.')}</span><span>{t(lang, 'Sun altitude', 'Solens höjd')}: {sun.altitude.toFixed(1)}°</span></div>
           <div className="sky-credit">{t(lang, 'Star catalog', 'Stjärnkatalog')}: <a href="https://github.com/astronexus/HYG-Database" target="_blank" rel="noopener noreferrer">HYG v4.1</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a></div>
         </section>
         <div className="section-heading"><div><h2>{t(lang, 'Objects to explore', 'Objekt att utforska')}</h2><p>{t(lang, 'Altitude curves use your selected time and location', 'Höjdkurvorna använder vald tid och plats')}</p></div><button className="text-link" onClick={() => setTab('Tonight')}>{t(lang, 'View all', 'Visa alla')} <ChevronRight size={16}/></button></div><div className="cards-grid">{objects.slice(0, 3).map(card)}</div>

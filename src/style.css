@@ -21,3 +21,24 @@
 .sky-credit a{color:#a7ccec}
 @media(max-width:760px){.sky-map{height:390px}.sky-toolbar{flex-wrap:wrap}.sky-map-note{width:100%;margin:0 0 2px}.sky-map .sky-object{font-size:9px}}
 @media(max-width:420px){.sky-map{height:330px}}
+
+/* Eye-level, swipeable sky view. The ground is a generic geometric horizon. */
+.sky-mode{display:flex;gap:3px;padding:3px;margin-left:auto;border:1px solid #304761;border-radius:10px;background:#0b1b2c}
+.sky-mode button{border:0;border-radius:7px;background:none;color:#9cb6ce;padding:7px 11px;font-size:12px;white-space:nowrap}
+.sky-mode button.active{background:#2b5576;color:#fff}
+.horizon-view{height:clamp(460px,60vw,720px);touch-action:none;cursor:grab;user-select:none;isolation:isolate}
+.horizon-view:active{cursor:grabbing}
+.horizon-view:focus-visible{outline:2px solid #86cbef;outline-offset:-3px}
+.horizon-view canvas{display:block;width:100%;height:100%}
+.horizon-view .sky-object{z-index:2;min-height:40px;padding:3px 5px;border-radius:7px;background:#061426bf;font-size:10px;cursor:pointer}
+.horizon-view .sky-sun{pointer-events:none;color:#fff4bd}
+.horizon-view .sky-sun .sky-point{width:17px;height:17px;background:#ffe8a1;box-shadow:0 0 22px 5px #ffcf71}
+.horizon-heading,.horizon-help,.horizon-controls{position:absolute;z-index:3}
+.horizon-heading{top:16px;left:17px;padding:8px 11px;border:1px solid #52718c;border-radius:9px;background:#071627cf;color:#eef7ff;font-size:13px;font-weight:700;pointer-events:none}
+.horizon-heading span{font-weight:400;color:#b8d0e5;margin-left:9px}
+.horizon-help{bottom:22px;left:17px;color:#d5e7f4;font-size:11px;text-shadow:0 2px 5px #000;pointer-events:none}
+.horizon-controls{bottom:15px;right:15px;display:flex;gap:5px}
+.horizon-controls button{width:36px;height:36px;border:1px solid #6a91ad;border-radius:8px;background:#0b223bcf;color:#f1f8ff;font-size:20px;line-height:1}
+.horizon-controls button:hover{background:#28506f}
+@media(max-width:760px){.horizon-view{height:390px}.sky-toolbar{align-items:center}.sky-mode{margin-left:0}.horizon-help{bottom:62px}}
+@media(max-width:420px){.horizon-view{height:330px}.sky-mode button{padding:7px 8px;font-size:10px}.horizon-view .sky-object{font-size:9px}}
