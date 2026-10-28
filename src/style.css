@@ -42,3 +42,11 @@
 .horizon-controls button:hover{background:#28506f}
 @media(max-width:760px){.horizon-view{height:390px}.sky-toolbar{align-items:center}.sky-mode{margin-left:0}.horizon-help{bottom:62px}}
 @media(max-width:420px){.horizon-view{height:330px}.sky-mode button{padding:7px 8px;font-size:10px}.horizon-view .sky-object{font-size:9px}}
+.phone-controls{padding:12px 17px;background:#101f32;border-bottom:1px solid #304761}
+.phone-buttons{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.phone-buttons button{padding:9px 12px;border:1px solid #567d9d;border-radius:8px;background:#1c3953;color:#e3f2ff;font-size:12px}
+.phone-buttons button[aria-pressed=true]{background:#285775}
+.phone-controls p{margin-top:9px;max-width:740px;color:#a8c0d7;font-size:11px;line-height:1.6}
+.sensor-live{color:#9fe3c8;font-size:11px}
+.control-button:disabled{opacity:.6;cursor:wait}
+.observation-controls .gps-status{color:#c3e1f3}

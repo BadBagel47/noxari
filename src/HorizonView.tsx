@@ -48,11 +48,14 @@ export function HorizonView({time, location, label, sunLabel, onSelect, language
     const surface = canvas.current;
     if (!surface || !size.width || !size.height) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    surface.width = Math.round(size.width * dpr);
-    surface.height = Math.round(size.height * dpr);
+    const pixelWidth = Math.round(size.width * dpr), pixelHeight = Math.round(size.height * dpr);
+    if (surface.width !== pixelWidth) surface.width = pixelWidth;
+    if (surface.height !== pixelHeight) surface.height = pixelHeight;
     const context = surface.getContext('2d');
     if (!context) return;
-    context.scale(dpr, dpr);
+    context.setTransform(dpr, 0, 0, dpr, 0, 0);
+    context.globalAlpha = 1;
+    context.textAlign = 'left';
     const {width, height} = size;
     const daylight = Math.max(0, Math.min(1, (sun.altitude + 18) / 24));
     const starVisibility = Math.max(0, Math.min(1, (-sun.altitude - 2) / 12));

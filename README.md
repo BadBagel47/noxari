@@ -23,9 +23,9 @@ To test on a phone on the same Wi-Fi network, use the `Network` URL printed by V
 
 ## Included
 
-- **Look around** — the default eye-level, 90° horizontal perspective of 4,105 HYG stars brighter than magnitude 5.8. Drag or swipe to turn a full 360° and look up, or use the direction buttons or arrow keys. The displayed heading and pitch are manual; they do not track the phone. The flat ground and level line mark the geometric horizon, not the local landscape.
+- **Look around** — the default eye-level, 90° horizontal perspective of 4,105 HYG stars brighter than magnitude 5.8. Drag or swipe to turn a full 360° and look up, or use the direction buttons or arrow keys. Manual control is available; Follow phone enables orientation sensors after a user gesture and permission where required. An absolute compass reference is used when available; otherwise the user must point toward true north and align before following starts. Dragging returns to manual control. The flat ground and level line mark the geometric horizon, not the local landscape.
 - **Sky map** — a switchable zenith-centered, azimuthal equidistant projection of the same stars. Its outer circle is the geometric horizon; north is up. Both views share calculated above-horizon positions for catalog objects, the Moon, Jupiter, Saturn and the Sun. Stars fade and deep-sky/planet markers are hidden in daylight and bright twilight; the Sun and Moon remain available.
-- **Observation controls** — selected date/time and preset or manual latitude/longitude with an IANA timezone. Times and night curves use the selected observation timezone, including daylight saving changes; coordinates are stored locally in the browser.
+- **Observation controls** — selected date/time and preset or manual latitude/longitude with an IANA timezone. Use my location requests a single browser geolocation fix and shows reported accuracy. It uses the device timezone, which can be changed manually; coordinates do not determine the timezone automatically. Times and night curves use the selected observation timezone, including daylight saving changes; coordinates are stored locally in the browser.
 - **Tonight** — calculated altitude charts on one local 18:00–06:00 scale, with twilight and astronomical darkness shading. The list is not yet ranked by observing quality.
 - **Explore** — search by English/Swedish name, object ID or constellation; category filters and a zodiac constellation name reference.
 - **Saved** — bookmarked objects, persisted in localStorage.
@@ -42,13 +42,19 @@ The Sun, Moon, Jupiter and Saturn are calculated with [Astronomy Engine](https:/
 
 The star map uses an adapted subset of [HYG Database v4.1](https://github.com/astronexus/HYG-Database) by Astronexus contributors, under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Its subset removes the Sun and stars fainter than magnitude 5.8, rounds coordinates for compact delivery, and retains a few bright names. The generated dataset in `src/generated/brightStars.ts` is shared under the same license. Reproduce it with `python3 scripts/generate_bright_stars.py`; the script verifies the pinned source checksum before writing it. Attribution and license links also appear below the map in the app.
 
-Catalog center coordinates for M31/NGC 224, M42/NGC 1976, M13/NGC 6205 and M57/NGC 6720 come from [OpenNGC](https://github.com/mattiaverga/OpenNGC) by Mattia Verga (CC BY-SA 4.0). M45 and Sirius coordinates come from [SIMBAD](https://simbad.cds.unistra.fr/simbad/), operated at CDS, Strasbourg, France. These coordinates are factual catalog values, not embedded catalog imagery. The initial view defaults to Stockholm until a user selects another location; the app does not request device location.
+Catalog center coordinates for M31/NGC 224, M42/NGC 1976, M13/NGC 6205 and M57/NGC 6720 come from [OpenNGC](https://github.com/mattiaverga/OpenNGC) by Mattia Verga (CC BY-SA 4.0). M45 and Sirius coordinates come from [SIMBAD](https://simbad.cds.unistra.fr/simbad/), operated at CDS, Strasbourg, France. These coordinates are factual catalog values, not embedded catalog imagery. The initial view defaults to Stockholm until a user selects another location. Geolocation is requested only by Use my location; coordinates are stored only in this browser.
 
 The initial release does not embed astronomical photos. Before adding per-object imagery, verify its license and show its source and attribution.
 
+## Phone location and direction
+
+Open the HTTPS site on your phone, tap **Use my location**, then **Follow phone** in Look around. Allow the requested permissions and hold the phone upright with the screen facing you. Use **Now** for the current sky, or keep a selected time to explore another date. Point the back of the phone toward a known **true north** direction and tap **Align north** if asked, or if the compass drifts. The browser's compass may report magnetic north; magnetic declination is not modeled. Stay away from metal and magnetic cases. Compass accuracy varies by device, and physical outdoor alignment remains to be validated.
+
+The view follows the back-screen direction with a level horizon; screen roll is not rendered. Readings directly upward/downward have no usable heading. Permission denial, unsupported APIs and missing readings leave manual control available. Following stops on manual input, a tab/map switch, opening details/settings, or hiding the page, and must be restarted explicitly. No location watch, sensor access on load or camera access is used. Browser-level GPS, permission and orientation flows have been checked with simulated inputs; this does not verify real compass accuracy.
+
 ## Next implementation milestones
 
-1. With explicit permission, use phone geolocation to set the observing position and compass/gyro sensors to synchronize the eye-level view with the direction the phone faces. Include a manual fallback and calibration guidance. A live-camera overlay can be considered later.
+1. Validate phone following outdoors on physical iOS and Android devices, including compass calibration and portrait/landscape transitions. A live-camera overlay can be considered later.
 2. Add proper motion, more stars, the 88 constellation figures/boundaries and optional map zoom and pan.
 3. Add the remaining planets and rank Tonight using target altitude, lunar brightness, equipment and observing conditions.
 4. Add curated licensed object photos with individual source credits and a real device-sensor Guided Finder.
