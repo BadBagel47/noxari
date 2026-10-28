@@ -23,3 +23,59 @@ export function deviceDirection(reading: OrientationReading): (ViewDirection & {
   const correction = hasCompass ? compass + alpha : 0;
   return {heading: wrapHeading(Math.atan2(east, north) / rad + correction), pitch: Math.asin(Math.max(-1, Math.min(1, up))) / rad, absolute: hasCompass || reading.absolute === true};
 }
+
+// Use the compass to establish north once, then follow rotation from the same
+// event stream. Reapplying its slowly settling heading on every sample makes
+// the view retreat after a turn even when the orientation angles are steady.
+export class PhoneDirectionTracker {
+  private source: string | null = null;
+  private northOffset: number | null = null;
+  private rotation: ViewDirection | null = null;
+  private relative = false;
+
+  update(reading: OrientationReading, source: string): ReturnType<typeof deviceDirection> {
+    const raw = deviceDirection({...reading, webkitCompassHeading: undefined});
+    const referenced = deviceDirection(reading);
+    if (!raw || !referenced) return null;
+    const relative = source === 'deviceorientation' && (!referenced.absolute || (this.relative && this.source === source));
+    // Android's relative (game rotation) stream avoids the magnetometer's
+    // settling corrections. Absolute readings only establish its north offset.
+    if (this.relative && !relative) {
+      if (this.northOffset === null && referenced.absolute && this.rotation) {
+        this.northOffset = wrapHeading(referenced.heading - this.rotation.heading);
+        return this.direction();
+      }
+      return null;
+    }
+    if (relative && !this.relative && this.rotation) {
+      const previous = this.direction()!;
+      this.source = source;
+      this.relative = true;
+      this.rotation = raw;
+      if (this.northOffset !== null) this.northOffset = wrapHeading(previous.heading - raw.heading);
+      return this.direction();
+    }
+    // Before north is established we can upgrade to an absolute stream.
+    // Once following, never alternate between independent sensor estimates.
+    if (this.source !== null && this.source !== source && !(this.northOffset === null && referenced.absolute)) return null;
+    this.source = source;
+    this.relative = relative;
+    this.rotation = raw;
+    if (this.northOffset === null && referenced.absolute) this.northOffset = wrapHeading(referenced.heading - raw.heading);
+    return this.direction();
+  }
+
+  alignNorth(): ReturnType<typeof deviceDirection> {
+    if (!this.rotation) return null;
+    this.northOffset = -this.rotation.heading;
+    return this.direction();
+  }
+
+  private direction(): ReturnType<typeof deviceDirection> {
+    return this.rotation && {
+      heading: wrapHeading(this.rotation.heading + (this.northOffset ?? 0)),
+      pitch: this.rotation.pitch,
+      absolute: this.northOffset !== null,
+    };
+  }
+}

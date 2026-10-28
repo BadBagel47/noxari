@@ -1,5 +1,5 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
-import {deviceDirection, wrapHeading, type OrientationReading} from './deviceDirection';
+import {deviceDirection, PhoneDirectionTracker, type OrientationReading} from './deviceDirection';
 import type {ViewDirection} from './skyProjection';
 
 export type SensorStatus = 'off' | 'requesting' | 'waiting' | 'align' | 'tracking' | 'denied' | 'unavailable' | 'missing';
@@ -10,8 +10,7 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
   const cleanup = useRef<() => void>(() => {});
   const generation = useRef(0);
   const last = useRef<ReturnType<typeof deviceDirection>>(null);
-  const offset = useRef(0);
-  const aligned = useRef(false);
+  const tracker = useRef(new PhoneDirectionTracker());
   const callback = useRef(onDirection);
   callback.current = onDirection;
   const stop = useCallback(() => {
@@ -30,15 +29,13 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
 
   const publish = () => {
     const direction = last.current;
-    if (direction && (direction.absolute || aligned.current)) {
-      callback.current({heading: wrapHeading(direction.heading + offset.current), pitch: Math.max(-80, Math.min(89.9, direction.pitch))});
+    if (direction?.absolute) {
+      callback.current({heading: direction.heading, pitch: Math.max(-80, Math.min(89.9, direction.pitch))});
       setStatus('tracking');
     }
   };
   const alignNorth = () => {
-    if (!last.current) return;
-    offset.current = -last.current.heading;
-    aligned.current = true;
+    last.current = tracker.current.alignNorth();
     publish();
   };
   const start = async () => {
@@ -55,24 +52,18 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
       }
     } catch { if (token === generation.current) setStatus('denied'); return; }
     if (token !== generation.current) return;
-    offset.current = 0;
-    aligned.current = false;
-    let absoluteSeen = false, frame = 0, lastAt = Date.now();
+    tracker.current = new PhoneDirectionTracker();
+    let frame = 0, lastAt = Date.now();
     setStatus('waiting');
     const receive = (event: Event) => {
       const reading = event as DeviceOrientationEvent & OrientationReading;
-      const direction = deviceDirection({...reading, alpha: reading.alpha, beta: reading.beta, gamma: reading.gamma,
+      const direction = tracker.current.update({alpha: reading.alpha, beta: reading.beta, gamma: reading.gamma,
         absolute: reading.absolute || event.type === 'deviceorientationabsolute',
-        webkitCompassHeading: reading.webkitCompassHeading, webkitCompassAccuracy: reading.webkitCompassAccuracy});
-      if (!direction || (absoluteSeen && !direction.absolute)) return;
-      if (direction.absolute && !absoluteSeen && last.current && !last.current.absolute) {
-        offset.current = 0;
-        aligned.current = false;
-      }
-      absoluteSeen ||= direction.absolute;
+        webkitCompassHeading: reading.webkitCompassHeading, webkitCompassAccuracy: reading.webkitCompassAccuracy}, event.type);
+      if (!direction) return;
       last.current = direction;
       lastAt = Date.now();
-      if (!direction.absolute && !aligned.current) { setStatus('align'); return; }
+      if (!direction.absolute) { setStatus('align'); return; }
       if (!frame) frame = requestAnimationFrame(() => { frame = 0; publish(); });
     };
     const timeout = window.setInterval(() => {
