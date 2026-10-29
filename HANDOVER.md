@@ -76,6 +76,8 @@ Användaren gav därefter uttryckligen ”Kör” för Guided Finder. Steget omf
 
 ### Låt himlen fylla skärmen
 
+En analys av detta steg finns i [`docs/FULLSCREEN_PLAN.md`](docs/FULLSCREEN_PLAN.md). Den föreslår en bestående himmelsyta, fyra primära snabbknappar, en panel i taget, kompakt objektval/Guided Finder och tydliga levande/valda tidslägen. Analysen är ett förslag att granska; användaren har ännu inte godkänt implementation eller alla designval. Rekommenderad modell är fortsatt GPT-6.1 Sol med hög resonemangsnivå.
+
 Användaren vill att appen fokuserar på själva himlen. Det nuvarande lilla fönstret räcker inte. Detta är inplanerat som nästa större steg **efter Guided Finder**:
 
 - Himlen fyller skärmen på både mobil och dator.
