@@ -50,3 +50,8 @@
 .sensor-live{color:#9fe3c8;font-size:11px}
 .control-button:disabled{opacity:.6;cursor:wait}
 .observation-controls .gps-status{color:#c3e1f3}
+.figure-controls{display:flex;gap:18px;flex-wrap:wrap;padding:10px 17px;background:#0e1e30;border-bottom:1px solid #304761}
+.figure-controls label{display:flex;align-items:center;gap:7px;font-size:11px;color:#b2cbe1;cursor:pointer}
+.figure-controls input{accent-color:#83c7f0;width:16px;height:16px;margin:0}
+.figure-controls label:has(input:disabled){opacity:.5}
+.sky-credit{line-height:1.8}

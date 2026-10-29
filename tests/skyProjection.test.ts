@@ -33,7 +33,8 @@ describe('real all-sky projection', () => {
   });
 
   it('shows the visible half of a licensed star subset and responds to Earth rotation', () => {
-    expect(brightStars).toHaveLength(4105);
+    expect(brightStars).toHaveLength(4110);
+    expect(brightStars.filter(star => star[2] <= 5.8)).toHaveLength(4105);
     expect(brightStars.every(star => star[2] > -20)).toBe(true); // HYG row zero (Sol) is excluded.
     const first = projectBrightStars(new Date('2026-01-15T18:00:00Z'), stockholm, 400, 400);
     const later = projectBrightStars(new Date('2026-01-15T22:00:00Z'), stockholm, 400, 400);

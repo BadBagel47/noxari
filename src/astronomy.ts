@@ -1,6 +1,8 @@
 import {Body, DefineStar, Equator, Horizon, Observer} from 'astronomy-engine';
 import {DateTime} from 'luxon';
 import {objects, type SpaceObject} from './data';
+import {brightStars} from './generated/brightStars';
+import {catalogStarPosition} from './skyProjection';
 
 export type ObservingLocation = {name: string; latitude: number; longitude: number; timeZone: string};
 export type SkyPosition = {altitude: number; azimuth: number};
@@ -31,6 +33,10 @@ export function positionAt(body: Body, time: Date, location: ObservingLocation):
 
 export function objectPosition(object: SpaceObject, time: Date, location: ObservingLocation): SkyPosition | null {
   if (!object.position) return null;
+  if (object.id === 'sirius') {
+    const [ra, dec, , , pmRaCosDec, pmDec] = brightStars.find(star => star[3] === 'Sirius')!;
+    return catalogStarPosition(ra, dec, time, location, pmRaCosDec, pmDec);
+  }
   const body = object.position.kind === 'solar'
     ? Body[object.position.body]
     : fixedBodies.get(object.id);

@@ -1,8 +1,9 @@
 import {useEffect, useMemo, useRef, useState} from 'react';
+import {constellationSky, drawConstellations} from './constellations';
 import {Body} from 'astronomy-engine';
 import {objectPosition, positionAt, type ObservingLocation} from './astronomy';
 import {objects, type SpaceObject} from './data';
-import {projectBrightStars, projectHorizontal} from './skyProjection';
+import {horizontalStarCatalog, projectHorizontal} from './skyProjection';
 
 type Props = {
   time: Date;
@@ -10,14 +11,21 @@ type Props = {
   label: (object: SpaceObject) => string;
   sunLabel: string;
   onSelect: (object: SpaceObject) => void;
+  showFigures: boolean;
+  showFigureNames: boolean;
 };
 
-export function SkyMap({time, location, label, sunLabel, onSelect}: Props) {
+export function SkyMap({time, location, label, sunLabel, onSelect, showFigures, showFigureNames}: Props) {
   const container = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const [size, setSize] = useState({width: 0, height: 0});
   const sun = useMemo(() => positionAt(Body.Sun, time, location), [time, location]);
-  const stars = useMemo(() => projectBrightStars(time, location, size.width, size.height), [time, location, size.width, size.height]);
+  const catalog = useMemo(() => horizontalStarCatalog(time, location), [time, location]);
+  const figures = useMemo(() => constellationSky(catalog), [catalog]);
+  const stars = useMemo(() => catalog.flatMap(star => {
+    const point = projectHorizontal(star, size.width, size.height);
+    return point ? [{...star, ...point}] : [];
+  }), [catalog, size]);
   const markers = useMemo(() => objects.flatMap(object => {
     if (!size.width || !size.height) return [];
     // An above-horizon deep-sky object is not visually observable in daylight.
@@ -89,6 +97,8 @@ export function SkyMap({time, location, label, sunLabel, onSelect}: Props) {
     context.fillStyle = '#7fa2c0';
     context.fillText('Zenith', centerX, centerY - 7);
 
+    if (showFigures) drawConstellations(context, figures, position => projectHorizontal(position, width, height), width, height, starVisibility, showFigureNames);
+
     if (starVisibility > 0) {
       for (const star of stars) {
         const brightness = Math.max(0.18, Math.min(1, (6.1 - star.magnitude) / 5.8));
@@ -107,10 +117,10 @@ export function SkyMap({time, location, label, sunLabel, onSelect}: Props) {
         for (const star of stars) if (star.name && star.name !== 'Sirius') context.fillText(star.name, star.x + 5, star.y - 5);
       }
     }
-  }, [size, stars, sun.altitude]);
+  }, [size, stars, figures, showFigures, showFigureNames, sun.altitude]);
 
   return <div className="sky-canvas sky-map" ref={container}>
-    <canvas ref={canvas} aria-label="Calculated zenith-centered sky with HYG stars to magnitude 5.8; horizon is the outer circle" role="img"/>
+    <canvas ref={canvas} aria-label="Calculated zenith-centered sky with proper motion and optional constellation figures; horizon is the outer circle" role="img"/>
     {markers.map(({object, point, altitude}) => <button key={object.id} className="sky-object" style={{left: point.x, top: point.y}} onClick={() => onSelect(object)} title={`${label(object)} · ${altitude.toFixed(1)}°`} aria-label={`${label(object)}, altitude ${altitude.toFixed(1)}°`}><span className="sky-point" style={{width: object.size + 4, height: object.size + 4, background: object.color, boxShadow: `0 0 16px ${object.color}`}}/><span>{label(object)}</span></button>)}
     {sunPoint && <span className="sky-object sky-sun" style={{left: sunPoint.x, top: sunPoint.y}} role="img" aria-label={`${sunLabel}, altitude ${sun.altitude.toFixed(1)}°`}><span className="sky-point"/><span>{sunLabel}</span></span>}
   </div>;
