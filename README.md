@@ -2,6 +2,8 @@
 
 A mobile-first planetarium prototype with a swipeable, calculated eye-level sky view, an all-sky map, object positions and altitude curves.
 
+For a new chat or project handover, read [HANDOVER.md](HANDOVER.md) together with [AGENTS.md](AGENTS.md). The handover is maintained as work and plans change and records the user's model-recommendation and approval workflow.
+
 ## Start locally
 
 Requires Node.js 20.19+ or 22.12+ and npm.
@@ -59,10 +61,12 @@ The view follows the back-screen direction with a level horizon; screen roll is 
 
 ## Next implementation milestones
 
-1. Extend phone validation to iOS, outdoor alignment and portrait/landscape transitions. A live-camera overlay can be considered later.
-2. Add official constellation boundaries, a deeper star catalog and optional map zoom.
-3. Add curated licensed object photos with individual source credits and a real device-sensor Guided Finder.
-4. Add server-rendered Open Graph previews for shared object links and, later, complete observation-list sharing.
+1. Replace the Guided Finder preview with target-direction arrows, angular offsets, a centered-target indicator, below-horizon information and manual fallback. Prepare it to sit above the sky view. Await explicit approval before implementation.
+2. Let the sky fill the screen on mobile and desktop. Keep essential direction/target information and quick buttons visible; move search, location, time, filters and settings into panels. This is a planned later step, not yet implemented or separately authorized.
+3. Extend phone validation to iOS, outdoor alignment and portrait/landscape transitions.
+4. Add official constellation boundaries, a deeper star catalog and optional map zoom.
+5. Add curated licensed object photos with individual source credits.
+6. Add server-rendered Open Graph previews for shared object links and, later, complete observation-list sharing. A live-camera overlay remains lower priority.
 
 ## Tonight planning model
 
