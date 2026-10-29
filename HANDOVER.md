@@ -30,14 +30,15 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md` och `README.md`. Den 
 
 ## Aktuellt arbetsläge
 
-**Aktivt godkänt steg:** hela Messierkatalogen (110 objekt). Användarens senaste ”Kör” godkände detta steg efter helskärmslayouten. Implementationen och lokal verifiering är klara; publiceringskontroll återstår. Inget ytterligare utvecklingssteg är godkänt.
+**Senast avslutade utvecklingssteg:** hela Messierkatalogen (110 objekt), godkänd genom användarens senaste ”Kör”, implementerad och publicerad. Inget ytterligare utvecklingssteg är godkänt eller påbörjat.
 
-- Föregående verifierade och publicerade **appcommit**: `e65d696280884cddc7bddeac6b929ba152567c76`.
-- Actions: https://github.com/BadBagel47/noxari/actions/runs/40874646669 — lyckades.
-- **52 tester passerade** och produktionsbygget lyckades. Publicerade `index-CKi1vbd4.js` och `index-CuvYVSHu.css` matchade lokalt bygge via SHA-256.
-- Implementationen omfattar fast himmelsyta, snabbknappar, en panel i taget, kompakt objektval/Guided Finder, Nu/Vald tid, viewportanpassning och paus/återupptagning med bevarad nordreferens. Ett nytt projektionstest täcker stående/liggande utsnitt med högst 90° synfält på längre axeln.
-- Webbläsarprov har passerat i 390×844, 1280×800, 844×390, 320×568 och 568×320, plus 390×420 som tangentbordsliknande höjd. Canvasidentitet, kalibrering, mål och riktning bevaras över panelöppningar. Nu-läge rör tiden framåt, Vald tid fryser den. GPS, DST-fel, språk, källpanel, objektlänk, bokmärke, kartbyte och frivillig webbläsarhelskärm har kontrollerats. Fördröjt behörighetssvar kan inte starta följning efter en avbruten begäran. Sensorerna var simulerade; användaren har ännu inte bekräftat denna UI-version på fysisk mobil.
-- README och AGENTS är uppdaterade. Denna slutstatus sparas i en senare dokumentationscommit; appcommit ovan anger verifierad kod. Den tidigare verkliga användarbekräftelsen för Android/Brave gäller grundläggande telefonföljning och återgångsrättningen, inte alla nya panelflöden.
+- Senast verifierade och publicerade **appcommit**: `f844d60f6664f1bdc268c77f42019cabfab8fd0a`.
+- Actions: https://github.com/BadBagel47/noxari/actions/runs/40913291218 — tester, bygge och publicering lyckades.
+- **60 tester passerade**. Publicerade `index-Chzg0XYc.js` och `index-CnW1uSd_.css` matchade lokalt produktionsbygge via SHA-256. Kataloggeneratorn gav byteidentiskt resultat från låsta källfiler.
+- 110 Messierobjekt är anslutna till sökning, filter, sparande, höjdkurvor, Ikväll och Guided Finder. Källor, licenser och saknade/osäkra värden är dokumenterade och visas i appen. Se katalogavsnittet nedan.
+- Webbläsarprov för katalogen passerade vid 390×844 och 1280×800. Helskärms-/sensorflöden passerade åter i 390×844, 1280×800, 844×390, 320×568 och 568×320, plus 390×420 som tangentbordsliknande höjd. Canvasidentitet, nordreferens, mål och riktning bevaras över panelöppningar; Nu/Vald tid, uttrycklig återupptagning och utebliven kompassåtergång fungerar med simulerade sensorer.
+- Tidigare helskärmsprov omfattade även GPS, DST-fel, språk, källpanel, objektlänk, bokmärke, kartbyte, frivillig webbläsarhelskärm och avbruten behörighetsbegäran. Användarens tidigare fysiska Android/Brave-bekräftelse gäller grundläggande telefonföljning och återgångsrättningen. Senare panelflöden och katalogen är ännu inte bekräftade på fysisk mobil.
+- README, AGENTS och källdokumentation är uppdaterade. Denna slutstatus sparas i en senare dokumentationscommit; appcommit ovan anger verifierad kod.
 
 ## Det som fungerar
 
@@ -92,7 +93,7 @@ Användaren godkände analysen i [`docs/FULLSCREEN_PLAN.md`](docs/FULLSCREEN_PLA
 
 ## Nästa utvecklingssteg — inväntar nytt klartecken
 
-Katalogsteget ska avslutas med verifierad Pages-publicering. Föreslå därefter en avgränsad nästa uppgift och rekommenderad modell innan implementation. De senare planpunkterna nedan är fortsatt planerade, inte automatiskt startgodkända. UI-förfining väntar tills funktionaliteten är klar.
+Katalogsteget är avslutat med verifierad Pages-publicering. Föreslå en avgränsad nästa uppgift och rekommenderad modell innan implementation. De senare planpunkterna nedan är fortsatt planerade, inte automatiskt startgodkända. UI-förfining väntar tills funktionaliteten är klar.
 
 ### Senare delar av planen
 
