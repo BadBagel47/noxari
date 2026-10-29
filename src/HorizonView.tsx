@@ -1,7 +1,7 @@
 import {useEffect, useMemo, useRef, useState, type Dispatch, type PointerEvent, type SetStateAction} from 'react';
 import {constellationSky, drawConstellations} from './constellations';
 import {Body} from 'astronomy-engine';
-import {nextObjectRise, objectPosition, positionAt, showObjectMarker, type ObservingLocation, type SkyPosition} from './astronomy';
+import {nextObjectRise, objectPosition, objectPositioner, positionAt, showObjectMarker, type ObservingLocation, type SkyPosition} from './astronomy';
 import {objects, type SpaceObject} from './data';
 import {horizontalStarCatalog, perspectiveFocal, projectPerspective, type MapPoint, type ViewDirection} from './skyProjection';
 import {GuidedFinder} from './GuidedFinder';
@@ -38,13 +38,19 @@ export function HorizonView({time, location, label, sunLabel, onSelect, language
   const sun = useMemo(() => positionAt(Body.Sun, time, location), [time, location]);
   const targetPosition = useMemo(() => finderTarget ? objectPosition(finderTarget, time, location) : null, [finderTarget, time, location]);
   const nextRise = useMemo(() => finderTarget && targetPosition && targetPosition.altitude < 0 ? nextObjectRise(finderTarget, time, location) : null, [finderTarget, targetPosition, time, location]);
-  const markers = useMemo(() => objects.flatMap(object => {
+  const objectSky = useMemo(() => {
+    const resolve = objectPositioner(time, location);
+    return objects.flatMap(object => {
+      const position = resolve(object);
+      return position ? [{object, position}] : [];
+    });
+  }, [time, location]);
+  const markers = useMemo(() => objectSky.flatMap(({object, position}) => {
     if (object.id === finderTarget?.id) return [];
     if (!showObjectMarker(object, sun.altitude)) return [];
-    const position = objectPosition(object, time, location);
     const point = position && projectPerspective(position, view, size.width, size.height);
     return point ? [{object, position, point}] : [];
-  }), [time, location, sun.altitude, view, size, finderTarget]);
+  }), [objectSky, sun.altitude, view, size, finderTarget]);
   const sunPoint = projectPerspective(sun, view, size.width, size.height);
 
   useEffect(() => {

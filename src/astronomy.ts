@@ -1,8 +1,8 @@
-import {AngleFromSun, Body, Constellation, DefineStar, Equator, EquatorFromVector, GeoVector, Horizon, Illumination, Observer, SearchRiseSet} from 'astronomy-engine';
+import {AngleFromSun, Body, Constellation, Equator, EquatorFromVector, GeoVector, Horizon, Illumination, Observer, SearchRiseSet} from 'astronomy-engine';
 import {DateTime} from 'luxon';
-import {objects, type SpaceObject} from './data';
+import type {SpaceObject} from './data';
 import {brightStars} from './generated/brightStars';
-import {catalogStarPosition} from './skyProjection';
+import {catalogHorizontalTransform} from './skyProjection';
 
 export type ObservingLocation = {name: string; latitude: number; longitude: number; timeZone: string};
 export type SkyPosition = {altitude: number; azimuth: number};
@@ -14,17 +14,7 @@ export type NightContext = {window: NightWindow; samples: NightEnvironment[]};
 
 export const stockholm: ObservingLocation = {name: 'Stockholm', latitude: 59.3293, longitude: 18.0686, timeZone: 'Europe/Stockholm'};
 
-// Astronomy Engine reserves eight fixed-source slots. Our six J2000 catalog centers
-// fit in those slots and are precessed to the requested date by Equator(..., true, ...).
-const starSlots = [Body.Star1, Body.Star2, Body.Star3, Body.Star4, Body.Star5, Body.Star6, Body.Star7, Body.Star8];
-const fixedBodies = new Map<string, Body>();
-for (const object of objects) {
-  if (object.position?.kind !== 'fixed') continue;
-  const slot = starSlots[fixedBodies.size];
-  if (!slot) throw new Error('More fixed sources than Astronomy Engine supports');
-  DefineStar(slot, object.position.raHours, object.position.decDegrees, object.position.distanceLy);
-  fixedBodies.set(object.id, slot);
-}
+const siriusStar = brightStars.find(star => star[3] === 'Sirius')!;
 
 export function positionAt(body: Body, time: Date, location: ObservingLocation): SkyPosition {
   const observer = new Observer(location.latitude, location.longitude, 0);
@@ -34,17 +24,24 @@ export function positionAt(body: Body, time: Date, location: ObservingLocation):
   return {altitude: horizontal.altitude, azimuth: horizontal.azimuth};
 }
 
+// Share one J2000->horizontal rotation across any number of catalog centers.
+// Fixed sources omit parallax and aberration, consistently with the star field;
+// their catalog distances are metadata, not invented inputs to an ephemeris slot.
+export function objectPositioner(time: Date, location: ObservingLocation) {
+  const project = catalogHorizontalTransform(time, location);
+  return (object: SpaceObject): SkyPosition | null => {
+    if (!object.position) return null;
+    if (object.position.kind === 'solar') return positionAt(Body[object.position.body], time, location);
+    if (object.id === 'sirius') {
+      const [ra, dec, , , pmRaCosDec, pmDec] = siriusStar;
+      return project(ra, dec, pmRaCosDec, pmDec);
+    }
+    return project(object.position.raHours, object.position.decDegrees);
+  };
+}
+
 export function objectPosition(object: SpaceObject, time: Date, location: ObservingLocation): SkyPosition | null {
-  if (!object.position) return null;
-  if (object.id === 'sirius') {
-    const [ra, dec, , , pmRaCosDec, pmDec] = brightStars.find(star => star[3] === 'Sirius')!;
-    return catalogStarPosition(ra, dec, time, location, pmRaCosDec, pmDec);
-  }
-  const body = object.position.kind === 'solar'
-    ? Body[object.position.body]
-    : fixedBodies.get(object.id);
-  if (!body) throw new Error(`Missing catalog position for ${object.id}`);
-  return positionAt(body, time, location);
+  return objectPositioner(time, location)(object);
 }
 
 // Geocentric photometry and distance, separate from the observer's topocentric
@@ -129,10 +126,10 @@ export function maxSunAltitude(object: SpaceObject) {
   return object.kind === 'Star' ? -6 : -12;
 }
 
-export function nightVisibility(object: SpaceObject, time: Date, location: ObservingLocation, context = nightContext(time, location)): VisibilitySeries {
+export function nightVisibility(object: SpaceObject, time: Date, location: ObservingLocation, context = nightContext(time, location), positioners?: ReturnType<typeof objectPositioner>[]): VisibilitySeries {
   const count = context.samples.length;
   const samples = context.samples.map((environment, index) => {
-    const actual = objectPosition(object, environment.time, location);
+    const actual = (positioners?.[index] ?? objectPositioner(environment.time, location))(object);
     const demo = object.demoAltitudes;
     const fractional = index * ((demo?.length ?? 1) - 1) / (count - 1);
     const lower = Math.floor(fractional);
@@ -142,6 +139,11 @@ export function nightVisibility(object: SpaceObject, time: Date, location: Obser
     return {...environment, altitude: actual?.altitude ?? illustrative, azimuth: actual?.azimuth ?? NaN, sunSeparation};
   });
   return {samples, real: Boolean(object.position), timeZone: location.timeZone, maxSunAltitude: maxSunAltitude(object)};
+}
+
+export function nightCatalog(catalog: SpaceObject[], time: Date, location: ObservingLocation, context = nightContext(time, location)) {
+  const positioners = context.samples.map(sample => objectPositioner(sample.time, location));
+  return new Map(catalog.map(object => [object.id, nightVisibility(object, time, location, context, positioners)]));
 }
 
 export function clockTime(time: Date, timeZone: string): string {

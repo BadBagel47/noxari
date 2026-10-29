@@ -1,0 +1,446 @@
+{
+  "source": "NASA Hubble Messier catalog, factual Distance fields only; no prose or imagery copied",
+  "retrieved": "2026-10-29",
+  "distances": {
+    "1": {
+      "value": "6,500 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-1/",
+      "pageSha256": "d1863e9a3112abd519e43a217a53c752f7ba3e1969514949d2f6ae8918eff3fe"
+    },
+    "2": {
+      "value": "37,000 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-2/",
+      "pageSha256": "7afcaa88b9eee714b69f15954aa111d9472f79fd9142328cfa903cc0c2f3934c"
+    },
+    "3": {
+      "value": "34,000 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-3/",
+      "pageSha256": "879b2a5a7321ad582dc18f2fcae1a3e35062261c579d2398bbb53651210e7a86"
+    },
+    "4": {
+      "value": "5,500 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-4/",
+      "pageSha256": "225c0d9e0261b16f3e218a6220e9af5ecd09b808a8bc0b35bf739f8659baa774"
+    },
+    "5": {
+      "value": "25,000 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-5/",
+      "pageSha256": "f08ba6fdcb803e2b86b305b193d19584483f59622ccf1fd82587706a1eb0f3e1"
+    },
+    "7": {
+      "value": "980 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-7/",
+      "pageSha256": "5a85eb90b7c6b838b513203476975627aae492b674f4c88dce6102056080e5a4"
+    },
+    "8": {
+      "value": "5,200 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-8/",
+      "pageSha256": "8c47c2d03ef81ec2c26af0d94464ee6cd551cba6052c6327197ffdf99f415161"
+    },
+    "9": {
+      "value": "25,000 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-9/",
+      "pageSha256": "cb3f4304dfbe4363d03beee1a7db55669b10a031ec82f188722b4f7a97c4c35f"
+    },
+    "10": {
+      "value": "15,000 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-10/",
+      "pageSha256": "216881b27f29289c3c413c9b5f54c123c191b7e3108181f6a268b8952fbcf45e"
+    },
+    "11": {
+      "value": "6,200 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-11/",
+      "pageSha256": "2e76c471abb7f0c933a9aeb3d3d40e69ba9bba3cab9953e891dc93ab3f912088"
+    },
+    "12": {
+      "value": "23,000 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-12/",
+      "pageSha256": "ffaf92cf0ee9cd39523725bbe3de911e250fef228c09ef57e3fb3bd24d1a9a67"
+    },
+    "13": {
+      "value": "25,000 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-13/",
+      "pageSha256": "27d55547290b2e00e5718ecd6ac868586a1aea2bea0e7e8cc436a2b09e62575e"
+    },
+    "14": {
+      "value": "29,000 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-14/",
+      "pageSha256": "523126ab8f96ef036de3ba5e9de57e4db86c724fa32962b1caec1a88c6a60b6b"
+    },
+    "15": {
+      "value": "33,600 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-15/",
+      "pageSha256": "0e0a40ba254022e64313a5e7f58b11b23bf616f1616a62907318e93b2b66b4e0"
+    },
+    "16": {
+      "value": "7,000 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-16/",
+      "pageSha256": "ae87b35acc97bf18f6eb5a51e681fdae0601507ab24cb023f3e4f29b8b95d366"
+    },
+    "17": {
+      "value": "5,500 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-17/",
+      "pageSha256": "f6a41480a8c7d13aeff8d6444b99b526f3908b5b05446ad7bf7987c804d2f0f7"
+    },
+    "19": {
+      "value": "28,500 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-19/",
+      "pageSha256": "3987bd966fc46bc883d137f7bf0f5f21797cfb316d53b24c8c4c97cd6da077a4"
+    },
+    "20": {
+      "value": "5,000 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-20/",
+      "pageSha256": "fc982590932eec2957d7146eadf0e42768b07769b22f10789dced49923ce131a"
+    },
+    "22": {
+      "value": "10,000 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-22/",
+      "pageSha256": "cdf15dbf11bc6f7f1b0cf4f09da341dac9d7b8502f1ed7b4028ef4966e8445f3"
+    },
+    "27": {
+      "value": "1,200 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-27/",
+      "pageSha256": "0871b0be7b78545706b52cd3889a72b5515485a1111905212a170e91a8b4c751"
+    },
+    "28": {
+      "value": "18,000 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-28/",
+      "pageSha256": "1673f311253029de79a0de38e34fb91c95c677b5c5e861454cfb8f2f86cdaec9"
+    },
+    "30": {
+      "value": "28,000 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-30/",
+      "pageSha256": "a4e0f2b56997716c0524aca17d49981b2156475571c4e2d3aefba16b516b2e58"
+    },
+    "31": {
+      "value": "2.5 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-31/",
+      "pageSha256": "0b7c688a4c75401c11efdb7eaf27fa7ba4db1656c06bb9060bb36f693eabb2a4"
+    },
+    "32": {
+      "value": "2.5 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-32/",
+      "pageSha256": "7bd2744fc230da698486052c7c20f3393562d38396b6f88396063b2a801edb98"
+    },
+    "33": {
+      "value": "About 3 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-33/",
+      "pageSha256": "14702dcfc87e8e3457e8abe87d70ec5af28b7e2a1c792ff7254f7fdff2ac8e9d"
+    },
+    "35": {
+      "value": "2,800 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-35/",
+      "pageSha256": "206a4de044d4fa15d730a1a28ee51732b2199e4006e5bc1caeb7612b50ebacc1"
+    },
+    "42": {
+      "value": "1,500 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-42/",
+      "pageSha256": "a48f7ae480593e8a74e5cf56d180958af8b3d68ebd5a7e606717886b4dadc489"
+    },
+    "43": {
+      "value": "1,600 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-43/",
+      "pageSha256": "fdf821c9efedb468708f69b9dc1d92230fc2d11743282bb9c6fcb81c72594111"
+    },
+    "44": {
+      "value": "600 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-44/",
+      "pageSha256": "f044433a46e9b97ce061d3a767063b373af070b2fb74f9ccc204ce2078b6c764"
+    },
+    "45": {
+      "value": "445 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-45/",
+      "pageSha256": "1962d6720cc767ad210931a655ea497b722550bd79b768507da621bfbc2860f3"
+    },
+    "46": {
+      "value": "5,400 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-46/",
+      "pageSha256": "9da130f19d4b3ff8595dbd1c7b208ed58d1232031699acb33e3dd1aba9f22e42"
+    },
+    "48": {
+      "value": "2,500 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-48/",
+      "pageSha256": "1121ab9ce8caaac0003dd68551cd2ee7c4c15872248e817c0f4cee70445c4c11"
+    },
+    "49": {
+      "value": "60 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-49/",
+      "pageSha256": "155eca29b01f5eaaf9990314579f36a0e20bdbb3523f99c92cf946783cb6f09f"
+    },
+    "51": {
+      "value": "31 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-51/",
+      "pageSha256": "a2b6527fa61a2ed694d309f321aeaeacd7b8643c858b92fb291f84e3abe7c8d4"
+    },
+    "53": {
+      "value": "59,700 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-53/",
+      "pageSha256": "3817d68efd03830373a01a8bb54f66aa099529624c520406ff389bd8b1a8e663"
+    },
+    "54": {
+      "value": "90,000 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-54/",
+      "pageSha256": "934e3d4dcc5a2ab2d4d9f0a7a787a4d1cf9b96a1d640ece9a204fbefdd4712e8"
+    },
+    "55": {
+      "value": "20,000 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-55/",
+      "pageSha256": "e0ce82d014f45951a04ac10be77aadffced48af2e19fa39f152a98668873dcac"
+    },
+    "56": {
+      "value": "33,000 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-56/",
+      "pageSha256": "979bd08feefcc9981ec0a8b9fe47b0ce43a71c9aa707e0ee337d90be8edae20d"
+    },
+    "57": {
+      "value": "2,000 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-57/",
+      "pageSha256": "2633b79ee1504ac7b51f7966ea3bde9ba02d77f13ea8dd6b92fca767871e5bfd"
+    },
+    "58": {
+      "value": "62 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-58/",
+      "pageSha256": "be4f2597af63b5e4697ab24b5b2df00ea865e59bd6edb730e28bed7fae356807"
+    },
+    "59": {
+      "value": "60 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-59/",
+      "pageSha256": "762e95ee4ca721260cc459ee0df9c026a904d725f243abd414bdf0192f804f88"
+    },
+    "60": {
+      "value": "54 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-60/",
+      "pageSha256": "2283f63b207214dc5e7435a801ebd89df20e92ddbf75dcd85350aa94ce5b1b3d"
+    },
+    "61": {
+      "value": "55 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-61/",
+      "pageSha256": "d49ff33a6fdaf73b8be8611fc4238e76611448d26c7346405ea0175d7b66ed70"
+    },
+    "62": {
+      "value": "22,200 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-62/",
+      "pageSha256": "a7c37ee0fc8e591444ccf9329d4e2b1f2548010a2c6c1d56b4182131e55fd4c3"
+    },
+    "63": {
+      "value": "27 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-63/",
+      "pageSha256": "d2976197441e01fcf42baf250b7f62dec5c31a468df30859a1f9d80575383fc9"
+    },
+    "64": {
+      "value": "17 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-64/",
+      "pageSha256": "08f85d6e25b01e0cda903709c2eb59a513e89f21b8369533624551c7621a4fc7"
+    },
+    "65": {
+      "value": "35 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-65/",
+      "pageSha256": "75ebe2dd1985307a1a9d0a28310bee8a02614997677a5ce6f7eeddd09cf39a33"
+    },
+    "66": {
+      "value": "35 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-66/",
+      "pageSha256": "2f21277c109045e350e7c56182a1148fbff606bdad48e58dc29d8d3d964a5624"
+    },
+    "67": {
+      "value": "~2,800 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-67/",
+      "pageSha256": "948721d09ac1ef678070a35a4727725e95ac6bc25110118fed4cc19aed46fd7a"
+    },
+    "68": {
+      "value": "33,000 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-68/",
+      "pageSha256": "b8dcceb45ad4d0a9a65e2642725ddbaa5b7eed9a2c7060bb3d21a50c61799b6f"
+    },
+    "69": {
+      "value": "29,700 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-69/",
+      "pageSha256": "13b2f39120dbec10404b142da1a7c6ba41e49f6ac12d08d5707034244e5b29b4"
+    },
+    "70": {
+      "value": "30,000 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-70/",
+      "pageSha256": "ec59dc024be2492bcb2dfca8aed9678d902e9f90735feb98a777de887d8b30f5"
+    },
+    "71": {
+      "value": "13,000 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-71/",
+      "pageSha256": "85dba7b36f74e53d366f82636c96abe148f587655e5ec7658f8031acb5da2232"
+    },
+    "72": {
+      "value": "50,000 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-72/",
+      "pageSha256": "a6d1584c0fdd96023dedd7c33e74a1e54b031364a7feab7b87f8d4a349d89c72"
+    },
+    "74": {
+      "value": "32 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-74/",
+      "pageSha256": "b5ed5ecfafec684d8fe25847e425d7d1219ecbe13830430e4daea682029c0b6f"
+    },
+    "75": {
+      "value": "67,500 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-75/",
+      "pageSha256": "a43d56858a943c2d0fe008af2e2dec037a52f4f037626617ab782969c5fa40ec"
+    },
+    "76": {
+      "value": "~3,400 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-76/",
+      "pageSha256": "52a81ae8178a4b405c4c56597232a378c1a272b91b94860d9e700691c4f73798"
+    },
+    "77": {
+      "value": "45 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-77/",
+      "pageSha256": "bcbad4d30dc4d14da9913071f2ac704162b83d2f626ecad02e570e5bbff1282b"
+    },
+    "78": {
+      "value": "1,600 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-78/",
+      "pageSha256": "f1e7e6c89fd47c2bd10dd1a7a83134031bc6fec95f85dc7c4d8ff993219958b7"
+    },
+    "79": {
+      "value": "41,000 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-79/",
+      "pageSha256": "fdbdcbb0913dbebe50ffd7c139bd80885002e0a7bee65ec353b846e4fd0b503b"
+    },
+    "80": {
+      "value": "28,000 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-80/",
+      "pageSha256": "64628ed6c783a229db135a28105ec89ae93749d2a9d32da6179a572e5869fb4e"
+    },
+    "81": {
+      "value": "11.6 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-81/",
+      "pageSha256": "e688ce3f80b962c267e95b6c9afbdf58745d0f1f22ab3c4daceeaac1fa75aa95"
+    },
+    "82": {
+      "value": "12 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-82/",
+      "pageSha256": "23716fd0b1673902089f8fee743e749df5760653b867a4898e6e50eb2df6c678"
+    },
+    "83": {
+      "value": "15 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-83/",
+      "pageSha256": "acd133f1bd1d422a65631c6b90c2d2cc0b46e604b1d3b338a3df8849930240db"
+    },
+    "84": {
+      "value": "60 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-84/",
+      "pageSha256": "430323ddb1f3c3dfd2d18b6e9e33a53656681c2bad8b4cd647b9b63acd24db6d"
+    },
+    "85": {
+      "value": "60 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-85/",
+      "pageSha256": "31669c2c6617898272b746e801fbae7165a3886b9cabc61ba7b6929b10fc4597"
+    },
+    "86": {
+      "value": "52 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-86/",
+      "pageSha256": "b26bb0071ebe6259316756f5f174489f80d9ea5834a37c84f67056847e933b08"
+    },
+    "87": {
+      "value": "54 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-87/",
+      "pageSha256": "15f14ddc3b4667d75a4e1adf30f1b984bc690528c2848842296eeb3fe76abc38"
+    },
+    "88": {
+      "value": "63 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-88/",
+      "pageSha256": "2fea16a4572bc3834c425bfb240d383f8811a5de17f6b43d75c668a03a75dc1d"
+    },
+    "89": {
+      "value": "50 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-89/",
+      "pageSha256": "bb916e72fd402df7e1bd963a6ebc06c1e3748e5bbcd881ed508e16e84e7b9406"
+    },
+    "90": {
+      "value": "59 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-90/",
+      "pageSha256": "2092fea2d186f491f91ec2d0bdc51e89c99bd69f245f231c3f804ffc81db18e6"
+    },
+    "91": {
+      "value": "60 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-91/",
+      "pageSha256": "af4b63ef59c4c9ba939e19fdf9b50e895321964019a7faddaa6dcc4cc0856207"
+    },
+    "92": {
+      "value": "27,000 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-92/",
+      "pageSha256": "52750adcd63ab3ef33d014c66b7290fa836dd290522d7c9dd01c154e0c653f3e"
+    },
+    "94": {
+      "value": "16 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-94/",
+      "pageSha256": "e9e530fbfaa34a2ff56fddcd6eba3ffbe92b0597e5b126aa6163bb85d4b51e72"
+    },
+    "95": {
+      "value": "33 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-95/",
+      "pageSha256": "3d4452bc33fc3afe7e927f77fda626df01fd85cd5f6572b149e74ccdd6df6897"
+    },
+    "96": {
+      "value": "35 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-96/",
+      "pageSha256": "1e332d7686f94cb8907532d7277603387f39c2b45bf5c9e99d1d1677c54d5bf0"
+    },
+    "98": {
+      "value": "44 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-98/",
+      "pageSha256": "0328cdeeee877cf82db36d0bb095cab870a805fa75fc95a2e56de309c8aaaa7e"
+    },
+    "99": {
+      "value": "55 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-99/",
+      "pageSha256": "6f108afe74433d8e676052b41e5031bd01afd708709fe4b653cbe460321088ef"
+    },
+    "100": {
+      "value": "56 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-100/",
+      "pageSha256": "dc652fa6fc201ebda11983181c5f7d11748d3e31d3fababc05a0e128501777f3"
+    },
+    "101": {
+      "value": "25 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-101/",
+      "pageSha256": "ad62f1359b899dec83caf253528ac0f109894e3533c4ae0fd5a44fd03f758d27"
+    },
+    "102": {
+      "value": "44 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-102/",
+      "pageSha256": "e93aafa7051592d533cd799a34964d980c318a0314c29aa0306cca64607ea252"
+    },
+    "104": {
+      "value": "28 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-104/",
+      "pageSha256": "6075b4be9616e5fab3d3261d217762ea332cdb4407e501be154c7b35ea3494d1"
+    },
+    "105": {
+      "value": "32 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-105/",
+      "pageSha256": "2b8ee095062169dae73b50a7c2c43fa7d2dbca164d77cc51f3ddfa7927aede87"
+    },
+    "106": {
+      "value": "24 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-106/",
+      "pageSha256": "4d6c2e7aab4edfee0c1bfc0927b5dda8e3666ee7a4691b1e0980ec2cb6960577"
+    },
+    "107": {
+      "value": "20,000 light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-107/",
+      "pageSha256": "fd272b28575b0eaf631f4d97364b81da8732210f68518cf0c767ba573b867ac8"
+    },
+    "108": {
+      "value": "46 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-108/",
+      "pageSha256": "2402c9e76c6fd9be1bbb0d419bfe6636e85047e0f3a7bbb406a59849d7d2e3ea"
+    },
+    "109": {
+      "value": "60 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-109/",
+      "pageSha256": "6a47ade36818ce4ef8ba7c5a5eb29249a98e1465756f36fb8dca81a25868f053"
+    },
+    "110": {
+      "value": "2.7 million light-years",
+      "sourceUrl": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-110/",
+      "pageSha256": "6ce43062c5ad10d95eec5058c5a3067caec50c8ff581127eef6f60c7443d5833"
+    }
+  }
+}

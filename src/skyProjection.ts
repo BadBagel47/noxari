@@ -18,14 +18,20 @@ export function projectHorizontal(position: SkyPosition, width: number, height: 
   return {x: width / 2 + radius * Math.sin(angle), y: height / 2 - radius * Math.cos(angle)};
 }
 
-export function catalogStarPosition(raHours: number, decDegrees: number, time: Date, location: ObservingLocation, pmRaCosDec = 0, pmDec = 0): SkyPosition {
+export function catalogHorizontalTransform(time: Date, location: ObservingLocation) {
   const observer = new Observer(location.latitude, location.longitude, 0);
   const instant = new AstroTime(time);
   const rotation = Rotation_EQJ_HOR(instant, observer);
-  const moved = movingStarVector(raHours, decDegrees, pmRaCosDec, pmDec, yearsSinceJ2000(time));
-  const vector = new Vector(moved.x, moved.y, moved.z, instant);
-  const horizontal = RotateVector(rotation, vector);
-  return {altitude: Math.asin(horizontal.z) * DEG, azimuth: (Math.atan2(-horizontal.y, horizontal.x) * DEG + 360) % 360};
+  const years = yearsSinceJ2000(time);
+  return (raHours: number, decDegrees: number, pmRaCosDec = 0, pmDec = 0): SkyPosition => {
+    const moved = movingStarVector(raHours, decDegrees, pmRaCosDec, pmDec, years);
+    const horizontal = RotateVector(rotation, new Vector(moved.x, moved.y, moved.z, instant));
+    return {altitude: Math.asin(Math.max(-1, Math.min(1, horizontal.z))) * DEG, azimuth: (Math.atan2(-horizontal.y, horizontal.x) * DEG + 360) % 360};
+  };
+}
+
+export function catalogStarPosition(raHours: number, decDegrees: number, time: Date, location: ObservingLocation, pmRaCosDec = 0, pmDec = 0): SkyPosition {
+  return catalogHorizontalTransform(time, location)(raHours, decDegrees, pmRaCosDec, pmDec);
 }
 
 export function horizontalStarCatalog(time: Date, location: ObservingLocation): HorizontalStar[] {

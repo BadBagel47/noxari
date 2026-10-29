@@ -30,9 +30,9 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md` och `README.md`. Den 
 
 ## Aktuellt arbetsläge
 
-**Senast avslutade utvecklingssteg:** den godkända helskärmslayouten i `docs/FULLSCREEN_PLAN.md`, nu publicerad. Inget ytterligare utvecklingssteg är godkänt eller påbörjat.
+**Aktivt godkänt steg:** hela Messierkatalogen (110 objekt). Användarens senaste ”Kör” godkände detta steg efter helskärmslayouten. Implementationen och lokal verifiering är klara; publiceringskontroll återstår. Inget ytterligare utvecklingssteg är godkänt.
 
-- Senast verifierade och publicerade **appcommit**: `e65d696280884cddc7bddeac6b929ba152567c76`.
+- Föregående verifierade och publicerade **appcommit**: `e65d696280884cddc7bddeac6b929ba152567c76`.
 - Actions: https://github.com/BadBagel47/noxari/actions/runs/40874646669 — lyckades.
 - **52 tester passerade** och produktionsbygget lyckades. Publicerade `index-CKi1vbd4.js` och `index-CuvYVSHu.css` matchade lokalt bygge via SHA-256.
 - Implementationen omfattar fast himmelsyta, snabbknappar, en panel i taget, kompakt objektval/Guided Finder, Nu/Vald tid, viewportanpassning och paus/återupptagning med bevarad nordreferens. Ett nytt projektionstest täcker stående/liggande utsnitt med högst 90° synfält på längre axeln.
@@ -78,13 +78,21 @@ Användaren gav därefter uttryckligen ”Kör” för Guided Finder. Steget omf
 
 Användaren godkände analysen i [`docs/FULLSCREEN_PLAN.md`](docs/FULLSCREEN_PLAN.md) genom ”Kör”. Himmelsytan, snabbknapparna, panelerna och tidslägena ovan är implementerade. Sensorernas bekräftade Android/Brave-modell har inte ändrats; panelpaus behåller nu sessionen i stället för att nollställa nordreferensen. Stopp/timeout/dold sida avslutar sensorerna. Kamerabild/AR ingår inte.
 
+## Messierkatalogen — godkänd och implementerad
+
+- Alla **110 Messierobjekt**, totalt **121 katalogposter**: 119 beräknade objekt och två stjärnbildsdemos. Befintliga objekt-ID:n och länkar bevaras.
+- OpenNGC av Mattia Verga, CC BY-SA 4.0, låst commit och checksummer. Koordinater, typer, alias och 102 integrerade V-magnituder. Sju V-värden saknas och M40:s parvärde lämnas ej verifierat; andra band används inte som ersättning.
+- 88 ungefärliga avstånd från NASA/Hubbles faktauppgifter, separat källänk per objekt. 19 saknar källvärde; M24/M40/M73 får inget gemensamt avstånd. Tidigare fem Messieravstånd ersätts av dessa källbundna uppskattningar.
+- M24 är stjärnmolnet IC 4715, M40 ett stjärnpar, M73 en asterism. M102 följer NASA/Hubbles NGC 5866-identifiering med tydlig tvistnotis, inte OpenNGC:s M101-dubblett. M76 accepterar även NGC 651.
+- Sökning hanterar exakta och nollutfyllda M/NGC/IC-ID:n, svenska/engelska namn, alias och undertyper. Alla objekt deltar i filter, sparande, höjdkurvor, Ikväll och Guided Finder.
+- Astronomy Engines åtta DefineStar-platser har ersatts av gemensam J2000→horisontell rotation per tid/plats. Precession/nutation ingår; årlig aberration och parallax utelämnas som för stjärnfältet. Sirius egenrörelse och planetberäkningar bevaras. Telefonrörelser återprojicerar cachade objektpositioner.
+- **60 tester passerade**, produktionsbygge lyckades. Åtta nya tester täcker katalog, specialfall, saknade uppgifter, exakta alias, jämförelse med tidigare astrometri (<0,02° i testfallen) och gemensamma nattkurvor. Mobila/datorbaserade webbläsarprov täcker sökning, källor, osäkra värden, sparande, objektlänk, Guided Finder och utrustningsfilter. Helskärms-/sensorflöden passerade åter i fem skärmstorlekar plus reducerad höjd; sensorer simulerades.
+- Ingen fortsatt gränssnittsförfining ingick. Utrustningsråd och Ikväll är breda heuristiker, utan modell för ytljusstyrka, instrumentöppning eller faktisk observationsframgång.
+- Källor och reproduktion: `src/generated/README.md`, `data/README.md`. Test/bygge kräver inga datanedladdningar.
+
 ## Nästa utvecklingssteg — inväntar nytt klartecken
 
-Användaren har ännu inte godkänt någon ytterligare etapp. Föreslå en avgränsad nästa uppgift och rekommenderad modell innan implementation. De senare planpunkterna nedan är fortsatt planerade, inte automatiskt startgodkända.
-
-Senast föreslagna nästa steg är **hela Messierkatalogen, 110 objekt**, med genomgångna koordinater, typer, källor och licenser, och anslutning till befintlig sökning, filter, sparande, höjdkurvor, Ikväll och Guided Finder. Markera saknade/osäkra uppgifter tydligt och hantera specialfall som inte är galaxer/nebulosor/stjärnhopar korrekt. Rekommenderad modell: GPT-6.1 Sol med hög resonemangsnivå. Förslaget inväntar användarens ”Kör”.
-
-Tekniskt inför katalogsteget: `src/astronomy.ts` använder fortfarande Astronomy Engines åtta `DefineStar`-platser för fasta katalogobjekt, vilket inte räcker för 110 objekt. Ersätt den begränsningen med en skalbar omvandling från J2000/ICRS till observatörens horisontella koordinater; bevara Sirius egenrörelse och befintliga planetberäkningar. Befintlig direkt projektion finns i `src/skyProjection.ts`. Detta behöver ingå i stegets verifiering, inte bara import av fler poster.
+Katalogsteget ska avslutas med verifierad Pages-publicering. Föreslå därefter en avgränsad nästa uppgift och rekommenderad modell innan implementation. De senare planpunkterna nedan är fortsatt planerade, inte automatiskt startgodkända. UI-förfining väntar tills funktionaliteten är klar.
 
 ### Senare delar av planen
 
@@ -102,7 +110,7 @@ Tekniskt inför katalogsteget: `src/astronomy.ts` använder fortfarande Astronom
 - Stjärnbildsfigurerna är schematiska; officiella IAU-gränser ritas inte. Orion och Stora björnen har fortfarande tydligt märkta demokurvor.
 - ”Ikväll” använder en redovisad heuristik, inte en väderprognos eller sannolikhet för synlighet. Högsta höjd på diagrammet kan skilja sig från rekommenderad tid. Korta tillfällen kan missas mellan provpunkterna.
 - Sol-/planetmarkörer visar positioner och innebär inte garanterad synlighet. Förklaringar och utrustningsråd ska bevaras.
-- HYG och Stellariums använda figurdataset är CC BY-SA 4.0. Bevara åtkomlig attribution, licenslänkar och uppgift om bearbetning i Om och källor. Ingen extern astronomisk bild är ännu inbäddad.
+- HYG, Stellariums använda figurdataset och den anpassade OpenNGC-katalogen är CC BY-SA 4.0. Bevara åtkomlig attribution, licenslänkar och uppgift om bearbetning i Om och källor. Ingen extern astronomisk bild är ännu inbäddad.
 - Se `src/generated/README.md` för exakta källor, checksummer och reproduktion. Se `README.md` för beräkningsmodell och begränsningar. NASA/JPL-referenser för planeter ligger i `tests/fixtures/planets-horizons.json` och testerna körs utan nätverk.
 - Lagra inga hemligheter, privata positionsuppgifter eller fullständiga chattloggar i överlämningsfilen.
 
@@ -119,7 +127,8 @@ Tekniskt inför katalogsteget: `src/astronomy.ts` använder fortfarande Astronom
 | `src/recommendations.ts`, `src/TonightPanel.tsx` | Rangordning och förklaringar för ”Ikväll” |
 | `src/GuidedFinder.tsx`, `src/finderGuidance.ts` | Vägledningslager, vinkelavvikelser och centrering |
 | `src/VisibilityChart.tsx` | Höjdkurvor och skymningsbakgrund |
-| `src/data.ts` | Objektkatalog, texter och positionskällor |
+| `src/data.ts`, `src/catalogSearch.ts` | Objektkatalog, metadata och alias-/ID-sökning |
+| `scripts/generate_messier.py`, `src/generated/messier.ts`, `data/messier-distances.json` | Reproducerbar Messierkatalog och källbundna avståndsfakta |
 | `src/style.css`, `src/workspace.css` | Delade komponenter respektive helskärmslayout, paneler och responsivitet |
 | `.github/workflows/deploy.yml` | Tester, bygge och Pages-publicering |
 

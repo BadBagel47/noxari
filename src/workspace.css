@@ -57,3 +57,5 @@ html,body,#root{width:100%;height:100%;overflow:hidden}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 
 .sky-workspace .is-below .finder-reticle{display:none}
+.catalog-sources{margin-top:18px;color:#9ebbd4;font-size:11px;line-height:1.7}.catalog-sources ul{margin:7px 0 0;padding-left:18px}.catalog-sources a{color:#a8d4f4}
+.sheet-body .description+.notice{margin-top:14px}

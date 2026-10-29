@@ -3,7 +3,7 @@ import type {NightSample, VisibilitySeries} from './astronomy';
 
 const clamp = (value: number) => Math.max(0, Math.min(1, value));
 const RAD = Math.PI / 180;
-export const isDiffuse = (object: SpaceObject) => ['Galaxy', 'Nebula', 'Star cluster'].includes(object.kind);
+export const isDiffuse = (object: SpaceObject) => ['Galaxy', 'Nebula', 'Star cluster', 'Star cloud'].includes(object.kind);
 export function supportsGear(object: SpaceObject, gear: 'all' | Gear) {
   return gear === 'all' || gear === 'telescope' || object.gear === 'eye' || (gear === 'binoculars' && object.gear === 'binoculars');
 }

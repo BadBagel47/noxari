@@ -1,7 +1,7 @@
 import {useEffect, useMemo, useRef, useState} from 'react';
 import {constellationSky, drawConstellations} from './constellations';
 import {Body} from 'astronomy-engine';
-import {objectPosition, positionAt, showObjectMarker, type ObservingLocation} from './astronomy';
+import {objectPositioner, positionAt, showObjectMarker, type ObservingLocation} from './astronomy';
 import {objects, type SpaceObject} from './data';
 import {horizontalStarCatalog, projectHorizontal} from './skyProjection';
 
@@ -26,14 +26,20 @@ export function SkyMap({time, location, label, sunLabel, onSelect, showFigures, 
     const point = projectHorizontal(star, size.width, size.height);
     return point ? [{...star, ...point}] : [];
   }), [catalog, size]);
-  const markers = useMemo(() => objects.flatMap(object => {
+  const objectSky = useMemo(() => {
+    const resolve = objectPositioner(time, location);
+    return objects.flatMap(object => {
+      const position = resolve(object);
+      return position ? [{object, position}] : [];
+    });
+  }, [time, location]);
+  const markers = useMemo(() => objectSky.flatMap(({object, position}) => {
     if (!size.width || !size.height) return [];
     // Markers distinguish civil twilight for planets from darker deep-sky conditions.
     if (!showObjectMarker(object, sun.altitude)) return [];
-    const position = objectPosition(object, time, location);
     const point = position && projectHorizontal(position, size.width, size.height);
     return point ? [{object, point, altitude: position.altitude}] : [];
-  }), [time, location, size.width, size.height, sun.altitude]);
+  }), [objectSky, size.width, size.height, sun.altitude]);
   const sunPoint = size.width && size.height ? projectHorizontal(sun, size.width, size.height) : null;
 
   useEffect(() => {
