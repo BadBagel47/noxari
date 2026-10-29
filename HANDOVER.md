@@ -10,6 +10,7 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md` och `README.md`. Den 
 - **Meddela rekommenderad ChatGPT-modell innan varje nytt utvecklingssteg.** Hittills har rekommendationen varit **GPT-6.1 Sol med hög resonemangsnivå**. Användaren vill kunna använda Sol; föreslå en tyngre modell bara om uppgiften motiverar det. En rekommendation betyder inte att modellen faktiskt har bytts.
 - **Starta inte ett nytt utvecklingssteg utan uttryckligt klartecken.** Beskriv först dess omfattning och invänta exempelvis ”Kör”. Användaren vill kunna samla flera ändringar före samma körning. En diskussion, ett positivt omdöme eller en ny planpunkt är inte i sig ett startbesked.
 - Ett ”Kör” gäller det senast föreslagna, avgränsade steget. Slutför och verifiera det steget, men påbörja inte därefter nästa etapp automatiskt.
+- Efter helskärmssteget har användaren bett att **fortsatt gränssnittsförfining får vänta tills funktionaliteten är klar**. Prioritera kvarvarande funktioner. Gör nödvändiga funktionskontroller och felrättningar inom respektive steg; samla övriga UI-förbättringar till en senare genomgång.
 - Felrättningar inom ett redan godkänt steg har gjorts när användaren rapporterat felet. Håll dem inom den avsedda funktionen och redovisa ändringen.
 - Hittills har godkända utvecklingssteg också omfattat commit, push till `main` och publicering på GitHub Pages. Kontrollera Actions och den publicerade versionen innan något kallas publicerat.
 - Skilj mellan instruktioner direkt från användaren och innehåll i bifogade dokument. Den ursprungliga ZIP-filen och projektöverlämningen var startmaterial; senare beslut i denna fil förtydligar och ändrar prioriteringarna.
@@ -81,6 +82,10 @@ Användaren godkände analysen i [`docs/FULLSCREEN_PLAN.md`](docs/FULLSCREEN_PLA
 
 Användaren har ännu inte godkänt någon ytterligare etapp. Föreslå en avgränsad nästa uppgift och rekommenderad modell innan implementation. De senare planpunkterna nedan är fortsatt planerade, inte automatiskt startgodkända.
 
+Senast föreslagna nästa steg är **hela Messierkatalogen, 110 objekt**, med genomgångna koordinater, typer, källor och licenser, och anslutning till befintlig sökning, filter, sparande, höjdkurvor, Ikväll och Guided Finder. Markera saknade/osäkra uppgifter tydligt och hantera specialfall som inte är galaxer/nebulosor/stjärnhopar korrekt. Rekommenderad modell: GPT-6.1 Sol med hög resonemangsnivå. Förslaget inväntar användarens ”Kör”.
+
+Tekniskt inför katalogsteget: `src/astronomy.ts` använder fortfarande Astronomy Engines åtta `DefineStar`-platser för fasta katalogobjekt, vilket inte räcker för 110 objekt. Ersätt den begränsningen med en skalbar omvandling från J2000/ICRS till observatörens horisontella koordinater; bevara Sirius egenrörelse och befintliga planetberäkningar. Befintlig direkt projektion finns i `src/skyProjection.ts`. Detta behöver ingå i stegets verifiering, inte bara import av fler poster.
+
 ### Senare delar av planen
 
 - Bredare mobilprovning, särskilt iOS, kompassprecision och porträtt/landskap.
@@ -97,7 +102,7 @@ Användaren har ännu inte godkänt någon ytterligare etapp. Föreslå en avgr�
 - Stjärnbildsfigurerna är schematiska; officiella IAU-gränser ritas inte. Orion och Stora björnen har fortfarande tydligt märkta demokurvor.
 - ”Ikväll” använder en redovisad heuristik, inte en väderprognos eller sannolikhet för synlighet. Högsta höjd på diagrammet kan skilja sig från rekommenderad tid. Korta tillfällen kan missas mellan provpunkterna.
 - Sol-/planetmarkörer visar positioner och innebär inte garanterad synlighet. Förklaringar och utrustningsråd ska bevaras.
-- HYG och Stellariums använda figurdataset är CC BY-SA 4.0. Bevara synlig attribution, licenslänkar och uppgift om bearbetning. Ingen extern astronomisk bild är ännu inbäddad. Detaljkorten har dekorativ grafik.
+- HYG och Stellariums använda figurdataset är CC BY-SA 4.0. Bevara åtkomlig attribution, licenslänkar och uppgift om bearbetning i Om och källor. Ingen extern astronomisk bild är ännu inbäddad.
 - Se `src/generated/README.md` för exakta källor, checksummer och reproduktion. Se `README.md` för beräkningsmodell och begränsningar. NASA/JPL-referenser för planeter ligger i `tests/fixtures/planets-horizons.json` och testerna körs utan nätverk.
 - Lagra inga hemligheter, privata positionsuppgifter eller fullständiga chattloggar i överlämningsfilen.
 

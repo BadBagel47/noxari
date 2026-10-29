@@ -74,10 +74,13 @@ The fullscreen/panel change was checked in Chromium at 390×844, 1280×800, 844�
 
 ## Next implementation milestones
 
-1. Extend phone validation to iOS, outdoor alignment and portrait/landscape transitions.
-2. Add official constellation boundaries, a deeper star catalog and optional map zoom.
-3. Add curated licensed object photos with individual source credits.
-4. Add server-rendered Open Graph previews for shared object links and, later, complete observation-list sharing. A live-camera overlay remains lower priority.
+Further UI refinement is deferred until the functional scope is complete. The following are proposals, not implementation approvals; see HANDOVER.md for the current approval state.
+
+1. Expand to the complete 110-object Messier catalog, using verified source data and scalable fixed-object coordinates, connected to search, saved objects, night curves, Tonight and Guided Finder.
+2. Extend phone validation to iOS, outdoor alignment and portrait/landscape transitions.
+3. Add official constellation boundaries, a deeper star catalog and optional map zoom.
+4. Add curated licensed object photos with individual source credits.
+5. Add server-rendered Open Graph previews for shared object links and, later, complete observation-list sharing. A live-camera overlay remains lower priority.
 
 ## Tonight planning model
 

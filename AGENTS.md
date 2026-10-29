@@ -6,6 +6,8 @@ Read `HANDOVER.md` at the start of a new session alongside this file and `README
 
 Keep `HANDOVER.md` current after each completed development step, relevant fix, user validation or change of plans/workflow. Record the verified app commit, test/deployment evidence, limitations, remaining work and approval state. Keep README and this file consistent; do not store secrets, private coordinates or full chat logs in the handover.
 
+User priority after the fullscreen step: defer further UI refinement until the functional scope is complete. Prioritize remaining functionality; keep necessary functional controls and bug fixes within their approved step. The latest proposed next step is the full 110-object Messier catalog, pending approval. Its implementation must remove the eight-slot DefineStar limitation for fixed objects rather than merely append data.
+
 This repository contains a **partly calculated prototype**, not a complete planetarium. The default eye-level view is a swipeable, optionally phone-synchronized 90° perspective of HYG stars and above-horizon object markers for the selected time and place. A zenith-centered all-sky map remains available. Both views use the same calculated horizontal directions. The ground is a generic geometric horizon, not local terrain. Star brightness is stylized, first-order proper motion is applied to the HYG stars and Sirius marker/curves, 88 schematic constellation figures are optional (official boundaries are not drawn), and constellation altitude curves remain demos. Preserve demo labels for those curves.
 
 Stack: React, TypeScript, Vite. Deploy via GitHub Actions to GitHub Pages at `/noxari/`. Preserve query-string object deep links (`?object=m31`).
