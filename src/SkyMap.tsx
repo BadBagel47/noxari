@@ -1,5 +1,6 @@
 import {useEffect, useMemo, useRef, useState} from 'react';
 import {constellationSky, drawConstellations} from './constellations';
+import {boundarySky, drawBoundaries} from './constellationBoundaries';
 import {Body} from 'astronomy-engine';
 import {objectPositioner, positionAt, showObjectMarker, type ObservingLocation} from './astronomy';
 import {objects, type SpaceObject} from './data';
@@ -13,15 +14,17 @@ type Props = {
   onSelect: (object: SpaceObject) => void;
   showFigures: boolean;
   showFigureNames: boolean;
+  showBoundaries: boolean;
 };
 
-export function SkyMap({time, location, label, sunLabel, onSelect, showFigures, showFigureNames}: Props) {
+export function SkyMap({time, location, label, sunLabel, onSelect, showFigures, showFigureNames, showBoundaries}: Props) {
   const container = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const [size, setSize] = useState({width: 0, height: 0});
   const sun = useMemo(() => positionAt(Body.Sun, time, location), [time, location]);
   const catalog = useMemo(() => horizontalStarCatalog(time, location), [time, location]);
   const figures = useMemo(() => constellationSky(catalog), [catalog]);
+  const boundaries = useMemo(() => showBoundaries ? boundarySky(time, location) : [], [showBoundaries, time, location]);
   const stars = useMemo(() => catalog.flatMap(star => {
     const point = projectHorizontal(star, size.width, size.height);
     return point ? [{...star, ...point}] : [];
@@ -103,6 +106,8 @@ export function SkyMap({time, location, label, sunLabel, onSelect, showFigures, 
     context.fillStyle = '#7fa2c0';
     context.fillText('Zenith', centerX, centerY - 7);
 
+    if (showBoundaries) drawBoundaries(context, boundaries, position => projectHorizontal(position, width, height), width, height, starVisibility);
+
     if (showFigures) drawConstellations(context, figures, position => projectHorizontal(position, width, height), width, height, starVisibility, showFigureNames);
 
     if (starVisibility > 0) {
@@ -123,10 +128,10 @@ export function SkyMap({time, location, label, sunLabel, onSelect, showFigures, 
         for (const star of stars) if (star.name && star.name !== 'Sirius') context.fillText(star.name, star.x + 5, star.y - 5);
       }
     }
-  }, [size, stars, figures, showFigures, showFigureNames, sun.altitude]);
+  }, [size, stars, figures, boundaries, showFigures, showFigureNames, showBoundaries, sun.altitude]);
 
   return <div className="sky-canvas sky-map" ref={container}>
-    <canvas ref={canvas} aria-label="Calculated zenith-centered sky with proper motion and optional constellation figures; horizon is the outer circle" role="img"/>
+    <canvas ref={canvas} aria-label="Calculated zenith-centered sky with proper motion and optional constellation figures and IAU boundaries; horizon is the outer circle" role="img"/>
     {markers.map(({object, point, altitude}) => <button key={object.id} className="sky-object" style={{left: point.x, top: point.y}} onClick={() => onSelect(object)} title={`${label(object)} · ${altitude.toFixed(1)}°`} aria-label={`${label(object)}, altitude ${altitude.toFixed(1)}°`}><span className="sky-point" style={{width: object.size + 4, height: object.size + 4, background: object.color, boxShadow: `0 0 16px ${object.color}`}}/><span>{label(object)}</span></button>)}
     {sunPoint && <span className="sky-object sky-sun" style={{left: sunPoint.x, top: sunPoint.y}} role="img" aria-label={`${sunLabel}, altitude ${sun.altitude.toFixed(1)}°`}><span className="sky-point"/><span>{sunLabel}</span></span>}
   </div>;

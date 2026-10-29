@@ -1,5 +1,6 @@
 import {useEffect, useMemo, useRef, useState, type Dispatch, type PointerEvent, type SetStateAction} from 'react';
 import {constellationSky, drawConstellations} from './constellations';
+import {boundarySky, drawBoundaries} from './constellationBoundaries';
 import {Body} from 'astronomy-engine';
 import {nextObjectRise, objectPosition, objectPositioner, positionAt, showObjectMarker, type ObservingLocation, type SkyPosition} from './astronomy';
 import {objects, type SpaceObject} from './data';
@@ -16,6 +17,7 @@ type Props = {
   language: 'en' | 'sv';
   showFigures: boolean;
   showFigureNames: boolean;
+  showBoundaries: boolean;
   view: ViewDirection;
   onViewChange: Dispatch<SetStateAction<ViewDirection>>;
   finderTarget: SpaceObject | null;
@@ -28,13 +30,14 @@ const wrap = (degrees: number) => (degrees % 360 + 360) % 360;
 const clamp = (pitch: number) => Math.max(-10, Math.min(90, pitch));
 const cardinal = (heading: number) => ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(wrap(heading) / 45) % 8];
 
-export function HorizonView({time, location, label, sunLabel, onSelect, language, view, onViewChange, showFigures, showFigureNames, finderTarget, phone, onStopFinder, onFinderDetails}: Props) {
+export function HorizonView({time, location, label, sunLabel, onSelect, language, view, onViewChange, showFigures, showFigureNames, showBoundaries, finderTarget, phone, onStopFinder, onFinderDetails}: Props) {
   const root = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const drag = useRef<{id: number; x: number; y: number} | null>(null);
   const [size, setSize] = useState({width: 0, height: 0});
   const stars = useMemo(() => horizontalStarCatalog(time, location), [time, location]);
   const figures = useMemo(() => constellationSky(stars), [stars]);
+  const boundaries = useMemo(() => showBoundaries ? boundarySky(time, location) : [], [showBoundaries, time, location]);
   const sun = useMemo(() => positionAt(Body.Sun, time, location), [time, location]);
   const targetPosition = useMemo(() => finderTarget ? objectPosition(finderTarget, time, location) : null, [finderTarget, time, location]);
   const nextRise = useMemo(() => finderTarget && targetPosition && targetPosition.altitude < 0 ? nextObjectRise(finderTarget, time, location) : null, [finderTarget, targetPosition, time, location]);
@@ -120,6 +123,8 @@ export function HorizonView({time, location, label, sunLabel, onSelect, language
     for (const altitude of [15, 30, 60]) drawCurve(Array.from({length: 361}, (_, azimuth) => ({altitude, azimuth})));
     for (let azimuth = 0; azimuth < 360; azimuth += 30) drawCurve(Array.from({length: 91}, (_, altitude) => ({altitude, azimuth})));
 
+    if (showBoundaries) drawBoundaries(context, boundaries, position => projectPerspective(position, view, width, height, false), width, height, starVisibility);
+
     if (showFigures) drawConstellations(context, figures, position => projectPerspective(position, view, width, height, false), width, height, starVisibility, showFigureNames);
 
     if (starVisibility > 0) {
@@ -153,7 +158,7 @@ export function HorizonView({time, location, label, sunLabel, onSelect, language
       const point = projectPerspective({altitude: 4, azimuth}, view, width, height);
       if (point && point.y > 35 && point.y < height - 32) context.fillText(cardinal(azimuth), point.x, point.y);
     }
-  }, [size, view, stars, figures, showFigures, showFigureNames, sun.altitude]);
+  }, [size, view, stars, figures, boundaries, showFigures, showFigureNames, showBoundaries, sun.altitude]);
 
   const move = (heading: number, pitch: number) => onViewChange(current => ({heading: wrap(current.heading + heading), pitch: clamp(current.pitch + pitch)}));
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {

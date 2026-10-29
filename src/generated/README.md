@@ -20,6 +20,18 @@ Upstream commit: `daace2add6a1bf886e8ee1934f51e9c69f818d18`.
 
 Index SHA-256: `1f2f5ffd6c9e25a7d0dcfdbf1f756e2db03dd3b8ed4ec016a2839b09f6b0fe1e`.
 
+## Official constellation boundaries
+
+`boundaries.ts` adapts the **IAU** `edges` from the same pinned Stellarium modern skyculture index (`daace2add6a1bf886e8ee1934f51e9c69f818d18`). Its `edges_source` credits [Pierre Barbier’s B1875 edge table](https://pbarbier.com/constellations/edges_18.txt). Source `edges_epoch` is **B1875**, not J2000. There are 781 unique shared edges, covering 88 constellations / 89 regions because Serpens has two separate parts (Ser1 and Ser2).
+
+The Stellarium team’s [license declaration](https://github.com/Stellarium/stellarium/blob/daace2add6a1bf886e8ee1934f51e9c69f818d18/skycultures/modern/description.md#license) states “Text and data: CC BY-SA 4.0”. This adaptation retains that license and source credits. No artwork or narrative text is embedded.
+
+Changes: retain only edge endpoints, adjacent region IDs and increasing-RA direction; convert sexagesimal RA/declination to decimal hours/degrees; represent a P+ crossing of 24h with an end RA greater than 24h. Each shared edge is stored/drawn once. Region IDs are normalized to the usual mixed-case abbreviations, retaining Ser1/Ser2. No graticule or stick-figure lines are substituted for official boundaries.
+
+The generator verifies the index checksum above and the license-description SHA-256 `4b58344f63168d7c816fdfef405103b5770fda2e1f4a4bf5c8871041ce042586`, and checks the epoch, source, edge directions, uniqueness and coverage. Run `python3 scripts/generate_boundaries.py`, or pass local `index.json` and `description.md` paths for offline reproduction. Only the Python standard library is needed. App builds/tests use the committed output without fetching upstream.
+
+Runtime sampling follows source meridians and declination parallels in B1875 at at-most-1° coordinate increments, including wrap crossings and polar small circles. Astronomy Engine’s `Rotation_EQD_EQJ` at the same B1875 instant/frame convention used by its `Constellation` classifier converts samples to fixed J2000 vectors; `Rotation_EQJ_HOR` then converts to the selected date/location. Boundaries have no stellar proper motion. This uses the library’s frame convention rather than a separate FK4/FK5 transformation; it is a visual boundary layer, not a sub-arcsecond astrometric reference. All 781 edges were checked on both sides against Astronomy Engine’s separate Roman-table classification. Canvas drawing clips at the viewport and breaks paths where samples are below the geometric horizon or behind the camera. Tessellation and horizon clipping are sampled approximations (a terminal gap can be up to one sample); refraction/terrain remain excluded.
+
 ## Messier catalog
 
 `messier.ts` adapts [OpenNGC](https://github.com/mattiaverga/OpenNGC) by **Mattia Verga**, under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/); this adapted dataset is shared under the same license. The pinned upstream commit is `be3cd6c5498806a2fbb2f7e0452ef802dbb02be0`. Its README declares the data license, with the license text in `LICENSES/CC-BY-SA-4.0.txt`.

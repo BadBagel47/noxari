@@ -30,9 +30,9 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md` och `README.md`. Den 
 
 ## Aktuellt arbetsläge
 
-**Senast avslutade utvecklingssteg:** hela Messierkatalogen (110 objekt), godkänd genom användarens senaste ”Kör”, implementerad och publicerad. Inget ytterligare utvecklingssteg är godkänt eller påbörjat.
+**Aktivt godkänt steg:** officiella stjärnbildsgränser i himmelsvyn och kartan. Användaren godkände det avgränsade förslaget genom ”Ja, det låter bra”. Implementationen är klar och verifiering/publicering pågår. Djupare stjärnkatalog, zoom och UI-förfining ingår inte; inget ytterligare steg är godkänt.
 
-- Senast verifierade och publicerade **appcommit**: `f844d60f6664f1bdc268c77f42019cabfab8fd0a`.
+- Föregående verifierade och publicerade **appcommit**: `f844d60f6664f1bdc268c77f42019cabfab8fd0a`.
 - Actions: https://github.com/BadBagel47/noxari/actions/runs/40913291218 — tester, bygge och publicering lyckades.
 - **60 tester passerade**. Publicerade `index-Chzg0XYc.js` och `index-CnW1uSd_.css` matchade lokalt produktionsbygge via SHA-256. Kataloggeneratorn gav byteidentiskt resultat från låsta källfiler.
 - 110 Messierobjekt är anslutna till sökning, filter, sparande, höjdkurvor, Ikväll och Guided Finder. Källor, licenser och saknade/osäkra värden är dokumenterade och visas i appen. Se katalogavsnittet nedan.
@@ -48,7 +48,7 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md` och `README.md`. Den 
 - Guided Finder ovanpå himlen med pilar, vinkelavvikelser, målring, centreringsmarkering inom 3°, manuellt reservläge och ungefärlig nästa uppgång för objekt under horisonten. Vägledningen visar vald plats och tid; ingen sensoråtkomst begärs automatiskt vid start.
 - Telefonföljning med behörigheter, nordkalibrering och manuell reserv. GPS anger plats; riktningssensorerna anger vart telefonen pekar.
 - 4 105 HYG-stjärnor till magnitud 5,8 samt fem svagare ändpunkter för stjärnbildsfigurer. Första ordningens egenrörelse från J2000 ingår.
-- Linjefigurer för alla 88 stjärnbilder från Stellariums öppna data. Separata reglage för figurer och latinska namn, i båda vyerna.
+- Linjefigurer för alla 88 stjärnbilder samt separat valbara officiella IAU-gränser från Stellariums öppna data. Gränserna visas som lila streckade linjer och är avstängda från start. Mer → Himmelsvy har separata reglage för figurer, latinska namn och gränser, i båda vyerna.
 - Solen, månen och alla sju andra planeter har beräknade positioner. Solsystemsobjekt har avstånd, uppskattad magnitud, belyst andel, solavstånd i vinkel och stjärnbild för vald tid.
 - ”Ikväll” ger ungefärliga förslag efter vald tid utifrån höjd, mörker, månljus och utrustning. Även exkluderade objekt får skäl. Stjärnbildernas demokurvor deltar inte.
 - Nattfönster följer standardberäknad solnedgång/soluppgång med 30 minuters marginal. Provpunkter ligger högst cirka tio minuter isär. Polarförhållanden och ofullständiga nätter använder lokal middag till nästa middag; sommartid hanteras.
@@ -91,14 +91,24 @@ Användaren godkände analysen i [`docs/FULLSCREEN_PLAN.md`](docs/FULLSCREEN_PLA
 - Ingen fortsatt gränssnittsförfining ingick. Utrustningsråd och Ikväll är breda heuristiker, utan modell för ytljusstyrka, instrumentöppning eller faktisk observationsframgång.
 - Källor och reproduktion: `src/generated/README.md`, `data/README.md`. Test/bygge kräver inga datanedladdningar.
 
+## Officiella stjärnbildsgränser — godkända och implementerade
+
+- 781 unika gemensamma B1875-gränssegment för alla 88 stjärnbilder (89 regioner, eftersom Serpens har två delar). Samma låsta Stellarium-index och CC BY-SA 4.0 som figurerna; gränsernas ursprung anges som Pierre Barbier. Generatorn verifierar både data och licenstext via checksummer.
+- B1875-meridianer och deklinationsparalleller samplas före omvandling till J2000 och vald tid/plats. RA-övergången vid 24h och polernas småcirklar bevaras. Egenrörelse tillämpas inte på stjärnbildsområden. Omvandlingen följer Astronomy Engines B1875-konvention; visuellt underlag, inte astrometri på bågsekundnivå.
+- Nätet cachas per tid/plats och återprojiceras vid telefonrörelse. Linjer klipps vid bildytan och bryts när prover ligger under geometriska horisonten eller bakom kameran. Högst 1° koordinatsteg; en liten slutlucka kan finnas vid klippgränsen.
+- Eget reglage i Mer → Himmelsvy, av från start och oberoende av figurer/namn. Lila streckade gränser skiljs från blå figurer. Källor/licens syns i Mer → Om och källor. Valet bevaras mellan vyer och paneler under sessionen, inte efter omladdning.
+- Fem nya tester: täckning/unikhet/sammanhängande ändpunkter, oberoende områdesuppslagning på båda sidor om alla 781 segment, polära paralleller/RA-övergång, datum/plats inklusive poler och klippning utan förbindelser genom dolda delar. Totalt 65 tester.
+- Webbläsarprov passerade för separat reglage, båda projektioner, bevarat val/mål, EN/SV, källor och ingen sidrullning i 390×844, 1280×800, 844×390 och 320×568. Geometrin har granskats visuellt. Helskärms-/sensorprov med aktivt gränslager passerade i fem skärmstorlekar (även 568×320), plus reducerad höjd för tids-/sökflöden. Kalibrering, panelpaus/återupptagning, bevarad canvas och utebliven kompassåtergång verifierades med simulerade sensorer.
+- Reproduktion och metodgränser: `src/generated/README.md`, `scripts/generate_boundaries.py`. Generatorn återskapar data byteidentiskt från låsta indata. Inga nya beroenden eller nätanrop i appen.
+
 ## Nästa utvecklingssteg — inväntar nytt klartecken
 
-Katalogsteget är avslutat med verifierad Pages-publicering. Föreslå en avgränsad nästa uppgift och rekommenderad modell innan implementation. De senare planpunkterna nedan är fortsatt planerade, inte automatiskt startgodkända. UI-förfining väntar tills funktionaliteten är klar.
+Gränssteget ska avslutas med verifierad Pages-publicering. Föreslå därefter en avgränsad nästa uppgift och rekommenderad modell innan implementation. De senare planpunkterna nedan är fortsatt planerade, inte automatiskt startgodkända. UI-förfining väntar tills funktionaliteten är klar.
 
 ### Senare delar av planen
 
 - Bredare mobilprovning, särskilt iOS, kompassprecision och porträtt/landskap.
-- Officiella stjärnbildsgränser, djupare katalog och zoom.
+- Djupare stjärnkatalog och zoom. Officiella stjärnbildsgränser ingår i det nu godkända steget.
 - Licensierade objektbilder med källangivelser.
 - Rikare delningsförhandsvisningar och hela observationslistor.
 - Kamera-overlay/AR är uttryckligen **låg prioritet och ska komma senare**. Telefonföljningen behöver ingen kamerabild.
@@ -108,7 +118,7 @@ Katalogsteget är avslutat med verifierad Pages-publicering. Föreslå en avgrä
 - Appen är en delvis beräknad prototyp, inte ett fullständigt eller instrumentkalibrerat planetarium.
 - Horisonten är generisk och plan. Terräng, väder, ljusföroreningar, atmosfärisk dämpning, instrumentöppning och faktisk observationsframgång simuleras inte.
 - Stjärnljus är stiliserat. Egenrörelsen är en första ordningens approximation; radiell hastighet, perspektivacceleration och årlig parallax ingår inte.
-- Stjärnbildsfigurerna är schematiska; officiella IAU-gränser ritas inte. Orion och Stora björnen har fortfarande tydligt märkta demokurvor.
+- Stjärnbildsfigurerna är schematiska; officiella IAU-gränser är ett separat valbart lager med samplad klippning och Astronomy Engines B1875-konvention. Orion och Stora björnen har fortfarande tydligt märkta demokurvor.
 - ”Ikväll” använder en redovisad heuristik, inte en väderprognos eller sannolikhet för synlighet. Högsta höjd på diagrammet kan skilja sig från rekommenderad tid. Korta tillfällen kan missas mellan provpunkterna.
 - Sol-/planetmarkörer visar positioner och innebär inte garanterad synlighet. Förklaringar och utrustningsråd ska bevaras.
 - HYG, Stellariums använda figurdataset och den anpassade OpenNGC-katalogen är CC BY-SA 4.0. Bevara åtkomlig attribution, licenslänkar och uppgift om bearbetning i Om och källor. Ingen extern astronomisk bild är ännu inbäddad.
@@ -122,7 +132,8 @@ Katalogsteget är avslutat med verifierad Pages-publicering. Föreslå en avgrä
 | `src/main.tsx`, `src/SkyPanel.tsx` | Fast himmelsyta, paneltillstånd, observationstid/plats, sökning och objektdetaljer |
 | `src/HorizonView.tsx`, `src/SkyMap.tsx` | Perspektivvy respektive cirkulär karta |
 | `src/skyProjection.ts`, `src/starMotion.ts` | Horisontella koordinater, projektion och egenrörelse |
-| `src/constellations.ts`, `src/generated/` | Stjärnbildsgeometri och licensierade katalogdata |
+| `src/constellations.ts`, `src/constellationBoundaries.ts`, `src/generated/` | Figurer, B1875-gränser, transformation och licensierade katalogdata |
+| `scripts/generate_boundaries.py` | Reproducerbart, licensverifierat IAU-gränsunderlag |
 | `src/deviceDirection.ts`, `src/usePhoneOrientation.ts`, `src/PhoneControls.tsx` | Sensorer, datakällor, kalibrering och kontrollgränssnitt |
 | `src/astronomy.ts` | Positioner, fotometri och nattkontext |
 | `src/recommendations.ts`, `src/TonightPanel.tsx` | Rangordning och förklaringar för ”Ikväll” |
