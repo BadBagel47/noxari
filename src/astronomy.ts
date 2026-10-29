@@ -65,6 +65,30 @@ export function showObjectMarker(object: SpaceObject, sunAltitude: number) {
   return sunAltitude < (object.kind === 'Planet' ? 0 : -6);
 }
 
+// Geometric horizon crossing, distinct from the standard refracted rise/set
+// convention. Search at most 48 hours and bracket to roughly one minute.
+export function nextObjectRise(object: SpaceObject, time: Date, location: ObservingLocation): Date | null {
+  let previousTime = time.getTime();
+  let previous = objectPosition(object, time, location);
+  if (!previous || previous.altitude >= 0) return null;
+  for (let step = 1; step <= 96; step++) {
+    const currentTime = time.getTime() + step * 1800_000;
+    const current = objectPosition(object, new Date(currentTime), location)!;
+    if (previous.altitude < 0 && current.altitude >= 0) {
+      let low = previousTime, high = currentTime;
+      while (high - low > 60_000) {
+        const middle = (low + high) / 2;
+        if (objectPosition(object, new Date(middle), location)!.altitude >= 0) high = middle;
+        else low = middle;
+      }
+      return new Date(high);
+    }
+    previousTime = currentTime;
+    previous = current;
+  }
+  return null;
+}
+
 // A night belongs to the local noon-to-noon date interval, including DST.
 // Standard sunrise/set use the solar upper limb and normal refraction; charts
 // themselves retain geometric altitudes. Thirty-minute margins include twilight.

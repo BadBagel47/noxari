@@ -63,3 +63,32 @@
 .ranking-method p{margin-top:12px;max-width:850px}.outside-criteria{margin-top:28px}.outside-criteria .cards-grid{margin-top:15px}
 .suggestion-summary{display:flex;flex-direction:column;gap:5px;margin:12px 0;padding:11px;border-left:2px solid #80c9ee;border-radius:3px;background:#172e45;color:#c2d9ec;font-size:11px;line-height:1.5}
 .suggestion-summary strong{font-size:12px;color:#e3f3ff}.suggestion-summary.muted{border-color:#63809a;background:#17263a;color:#9eb4cc}.moon-impact{color:#f1d3a2}
+
+/* Object guidance is an overlay shared with the planned full-screen sky. */
+.horizon-view.finder-active{height:clamp(520px,70dvh,720px)}
+.finder-active .horizon-heading,.finder-active .horizon-help{display:none}
+.guided-finder{position:absolute;inset:0;z-index:4;pointer-events:none}
+.finder-target-header{position:absolute;top:12px;left:12px;right:12px;padding:10px 12px;border:1px solid #54799a;border-radius:11px;background:#07192aeb;pointer-events:auto}
+.finder-title{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.finder-title>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.finder-title strong{font-size:14px;color:#e9f6ff}
+.finder-title span{font-size:10px;color:#a9c4dc;line-height:1.4}
+.finder-title>button{width:30px;height:30px;flex-shrink:0;display:grid;place-items:center;border:1px solid #58768f;background:#19334c;border-radius:7px}
+.phone-controls.compact{padding:7px 0 0;background:none;border:0}
+.phone-controls.compact .phone-buttons button{padding:6px 9px;font-size:11px}
+.phone-controls.compact p{font-size:10px;margin-top:6px}
+.finder-reticle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:48px;height:48px;border:1px solid #d4e9f8b3;border-radius:50%;box-shadow:0 0 0 1px #061322}
+.finder-reticle span{position:absolute;background:#d4e9f8;top:50%;left:50%;transform:translate(-50%,-50%)}
+.finder-reticle span:first-child{width:65px;height:1px}.finder-reticle span:last-child{width:1px;height:65px}
+.is-centered .finder-reticle{border:2px solid #98e5bd;box-shadow:0 0 22px #98e5bd4d}
+.is-centered .finder-reticle span{background:#98e5bd}
+.finder-target-ring{position:absolute;width:23px;height:23px;transform:translate(-50%,-50%);border:2px dashed #ffdca4;border-radius:50%;background:#ffdc9a15}
+.finder-target-ring span{position:absolute;top:27px;left:50%;transform:translateX(-50%);color:#ffe5b9;background:#092039b8;border-radius:4px;padding:2px 5px;font-size:10px;white-space:nowrap}
+.finder-direction-cue{position:absolute;top:10px;right:10px;display:grid;place-items:center;width:36px;height:36px;border:1px solid #d0b47d;border-radius:50%;background:#0a2035c9;color:#ffe1a9}
+.finder-readout{position:absolute;bottom:64px;left:12px;right:12px;padding:11px 12px;border:1px solid #557998;border-radius:11px;background:#07192aeb;pointer-events:auto;color:#c6deef;font-size:11px;line-height:1.5}
+.finder-readout>strong{display:block;padding-right:40px;color:#f0dfbd;font-size:12px}.is-centered .finder-readout>strong{color:#98e5bd}.is-below .finder-readout>strong{color:#f1c6ad}
+.finder-readout p{margin-top:5px}.finder-offsets{display:flex;gap:5px 15px;flex-wrap:wrap;margin-top:5px;padding-right:40px}.finder-offsets span:last-child{color:#9ebbd4}
+.finder-twilight{color:#f0d3a0}.finder-actions{display:flex;gap:7px;margin-top:9px}
+.finder-actions button{padding:6px 9px;background:#1c3953;border:1px solid #567a98;border-radius:7px;font-size:11px}
+.finder-actions button:disabled,.detail-actions button:disabled{opacity:.45;cursor:default}
+@media(min-width:761px){.finder-target-header{right:auto;max-width:430px;min-width:300px}.finder-readout{right:auto;max-width:480px;min-width:300px}}

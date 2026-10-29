@@ -34,7 +34,7 @@ To test on a phone on the same Wi-Fi network, use the `Network` URL printed by V
 - **Saved** — bookmarked objects, persisted in localStorage.
 - **Object details** — descriptions, catalog information, altitude/azimuth at the selected time and an enlarged visibility chart. Solar-system objects also show geocentric distance, modeled visual magnitude, illuminated disk fraction, angular separation from the Sun and constellation for that time.
 - **Sharing** — URL query links such as `?object=m31` (works when deployed; uses Web Share API or clipboard where supported).
-- **Guided Finder** — clearly labeled design preview only, without device sensor access.
+- **Guided Finder** — select a calculated object in its details to open an overlay on Look around. Turn/tilt offsets and an arrow guide toward the target; a ring marks its calculated position and a center reticle turns green within 3° of the view direction. Phone-following and north calibration remain opt-in, with drag, keys and a clearly labeled Center manual view action as fallback. Below-horizon targets are never marked centered and show an approximate next geometric rise when found in the next 48 hours. Whole-constellation demo cards have no unique target and cannot start guidance.
 - **Language** — EN/SV toggle; Swedish object names and selected UI copy.
 
 ## Important scientific limitations
@@ -59,14 +59,21 @@ On Android, relative orientation is preferred for movement, with an absolute com
 
 The view follows the back-screen direction with a level horizon; screen roll is not rendered. Readings directly upward/downward have no usable heading. Permission denial, unsupported APIs and missing readings leave manual control available. Following stops on manual input, a tab/map switch, opening details/settings, or hiding the page, and must be restarted explicitly. No location watch, sensor access on load or camera access is used. Browser-level GPS, permission and orientation flows have been checked with simulated inputs; this does not verify real compass accuracy.
 
+## Guided Finder
+
+Open an individual object’s details and choose **Guided Finder**. The app switches to Look around and focuses the sky; it keeps the selected date, time and location, shown in the target header. Enable **Follow phone** and calibrate north if needed, or turn/tilt the manual view. Starting the finder does not request sensors or location automatically. **Center manual view** stops following and points the simulated view at the target; it does not demonstrate physical phone alignment. **Details** pauses sensor following; switching tabs/map or stopping/exiting the finder ends the guidance. Escape also exits it.
+
+Horizontal turn is the shortest signed azimuth difference; tilt is the altitude difference. Angular distance and the 3° centered test use great-circle separation, so near-zenith targets work even if azimuths differ greatly. Centering means the calculated direction matches the view, not that the object has been visually detected. Compass drift, magnetic north, unrendered screen roll, atmospheric effects and the generic horizon still limit accuracy. A daylight target is explicitly marked as a calculated position. There is no camera overlay.
+
+For a below-horizon target, a 30-minute-step search over the next 48 hours brackets upward geometric altitude crossings and refines the first detected one to approximately one minute. This omits refraction and can miss very brief grazing crossings; no crossing found is reported explicitly. These rise times differ from standard upper-limb/refraction sunrise/set times used to frame the night charts.
+
 ## Next implementation milestones
 
-1. Replace the Guided Finder preview with target-direction arrows, angular offsets, a centered-target indicator, below-horizon information and manual fallback. Prepare it to sit above the sky view. Await explicit approval before implementation.
-2. Let the sky fill the screen on mobile and desktop. Keep essential direction/target information and quick buttons visible; move search, location, time, filters and settings into panels. This is a planned later step, not yet implemented or separately authorized.
-3. Extend phone validation to iOS, outdoor alignment and portrait/landscape transitions.
-4. Add official constellation boundaries, a deeper star catalog and optional map zoom.
-5. Add curated licensed object photos with individual source credits.
-6. Add server-rendered Open Graph previews for shared object links and, later, complete observation-list sharing. A live-camera overlay remains lower priority.
+1. Let the sky fill the screen on mobile and desktop. Keep essential direction/target information and quick buttons visible; move search, location, time, filters and settings into panels. This is a planned later step, not yet implemented or separately authorized.
+2. Extend phone validation to iOS, outdoor alignment and portrait/landscape transitions.
+3. Add official constellation boundaries, a deeper star catalog and optional map zoom.
+4. Add curated licensed object photos with individual source credits.
+5. Add server-rendered Open Graph previews for shared object links and, later, complete observation-list sharing. A live-camera overlay remains lower priority.
 
 ## Tonight planning model
 

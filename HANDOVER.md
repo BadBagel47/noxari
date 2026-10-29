@@ -29,13 +29,13 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md` och `README.md`. Den 
 
 ## Aktuellt arbetsläge
 
-**Senast avslutade utvecklingssteg:** ”Ikväll” med motiverade observationsförslag och nattfönster som följer solnedgång/soluppgång.
+**Aktivt steg:** Guided Finder, uttryckligen godkänt genom användarens senaste ”Kör”. Implementation och lokal verifiering är klara; publicering kontrolleras innan slutstatus skrivs här. Senast tidigare publicerade steg var ”Ikväll”.
 
 - Senast verifierade och publicerade **appcommit**: `7f2258d729262e96383cc94e44035eae0872848f`.
 - Actions: https://github.com/BadBagel47/noxari/actions/runs/40797120534 — lyckades.
 - **44 tester passerade** och produktionsbygget lyckades. Den publicerade JavaScript-filen matchade den lokalt byggda versionen.
 - Gränssnittet kontrollerades i webbläsare med mobil- och datorstorlek, inklusive utrustningsfilter, förklaringar, objektval och polarförhållanden. Detta är inte detsamma som prov på alla fysiska mobiler.
-- Ingen ny produktfunktion är påbörjad efter detta. Denna överlämningsfil är ett separat, av användaren begärt dokumentationsarbete.
+- Guided Finder har tillkommit lokalt: **51 tester passerar** och bygge samt webbläsarprov i mobil-/datorstorlek fungerar. Simulerade telefonsensorer, manuell centrering, under-horisonten-läge, nekad åtkomst och stjärnbildsundantaget har kontrollerats. Detta ska kompletteras med appcommit och bekräftad publicering nedan när de är verifierade.
 
 ## Det som fungerar
 
@@ -55,11 +55,11 @@ Användaren använder **Android med Brave**. Telefonföljningen gled först till
 
 **Användaren bekräftade att rättningen fungerade.** Återinför inte kontinuerliga kompasskorrigeringar utan att undersöka följden. Bevara testerna i `tests/deviceDirection.test.ts`. Relativ riktning kan fortfarande driva över längre tid; nordkalibrering finns. iOS och verklig utomhusprecision behöver bredare provning.
 
-## Nästa föreslagna steg — inväntar klartecken
+## Guided Finder — godkänt och genomfört lokalt
 
-### 1. Gör Guided Finder användbar
+### Funktioner
 
-Det finns fortfarande en **demo/förhandsvisning** i objektdetaljerna. Nästa föreslagna implementation är:
+Demoknappen har ersatts av vägledning ovanpå himmelsvyn:
 
 - Välj ett objekt och få pilar för åt vilket håll telefonen ska vridas.
 - Visa skillnad i riktning och höjd till objektet.
@@ -68,9 +68,11 @@ Det finns fortfarande en **demo/förhandsvisning** i objektdetaljerna. Nästa f�
 - Erbjud manuell styrning när sensorer saknas.
 - Lägg vägledningen som ett tunt lager ovanpå himmelsvyn, förberett för nästa gränssnittssteg.
 
-Användaren sade att förslaget lät bra och lade därefter till kommande gränssnittskrav. Senaste beskedet från assistenten var att **invänta ”Kör”**, så börja inte implementationen enbart utifrån detta dokument.
+Användaren gav därefter uttryckligen ”Kör” för Guided Finder. Steget omfattar ovanstående funktioner och förberedelse för kommande layout. Det godkännandet startar inte helskärmssteget. Centrering gäller beräknad riktning (högst 3° i vinkel), inte faktisk synlighet eller säker kompassprecision. Manuell centrering är tydligt märkt och stoppar telefonföljningen. Under horisonten visas en ungefärlig nästa geometrisk uppgång om den hittas inom 48 timmar; sökningen kan missa korta gränsfall.
 
-### 2. Låt himlen fylla skärmen
+## Nästa föreslagna steg — inväntar nytt klartecken
+
+### Låt himlen fylla skärmen
 
 Användaren vill att appen fokuserar på själva himlen. Det nuvarande lilla fönstret räcker inte. Detta är inplanerat som nästa större steg **efter Guided Finder**:
 
@@ -113,6 +115,7 @@ Detta är ett planerat krav, **inte en redan utförd ändring eller ett separat 
 | `src/deviceDirection.ts`, `src/usePhoneOrientation.ts`, `src/PhoneControls.tsx` | Sensorer, datakällor, kalibrering och kontrollgränssnitt |
 | `src/astronomy.ts` | Positioner, fotometri och nattkontext |
 | `src/recommendations.ts`, `src/TonightPanel.tsx` | Rangordning och förklaringar för ”Ikväll” |
+| `src/GuidedFinder.tsx`, `src/finderGuidance.ts` | Vägledningslager, vinkelavvikelser och centrering |
 | `src/VisibilityChart.tsx` | Höjdkurvor och skymningsbakgrund |
 | `src/data.ts` | Objektkatalog, texter och positionskällor |
 | `src/style.css` | Layout och utseende |

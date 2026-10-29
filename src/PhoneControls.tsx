@@ -11,13 +11,13 @@ const messages: Record<SensorStatus, [string, string]> = {
   missing: ['No usable direction received. Hold the phone upright and retry, or drag the view manually.', 'Ingen användbar riktning mottogs. Håll telefonen upprätt och försök igen, eller dra i vyn manuellt.'],
 };
 
-export function PhoneControls({phone, language}: {phone: ReturnType<typeof usePhoneOrientation>; language: 'en' | 'sv'}) {
+export function PhoneControls({phone, language, compact = false}: {phone: ReturnType<typeof usePhoneOrientation>; language: 'en' | 'sv'; compact?: boolean}) {
   const sv = language === 'sv';
-  return <div className="phone-controls">
+  return <div className={`phone-controls ${compact ? 'compact' : ''}`}>
     <div className="phone-buttons"><button aria-pressed={phone.active} onClick={phone.active ? phone.stop : phone.start}>{phone.active ? (sv ? 'Stoppa synkning' : 'Stop following') : (sv ? 'Följ telefonen' : 'Follow phone')}</button>
       {(phone.status === 'tracking' || phone.status === 'align') && <button onClick={phone.alignNorth}>{sv ? 'Rikta mot norr' : 'Align north'}</button>}
       {phone.status === 'tracking' && <span className="sensor-live">{sv ? 'Synkad' : 'Following'}</span>}
     </div>
-    <p role="status">{messages[phone.status][sv ? 1 : 0]}</p>
+    {(!compact || !['off', 'tracking'].includes(phone.status)) && <p role="status">{messages[phone.status][sv ? 1 : 0]}</p>}
   </div>;
 }

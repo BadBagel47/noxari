@@ -1,9 +1,11 @@
 import {useEffect, useMemo, useRef, useState, type Dispatch, type PointerEvent, type SetStateAction} from 'react';
 import {constellationSky, drawConstellations} from './constellations';
 import {Body} from 'astronomy-engine';
-import {objectPosition, positionAt, showObjectMarker, type ObservingLocation, type SkyPosition} from './astronomy';
+import {nextObjectRise, objectPosition, positionAt, showObjectMarker, type ObservingLocation, type SkyPosition} from './astronomy';
 import {objects, type SpaceObject} from './data';
 import {horizontalStarCatalog, projectPerspective, type MapPoint, type ViewDirection} from './skyProjection';
+import {GuidedFinder} from './GuidedFinder';
+import type {usePhoneOrientation} from './usePhoneOrientation';
 
 type Props = {
   time: Date;
@@ -16,13 +18,16 @@ type Props = {
   showFigureNames: boolean;
   view: ViewDirection;
   onViewChange: Dispatch<SetStateAction<ViewDirection>>;
+  finderTarget: SpaceObject | null;
+  phone: ReturnType<typeof usePhoneOrientation>;
+  onStopFinder: () => void;
 };
 
 const wrap = (degrees: number) => (degrees % 360 + 360) % 360;
 const clamp = (pitch: number) => Math.max(-10, Math.min(90, pitch));
 const cardinal = (heading: number) => ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(wrap(heading) / 45) % 8];
 
-export function HorizonView({time, location, label, sunLabel, onSelect, language, view, onViewChange, showFigures, showFigureNames}: Props) {
+export function HorizonView({time, location, label, sunLabel, onSelect, language, view, onViewChange, showFigures, showFigureNames, finderTarget, phone, onStopFinder}: Props) {
   const root = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const drag = useRef<{id: number; x: number; y: number} | null>(null);
@@ -30,12 +35,15 @@ export function HorizonView({time, location, label, sunLabel, onSelect, language
   const stars = useMemo(() => horizontalStarCatalog(time, location), [time, location]);
   const figures = useMemo(() => constellationSky(stars), [stars]);
   const sun = useMemo(() => positionAt(Body.Sun, time, location), [time, location]);
+  const targetPosition = useMemo(() => finderTarget ? objectPosition(finderTarget, time, location) : null, [finderTarget, time, location]);
+  const nextRise = useMemo(() => finderTarget && targetPosition && targetPosition.altitude < 0 ? nextObjectRise(finderTarget, time, location) : null, [finderTarget, targetPosition, time, location]);
   const markers = useMemo(() => objects.flatMap(object => {
+    if (object.id === finderTarget?.id) return [];
     if (!showObjectMarker(object, sun.altitude)) return [];
     const position = objectPosition(object, time, location);
     const point = position && projectPerspective(position, view, size.width, size.height);
     return point ? [{object, position, point}] : [];
-  }), [time, location, sun.altitude, view, size]);
+  }), [time, location, sun.altitude, view, size, finderTarget]);
   const sunPoint = projectPerspective(sun, view, size.width, size.height);
 
   useEffect(() => {
@@ -142,7 +150,7 @@ export function HorizonView({time, location, label, sunLabel, onSelect, language
 
   const move = (heading: number, pitch: number) => onViewChange(current => ({heading: wrap(current.heading + heading), pitch: clamp(current.pitch + pitch)}));
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    if (event.target instanceof Element && event.target.closest('button')) return;
+    if (event.target instanceof Element && event.target.closest('button, [data-sky-controls]')) return;
     drag.current = {id: event.pointerId, x: event.clientX, y: event.clientY};
     event.currentTarget.setPointerCapture(event.pointerId);
   };
@@ -157,10 +165,11 @@ export function HorizonView({time, location, label, sunLabel, onSelect, language
     if (drag.current?.id === event.pointerId) drag.current = null;
   };
 
-  return <div className="sky-canvas horizon-view" ref={root} tabIndex={0}
+  return <div className={`sky-canvas horizon-view ${finderTarget ? 'finder-active' : ''}`} ref={root} tabIndex={0}
     aria-label={language === 'sv' ? 'Svepbar himmelsvy. Dra för att vrida, använd piltangenter för att ändra riktning.' : 'Interactive sky view. Drag to turn, or use arrow keys to change direction.'}
     onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={endPointer} onPointerCancel={endPointer}
     onKeyDown={event => {
+      if (finderTarget && event.key === 'Escape') { event.preventDefault(); onStopFinder(); return; }
       const changes: Record<string, [number, number]> = {ArrowLeft: [-10, 0], ArrowRight: [10, 0], ArrowUp: [0, 8], ArrowDown: [0, -8]};
       const change = changes[event.key];
       if (change && event.target === event.currentTarget) { event.preventDefault(); move(...change); }
@@ -169,6 +178,7 @@ export function HorizonView({time, location, label, sunLabel, onSelect, language
     <div className="horizon-heading" aria-live="off">{language === 'sv' ? 'Mot' : 'Facing'} {cardinal(view.heading)} · {Math.round(view.heading)}° <span>↑ {Math.round(view.pitch)}°</span></div>
     {markers.map(({object, position, point}) => <button key={object.id} className="sky-object" style={{left: point.x, top: point.y}} onClick={() => onSelect(object)} title={`${label(object)} · ${position.altitude.toFixed(1)}°`} aria-label={`${label(object)}, ${language === 'sv' ? 'höjd' : 'altitude'} ${position.altitude.toFixed(1)}°`}><span className="sky-point" style={{width: object.size + 4, height: object.size + 4, background: object.color, boxShadow: `0 0 16px ${object.color}`}}/><span>{label(object)}</span></button>)}
     {sunPoint && <span className="sky-object sky-sun" style={{left: sunPoint.x, top: sunPoint.y}} role="img" aria-label={`${sunLabel}, ${language === 'sv' ? 'höjd' : 'altitude'} ${sun.altitude.toFixed(1)}°`}><span className="sky-point"/><span>{sunLabel}</span></span>}
+    {finderTarget && targetPosition && <GuidedFinder object={finderTarget} position={targetPosition} nextRise={nextRise} time={time} location={location} view={view} width={size.width} height={size.height} language={language} phone={phone} sunAltitude={sun.altitude} onClose={onStopFinder} onDetails={() => onSelect(finderTarget)} onCenter={() => onViewChange({heading: targetPosition.azimuth, pitch: Math.min(89.9, Math.max(0, targetPosition.altitude))})}/>}
     <div className="horizon-help">{language === 'sv' ? 'Dra eller svep för att se dig omkring' : 'Drag or swipe to look around'}</div>
     <div className="horizon-controls" aria-label={language === 'sv' ? 'Styr vyn' : 'View controls'}>
       <button onClick={() => move(-30, 0)} aria-label={language === 'sv' ? 'Vrid åt vänster' : 'Turn left'}>←</button>
