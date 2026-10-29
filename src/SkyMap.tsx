@@ -1,7 +1,7 @@
 import {useEffect, useMemo, useRef, useState} from 'react';
 import {constellationSky, drawConstellations} from './constellations';
 import {Body} from 'astronomy-engine';
-import {objectPosition, positionAt, type ObservingLocation} from './astronomy';
+import {objectPosition, positionAt, showObjectMarker, type ObservingLocation} from './astronomy';
 import {objects, type SpaceObject} from './data';
 import {horizontalStarCatalog, projectHorizontal} from './skyProjection';
 
@@ -28,8 +28,8 @@ export function SkyMap({time, location, label, sunLabel, onSelect, showFigures, 
   }), [catalog, size]);
   const markers = useMemo(() => objects.flatMap(object => {
     if (!size.width || !size.height) return [];
-    // An above-horizon deep-sky object is not visually observable in daylight.
-    if (sun.altitude >= -6 && object.id !== 'moon') return [];
+    // Markers distinguish civil twilight for planets from darker deep-sky conditions.
+    if (!showObjectMarker(object, sun.altitude)) return [];
     const position = objectPosition(object, time, location);
     const point = position && projectHorizontal(position, size.width, size.height);
     return point ? [{object, point, altitude: position.altitude}] : [];

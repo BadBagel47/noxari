@@ -1,4 +1,4 @@
-import {Body, DefineStar, Equator, Horizon, Observer} from 'astronomy-engine';
+import {AngleFromSun, Body, Constellation, DefineStar, Equator, EquatorFromVector, GeoVector, Horizon, Illumination, Observer} from 'astronomy-engine';
 import {DateTime} from 'luxon';
 import {objects, type SpaceObject} from './data';
 import {brightStars} from './generated/brightStars';
@@ -42,6 +42,24 @@ export function objectPosition(object: SpaceObject, time: Date, location: Observ
     : fixedBodies.get(object.id);
   if (!body) throw new Error(`Missing catalog position for ${object.id}`);
   return positionAt(body, time, location);
+}
+
+// Geocentric photometry and distance, separate from the observer's topocentric
+// altitude/azimuth. Magnitude is a model without atmospheric extinction.
+export function solarAppearance(object: SpaceObject, time: Date) {
+  if (object.position?.kind !== 'solar') return null;
+  const body = Body[object.position.body];
+  const light = Illumination(body, time);
+  const equatorial = EquatorFromVector(GeoVector(body, time, true));
+  return {distanceAu: light.geo_dist, magnitude: light.mag, illuminatedFraction: light.phase_fraction,
+    sunSeparation: AngleFromSun(body, time), constellation: Constellation(equatorial.ra, equatorial.dec).name};
+}
+
+// Marker policy is schematic, not a claim of naked-eye visibility. Bright
+// inner planets need civil twilight; deep-sky targets wait until darker skies.
+export function showObjectMarker(object: SpaceObject, sunAltitude: number) {
+  if (object.kind === 'Moon') return true;
+  return sunAltitude < (object.kind === 'Planet' ? 0 : -6);
 }
 
 // The night is shown from 18:00 to 06:00 in the selected observation timezone.

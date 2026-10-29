@@ -1,7 +1,7 @@
 import {useEffect, useMemo, useRef, useState, type Dispatch, type PointerEvent, type SetStateAction} from 'react';
 import {constellationSky, drawConstellations} from './constellations';
 import {Body} from 'astronomy-engine';
-import {objectPosition, positionAt, type ObservingLocation, type SkyPosition} from './astronomy';
+import {objectPosition, positionAt, showObjectMarker, type ObservingLocation, type SkyPosition} from './astronomy';
 import {objects, type SpaceObject} from './data';
 import {horizontalStarCatalog, projectPerspective, type MapPoint, type ViewDirection} from './skyProjection';
 
@@ -31,7 +31,7 @@ export function HorizonView({time, location, label, sunLabel, onSelect, language
   const figures = useMemo(() => constellationSky(stars), [stars]);
   const sun = useMemo(() => positionAt(Body.Sun, time, location), [time, location]);
   const markers = useMemo(() => objects.flatMap(object => {
-    if (sun.altitude >= -6 && object.id !== 'moon') return [];
+    if (!showObjectMarker(object, sun.altitude)) return [];
     const position = objectPosition(object, time, location);
     const point = position && projectPerspective(position, view, size.width, size.height);
     return point ? [{object, position, point}] : [];

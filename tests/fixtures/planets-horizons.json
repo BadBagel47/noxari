@@ -1,0 +1,43 @@
+{
+  "source": "NASA/JPL Horizons observer ephemerides, airless apparent azimuth/elevation (quantity 4)",
+  "time": "2026-01-15T22:00:00Z",
+  "observer": {
+    "name": "Greenwich",
+    "latitude": 51.4779,
+    "longitude": 0,
+    "timeZone": "Europe/London"
+  },
+  "notes": "Geodetic WGS84 site at 0 km elevation. Degrees east of north and above geometric horizon. Retrieved 2026-10-29; fixed regression data, no network access during tests.",
+  "samples": [
+    {
+      "body": "Mercury",
+      "azimuth": 310.719783949,
+      "altitude": -54.258624985,
+      "sourceUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND=%27199%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40399%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%270%2C51.4779%2C0%27&START_TIME=%272026-01-15+22%3A00%27&STOP_TIME=%272026-01-15+22%3A01%27&STEP_SIZE=%271+m%27&QUANTITIES=%274%27&REF_SYSTEM=%27ICRF%27&APPARENT=%27AIRLESS%27&CSV_FORMAT=%27YES%27&EXTRA_PREC=%27YES%27"
+    },
+    {
+      "body": "Venus",
+      "azimuth": 304.650800839,
+      "altitude": -49.678328719,
+      "sourceUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND=%27299%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40399%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%270%2C51.4779%2C0%27&START_TIME=%272026-01-15+22%3A00%27&STOP_TIME=%272026-01-15+22%3A01%27&STEP_SIZE=%271+m%27&QUANTITIES=%274%27&REF_SYSTEM=%27ICRF%27&APPARENT=%27AIRLESS%27&CSV_FORMAT=%27YES%27&EXTRA_PREC=%27YES%27"
+    },
+    {
+      "body": "Mars",
+      "azimuth": 309.049852329,
+      "altitude": -52.250542502,
+      "sourceUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND=%27499%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40399%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%270%2C51.4779%2C0%27&START_TIME=%272026-01-15+22%3A00%27&STOP_TIME=%272026-01-15+22%3A01%27&STEP_SIZE=%271+m%27&QUANTITIES=%274%27&REF_SYSTEM=%27ICRF%27&APPARENT=%27AIRLESS%27&CSV_FORMAT=%27YES%27&EXTRA_PREC=%27YES%27"
+    },
+    {
+      "body": "Uranus",
+      "azimuth": 227.488769527,
+      "altitude": 50.278422614,
+      "sourceUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND=%27799%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40399%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%270%2C51.4779%2C0%27&START_TIME=%272026-01-15+22%3A00%27&STOP_TIME=%272026-01-15+22%3A01%27&STEP_SIZE=%271+m%27&QUANTITIES=%274%27&REF_SYSTEM=%27ICRF%27&APPARENT=%27AIRLESS%27&CSV_FORMAT=%27YES%27&EXTRA_PREC=%27YES%27"
+    },
+    {
+      "body": "Neptune",
+      "azimuth": 265.320197488,
+      "altitude": 2.041387307,
+      "sourceUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND=%27899%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40399%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%270%2C51.4779%2C0%27&START_TIME=%272026-01-15+22%3A00%27&STOP_TIME=%272026-01-15+22%3A01%27&STEP_SIZE=%271+m%27&QUANTITIES=%274%27&REF_SYSTEM=%27ICRF%27&APPARENT=%27AIRLESS%27&CSV_FORMAT=%27YES%27&EXTRA_PREC=%27YES%27"
+    }
+  ]
+}
