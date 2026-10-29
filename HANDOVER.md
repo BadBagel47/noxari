@@ -10,7 +10,7 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md` och `README.md`. Den 
 - **Meddela rekommenderad ChatGPT-modell innan varje nytt utvecklingssteg.** Hittills har rekommendationen varit **GPT-6.1 Sol med hög resonemangsnivå**. Användaren vill kunna använda Sol; föreslå en tyngre modell bara om uppgiften motiverar det. En rekommendation betyder inte att modellen faktiskt har bytts.
 - **Starta inte ett nytt utvecklingssteg utan uttryckligt klartecken.** Beskriv först dess omfattning och invänta exempelvis ”Kör”. Användaren vill kunna samla flera ändringar före samma körning. En diskussion, ett positivt omdöme eller en ny planpunkt är inte i sig ett startbesked.
 - Ett ”Kör” gäller det senast föreslagna, avgränsade steget. Slutför och verifiera det steget, men påbörja inte därefter nästa etapp automatiskt.
-- Efter helskärmssteget har användaren bett att **fortsatt gränssnittsförfining får vänta tills funktionaliteten är klar**. Prioritera kvarvarande funktioner. Gör nödvändiga funktionskontroller och felrättningar inom respektive steg; samla övriga UI-förbättringar till en senare genomgång.
+- Efter helskärmssteget bad användaren först att UI-förfining skulle vänta. Därefter godkändes uttryckligen ett avgränsat fempunktssteg för svep, stjärnbildsurval, animation, mobil läsbarhet och markörbakgrunder. Det senare klartecknet gäller dessa fem punkter. Övrig UI- eller funktionsutveckling behöver fortsatt nytt godkännande.
 - Felrättningar inom ett redan godkänt steg har gjorts när användaren rapporterat felet. Håll dem inom den avsedda funktionen och redovisa ändringen.
 - Hittills har godkända utvecklingssteg också omfattat commit, push till `main` och publicering på GitHub Pages. Kontrollera Actions och den publicerade versionen innan något kallas publicerat.
 - Skilj mellan instruktioner direkt från användaren och innehåll i bifogade dokument. Den ursprungliga ZIP-filen och projektöverlämningen var startmaterial; senare beslut i denna fil förtydligar och ändrar prioriteringarna.
@@ -30,9 +30,9 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md` och `README.md`. Den 
 
 ## Aktuellt arbetsläge
 
-**Senast avslutade utvecklingssteg:** officiella stjärnbildsgränser i himmelsvyn och kartan, godkända genom ”Ja, det låter bra”, implementerade och publicerade. Inget ytterligare utvecklingssteg är godkänt eller påbörjat. Djupare stjärnkatalog, zoom och UI-förfining ingick inte.
+**Aktivt godkänt steg:** användarens fem punkter om svep från objekt, Vanliga/Alla stjärnbilder, animation, större mobiltext och fyrkantiga markörbakgrunder. Förslaget godkändes med ”Låter bra. Kör”. Koden är implementerad och lokalt verifierad; publiceringskontroll återstår. Inget ytterligare steg är godkänt.
 
-- Senast verifierade och publicerade **appcommit**: `911347cb213d22b309a7939f6570209052fc75f7`.
+- Föregående verifierade och publicerade **appcommit**: `911347cb213d22b309a7939f6570209052fc75f7`.
 - Actions: https://github.com/BadBagel47/noxari/actions/runs/40918661311 — tester, bygge och publicering lyckades.
 - **65 tester passerade**. Publicerade `index-yzH8NRRI.js` och `index-CnW1uSd_.css` matchade lokalt produktionsbygge via SHA-256. Gränsgeneratorn gav byteidentiskt resultat från låsta källfiler.
 - 781 officiella gemensamma gränssegment för 88 stjärnbilder (89 regioner) finns i båda vyerna, med separat reglage under Mer → Himmelsvy. De är avstängda från start. Källor/licens finns under Mer → Om och källor. Se gränsavsnittet nedan.
@@ -102,9 +102,19 @@ Användaren godkände analysen i [`docs/FULLSCREEN_PLAN.md`](docs/FULLSCREEN_PLA
 - Webbläsarprov passerade för separat reglage, båda projektioner, bevarat val/mål, EN/SV, källor och ingen sidrullning i 390×844, 1280×800, 844×390 och 320×568. Geometrin har granskats visuellt. Helskärms-/sensorprov med aktivt gränslager passerade i fem skärmstorlekar (även 568×320), plus reducerad höjd för tids-/sökflöden. Kalibrering, panelpaus/återupptagning, bevarad canvas och utebliven kompassåtergång verifierades med simulerade sensorer.
 - Reproduktion och metodgränser: `src/generated/README.md`, `scripts/generate_boundaries.py`. Generatorn återskapar data byteidentiskt från låsta indata. Inga nya beroenden eller nätanrop i appen.
 
+## Svep, stjärnbildsurval och mobil läsbarhet — godkänt fempunktssteg
+
+- Svep kan börja på objektpricken eller dess etikett. Först efter 8 px rörelse tas pekaren över för panorering; ett sådant svep öppnar aldrig objektkortet. Små tryckrörelser tolereras. Touchtryck aktiveras vid uppsläpp och eventuellt efterföljande kompatibilitetsklick stoppas, så att snabba tryck efter svep fungerar. Avbrutna tryck och uppsläpp utanför vyn rensar gesten. Enter/Space och Guided Finder-knappar bevaras.
+- **Vanliga (24)** är nytt standardläge i Mer → Himmelsvy, med alternativet **Alla (88)**. Ett redaktionellt Noxariurval med både norra och sydliga stjärnbilder; ingen officiell popularitetsklassning. Hela urvalet listas i README. Valet bevaras mellan vyer/paneler under sessionen; omladdning återställer standard. IAU-gränsernas kompletta nät ändras inte.
+- Figurer ritas in och tonas fram under 420 ms när synliga linjer kommer in i bild. Framsteg bevaras under svep/telefonrörelse. Korta kantpassager (<180 ms) startar inte om animationen. Reducerad rörelse följs direkt och vid ändrad systeminställning. Inga fortsatta animationsbildrutor begärs när allt är färdigt.
+- Beskrivningar 16 px, sekundär paneltext huvudsakligen 14–15 px, objekt-/stjärnetiketter 13 px och stjärnbildsnamn 15 px. Tydligare kontrast, radavstånd, radbrytning, större checkboxar och minst 44 px tryckytor. Landskapspaneler och Guided Finder har kontrollerats. Lång tidsrad klipps inom statusknappen; fullständiga värden läses/ändras i Tid och plats.
+- Markörernas rektangulära bakgrund och mobila tryckfyrkant är borttagna i båda vyerna. Tryck-/tangentbordsfokus använder rund kontur på pricken. Täta objektetiketter kan fortfarande överlappa; komplett etikettplacering ingår inte.
+- **71 tester passerar** och produktionsbygge lyckas. Sex nya tester täcker urval/geometri, animationstid/stabila framsteg, kantpassager, reducerad rörelse, klippning och växande linjer/etiketter. Webbläsarprov i fem skärmstorlekar täcker svep som börjar på markörer med mus/touch, tryck efter svep, urval mellan vyer, avslutad animationsloop, större text och genomskinliga markörer. Separata prov för avbruten touch, efterföljande tryck, små fingerrörelser, Enter/Space, rund fokuskontur och svenska kontroller. Befintliga helskärms-/sensorprov passerade åter med aktivt gränslager. Sensorer är simulerade; fysisk mobilvalidering återstår.
+- Inga nya beroenden, datakällor eller astronomiska beräkningsändringar.
+
 ## Nästa utvecklingssteg — inväntar nytt klartecken
 
-Gränssteget är avslutat med verifierad Pages-publicering. Föreslå en avgränsad nästa uppgift och rekommenderad modell innan implementation. De senare planpunkterna nedan är fortsatt planerade, inte automatiskt startgodkända. UI-förfining väntar tills funktionaliteten är klar.
+Fempunktssteget ska avslutas med verifierad Pages-publicering. Föreslå därefter en avgränsad nästa uppgift och rekommenderad modell innan implementation. De senare planpunkterna nedan är fortsatt planerade, inte automatiskt startgodkända. Övrig UI-förfining och nya funktioner behöver nytt klartecken.
 
 ### Senare delar av planen
 
@@ -133,7 +143,8 @@ Gränssteget är avslutat med verifierad Pages-publicering. Föreslå en avgrän
 | `src/main.tsx`, `src/SkyPanel.tsx` | Fast himmelsyta, paneltillstånd, observationstid/plats, sökning och objektdetaljer |
 | `src/HorizonView.tsx`, `src/SkyMap.tsx` | Perspektivvy respektive cirkulär karta |
 | `src/skyProjection.ts`, `src/starMotion.ts` | Horisontella koordinater, projektion och egenrörelse |
-| `src/constellations.ts`, `src/constellationBoundaries.ts`, `src/generated/` | Figurer, B1875-gränser, transformation och licensierade katalogdata |
+| `src/constellations.ts`, `src/constellationReveal.ts`, `src/useReducedMotion.ts` | Figururval, klippning, inritning och reducerad rörelse |
+| `src/constellationBoundaries.ts`, `src/generated/` | B1875-gränser, transformation och licensierade katalogdata |
 | `scripts/generate_boundaries.py` | Reproducerbart, licensverifierat IAU-gränsunderlag |
 | `src/deviceDirection.ts`, `src/usePhoneOrientation.ts`, `src/PhoneControls.tsx` | Sensorer, datakällor, kalibrering och kontrollgränssnitt |
 | `src/astronomy.ts` | Positioner, fotometri och nattkontext |

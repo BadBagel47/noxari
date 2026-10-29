@@ -30,7 +30,7 @@ export function VisibilityChart({series, large = false}: {series: VisibilitySeri
       <line x1="0" x2="320" y1={y(0)} y2={y(0)} stroke="#b3c5da" opacity=".7"/>
       <polyline points={points} fill="none" stroke={real ? '#83c9ef' : '#c6a9ec'} strokeWidth={large ? 3 : 2.5} strokeLinecap="round" strokeLinejoin="round"/>
       {peak && <circle cx={x(peakIndex)} cy={y(peak.altitude)} r={large ? 4 : 3} fill="#fce6aa"/>}
-      {ticks.map(index => <text key={index} x={x(index)} y="82" fontSize="10" textAnchor={index === 0 ? 'start' : index === samples.length - 1 ? 'end' : 'middle'} fill="#a9bed6">{clockTime(samples[index].time, series.timeZone)}</text>)}
+      {ticks.map(index => <text key={index} x={x(index)} y="82" fontSize="12" textAnchor={index === 0 ? 'start' : index === samples.length - 1 ? 'end' : 'middle'} fill="#a9bed6">{clockTime(samples[index].time, series.timeZone)}</text>)}
     </svg>
   </div>;
 }

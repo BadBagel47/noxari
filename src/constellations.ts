@@ -1,6 +1,11 @@
 import type {SkyPosition} from './astronomy';
 import {constellationFigures} from './generated/constellations';
 import type {HorizontalStar, MapPoint} from './skyProjection';
+import {clipFigureSegment, type ConstellationReveal} from './constellationReveal';
+
+export type FigureMode = 'common' | 'all';
+// A Noxari editorial selection, not an IAU popularity classification.
+export const commonConstellationIds = new Set(['And', 'Aql', 'Aur', 'Boo', 'CMa', 'Cnc', 'Car', 'Cas', 'Cen', 'Cru', 'Cyg', 'Gem', 'Her', 'Leo', 'Lyr', 'Ori', 'Peg', 'Per', 'Sco', 'Sgr', 'Tau', 'UMa', 'UMi', 'Vir']);
 
 const RAD = Math.PI / 180;
 function vector(position: SkyPosition) {
@@ -25,9 +30,9 @@ export function figureArc(start: SkyPosition, end: SkyPosition): SkyPosition[] {
   });
 }
 
-export function constellationSky(stars: HorizontalStar[]) {
+export function constellationSky(stars: HorizontalStar[], mode: FigureMode = 'all') {
   const byHip = new Map(stars.filter(star => star.hip !== null).map(star => [star.hip, star]));
-  return constellationFigures.map(figure => {
+  return constellationFigures.filter(figure => mode === 'all' || commonConstellationIds.has(figure.id)).map(figure => {
     const ids = [...new Set(figure.lines.flat())];
     const members = ids.map(id => byHip.get(id)).filter((star): star is HorizontalStar => Boolean(star));
     const center = position(members.reduce((sum, star) => vector(star).map((value, i) => sum[i] + value), [0, 0, 0]));
@@ -39,32 +44,50 @@ export function constellationSky(stars: HorizontalStar[]) {
   });
 }
 
-export function drawConstellations(context: CanvasRenderingContext2D, figures: ReturnType<typeof constellationSky>, project: (position: SkyPosition) => MapPoint | null, width: number, height: number, visibility: number, showNames: boolean) {
-  if (visibility <= 0) return;
-  context.save();
-  context.beginPath(); context.rect(0, 0, width, height); context.clip();
-  context.globalAlpha = visibility * .5;
-  context.strokeStyle = '#7cabe1'; context.lineWidth = 1;
-  for (const figure of figures) {
-    context.beginPath();
+export function drawConstellations(context: CanvasRenderingContext2D, figures: ReturnType<typeof constellationSky>, project: (position: SkyPosition) => MapPoint | null, width: number, height: number, visibility: number, showNames: boolean, animation?: {reveal: ConstellationReveal; now: number; reducedMotion: boolean}) {
+  if (visibility <= 0) { animation?.reveal.reset(); return false; }
+  const projected = figures.map(figure => {
+    const segments: [MapPoint, MapPoint][] = [];
     for (const arc of figure.arcs) {
-      let connected = false;
+      let previous: MapPoint | null = null;
       for (const sample of arc) {
         const point = project(sample);
-        if (!point) { connected = false; continue; }
-        if (connected) context.lineTo(point.x, point.y);
-        else context.moveTo(point.x, point.y);
-        connected = true;
+        if (point && previous) {
+          const clipped = clipFigureSegment(previous, point, width, height);
+          if (clipped) segments.push(clipped);
+        }
+        previous = point;
       }
+    }
+    return {figure, segments};
+  });
+  const state = animation?.reveal.update(projected.filter(item => item.segments.length).map(item => item.figure.id), animation.now, animation.reducedMotion);
+  context.save();
+  context.beginPath(); context.rect(0, 0, width, height); context.clip();
+  context.strokeStyle = '#7cabe1'; context.lineWidth = 1;
+  for (const {figure, segments} of projected) {
+    const progress = state?.progress.get(figure.id) ?? 1;
+    context.globalAlpha = visibility * .6 * progress;
+    let remaining = segments.reduce((sum, [a, b]) => sum + Math.hypot(b.x - a.x, b.y - a.y), 0) * progress;
+    context.beginPath();
+    for (const [a, b] of segments) {
+      if (remaining <= 0) break;
+      const length = Math.hypot(b.x - a.x, b.y - a.y);
+      const fraction = length ? Math.min(1, remaining / length) : 1;
+      context.moveTo(a.x, a.y);
+      context.lineTo(a.x + (b.x - a.x) * fraction, a.y + (b.y - a.y) * fraction);
+      remaining -= length;
     }
     context.stroke();
   }
   if (showNames && visibility > .5) {
     const placed: {x: number; y: number; width: number}[] = [];
-    context.globalAlpha = visibility * .85;
-    context.font = 'italic 12px system-ui, sans-serif'; context.textAlign = 'center';
+    context.font = 'italic 15px system-ui, sans-serif'; context.textAlign = 'center';
     context.fillStyle = '#a9c6ec';
     for (const figure of figures) {
+      const progress = state ? state.progress.get(figure.id) ?? 0 : 1;
+      if (progress < .3) continue;
+      context.globalAlpha = visibility * .95 * progress;
       const point = project(figure.center);
       if (!point) continue;
       const labelWidth = context.measureText(figure.name).width;
@@ -75,4 +98,5 @@ export function drawConstellations(context: CanvasRenderingContext2D, figures: R
     }
   }
   context.restore();
+  return state?.animating ?? false;
 }
