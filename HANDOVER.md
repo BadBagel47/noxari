@@ -30,16 +30,16 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md` och `README.md`. Den 
 
 ## Aktuellt arbetsläge
 
-**Aktivt godkänt steg:** användarens fem punkter om svep från objekt, Vanliga/Alla stjärnbilder, animation, större mobiltext och fyrkantiga markörbakgrunder. Förslaget godkändes med ”Låter bra. Kör”. Koden är implementerad och lokalt verifierad; publiceringskontroll återstår. Inget ytterligare steg är godkänt.
+**Senast avslutade utvecklingssteg:** det godkända fempunktssteget för svep, stjärnbildsurval, animation, mobil läsbarhet och markörbakgrunder. Godkänt genom ”Låter bra. Kör”, implementerat och publicerat. Inget ytterligare utvecklingssteg är godkänt eller påbörjat.
 
-- Föregående verifierade och publicerade **appcommit**: `911347cb213d22b309a7939f6570209052fc75f7`.
-- Actions: https://github.com/BadBagel47/noxari/actions/runs/40918661311 — tester, bygge och publicering lyckades.
-- **65 tester passerade**. Publicerade `index-yzH8NRRI.js` och `index-CnW1uSd_.css` matchade lokalt produktionsbygge via SHA-256. Gränsgeneratorn gav byteidentiskt resultat från låsta källfiler.
-- 781 officiella gemensamma gränssegment för 88 stjärnbilder (89 regioner) finns i båda vyerna, med separat reglage under Mer → Himmelsvy. De är avstängda från start. Källor/licens finns under Mer → Om och källor. Se gränsavsnittet nedan.
-- Webbläsarprov för gränser passerade i 390×844, 1280×800, 844×390 och 320×568, inklusive separat reglage, båda projektioner, bevarat val/mål, EN/SV, källor och ingen sidrullning. Skärmbilder har granskats visuellt.
-- Helskärms-/sensorflöden passerade med aktivt gränslager i 390×844, 1280×800, 844×390, 320×568 och 568×320, plus 390×420 för tids-/sökflöden. Canvas, nordreferens, mål och riktning bevaras över panelöppningar; Nu/Vald tid, uttrycklig återupptagning och utebliven kompassåtergång fungerar med simulerade sensorer.
-- Användarens tidigare fysiska Android/Brave-bekräftelse gäller grundläggande telefonföljning och återgångsrättningen. Senare panelflöden, Messierkatalogen och gränslagret är ännu inte bekräftade på fysisk mobil.
-- README, AGENTS och källdokumentation är uppdaterade. Denna slutstatus sparas i en senare dokumentationscommit; appcommit ovan anger verifierad kod.
+- Senast verifierade och publicerade **appcommit**: `ad3d775416a0f939b9a0f9ba0cdd6c67e4bbb682`.
+- Actions: https://github.com/BadBagel47/noxari/actions/runs/40935781514 — tester, bygge och publicering lyckades.
+- **71 tester passerade**. Publicerade `index-Bwx5b2b2.js` och `index-fb5IWEfz.css` matchade lokalt produktionsbygge via SHA-256.
+- Alla fem punkter är genomförda: svep från objektmarkörer med åtskilt tryck, Vanliga (24) som standard/Alla (88), inritning vid inträde, större och tydligare mobiltext samt genomskinliga markörer med rund tryck-/fokuskontur. Se fempunktsavsnittet nedan.
+- Webbläsarprov passerade i 390×844, 1280×800, 844×390, 320×568 och 568×320. Mus- och Chromium-touchhändelser användes för drag från markörer, med kontroll att svep inte väljer objekt. Tryck efter svep, urval mellan vyer/paneler, avslutad animationsloop, reducerad rörelse, större text och genomskinlig bakgrund verifierades. Skärmbilder har granskats visuellt.
+- Separata prov passerade för avbruten touch, nytt tryck efter avbrott, små fingerrörelser, Enter/Space, rund tangentbordsfokusmarkering och svenska kontroller. Befintliga helskärms-/sensorflöden passerade åter med aktivt gränslager i fem storlekar plus 390×420 för tids-/sökflöden. Nordreferens, panelpaus/återupptagning, mål och utebliven kompassåtergång bevaras med simulerade sensorer.
+- Användarens tidigare fysiska Android/Brave-bekräftelse gäller grundläggande telefonföljning och återgångsrättningen. Denna nya version är ännu inte bekräftad på fysisk mobil. Täta objektetiketter kan fortfarande överlappa; fullständig etikettplacering ingick inte.
+- README och AGENTS är uppdaterade. Denna slutstatus sparas i en senare dokumentationscommit; appcommit ovan anger verifierad kod.
 
 ## Det som fungerar
 
@@ -114,7 +114,7 @@ Användaren godkände analysen i [`docs/FULLSCREEN_PLAN.md`](docs/FULLSCREEN_PLA
 
 ## Nästa utvecklingssteg — inväntar nytt klartecken
 
-Fempunktssteget ska avslutas med verifierad Pages-publicering. Föreslå därefter en avgränsad nästa uppgift och rekommenderad modell innan implementation. De senare planpunkterna nedan är fortsatt planerade, inte automatiskt startgodkända. Övrig UI-förfining och nya funktioner behöver nytt klartecken.
+Fempunktssteget är avslutat med verifierad Pages-publicering. Föreslå en avgränsad nästa uppgift och rekommenderad modell innan implementation. De senare planpunkterna nedan är fortsatt planerade, inte automatiskt startgodkända. Övrig UI-förfining och nya funktioner behöver nytt klartecken.
 
 ### Senare delar av planen
 
