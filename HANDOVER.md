@@ -30,14 +30,15 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md` och `README.md`. Den 
 
 ## Aktuellt arbetsläge
 
-**Aktivt godkänt steg:** officiella stjärnbildsgränser i himmelsvyn och kartan. Användaren godkände det avgränsade förslaget genom ”Ja, det låter bra”. Implementationen är klar och verifiering/publicering pågår. Djupare stjärnkatalog, zoom och UI-förfining ingår inte; inget ytterligare steg är godkänt.
+**Senast avslutade utvecklingssteg:** officiella stjärnbildsgränser i himmelsvyn och kartan, godkända genom ”Ja, det låter bra”, implementerade och publicerade. Inget ytterligare utvecklingssteg är godkänt eller påbörjat. Djupare stjärnkatalog, zoom och UI-förfining ingick inte.
 
-- Föregående verifierade och publicerade **appcommit**: `f844d60f6664f1bdc268c77f42019cabfab8fd0a`.
-- Actions: https://github.com/BadBagel47/noxari/actions/runs/40913291218 — tester, bygge och publicering lyckades.
-- **60 tester passerade**. Publicerade `index-Chzg0XYc.js` och `index-CnW1uSd_.css` matchade lokalt produktionsbygge via SHA-256. Kataloggeneratorn gav byteidentiskt resultat från låsta källfiler.
-- 110 Messierobjekt är anslutna till sökning, filter, sparande, höjdkurvor, Ikväll och Guided Finder. Källor, licenser och saknade/osäkra värden är dokumenterade och visas i appen. Se katalogavsnittet nedan.
-- Webbläsarprov för katalogen passerade vid 390×844 och 1280×800. Helskärms-/sensorflöden passerade åter i 390×844, 1280×800, 844×390, 320×568 och 568×320, plus 390×420 som tangentbordsliknande höjd. Canvasidentitet, nordreferens, mål och riktning bevaras över panelöppningar; Nu/Vald tid, uttrycklig återupptagning och utebliven kompassåtergång fungerar med simulerade sensorer.
-- Tidigare helskärmsprov omfattade även GPS, DST-fel, språk, källpanel, objektlänk, bokmärke, kartbyte, frivillig webbläsarhelskärm och avbruten behörighetsbegäran. Användarens tidigare fysiska Android/Brave-bekräftelse gäller grundläggande telefonföljning och återgångsrättningen. Senare panelflöden och katalogen är ännu inte bekräftade på fysisk mobil.
+- Senast verifierade och publicerade **appcommit**: `911347cb213d22b309a7939f6570209052fc75f7`.
+- Actions: https://github.com/BadBagel47/noxari/actions/runs/40918661311 — tester, bygge och publicering lyckades.
+- **65 tester passerade**. Publicerade `index-yzH8NRRI.js` och `index-CnW1uSd_.css` matchade lokalt produktionsbygge via SHA-256. Gränsgeneratorn gav byteidentiskt resultat från låsta källfiler.
+- 781 officiella gemensamma gränssegment för 88 stjärnbilder (89 regioner) finns i båda vyerna, med separat reglage under Mer → Himmelsvy. De är avstängda från start. Källor/licens finns under Mer → Om och källor. Se gränsavsnittet nedan.
+- Webbläsarprov för gränser passerade i 390×844, 1280×800, 844×390 och 320×568, inklusive separat reglage, båda projektioner, bevarat val/mål, EN/SV, källor och ingen sidrullning. Skärmbilder har granskats visuellt.
+- Helskärms-/sensorflöden passerade med aktivt gränslager i 390×844, 1280×800, 844×390, 320×568 och 568×320, plus 390×420 för tids-/sökflöden. Canvas, nordreferens, mål och riktning bevaras över panelöppningar; Nu/Vald tid, uttrycklig återupptagning och utebliven kompassåtergång fungerar med simulerade sensorer.
+- Användarens tidigare fysiska Android/Brave-bekräftelse gäller grundläggande telefonföljning och återgångsrättningen. Senare panelflöden, Messierkatalogen och gränslagret är ännu inte bekräftade på fysisk mobil.
 - README, AGENTS och källdokumentation är uppdaterade. Denna slutstatus sparas i en senare dokumentationscommit; appcommit ovan anger verifierad kod.
 
 ## Det som fungerar
@@ -103,12 +104,12 @@ Användaren godkände analysen i [`docs/FULLSCREEN_PLAN.md`](docs/FULLSCREEN_PLA
 
 ## Nästa utvecklingssteg — inväntar nytt klartecken
 
-Gränssteget ska avslutas med verifierad Pages-publicering. Föreslå därefter en avgränsad nästa uppgift och rekommenderad modell innan implementation. De senare planpunkterna nedan är fortsatt planerade, inte automatiskt startgodkända. UI-förfining väntar tills funktionaliteten är klar.
+Gränssteget är avslutat med verifierad Pages-publicering. Föreslå en avgränsad nästa uppgift och rekommenderad modell innan implementation. De senare planpunkterna nedan är fortsatt planerade, inte automatiskt startgodkända. UI-förfining väntar tills funktionaliteten är klar.
 
 ### Senare delar av planen
 
 - Bredare mobilprovning, särskilt iOS, kompassprecision och porträtt/landskap.
-- Djupare stjärnkatalog och zoom. Officiella stjärnbildsgränser ingår i det nu godkända steget.
+- Djupare stjärnkatalog och zoom. Officiella stjärnbildsgränser är genomförda.
 - Licensierade objektbilder med källangivelser.
 - Rikare delningsförhandsvisningar och hela observationslistor.
 - Kamera-overlay/AR är uttryckligen **låg prioritet och ska komma senare**. Telefonföljningen behöver ingen kamerabild.
@@ -121,7 +122,7 @@ Gränssteget ska avslutas med verifierad Pages-publicering. Föreslå därefter 
 - Stjärnbildsfigurerna är schematiska; officiella IAU-gränser är ett separat valbart lager med samplad klippning och Astronomy Engines B1875-konvention. Orion och Stora björnen har fortfarande tydligt märkta demokurvor.
 - ”Ikväll” använder en redovisad heuristik, inte en väderprognos eller sannolikhet för synlighet. Högsta höjd på diagrammet kan skilja sig från rekommenderad tid. Korta tillfällen kan missas mellan provpunkterna.
 - Sol-/planetmarkörer visar positioner och innebär inte garanterad synlighet. Förklaringar och utrustningsråd ska bevaras.
-- HYG, Stellariums använda figurdataset och den anpassade OpenNGC-katalogen är CC BY-SA 4.0. Bevara åtkomlig attribution, licenslänkar och uppgift om bearbetning i Om och källor. Ingen extern astronomisk bild är ännu inbäddad.
+- HYG, Stellariums använda figur- och gränsdata och den anpassade OpenNGC-katalogen är CC BY-SA 4.0. Bevara åtkomlig attribution, licenslänkar och uppgift om bearbetning i Om och källor. Ingen extern astronomisk bild är ännu inbäddad.
 - Se `src/generated/README.md` för exakta källor, checksummer och reproduktion. Se `README.md` för beräkningsmodell och begränsningar. NASA/JPL-referenser för planeter ligger i `tests/fixtures/planets-horizons.json` och testerna körs utan nätverk.
 - Lagra inga hemligheter, privata positionsuppgifter eller fullständiga chattloggar i överlämningsfilen.
 
