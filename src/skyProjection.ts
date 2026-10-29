@@ -66,8 +66,8 @@ export const perspectiveFocal = (width: number, height: number) => Math.max(widt
 
 // Rectilinear eye-level view. Heading is clockwise from north, pitch is above
 // the geometric horizon. The camera has no roll; the horizon stays level.
-export function projectPerspective(position: SkyPosition, view: ViewDirection, width: number, height: number, clipToViewport = true): MapPoint | null {
-  if (width <= 0 || height <= 0 || position.altitude < 0) return null;
+export function projectPerspective(position: SkyPosition, view: ViewDirection, width: number, height: number, clipToViewport = true, allowBelowHorizon = false): MapPoint | null {
+  if (width <= 0 || height <= 0 || (position.altitude < 0 && !allowBelowHorizon)) return null;
   const delta = ((position.azimuth - view.heading + 540) % 360 - 180) * RAD;
   const altitude = position.altitude * RAD;
   const pitch = view.pitch * RAD;

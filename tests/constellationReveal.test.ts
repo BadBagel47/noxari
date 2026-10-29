@@ -20,22 +20,22 @@ describe('constellation entrance animation', () => {
   it('progresses while the visible set is stable and completes without restarting on view updates', () => {
     const reveal = new ConstellationReveal();
     expect(reveal.update(['Ori'], 100, false).progress.get('Ori')).toBe(0);
-    const middle = reveal.update(['Ori'], 310, false);
-    expect(middle.progress.get('Ori')).toBeCloseTo(.875);
+    const middle = reveal.update(['Ori'], 600, false);
+    expect(middle.progress.get('Ori')).toBeCloseTo(.5);
     expect(middle.animating).toBe(true);
-    expect(reveal.update(['Ori', 'Gem'], 400, false).progress.get('Ori')).toBeGreaterThan(.875);
-    expect(reveal.update(['Ori', 'Gem'], 400, false).progress.get('Gem')).toBe(0);
-    expect(reveal.update(['Ori', 'Gem'], 1000, false).animating).toBe(false);
-    expect(reveal.update(['Ori'], 1200, false).progress.get('Ori')).toBe(1);
+    expect(reveal.update(['Ori', 'Gem'], 800, false).progress.get('Ori')).toBeGreaterThan(.5);
+    expect(reveal.update(['Ori', 'Gem'], 800, false).progress.get('Gem')).toBe(0);
+    expect(reveal.update(['Ori', 'Gem'], 1900, false).animating).toBe(false);
+    expect(reveal.update(['Ori'], 2000, false).progress.get('Ori')).toBe(1);
   });
 
   it('ignores short edge crossings but animates a genuine reentry and a fresh enabled session', () => {
     const reveal = new ConstellationReveal();
     reveal.update(['Ori'], 0, false);
-    reveal.update([], 500, false);
-    expect(reveal.update(['Ori'], 600, false).progress.get('Ori')).toBe(1);
-    reveal.update([], 700, false);
-    expect(reveal.update(['Ori'], 1000, false).progress.get('Ori')).toBe(0);
+    reveal.update([], 1100, false);
+    expect(reveal.update(['Ori'], 1200, false).progress.get('Ori')).toBe(1);
+    reveal.update([], 1300, false);
+    expect(reveal.update(['Ori'], 1600, false).progress.get('Ori')).toBe(0);
     reveal.reset();
     expect(reveal.update(['Ori'], 2000, false).progress.get('Ori')).toBe(0);
   });
@@ -65,12 +65,49 @@ describe('constellation entrance animation', () => {
     expect(draw(0)).toBe(true);
     expect(context.lineTo).not.toHaveBeenCalled();
     expect(context.fillText).not.toHaveBeenCalled();
-    expect(draw(210)).toBe(true);
-    expect(context.lineTo).toHaveBeenLastCalledWith(87.5, 100);
+    expect(draw(500)).toBe(true);
+    expect(context.lineTo).toHaveBeenLastCalledWith(50, 100);
     expect(context.fillText).toHaveBeenCalledWith('Orion', 50, 100);
-    expect(draw(420)).toBe(false);
+    expect(draw(1000)).toBe(false);
     expect(context.lineTo).toHaveBeenLastCalledWith(100, 100);
-    expect(drawConstellations(context, figures, () => null, 100, 200, 0, true, {reveal, now: 500, reducedMotion: false})).toBe(false);
-    expect(reveal.update(['Ori'], 600, false).progress.get('Ori')).toBe(0);
+    expect(drawConstellations(context, figures, () => null, 100, 200, 0, true, {reveal, now: 1100, reducedMotion: false})).toBe(false);
+    expect(reveal.update(['Ori'], 1200, false).progress.get('Ori')).toBe(0);
   });
+  it('waits at the edge without consuming animation time or scheduling idle frames', () => {
+    const reveal = new ConstellationReveal();
+    expect(reveal.update(['Ori:0'], 0, false, []).animating).toBe(false);
+    expect(reveal.update(['Ori:0'], 5000, false, []).progress.get('Ori:0')).toBe(0);
+    expect(reveal.update(['Ori:0'], 6000, false, ['Ori:0']).progress.get('Ori:0')).toBe(0);
+    expect(reveal.update(['Ori:0'], 6500, false, ['Ori:0']).progress.get('Ori:0')).toBeCloseTo(.5);
+    expect(reveal.update(['Ori:0'], 7000, false, ['Ori:0']).animating).toBe(false);
+    expect(reveal.update(['Gem:0'], 8000, true, []).progress.get('Gem:0')).toBe(1);
+  });
+
+  it('animates newly arriving lines independently of completed lines of the same figure', () => {
+    const reveal = new ConstellationReveal();
+    reveal.update(['Ori:0'], 0, false);
+    const arrival = reveal.update(['Ori:0', 'Ori:1'], 2000, false);
+    expect(arrival.progress.get('Ori:0')).toBe(1);
+    expect(arrival.progress.get('Ori:1')).toBe(0);
+    expect(arrival.animating).toBe(true);
+  });
+
+  it('starts a stroke after it enters the inner viewport, while the all-sky map can reveal its edge immediately', () => {
+    const context = Object.fromEntries(['save', 'restore', 'beginPath', 'rect', 'clip', 'moveTo', 'lineTo', 'stroke'].map(name => [name, vi.fn()])) as unknown as CanvasRenderingContext2D;
+    const figure = {id: 'Ori', name: 'Orion', center: {altitude: 50, azimuth: 3}, arcs: [[{altitude: 50, azimuth: 0}, {altitude: 50, azimuth: 6}]]};
+    const reveal = new ConstellationReveal();
+    const draw = (now: number, shift: number, entryInset = true) => drawConstellations(context, [figure], p => ({x: p.azimuth + shift, y: p.altitude}), 100, 100, 1, false, {reveal, now, reducedMotion: false, entryInset});
+    expect(draw(0, 0)).toBe(false);
+    expect(draw(5000, 0)).toBe(false);
+    expect(context.lineTo).not.toHaveBeenCalled();
+    expect(draw(6000, 20)).toBe(true);
+    expect(draw(6500, 20)).toBe(true);
+    expect(context.lineTo).toHaveBeenLastCalledWith(23, 50);
+    expect(draw(7000, 20)).toBe(false);
+    reveal.reset(); vi.clearAllMocks();
+    expect(draw(8000, 0, false)).toBe(true);
+    expect(draw(8500, 0, false)).toBe(true);
+    expect(context.lineTo).toHaveBeenLastCalledWith(3, 50);
+  });
+
 });

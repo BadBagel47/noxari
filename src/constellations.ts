@@ -44,29 +44,35 @@ export function constellationSky(stars: HorizontalStar[], mode: FigureMode = 'al
   });
 }
 
-export function drawConstellations(context: CanvasRenderingContext2D, figures: ReturnType<typeof constellationSky>, project: (position: SkyPosition) => MapPoint | null, width: number, height: number, visibility: number, showNames: boolean, animation?: {reveal: ConstellationReveal; now: number; reducedMotion: boolean}) {
+export function drawConstellations(context: CanvasRenderingContext2D, figures: ReturnType<typeof constellationSky>, project: (position: SkyPosition) => MapPoint | null, width: number, height: number, visibility: number, showNames: boolean, animation?: {reveal: ConstellationReveal; now: number; reducedMotion: boolean; entryInset?: boolean}) {
   if (visibility <= 0) { animation?.reveal.reset(); return false; }
-  const projected = figures.map(figure => {
+  const insetX = animation?.entryInset === false ? 0 : Math.min(56, width * .12);
+  const insetY = animation?.entryInset === false ? 0 : Math.min(80, height * .12);
+  const projected = figures.flatMap(figure => figure.arcs.map((arc, index) => {
     const segments: [MapPoint, MapPoint][] = [];
-    for (const arc of figure.arcs) {
-      let previous: MapPoint | null = null;
-      for (const sample of arc) {
-        const point = project(sample);
-        if (point && previous) {
-          const clipped = clipFigureSegment(previous, point, width, height);
-          if (clipped) segments.push(clipped);
-        }
-        previous = point;
+    let previous: MapPoint | null = null;
+    for (const sample of arc) {
+      const point = project(sample);
+      if (point && previous) {
+        const clipped = clipFigureSegment(previous, point, width, height);
+        if (clipped && Math.hypot(clipped[1].x - clipped[0].x, clipped[1].y - clipped[0].y) > .1) segments.push(clipped);
       }
+      previous = point;
     }
-    return {figure, segments};
-  });
-  const state = animation?.reveal.update(projected.filter(item => item.segments.length).map(item => item.figure.id), animation.now, animation.reducedMotion);
+    const eligible = segments.some(([a, b]) => clipFigureSegment(
+      {x: a.x - insetX, y: a.y - insetY}, {x: b.x - insetX, y: b.y - insetY}, width - 2 * insetX, height - 2 * insetY));
+    return {figure, id: `${figure.id}:${index}`, segments, eligible};
+  }));
+  const state = animation?.reveal.update(
+    projected.filter(item => item.segments.length).map(item => item.id), animation.now, animation.reducedMotion,
+    projected.filter(item => item.eligible).map(item => item.id));
+  const figureProgress = new Map<string, number>();
   context.save();
   context.beginPath(); context.rect(0, 0, width, height); context.clip();
   context.strokeStyle = '#7cabe1'; context.lineWidth = 1;
-  for (const {figure, segments} of projected) {
-    const progress = state?.progress.get(figure.id) ?? 1;
+  for (const {figure, id, segments} of projected) {
+    const progress = state ? state.progress.get(id) ?? 0 : 1;
+    figureProgress.set(figure.id, Math.max(figureProgress.get(figure.id) ?? 0, progress));
     context.globalAlpha = visibility * .6 * progress;
     let remaining = segments.reduce((sum, [a, b]) => sum + Math.hypot(b.x - a.x, b.y - a.y), 0) * progress;
     context.beginPath();
@@ -85,7 +91,7 @@ export function drawConstellations(context: CanvasRenderingContext2D, figures: R
     context.font = 'italic 15px system-ui, sans-serif'; context.textAlign = 'center';
     context.fillStyle = '#a9c6ec';
     for (const figure of figures) {
-      const progress = state ? state.progress.get(figure.id) ?? 0 : 1;
+      const progress = figureProgress.get(figure.id) ?? 0;
       if (progress < .3) continue;
       context.globalAlpha = visibility * .95 * progress;
       const point = project(figure.center);

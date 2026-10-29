@@ -1,4 +1,4 @@
-# Generated sky datasets — CC BY-SA 4.0
+# Generated sky datasets — provenance and licenses
 
 ## HYG stars
 
@@ -60,3 +60,21 @@ Regenerate with `python3 scripts/generate_messier.py`. It verifies both pinned d
 ## Reproduce stars and constellation figures
 
 Run `python3 scripts/generate_bright_stars.py`. Both downloads are checksum-verified before writing. To regenerate offline, pass the HYG CSV and Stellarium index JSON as the first and second arguments. No third-party Python packages are needed. The app links to the authors/sources and CC BY-SA 4.0 in More → About & sources.
+
+## Milky Way brightness grid — BSD 3-Clause
+
+`milkyWay.png` is a grayscale **data grid**, adapted from José R. Vieira's Milky Way Outline Catalog as distributed in **d3-celestial by Olaf Frohn**. The pinned repository's README identifies `data/mw.json` as five brightness contours, credits Vieira, specifies J2000 RA/Dec (RA expressed as signed longitude degrees), and releases the distribution under its BSD license. The complete BSD 3-Clause text is retained at `public/licenses/milky-way-BSD-3-Clause.txt` and linked with both author credits in About & sources. The original catalog URL listed by upstream currently returns 404; reproduction uses the pinned d3-celestial distribution, not that unavailable page.
+
+Upstream commit: `7e720a3de062059d4c5400a379146a601d9010e0`.
+
+| Input | SHA-256 |
+| --- | --- |
+| `data/mw.json` | `aee221a7a0e879418e685de00c3e68fbdfac5667c0a8aab74929ef9cf4aab4fb` |
+| `LICENSE` | `a8c79239001ad4bea243d1796b85084e1fc39309c5c5a663930a1b46320254c6` |
+| `readme.md` | `c3d77ea7e64565a31876cd2be3c2bc71919712e0379ecd1d98b490afc68703e2` |
+
+Changes: rasterize the five levels to a 720×360 equirectangular J2000 grid at 0.5° spacing, with RA increasing right from 0 to 24h and Dec decreasing down from +90° to −90°. Unwrap seam-crossing rings and close winding polar caps before even/odd filling. Preserve nested dark regions. Set grayscale levels to 51×contour level and apply two symmetric 3×3 box filters (periodic RA, clamped Dec) to soften steps. No photograph, invented dust shapes or prose is embedded. Brightness/color/opacity are stylized; this is not a calibrated surface-brightness or naked-eye visibility prediction.
+
+Output PNG SHA-256: `ef8b95fc6d23fcc711a5d2727fd7626b034ab6f76985c894c5aa85987259749f` (22,998 bytes). Generate with `python3 scripts/generate_milky_way.py`; offline, pass local `mw.json`, `LICENSE` and `readme.md` paths in that order. All inputs are checksum-verified. Only the Python standard library is needed; builds/tests do not download data.
+
+Runtime: inverse-project screen rays into the horizontal frame, rotate them to J2000 with Astronomy Engine and sample the grid bilinearly across the RA seam. This avoids polygon stitching across the camera/horizon. A cached diffuse layer uses at most 320 pixels on its longer axis and is reused for animation-only redraws. The local texture is loaded once, with an error/retry control if loading fails. Daylight fades it between Sun altitudes −18° and −8°. The all-sky map stays above the horizon; the eye-level view can expose the lower sky when looking down, with explicit simulation labeling. No proper motion is applied to this diffuse background.

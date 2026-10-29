@@ -1,3 +1,4 @@
+import {MilkyWayPainter, type MilkyWayTexture} from './milkyWay';
 import {useEffect, useMemo, useRef, useState} from 'react';
 import {constellationSky, drawConstellations, type FigureMode} from './constellations';
 import {ConstellationReveal} from './constellationReveal';
@@ -18,12 +19,14 @@ type Props = {
   showFigureNames: boolean;
   figureMode: FigureMode;
   showBoundaries: boolean;
+  milkyWay: MilkyWayTexture | null;
 };
 
-export function SkyMap({time, location, label, sunLabel, onSelect, showFigures, showFigureNames, figureMode, showBoundaries}: Props) {
+export function SkyMap({time, location, label, sunLabel, onSelect, showFigures, showFigureNames, figureMode, showBoundaries, milkyWay}: Props) {
   const container = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const reveal = useRef(new ConstellationReveal());
+  const milkyWayPainter = useRef(new MilkyWayPainter());
   const reducedMotion = useReducedMotion();
   const [size, setSize] = useState({width: 0, height: 0});
   const sun = useMemo(() => positionAt(Body.Sun, time, location), [time, location]);
@@ -86,6 +89,8 @@ export function SkyMap({time, location, label, sunLabel, onSelect, showFigures, 
       context.fillStyle = glow;
       context.fillRect(0, 0, width, height);
 
+      if (milkyWay) milkyWayPainter.current.draw(context, milkyWay, time, location, width, height, Math.max(0, Math.min(1, (-sun.altitude - 8) / 10)), null);
+
       context.strokeStyle = 'rgba(141,189,225,.28)';
       context.lineWidth = 1;
       for (const altitude of [0, 30, 60]) {
@@ -115,7 +120,7 @@ export function SkyMap({time, location, label, sunLabel, onSelect, showFigures, 
 
       if (showBoundaries) drawBoundaries(context, boundaries, position => projectHorizontal(position, width, height), width, height, starVisibility);
 
-      const animating = showFigures && drawConstellations(context, figures, position => projectHorizontal(position, width, height), width, height, starVisibility, showFigureNames, {reveal: reveal.current, now: performance.now(), reducedMotion});
+      const animating = showFigures && drawConstellations(context, figures, position => projectHorizontal(position, width, height), width, height, starVisibility, showFigureNames, {reveal: reveal.current, now: performance.now(), reducedMotion, entryInset: false});
       if (!showFigures) reveal.current.reset();
 
       if (starVisibility > 0) {
@@ -140,7 +145,7 @@ export function SkyMap({time, location, label, sunLabel, onSelect, showFigures, 
     };
     render();
     return () => cancelAnimationFrame(frame);
-  }, [size, stars, figures, boundaries, showFigures, showFigureNames, figureMode, showBoundaries, reducedMotion, sun.altitude]);
+  }, [size, stars, figures, boundaries, showFigures, showFigureNames, figureMode, showBoundaries, reducedMotion, sun.altitude, milkyWay, time, location]);
 
   return <div className="sky-canvas sky-map" ref={container}>
     <canvas ref={canvas} aria-label="Calculated zenith-centered sky with proper motion and optional constellation figures and IAU boundaries; horizon is the outer circle" role="img"/>

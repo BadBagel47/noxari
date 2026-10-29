@@ -8,6 +8,8 @@ import {nextObjectRise, objectPosition, objectPositioner, positionAt, showObject
 import {objects, type SpaceObject} from './data';
 import {horizontalStarCatalog, perspectiveFocal, projectPerspective, type MapPoint, type ViewDirection} from './skyProjection';
 import {GuidedFinder} from './GuidedFinder';
+import {clampViewPitch, groundOpacity} from './groundView';
+import {MilkyWayPainter, type MilkyWayTexture} from './milkyWay';
 import type {usePhoneOrientation} from './usePhoneOrientation';
 
 type Props = {
@@ -21,6 +23,7 @@ type Props = {
   showFigureNames: boolean;
   figureMode: FigureMode;
   showBoundaries: boolean;
+  milkyWay: MilkyWayTexture | null;
   view: ViewDirection;
   onViewChange: Dispatch<SetStateAction<ViewDirection>>;
   finderTarget: SpaceObject | null;
@@ -30,13 +33,13 @@ type Props = {
 };
 
 const wrap = (degrees: number) => (degrees % 360 + 360) % 360;
-const clamp = (pitch: number) => Math.max(-10, Math.min(90, pitch));
 const cardinal = (heading: number) => ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(wrap(heading) / 45) % 8];
 
-export function HorizonView({time, location, label, sunLabel, onSelect, language, view, onViewChange, showFigures, showFigureNames, figureMode, showBoundaries, finderTarget, phone, onStopFinder, onFinderDetails}: Props) {
+export function HorizonView({time, location, label, sunLabel, onSelect, language, view, onViewChange, showFigures, showFigureNames, figureMode, showBoundaries, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails}: Props) {
   const root = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const reveal = useRef(new ConstellationReveal());
+  const milkyWayPainter = useRef(new MilkyWayPainter());
   const reducedMotion = useReducedMotion();
   const drag = useRef<{id: number; x: number; y: number; startX: number; startY: number; moved: boolean; marker: HTMLButtonElement | null} | null>(null);
   const suppressClick = useRef(false);
@@ -57,10 +60,13 @@ export function HorizonView({time, location, label, sunLabel, onSelect, language
   const markers = useMemo(() => objectSky.flatMap(({object, position}) => {
     if (object.id === finderTarget?.id) return [];
     if (!showObjectMarker(object, sun.altitude)) return [];
-    const point = position && projectPerspective(position, view, size.width, size.height);
+    if (position.altitude < 0 && groundOpacity(view.pitch) > .9) return [];
+    const point = position && projectPerspective(position, view, size.width, size.height, true, view.pitch < 0);
     return point ? [{object, position, point}] : [];
   }), [objectSky, sun.altitude, view, size, finderTarget]);
-  const sunPoint = projectPerspective(sun, view, size.width, size.height);
+  const belowReveal = 1 - groundOpacity(view.pitch);
+  const project = (position: SkyPosition, clip = true) => projectPerspective(position, view, size.width, size.height, clip, belowReveal > 0);
+  const sunPoint = project(sun);
 
   useEffect(() => {
     if (!root.current) return;
@@ -107,29 +113,13 @@ export function HorizonView({time, location, label, sunLabel, onSelect, language
       context.fillStyle = sky;
       context.fillRect(0, 0, width, height);
 
-      // A level camera makes the geometric horizon horizontal at any heading.
-      const horizonY = height / 2 + perspectiveFocal(width, height) * Math.tan(view.pitch * Math.PI / 180);
-      if (horizonY < height) {
-        const ground = context.createLinearGradient(0, Math.max(0, horizonY), 0, height);
-        ground.addColorStop(0, daylight > 0.4 ? '#233f4c' : '#142b38');
-        ground.addColorStop(1, '#061420');
-        context.fillStyle = ground;
-        context.fillRect(0, Math.max(0, horizonY), width, height);
-        if (horizonY >= 0) {
-          context.strokeStyle = 'rgba(174,216,238,.6)';
-          context.lineWidth = 1;
-          context.beginPath();
-          context.moveTo(0, horizonY + .5);
-          context.lineTo(width, horizonY + .5);
-          context.stroke();
-        }
-      }
+      if (milkyWay) milkyWayPainter.current.draw(context, milkyWay, time, location, width, height, Math.max(0, Math.min(1, (-sun.altitude - 8) / 10)), view, belowReveal > 0);
 
       const drawCurve = (samples: SkyPosition[]) => {
         context.beginPath();
         let previous: MapPoint | null = null;
         for (const position of samples) {
-          const point = projectPerspective(position, view, width, height);
+          const point = project(position);
           if (point) {
             if (previous && Math.hypot(point.x - previous.x, point.y - previous.y) < width / 8) context.lineTo(point.x, point.y);
             else context.moveTo(point.x, point.y);
@@ -140,18 +130,18 @@ export function HorizonView({time, location, label, sunLabel, onSelect, language
       };
       context.strokeStyle = 'rgba(171,209,233,.17)';
       context.lineWidth = 1;
-      for (const altitude of [15, 30, 60]) drawCurve(Array.from({length: 361}, (_, azimuth) => ({altitude, azimuth})));
-      for (let azimuth = 0; azimuth < 360; azimuth += 30) drawCurve(Array.from({length: 91}, (_, altitude) => ({altitude, azimuth})));
+      for (const altitude of (belowReveal > 0 ? [-60, -30, 0, 15, 30, 60] : [15, 30, 60])) drawCurve(Array.from({length: 361}, (_, azimuth) => ({altitude, azimuth})));
+      for (let azimuth = 0; azimuth < 360; azimuth += 30) drawCurve(Array.from({length: belowReveal > 0 ? 181 : 91}, (_, i) => ({altitude: i - (belowReveal > 0 ? 90 : 0), azimuth})));
 
-      if (showBoundaries) drawBoundaries(context, boundaries, position => projectPerspective(position, view, width, height, false), width, height, starVisibility);
+      if (showBoundaries) drawBoundaries(context, boundaries, position => project(position, false), width, height, starVisibility);
 
-      const animating = showFigures && drawConstellations(context, figures, position => projectPerspective(position, view, width, height, false), width, height, starVisibility, showFigureNames, {reveal: reveal.current, now: performance.now(), reducedMotion});
+      const animating = showFigures && drawConstellations(context, figures, position => project(position, false), width, height, starVisibility, showFigureNames, {reveal: reveal.current, now: performance.now(), reducedMotion});
       if (!showFigures) reveal.current.reset();
 
       if (starVisibility > 0) {
         context.fillStyle = '#e3f1ff';
         for (const star of stars) {
-          const point = projectPerspective(star, view, width, height);
+          const point = project(star);
           if (!point) continue;
           const brightness = Math.max(.18, Math.min(1, (6.1 - star.magnitude) / 5.8));
           context.globalAlpha = starVisibility * (.28 + brightness * .72);
@@ -166,7 +156,7 @@ export function HorizonView({time, location, label, sunLabel, onSelect, language
           context.font = '13px system-ui, sans-serif';
           for (const star of stars) {
             if (!star.name || star.name === 'Sirius') continue;
-            const point = projectPerspective(star, view, width, height);
+            const point = project(star);
             if (point && point.x < width - 85 && point.y > 20) context.fillText(star.name, point.x + 6, point.y - 6);
           }
         }
@@ -179,13 +169,34 @@ export function HorizonView({time, location, label, sunLabel, onSelect, language
         const point = projectPerspective({altitude: 4, azimuth}, view, width, height);
         if (point && point.y > 35 && point.y < height - 32) context.fillText(cardinal(azimuth), point.x, point.y);
       }
+      // A level camera makes the geometric horizon horizontal at any heading.
+      const horizonY = height / 2 + perspectiveFocal(width, height) * Math.tan(view.pitch * Math.PI / 180);
+      if (horizonY < height) {
+        context.save();
+        context.globalAlpha = groundOpacity(view.pitch);
+        const ground = context.createLinearGradient(0, Math.max(0, horizonY), 0, height);
+        ground.addColorStop(0, daylight > 0.4 ? '#233f4c' : '#142b38');
+        ground.addColorStop(1, '#061420');
+        context.fillStyle = ground;
+        context.fillRect(0, Math.max(0, horizonY), width, height);
+        context.restore();
+        if (horizonY >= 0) {
+          context.strokeStyle = 'rgba(174,216,238,.6)';
+          context.lineWidth = 1;
+          context.beginPath();
+          context.moveTo(0, horizonY + .5);
+          context.lineTo(width, horizonY + .5);
+          context.stroke();
+        }
+      }
+
       if (animating) frame = requestAnimationFrame(render);
     };
     render();
     return () => cancelAnimationFrame(frame);
-  }, [size, view, stars, figures, boundaries, showFigures, showFigureNames, figureMode, showBoundaries, reducedMotion, sun.altitude]);
+  }, [size, view, stars, figures, boundaries, showFigures, showFigureNames, figureMode, showBoundaries, reducedMotion, sun.altitude, milkyWay, time, location]);
 
-  const move = (heading: number, pitch: number) => onViewChange(current => ({heading: wrap(current.heading + heading), pitch: clamp(current.pitch + pitch)}));
+  const move = (heading: number, pitch: number) => onViewChange(current => ({heading: wrap(current.heading + heading), pitch: clampViewPitch(current.pitch + pitch)}));
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (!event.isPrimary || event.button !== 0 || drag.current) return;
     if (event.target instanceof Element && (event.target.closest('[data-sky-controls]') || (event.target.closest('button') && !event.target.closest('button.sky-object')))) return;
@@ -238,9 +249,9 @@ export function HorizonView({time, location, label, sunLabel, onSelect, language
       if (change && event.target === event.currentTarget) { event.preventDefault(); move(...change); }
     }}>
     <canvas ref={canvas} aria-hidden="true"/>
-    <div className="horizon-heading" aria-live="off">{language === 'sv' ? 'Mot' : 'Facing'} {cardinal(view.heading)} · {Math.round(view.heading)}° <span>↑ {Math.round(view.pitch)}°</span></div>
-    {markers.map(({object, position, point}) => <button key={object.id} className="sky-object" style={{left: point.x, top: point.y}} onClick={() => onSelect(object)} title={`${label(object)} · ${position.altitude.toFixed(1)}°`} aria-label={`${label(object)}, ${language === 'sv' ? 'höjd' : 'altitude'} ${position.altitude.toFixed(1)}°`}><span className="sky-point" style={{width: object.size + 4, height: object.size + 4, background: object.color, boxShadow: `0 0 16px ${object.color}`}}/><span>{label(object)}</span></button>)}
-    {sunPoint && <span className="sky-object sky-sun" style={{left: sunPoint.x, top: sunPoint.y}} role="img" aria-label={`${sunLabel}, ${language === 'sv' ? 'höjd' : 'altitude'} ${sun.altitude.toFixed(1)}°`}><span className="sky-point"/><span>{sunLabel}</span></span>}
+    <div className="horizon-heading" aria-live="off">{language === 'sv' ? 'Mot' : 'Facing'} {cardinal(view.heading)} · {Math.round(view.heading)}° <span>{view.pitch < 0 ? '↓' : '↑'} {Math.round(Math.abs(view.pitch))}°</span>{view.pitch < 0 && <span className="below-horizon-label">{language === 'sv' ? 'Under horisonten · simulerad vy' : 'Below horizon · simulated view'}</span>}</div>
+    {markers.map(({object, position, point}) => <button key={object.id} className="sky-object" style={{left: point.x, top: point.y, opacity: position.altitude < 0 ? belowReveal * .8 : 1}} onClick={() => onSelect(object)} title={`${label(object)} · ${position.altitude.toFixed(1)}°`} aria-label={`${label(object)}, ${language === 'sv' ? 'höjd' : 'altitude'} ${position.altitude.toFixed(1)}°`}><span className="sky-point" style={{width: object.size + 4, height: object.size + 4, background: object.color, boxShadow: `0 0 16px ${object.color}`}}/><span>{label(object)}</span></button>)}
+    {sunPoint && <span className="sky-object sky-sun" style={{left: sunPoint.x, top: sunPoint.y, opacity: sun.altitude < 0 ? belowReveal * .8 : 1}} role="img" aria-label={`${sunLabel}, ${language === 'sv' ? 'höjd' : 'altitude'} ${sun.altitude.toFixed(1)}°`}><span className="sky-point"/><span>{sunLabel}</span></span>}
     {finderTarget && targetPosition && <GuidedFinder object={finderTarget} position={targetPosition} nextRise={nextRise} location={location} view={view} width={size.width} height={size.height} language={language} phone={phone} sunAltitude={sun.altitude} onClose={onStopFinder} onDetails={onFinderDetails}/>}
     <div className="horizon-help">{language === 'sv' ? 'Dra eller svep för att se dig omkring' : 'Drag or swipe to look around'}</div>
     <div className="horizon-controls" aria-label={language === 'sv' ? 'Styr vyn' : 'View controls'}>

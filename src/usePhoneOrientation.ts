@@ -1,3 +1,4 @@
+import {clampViewPitch} from './groundView';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {deviceDirection, PhoneDirectionTracker, type OrientationReading} from './deviceDirection';
 import type {ViewDirection} from './skyProjection';
@@ -43,7 +44,7 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
     if (!allowed.current || !following.current) return;
     const direction = last.current;
     if (direction?.absolute) {
-      callback.current({heading: direction.heading, pitch: Math.max(-80, Math.min(89.9, direction.pitch))});
+      callback.current({heading: direction.heading, pitch: clampViewPitch(direction.pitch)});
       setStatus('tracking');
     } else setStatus(direction ? 'align' : 'waiting');
   };

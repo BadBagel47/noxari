@@ -16,11 +16,12 @@ export function clipFigureSegment(a: MapPoint, b: MapPoint, width: number, heigh
 }
 
 export class ConstellationReveal {
-  private entries = new Map<string, {start: number; exitedAt: number | null}>();
+  private entries = new Map<string, {start: number | null; exitedAt: number | null}>();
   reset() { this.entries.clear(); }
 
-  update(visibleIds: string[], now: number, reducedMotion: boolean) {
+  update(visibleIds: string[], now: number, reducedMotion: boolean, eligibleIds = visibleIds) {
     const visible = new Set(visibleIds);
+    const eligible = new Set(eligibleIds);
     for (const [id, entry] of this.entries) if (!visible.has(id) && entry.exitedAt === null) entry.exitedAt = now;
     const progress = new Map<string, number>();
     let animating = false;
@@ -28,13 +29,14 @@ export class ConstellationReveal {
       let entry = this.entries.get(id);
       // Brief edge crossings retain progress instead of flashing on every turn.
       if (!entry || (entry.exitedAt !== null && now - entry.exitedAt >= 180)) {
-        entry = {start: now, exitedAt: null}; this.entries.set(id, entry);
+        entry = {start: null, exitedAt: null}; this.entries.set(id, entry);
       }
       entry.exitedAt = null;
-      if (reducedMotion) entry.start = now - 420;
-      const value = Math.max(0, Math.min(1, (now - entry.start) / 420));
-      progress.set(id, 1 - (1 - value) ** 3);
-      animating ||= value < 1;
+      if (reducedMotion) entry.start = now - 1000;
+      if (entry.start === null && eligible.has(id)) entry.start = now;
+      const value = entry.start === null ? 0 : Math.max(0, Math.min(1, (now - entry.start) / 1000));
+      progress.set(id, value * value * (3 - 2 * value));
+      animating ||= entry.start !== null && value < 1;
     }
     return {progress, animating};
   }

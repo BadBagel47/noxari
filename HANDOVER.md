@@ -30,9 +30,9 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md` och `README.md`. Den 
 
 ## Aktuellt arbetsläge
 
-**Senast avslutade utvecklingssteg:** det godkända fempunktssteget för svep, stjärnbildsurval, animation, mobil läsbarhet och markörbakgrunder. Godkänt genom ”Låter bra. Kör”, implementerat och publicerat. Inget ytterligare utvecklingssteg är godkänt eller påbörjat.
+**Aktivt godkänt steg:** tydligare inritning, Vintergatan och möjlighet att titta ned genom en borttonande mark. Användaren godkände trepunktsförslaget med ”Kör”. Implementerat och lokalt verifierat; publiceringskontroll återstår. Inget ytterligare steg är godkänt.
 
-- Senast verifierade och publicerade **appcommit**: `ad3d775416a0f939b9a0f9ba0cdd6c67e4bbb682`.
+- Föregående verifierade och publicerade **appcommit**: `ad3d775416a0f939b9a0f9ba0cdd6c67e4bbb682`.
 - Actions: https://github.com/BadBagel47/noxari/actions/runs/40935781514 — tester, bygge och publicering lyckades.
 - **71 tester passerade**. Publicerade `index-Bwx5b2b2.js` och `index-fb5IWEfz.css` matchade lokalt produktionsbygge via SHA-256.
 - Alla fem punkter är genomförda: svep från objektmarkörer med åtskilt tryck, Vanliga (24) som standard/Alla (88), inritning vid inträde, större och tydligare mobiltext samt genomskinliga markörer med rund tryck-/fokuskontur. Se fempunktsavsnittet nedan.
@@ -112,9 +112,20 @@ Användaren godkände analysen i [`docs/FULLSCREEN_PLAN.md`](docs/FULLSCREEN_PLA
 - **71 tester passerar** och produktionsbygge lyckas. Sex nya tester täcker urval/geometri, animationstid/stabila framsteg, kantpassager, reducerad rörelse, klippning och växande linjer/etiketter. Webbläsarprov i fem skärmstorlekar täcker svep som börjar på markörer med mus/touch, tryck efter svep, urval mellan vyer, avslutad animationsloop, större text och genomskinliga markörer. Separata prov för avbruten touch, efterföljande tryck, små fingerrörelser, Enter/Space, rund fokuskontur och svenska kontroller. Befintliga helskärms-/sensorprov passerade åter med aktivt gränslager. Sensorer är simulerade; fysisk mobilvalidering återstår.
 - Inga nya beroenden, datakällor eller astronomiska beräkningsändringar.
 
+## Synlig inritning, Vintergatan och nedåtblick — godkänt trepunktssteg
+
+- Inritningen flyttas från hela figuren till varje linje mellan två stjärnor. Varje ny linje får 1 000 ms och startar först en bit in i perspektivvyn (12% marginal, högst 56 px vågrätt/80 px lodrätt). Nya delar ritas fram oberoende av redan färdiga delar. Himmelskartan använder synliga linjer direkt. Kanttolerans 180 ms, reducerad rörelse och stoppad animationsloop efter avslut bevaras.
+- Vintergatan är ett eget lager, på från start, i båda vyerna. Fem J2000-konturer från José R. Vieiras katalog via d3-celestial/Olaf Frohn, BSD 3-Clause. Källor och full licenstext nås i Om och källor. Reproducerbar PNG med 0,5° rutnät, 23 kB, endast lokala resurser. Färger/ljusstyrka/utjämning är illustrativa. Solhöjd −18° till −8° tonar bort lagret. Ingen bildtjänst, ny appdependency eller kalibrerad synlighetsprognos.
+- Skärmriktningar omvandlas baklänges till J2000 och läser rutnätet med kontinuerlig RA-söm. Ett mellanlager på högst 320 px längs längre axeln cachas; figurernas egna animationsbildrutor räknar inte om Vintergatan. Laddningsfel ger omkopplingsbar återhämtning.
+- Delad gräns ±89,9° för svep, tangenter, manuella knappar och publicerad telefonsensorvinkel. Relativa kompassmodellen ändras inte. Riktningen exakt i zenit/nadir är fortsatt odefinierad i sensorerna; nästan lodrät nedåtblick testad med simulerade data.
+- Marken är solid vid/över horisonten och tonas mjukt till helt transparent vid −25°. Stjärnor, figurer, gränser och bakgrund under horisonten blir utforskbara; vyn märks ”Under horisonten · simulerad vy”. Horisontlinjen behålls när den ligger inom bild. Objektmarkörer bakom nästan helt solid mark visas inte som osynliga tryckytor.
+- Guided Finder, höjdkurvor och Ikväll behåller sina verkliga horisontvillkor: ett objekt under horisonten kan aldrig markeras centrerat eller manuellcentreras via Finder. Den cirkulära kartan förblir ovan horisonten.
+- 79 tester totalt. Nya/utökade tester täcker start inne i bild, nya linjer i samma figur, ensekundsförlopp, nedåtprojektion/nadir, mjuk mark, oförändrade horisontvillkor, Vintergatans kända ljusa/mörka områden, RA-söm och cachning/klippning. Webbläsarprov för båda vyer, lageromkoppling, licenslänk, nedåt/nadir/uppåt, simulerad telefon −89°, dagsljus, underhorisontsmål och texturladdningsfel/återförsök. Helskärms-/sensorregressioner passerade åter i fem storlekar. Verklig mobilvalidering återstår.
+- Källa/metod/reproduktion: `src/generated/README.md`, `scripts/generate_milky_way.py`. Tidigare fempunktsbeskrivnings siffror gäller den förra versionen; detta avsnitt anger den nya inritningsmodellen.
+
 ## Nästa utvecklingssteg — inväntar nytt klartecken
 
-Fempunktssteget är avslutat med verifierad Pages-publicering. Föreslå en avgränsad nästa uppgift och rekommenderad modell innan implementation. De senare planpunkterna nedan är fortsatt planerade, inte automatiskt startgodkända. Övrig UI-förfining och nya funktioner behöver nytt klartecken.
+Trepunktssteget ska avslutas med verifierad Pages-publicering. Föreslå därefter en avgränsad nästa uppgift och rekommenderad modell innan implementation. De senare planpunkterna nedan är fortsatt planerade, inte automatiskt startgodkända. Övrig UI-förfining och nya funktioner behöver nytt klartecken.
 
 ### Senare delar av planen
 
@@ -144,6 +155,8 @@ Fempunktssteget är avslutat med verifierad Pages-publicering. Föreslå en avgr
 | `src/HorizonView.tsx`, `src/SkyMap.tsx` | Perspektivvy respektive cirkulär karta |
 | `src/skyProjection.ts`, `src/starMotion.ts` | Horisontella koordinater, projektion och egenrörelse |
 | `src/constellations.ts`, `src/constellationReveal.ts`, `src/useReducedMotion.ts` | Figururval, klippning, inritning och reducerad rörelse |
+| `src/milkyWay.ts`, `src/useMilkyWay.ts`, `src/groundView.ts` | Vintergatans projektion/laddning och nedåtvyns mark/vinkel |
+| `scripts/generate_milky_way.py` | Källverifierad rasterisering och licensbevarande |
 | `src/constellationBoundaries.ts`, `src/generated/` | B1875-gränser, transformation och licensierade katalogdata |
 | `scripts/generate_boundaries.py` | Reproducerbart, licensverifierat IAU-gränsunderlag |
 | `src/deviceDirection.ts`, `src/usePhoneOrientation.ts`, `src/PhoneControls.tsx` | Sensorer, datakällor, kalibrering och kontrollgränssnitt |
