@@ -29,13 +29,14 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md` och `README.md`. Den 
 
 ## Aktuellt arbetsläge
 
-**Aktivt steg:** helskärmslayouten, godkänd av användarens senaste ”Kör” efter analysen i `docs/FULLSCREEN_PLAN.md`. Implementation och lokala webbläsarprov är klara; publicering verifieras innan slutlig appcommit skrivs här.
+**Senast avslutade utvecklingssteg:** den godkända helskärmslayouten i `docs/FULLSCREEN_PLAN.md`, nu publicerad. Inget ytterligare utvecklingssteg är godkänt eller påbörjat.
 
-- Senast tidigare verifierade och publicerade **appcommit**: `0dc36e003c8f6f0b5cb3f71383272b14bcb6a2c8` (Guided Finder).
-- Tidigare Actions: https://github.com/BadBagel47/noxari/actions/runs/40860617086 — lyckades med 51 tester.
-- Ny implementation omfattar fast himmelsyta, snabbknappar, en panel i taget, kompakt objektval/Guided Finder, Nu/Vald tid, viewportanpassning och paus/återupptagning med bevarad nordreferens. **52 tester passerar**; ett nytt projektionstest täcker stående/liggande utsnitt.
+- Senast verifierade och publicerade **appcommit**: `e65d696280884cddc7bddeac6b929ba152567c76`.
+- Actions: https://github.com/BadBagel47/noxari/actions/runs/40874646669 — lyckades.
+- **52 tester passerade** och produktionsbygget lyckades. Publicerade `index-CKi1vbd4.js` och `index-CuvYVSHu.css` matchade lokalt bygge via SHA-256.
+- Implementationen omfattar fast himmelsyta, snabbknappar, en panel i taget, kompakt objektval/Guided Finder, Nu/Vald tid, viewportanpassning och paus/återupptagning med bevarad nordreferens. Ett nytt projektionstest täcker stående/liggande utsnitt med högst 90° synfält på längre axeln.
 - Webbläsarprov har passerat i 390×844, 1280×800, 844×390, 320×568 och 568×320, plus 390×420 som tangentbordsliknande höjd. Canvasidentitet, kalibrering, mål och riktning bevaras över panelöppningar. Nu-läge rör tiden framåt, Vald tid fryser den. GPS, DST-fel, språk, källpanel, objektlänk, bokmärke, kartbyte och frivillig webbläsarhelskärm har kontrollerats. Fördröjt behörighetssvar kan inte starta följning efter en avbruten begäran. Sensorerna var simulerade; användaren har ännu inte bekräftat denna UI-version på fysisk mobil.
-- README och AGENTS beskriver det nya arbetssättet i appen. Inga efterföljande utvecklingssteg är påbörjade.
+- README och AGENTS är uppdaterade. Denna slutstatus sparas i en senare dokumentationscommit; appcommit ovan anger verifierad kod. Den tidigare verkliga användarbekräftelsen för Android/Brave gäller grundläggande telefonföljning och återgångsrättningen, inte alla nya panelflöden.
 
 ## Det som fungerar
 
