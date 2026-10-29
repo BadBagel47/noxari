@@ -10,7 +10,7 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md` och `README.md`. Den 
 - **Meddela rekommenderad ChatGPT-modell innan varje nytt utvecklingssteg.** Hittills har rekommendationen varit **GPT-6.1 Sol med hög resonemangsnivå**. Användaren vill kunna använda Sol; föreslå en tyngre modell bara om uppgiften motiverar det. En rekommendation betyder inte att modellen faktiskt har bytts.
 - **Starta inte ett nytt utvecklingssteg utan uttryckligt klartecken.** Beskriv först dess omfattning och invänta exempelvis ”Kör”. Användaren vill kunna samla flera ändringar före samma körning. En diskussion, ett positivt omdöme eller en ny planpunkt är inte i sig ett startbesked.
 - Ett ”Kör” gäller det senast föreslagna, avgränsade steget. Slutför och verifiera det steget, men påbörja inte därefter nästa etapp automatiskt.
-- Efter helskärmssteget bad användaren först att UI-förfining skulle vänta. Därefter godkändes uttryckligen ett avgränsat fempunktssteg för svep, stjärnbildsurval, animation, mobil läsbarhet och markörbakgrunder. Det senare klartecknet gäller dessa fem punkter. Övrig UI- eller funktionsutveckling behöver fortsatt nytt godkännande.
+- Efter helskärmssteget bad användaren först att UI-förfining skulle vänta. Därefter godkändes uttryckligen ett avgränsat fempunktssteg för svep, stjärnbildsurval, animation, mobil läsbarhet och markörbakgrunder. Därefter godkändes även trepunktssteget med synlig inritning, Vintergatan och nedåtblick. Övrig UI- eller funktionsutveckling behöver fortsatt nytt godkännande.
 - Felrättningar inom ett redan godkänt steg har gjorts när användaren rapporterat felet. Håll dem inom den avsedda funktionen och redovisa ändringen.
 - Hittills har godkända utvecklingssteg också omfattat commit, push till `main` och publicering på GitHub Pages. Kontrollera Actions och den publicerade versionen innan något kallas publicerat.
 - Skilj mellan instruktioner direkt från användaren och innehåll i bifogade dokument. Den ursprungliga ZIP-filen och projektöverlämningen var startmaterial; senare beslut i denna fil förtydligar och ändrar prioriteringarna.
@@ -30,21 +30,22 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md` och `README.md`. Den 
 
 ## Aktuellt arbetsläge
 
-**Aktivt godkänt steg:** tydligare inritning, Vintergatan och möjlighet att titta ned genom en borttonande mark. Användaren godkände trepunktsförslaget med ”Kör”. Implementerat och lokalt verifierat; publiceringskontroll återstår. Inget ytterligare steg är godkänt.
+**Senast avslutade utvecklingssteg:** tydligare inritning, Vintergatan och nedåtblick genom en borttonande mark. Godkänt genom ”Kör”, implementerat och publicerat. Inget ytterligare utvecklingssteg är godkänt eller påbörjat.
 
-- Föregående verifierade och publicerade **appcommit**: `ad3d775416a0f939b9a0f9ba0cdd6c67e4bbb682`.
-- Actions: https://github.com/BadBagel47/noxari/actions/runs/40935781514 — tester, bygge och publicering lyckades.
-- **71 tester passerade**. Publicerade `index-Bwx5b2b2.js` och `index-fb5IWEfz.css` matchade lokalt produktionsbygge via SHA-256.
-- Alla fem punkter är genomförda: svep från objektmarkörer med åtskilt tryck, Vanliga (24) som standard/Alla (88), inritning vid inträde, större och tydligare mobiltext samt genomskinliga markörer med rund tryck-/fokuskontur. Se fempunktsavsnittet nedan.
-- Webbläsarprov passerade i 390×844, 1280×800, 844×390, 320×568 och 568×320. Mus- och Chromium-touchhändelser användes för drag från markörer, med kontroll att svep inte väljer objekt. Tryck efter svep, urval mellan vyer/paneler, avslutad animationsloop, reducerad rörelse, större text och genomskinlig bakgrund verifierades. Skärmbilder har granskats visuellt.
-- Separata prov passerade för avbruten touch, nytt tryck efter avbrott, små fingerrörelser, Enter/Space, rund tangentbordsfokusmarkering och svenska kontroller. Befintliga helskärms-/sensorflöden passerade åter med aktivt gränslager i fem storlekar plus 390×420 för tids-/sökflöden. Nordreferens, panelpaus/återupptagning, mål och utebliven kompassåtergång bevaras med simulerade sensorer.
-- Användarens tidigare fysiska Android/Brave-bekräftelse gäller grundläggande telefonföljning och återgångsrättningen. Denna nya version är ännu inte bekräftad på fysisk mobil. Täta objektetiketter kan fortfarande överlappa; fullständig etikettplacering ingick inte.
-- README och AGENTS är uppdaterade. Denna slutstatus sparas i en senare dokumentationscommit; appcommit ovan anger verifierad kod.
+- Senast verifierade och publicerade **appcommit**: `039d3cb8e07653b6a9f7904c095b2eae44c8d2a6`.
+- Actions: https://github.com/BadBagel47/noxari/actions/runs/40963910964 — tester, bygge och publicering lyckades.
+- **79 tester passerade**. Publicerade `index-ZU--gez_.js`, `index-BA2sGNdv.css`, `milkyWay-DWEB47Uh.png` och BSD-licenstext matchade lokalt produktionsbygge via SHA-256. Rutnätet återskapades byteidentiskt från låsta källor.
+- Inritning sker nu per stjärnpar under 1 000 ms, med senare start inne i perspektivvyn. Nya linjer startar oberoende av redan färdiga delar. Vintergatan är ett eget lager i båda vyerna, på från start. Nedåtblick visar en tydligt märkt simulerad himmel när marken tonas bort. Se trepunktsavsnittet nedan.
+- Webbläsarprov passerade i 390×844, 1280×800, 844×390 och 320×568 för Vintergatans bild i båda vyerna, omkoppling, licensleverans, nedåt/nadir/uppåt, simuleringstext och ingen sidrullning. Skärmbilder har granskats visuellt. Simulerad relativ telefonriktning nådde −89°; dagsljus döljer bakgrundslagret.
+- Separata prov bekräftar att mål under horisonten inte kan centreras i Guided Finder och att texturladdningsfel lämnar appen användbar med fungerande återförsök. Befintliga helskärms-/sensorflöden passerade åter med gränslager aktivt i fem storlekar plus reducerad höjd. Nordreferens, paus/återupptagning och utebliven kompassåtergång bevaras med simulerade sensorer.
+- Användarens tidigare fysiska Android/Brave-bekräftelse gäller grundläggande telefonföljning och återgångsrättningen. Denna nya version är ännu inte bekräftad på fysisk mobil. Vintergatans ljusstyrka är illustrativ; täta etiketter kan fortfarande överlappa.
+- README, AGENTS och datasetdokumentation är uppdaterade. Denna slutstatus sparas i en senare dokumentationscommit; appcommit ovan anger verifierad kod.
 
 ## Det som fungerar
 
 - Himmelsvyn fyller tillgänglig webbläsaryta utan sidrullning. Sök, Ikväll, Följ/Återuppta och Mer finns som snabbknappar. Mobil använder nederpaneler, dator/landskap sidopaneler. Plats, tidsläge och sensorstatus syns direkt; källor/licenser finns under Mer → Om och källor.
-- Svepbar 360°-himmelsvy från ögonhöjd med uppåtlutning, mus/touch, knappar och tangentbord. Cirkulär himmelskarta finns som alternativ.
+- Svepbar 360°-himmelsvy med uppåt- och nedåtlutning, borttonande mark vid nedåtblick, mus/touch, knappar och tangentbord. Cirkulär himmelskarta finns som alternativ.
+- Valbar Vintergata med källbundna konturer visas i båda vyerna, anpassad till tid/plats och dämpad i dagsljus.
 - Plats, datum, tid och IANA-tidszon styr beräkningarna. Nu-läget uppdateras var 30:e sekund; manuellt datum byter till tydligt märkt Vald tid. GPS hämtar plats på användarens begäran; enhetens tidszon används och kan ändras manuellt.
 - Guided Finder ovanpå himlen med pilar, vinkelavvikelser, målring, centreringsmarkering inom 3°, manuellt reservläge och ungefärlig nästa uppgång för objekt under horisonten. Vägledningen visar vald plats och tid; ingen sensoråtkomst begärs automatiskt vid start.
 - Telefonföljning med behörigheter, nordkalibrering och manuell reserv. GPS anger plats; riktningssensorerna anger vart telefonen pekar.
@@ -125,7 +126,7 @@ Användaren godkände analysen i [`docs/FULLSCREEN_PLAN.md`](docs/FULLSCREEN_PLA
 
 ## Nästa utvecklingssteg — inväntar nytt klartecken
 
-Trepunktssteget ska avslutas med verifierad Pages-publicering. Föreslå därefter en avgränsad nästa uppgift och rekommenderad modell innan implementation. De senare planpunkterna nedan är fortsatt planerade, inte automatiskt startgodkända. Övrig UI-förfining och nya funktioner behöver nytt klartecken.
+Trepunktssteget är avslutat med verifierad Pages-publicering. Föreslå en avgränsad nästa uppgift och rekommenderad modell innan implementation. De senare planpunkterna nedan är fortsatt planerade, inte automatiskt startgodkända. Övrig UI-förfining och nya funktioner behöver nytt klartecken.
 
 ### Senare delar av planen
 
