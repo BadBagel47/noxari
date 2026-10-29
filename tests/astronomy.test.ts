@@ -1,7 +1,7 @@
 import {describe, expect, it} from 'vitest';
 import {Body} from 'astronomy-engine';
 import {objects} from '../src/data';
-import {nightVisibility, nightWindow, objectPosition, positionAt, selectedLocalTime, stockholm} from '../src/astronomy';
+import {nightContext, nightVisibility, nightWindow, objectPosition, positionAt, selectedLocalTime, stockholm} from '../src/astronomy';
 import {peakSample} from '../src/VisibilityChart';
 
 const greenwich = {name: 'Greenwich', latitude: 51.4779, longitude: 0, timeZone: 'Europe/London'};
@@ -39,11 +39,13 @@ describe('observer-based astronomy', () => {
     const greenwichCurve = nightVisibility(m31, date, greenwich);
     const window = nightWindow(date, stockholm);
     expect(stockholmCurve.real).toBe(true);
-    expect(stockholmCurve.samples).toHaveLength(25);
+    expect(stockholmCurve.samples.length).toBeGreaterThan(25);
     expect(stockholmCurve.samples[0].time.getTime()).toBe(window.start.getTime());
-    expect(stockholmCurve.samples[24].time.getTime()).toBe(window.end.getTime());
+    expect(stockholmCurve.samples.at(-1)!.time.getTime()).toBe(window.end.getTime());
     expect(stockholmCurve.samples.some(sample => sample.sunAltitude < -18)).toBe(true);
-    expect(Math.abs(stockholmCurve.samples[12].altitude - greenwichCurve.samples[12].altitude)).toBeGreaterThan(1);
+    // Each location now has different sunset-anchored sample times; compare
+    // nightly maxima rather than pretending the same index is the same instant.
+    expect(Math.abs(Math.max(...stockholmCurve.samples.map(sample => sample.altitude)) - Math.max(...greenwichCurve.samples.map(sample => sample.altitude)))).toBeGreaterThan(5);
     const peak = peakSample(stockholmCurve);
     expect(peak).not.toBeNull();
     expect(peak!.altitude).toBeGreaterThan(0);
@@ -60,12 +62,20 @@ describe('observer-based astronomy', () => {
   it('anchors each night in the observation timezone across daylight saving changes', () => {
     const date = new Date('2026-10-24T20:00:00Z');
     const window = nightWindow(date, stockholm);
-    // Stockholm changes from UTC+2 to UTC+1 during this night.
-    expect(window.start.toISOString()).toBe('2026-10-24T16:00:00.000Z');
-    expect(window.end.toISOString()).toBe('2026-10-25T05:00:00.000Z');
-    expect((window.end.getTime() - window.start.getTime()) / 3600000).toBe(13);
-    const spring = nightWindow(new Date('2026-03-28T20:00:00Z'), stockholm);
-    expect((spring.end.getTime() - spring.start.getTime()) / 3600000).toBe(11);
+    expect(window.sunset).toBeDefined();
+    expect(window.sunrise).toBeDefined();
+    expect(window.start.getTime()).toBe(window.sunset!.getTime() - 1800_000);
+    expect(window.end.getTime()).toBe(window.sunrise!.getTime() + 1800_000);
+    const context = nightContext(date, stockholm);
+    expect(context.samples.every((sample, i) => !i || sample.time > context.samples[i - 1].time)).toBe(true);
+    // Noon-to-noon fallbacks preserve the 25/23 physical hours across DST.
+    const polar = {...stockholm, latitude: 89.5};
+    const fall = nightWindow(date, polar);
+    expect(fall.start.toISOString()).toBe('2026-10-24T10:00:00.000Z');
+    expect(fall.end.toISOString()).toBe('2026-10-25T11:00:00.000Z');
+    expect((fall.end.getTime() - fall.start.getTime()) / 3600000).toBe(25);
+    const spring = nightWindow(new Date('2026-03-28T20:00:00Z'), polar);
+    expect((spring.end.getTime() - spring.start.getTime()) / 3600000).toBe(23);
     expect(selectedLocalTime('2026-03-29T02:30', stockholm.timeZone)).toBeNull();
     const sydney = {name: 'Sydney', latitude: -33.8688, longitude: 151.2093, timeZone: 'Australia/Sydney'};
     expect(nightWindow(date, sydney).start.toISOString()).not.toBe(window.start.toISOString());

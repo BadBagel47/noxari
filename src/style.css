@@ -55,3 +55,11 @@
 .figure-controls input{accent-color:#83c7f0;width:16px;height:16px;margin:0}
 .figure-controls label:has(input:disabled){opacity:.5}
 .sky-credit{line-height:1.8}
+.night-summary{display:flex;flex-wrap:wrap;gap:9px 18px;padding:17px;border:1px solid #365574;border-radius:13px;background:#10243a;margin-bottom:14px}
+.night-summary strong{font-size:14px}.night-summary>span{font-size:11px;color:#a8c7e2}.night-summary p{flex-basis:100%;color:#b6cee4;font-size:12px;line-height:1.5}
+.planning-note{color:#a0bad3;font-size:12px;line-height:1.7}
+.ranking-method,.outside-criteria{border:1px solid #304b66;border-radius:10px;padding:13px 15px;color:#b7cee4;font-size:12px;line-height:1.7}
+.ranking-method summary,.outside-criteria summary{cursor:pointer;color:#a9d8f7}
+.ranking-method p{margin-top:12px;max-width:850px}.outside-criteria{margin-top:28px}.outside-criteria .cards-grid{margin-top:15px}
+.suggestion-summary{display:flex;flex-direction:column;gap:5px;margin:12px 0;padding:11px;border-left:2px solid #80c9ee;border-radius:3px;background:#172e45;color:#c2d9ec;font-size:11px;line-height:1.5}
+.suggestion-summary strong{font-size:12px;color:#e3f3ff}.suggestion-summary.muted{border-color:#63809a;background:#17263a;color:#9eb4cc}.moon-impact{color:#f1d3a2}
