@@ -29,18 +29,20 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md` och `README.md`. Den 
 
 ## Aktuellt arbetsläge
 
-**Aktivt steg:** Guided Finder, uttryckligen godkänt genom användarens senaste ”Kör”. Implementation och lokal verifiering är klara; publicering kontrolleras innan slutstatus skrivs här. Senast tidigare publicerade steg var ”Ikväll”.
+**Senast avslutade utvecklingssteg:** Guided Finder ovanpå himmelsvyn. Användaren godkände det med ”Kör”; funktionen är nu publicerad. Nästa föreslagna utvecklingssteg är helskärmslayouten och **inväntar nytt klartecken**.
 
-- Senast verifierade och publicerade **appcommit**: `7f2258d729262e96383cc94e44035eae0872848f`.
-- Actions: https://github.com/BadBagel47/noxari/actions/runs/40797120534 — lyckades.
-- **44 tester passerade** och produktionsbygget lyckades. Den publicerade JavaScript-filen matchade den lokalt byggda versionen.
-- Gränssnittet kontrollerades i webbläsare med mobil- och datorstorlek, inklusive utrustningsfilter, förklaringar, objektval och polarförhållanden. Detta är inte detsamma som prov på alla fysiska mobiler.
-- Guided Finder har tillkommit lokalt: **51 tester passerar** och bygge samt webbläsarprov i mobil-/datorstorlek fungerar. Simulerade telefonsensorer, manuell centrering, under-horisonten-läge, nekad åtkomst och stjärnbildsundantaget har kontrollerats. Detta ska kompletteras med appcommit och bekräftad publicering nedan när de är verifierade.
+- Senast verifierade och publicerade **appcommit**: `0dc36e003c8f6f0b5cb3f71383272b14bcb6a2c8`.
+- Actions: https://github.com/BadBagel47/noxari/actions/runs/40860617086 — lyckades.
+- **51 tester passerade** och produktionsbygget lyckades. Publicerad JavaScript `index-CjleU3dX.js` matchade lokalt bygge via SHA-256.
+- Webbläsarprov i mobil-/datorstorlek täckte målval från objektdetaljer, manuell centrering och pilar, simulerad telefoncentrering/rörelse, sensorpaus vid detaljer, avslut, under-horisonten-läge med nästa uppgång, nekad sensoråtkomst, byte till karta och stjärnbildsundantaget. Detta är inte ett nytt fysiskt mobilprov; användarens tidigare bekräftelse för Android/Brave gäller grundläggande telefonföljning och återgångsrättningen.
+- README och AGENTS är uppdaterade. Denna slutliga status sparas i en senare dokumentationscommit; appcommit ovan anger den verifierade koden.
+- Inga andra utvecklingssteg är påbörjade.
 
 ## Det som fungerar
 
 - Svepbar 360°-himmelsvy från ögonhöjd med uppåtlutning, mus/touch, knappar och tangentbord. Cirkulär himmelskarta finns som alternativ.
 - Vald plats, datum, tid och IANA-tidszon styr beräkningarna. GPS hämtar plats på användarens begäran; enhetens tidszon används och kan ändras manuellt.
+- Guided Finder ovanpå himlen med pilar, vinkelavvikelser, målring, centreringsmarkering inom 3°, manuellt reservläge och ungefärlig nästa uppgång för objekt under horisonten. Vägledningen visar vald plats och tid; ingen sensoråtkomst begärs automatiskt vid start.
 - Telefonföljning med behörigheter, nordkalibrering och manuell reserv. GPS anger plats; riktningssensorerna anger vart telefonen pekar.
 - 4 105 HYG-stjärnor till magnitud 5,8 samt fem svagare ändpunkter för stjärnbildsfigurer. Första ordningens egenrörelse från J2000 ingår.
 - Linjefigurer för alla 88 stjärnbilder från Stellariums öppna data. Separata reglage för figurer och latinska namn, i båda vyerna.
@@ -55,11 +57,11 @@ Användaren använder **Android med Brave**. Telefonföljningen gled först till
 
 **Användaren bekräftade att rättningen fungerade.** Återinför inte kontinuerliga kompasskorrigeringar utan att undersöka följden. Bevara testerna i `tests/deviceDirection.test.ts`. Relativ riktning kan fortfarande driva över längre tid; nordkalibrering finns. iOS och verklig utomhusprecision behöver bredare provning.
 
-## Guided Finder — godkänt och genomfört lokalt
+## Guided Finder — genomfört och publicerat
 
 ### Funktioner
 
-Demoknappen har ersatts av vägledning ovanpå himmelsvyn:
+Den tidigare demoknappen har ersatts av vägledning ovanpå himmelsvyn. Genomförda funktioner:
 
 - Välj ett objekt och få pilar för åt vilket håll telefonen ska vridas.
 - Visa skillnad i riktning och höjd till objektet.
