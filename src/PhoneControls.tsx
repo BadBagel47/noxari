@@ -9,15 +9,18 @@ const messages: Record<SensorStatus, [string, string]> = {
   denied: ['Sensor access was denied. You can allow it in browser settings and try again, or use manual control.', 'Sensoråtkomst nekades. Tillåt den i webbläsarens inställningar och försök igen, eller styr manuellt.'],
   unavailable: ['Phone sensors require HTTPS and a browser with orientation support. You can still drag the view.', 'Telefonsensorer kräver HTTPS och en webbläsare med riktningsstöd. Du kan fortfarande dra i vyn.'],
   missing: ['No usable direction received. Hold the phone upright and retry, or drag the view manually.', 'Ingen användbar riktning mottogs. Håll telefonen upprätt och försök igen, eller dra i vyn manuellt.'],
+  paused: ['Following is paused. The sensor session keeps its north calibration. Resume when ready, or stop the session.', 'Följningen är pausad. Sensorsessionen behåller nordkalibreringen. Återuppta när du är redo eller avsluta sessionen.'],
 };
 
-export function PhoneControls({phone, language, compact = false}: {phone: ReturnType<typeof usePhoneOrientation>; language: 'en' | 'sv'; compact?: boolean}) {
+export function PhoneControls({phone, language, compact = false, onStart}: {phone: ReturnType<typeof usePhoneOrientation>; language: 'en' | 'sv'; compact?: boolean; onStart?: () => void}) {
   const sv = language === 'sv';
   return <div className={`phone-controls ${compact ? 'compact' : ''}`}>
-    <div className="phone-buttons"><button aria-pressed={phone.active} onClick={phone.active ? phone.stop : phone.start}>{phone.active ? (sv ? 'Stoppa synkning' : 'Stop following') : (sv ? 'Följ telefonen' : 'Follow phone')}</button>
-      {(phone.status === 'tracking' || phone.status === 'align') && <button onClick={phone.alignNorth}>{sv ? 'Rikta mot norr' : 'Align north'}</button>}
+    <div className="phone-buttons"><button aria-pressed={phone.active} onClick={phone.active ? phone.stop : onStart ?? phone.start}>{phone.active ? (sv ? 'Stoppa synkning' : 'Stop following') : phone.status === 'paused' ? (sv ? 'Återuppta följning' : 'Resume following') : (sv ? 'Följ telefonen' : 'Follow phone')}</button>
+      {(phone.status === 'tracking' || phone.status === 'align' || phone.status === 'paused') && <button onClick={phone.alignNorth}>{sv ? 'Rikta mot norr' : 'Align north'}</button>}
+      {phone.status === 'paused' && <button onClick={phone.stop}>{sv ? 'Avsluta session' : 'End session'}</button>}
       {phone.status === 'tracking' && <span className="sensor-live">{sv ? 'Synkad' : 'Following'}</span>}
     </div>
     {(!compact || !['off', 'tracking'].includes(phone.status)) && <p role="status">{messages[phone.status][sv ? 1 : 0]}</p>}
+    {phone.needsAlignment && phone.status === 'paused' && <p>{messages.align[sv ? 1 : 0]}</p>}
   </div>;
 }

@@ -46,6 +46,15 @@ describe('real all-sky projection', () => {
 });
 
 describe('eye-level horizon projection', () => {
+  it('limits the longer viewport axis to 90 degrees in portrait and landscape', () => {
+    const target = {altitude: 10, azimuth: 0}, view = {heading: 0, pitch: 0};
+    const portrait = projectPerspective(target, view, 400, 800)!;
+    const landscape = projectPerspective(target, view, 800, 400)!;
+    // Both have an 800px long axis: 10° projects 70.53px off-center.
+    expect(400 - portrait.y).toBeCloseTo(70.53, 2);
+    expect(200 - landscape.y).toBeCloseTo(70.53, 2);
+    expect(projectPerspective({altitude: 0, azimuth: 40}, view, 400, 800)).toBeNull();
+  });
   it('centers the facing direction and keeps the horizon level', () => {
     expect(projectPerspective({altitude: 0, azimuth: 90}, {heading: 90, pitch: 0}, 400, 300)).toEqual({x: 200, y: 150});
     expect(projectPerspective({altitude: 0, azimuth: 60}, {heading: 90, pitch: 0}, 400, 300)!.y).toBeCloseTo(150);

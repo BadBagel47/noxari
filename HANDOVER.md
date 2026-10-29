@@ -29,19 +29,19 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md` och `README.md`. Den 
 
 ## Aktuellt arbetsläge
 
-**Senast avslutade utvecklingssteg:** Guided Finder ovanpå himmelsvyn. Användaren godkände det med ”Kör”; funktionen är nu publicerad. Nästa föreslagna utvecklingssteg är helskärmslayouten och **inväntar nytt klartecken**.
+**Aktivt steg:** helskärmslayouten, godkänd av användarens senaste ”Kör” efter analysen i `docs/FULLSCREEN_PLAN.md`. Implementation och lokala webbläsarprov är klara; publicering verifieras innan slutlig appcommit skrivs här.
 
-- Senast verifierade och publicerade **appcommit**: `0dc36e003c8f6f0b5cb3f71383272b14bcb6a2c8`.
-- Actions: https://github.com/BadBagel47/noxari/actions/runs/40860617086 — lyckades.
-- **51 tester passerade** och produktionsbygget lyckades. Publicerad JavaScript `index-CjleU3dX.js` matchade lokalt bygge via SHA-256.
-- Webbläsarprov i mobil-/datorstorlek täckte målval från objektdetaljer, manuell centrering och pilar, simulerad telefoncentrering/rörelse, sensorpaus vid detaljer, avslut, under-horisonten-läge med nästa uppgång, nekad sensoråtkomst, byte till karta och stjärnbildsundantaget. Detta är inte ett nytt fysiskt mobilprov; användarens tidigare bekräftelse för Android/Brave gäller grundläggande telefonföljning och återgångsrättningen.
-- README och AGENTS är uppdaterade. Denna slutliga status sparas i en senare dokumentationscommit; appcommit ovan anger den verifierade koden.
-- Inga andra utvecklingssteg är påbörjade.
+- Senast tidigare verifierade och publicerade **appcommit**: `0dc36e003c8f6f0b5cb3f71383272b14bcb6a2c8` (Guided Finder).
+- Tidigare Actions: https://github.com/BadBagel47/noxari/actions/runs/40860617086 — lyckades med 51 tester.
+- Ny implementation omfattar fast himmelsyta, snabbknappar, en panel i taget, kompakt objektval/Guided Finder, Nu/Vald tid, viewportanpassning och paus/återupptagning med bevarad nordreferens. **52 tester passerar**; ett nytt projektionstest täcker stående/liggande utsnitt.
+- Webbläsarprov har passerat i 390×844, 1280×800, 844×390, 320×568 och 568×320, plus 390×420 som tangentbordsliknande höjd. Canvasidentitet, kalibrering, mål och riktning bevaras över panelöppningar. Nu-läge rör tiden framåt, Vald tid fryser den. GPS, DST-fel, språk, källpanel, objektlänk, bokmärke, kartbyte och frivillig webbläsarhelskärm har kontrollerats. Fördröjt behörighetssvar kan inte starta följning efter en avbruten begäran. Sensorerna var simulerade; användaren har ännu inte bekräftat denna UI-version på fysisk mobil.
+- README och AGENTS beskriver det nya arbetssättet i appen. Inga efterföljande utvecklingssteg är påbörjade.
 
 ## Det som fungerar
 
+- Himmelsvyn fyller tillgänglig webbläsaryta utan sidrullning. Sök, Ikväll, Följ/Återuppta och Mer finns som snabbknappar. Mobil använder nederpaneler, dator/landskap sidopaneler. Plats, tidsläge och sensorstatus syns direkt; källor/licenser finns under Mer → Om och källor.
 - Svepbar 360°-himmelsvy från ögonhöjd med uppåtlutning, mus/touch, knappar och tangentbord. Cirkulär himmelskarta finns som alternativ.
-- Vald plats, datum, tid och IANA-tidszon styr beräkningarna. GPS hämtar plats på användarens begäran; enhetens tidszon används och kan ändras manuellt.
+- Plats, datum, tid och IANA-tidszon styr beräkningarna. Nu-läget uppdateras var 30:e sekund; manuellt datum byter till tydligt märkt Vald tid. GPS hämtar plats på användarens begäran; enhetens tidszon används och kan ändras manuellt.
 - Guided Finder ovanpå himlen med pilar, vinkelavvikelser, målring, centreringsmarkering inom 3°, manuellt reservläge och ungefärlig nästa uppgång för objekt under horisonten. Vägledningen visar vald plats och tid; ingen sensoråtkomst begärs automatiskt vid start.
 - Telefonföljning med behörigheter, nordkalibrering och manuell reserv. GPS anger plats; riktningssensorerna anger vart telefonen pekar.
 - 4 105 HYG-stjärnor till magnitud 5,8 samt fem svagare ändpunkter för stjärnbildsfigurer. Första ordningens egenrörelse från J2000 ingår.
@@ -70,23 +70,15 @@ Den tidigare demoknappen har ersatts av vägledning ovanpå himmelsvyn. Genomfö
 - Erbjud manuell styrning när sensorer saknas.
 - Lägg vägledningen som ett tunt lager ovanpå himmelsvyn, förberett för nästa gränssnittssteg.
 
-Användaren gav därefter uttryckligen ”Kör” för Guided Finder. Steget omfattar ovanstående funktioner och förberedelse för kommande layout. Det godkännandet startar inte helskärmssteget. Centrering gäller beräknad riktning (högst 3° i vinkel), inte faktisk synlighet eller säker kompassprecision. Manuell centrering är tydligt märkt och stoppar telefonföljningen. Under horisonten visas en ungefärlig nästa geometrisk uppgång om den hittas inom 48 timmar; sökningen kan missa korta gränsfall.
+Användaren gav därefter uttryckligen ”Kör” för Guided Finder. Steget omfattar ovanstående funktioner och förberedelse för kommande layout. Det godkännandet startar inte helskärmssteget. Centrering gäller beräknad riktning (högst 3° i vinkel), inte faktisk synlighet eller säker kompassprecision. Manuell centrering i detalj-/visningspanelen är tydligt märkt och pausar telefonföljningen. Paneler bevarar mål och den aktiva sensorsessionens kalibrering; följningen återupptas uttryckligen. Explicit stopp/Avsluta session eller dold sida avslutar sessionen. Under horisonten visas en ungefärlig nästa geometrisk uppgång om den hittas inom 48 timmar; sökningen kan missa korta gränsfall.
 
-## Nästa föreslagna steg — inväntar nytt klartecken
+## Helskärmssteget — godkänt och implementerat
 
-### Låt himlen fylla skärmen
+Användaren godkände analysen i [`docs/FULLSCREEN_PLAN.md`](docs/FULLSCREEN_PLAN.md) genom ”Kör”. Himmelsytan, snabbknapparna, panelerna och tidslägena ovan är implementerade. Sensorernas bekräftade Android/Brave-modell har inte ändrats; panelpaus behåller nu sessionen i stället för att nollställa nordreferensen. Stopp/timeout/dold sida avslutar sensorerna. Kamerabild/AR ingår inte.
 
-En analys av detta steg finns i [`docs/FULLSCREEN_PLAN.md`](docs/FULLSCREEN_PLAN.md). Den föreslår en bestående himmelsyta, fyra primära snabbknappar, en panel i taget, kompakt objektval/Guided Finder och tydliga levande/valda tidslägen. Analysen är ett förslag att granska; användaren har ännu inte godkänt implementation eller alla designval. Rekommenderad modell är fortsatt GPT-6.1 Sol med hög resonemangsnivå.
+## Nästa utvecklingssteg — inväntar nytt klartecken
 
-Användaren vill att appen fokuserar på själva himlen. Det nuvarande lilla fönstret räcker inte. Detta är inplanerat som nästa större steg **efter Guided Finder**:
-
-- Himlen fyller skärmen på både mobil och dator.
-- Endast riktning, valt objekt och de viktigaste funktionerna ligger direkt ovanpå vyn.
-- Sökning, plats, tid, filter och inställningar öppnas som paneler via snabbknappar.
-- Guided Finders pilar och målmarkering hör hemma ovanpå himlen.
-- Utforma Guided Finder med denna kommande layout i åtanke redan från början.
-
-Detta är ett planerat krav, **inte en redan utförd ändring eller ett separat startgodkännande**. Användaren kan lägga till mer innan nästa körning.
+Användaren har ännu inte godkänt någon ytterligare etapp. Föreslå en avgränsad nästa uppgift och rekommenderad modell innan implementation. De senare planpunkterna nedan är fortsatt planerade, inte automatiskt startgodkända.
 
 ### Senare delar av planen
 
@@ -112,7 +104,7 @@ Detta är ett planerat krav, **inte en redan utförd ändring eller ett separat 
 
 | Fil | Ansvar |
 | --- | --- |
-| `src/main.tsx` | App, flikar, observationstid/plats, sökning och objektdetaljer |
+| `src/main.tsx`, `src/SkyPanel.tsx` | Fast himmelsyta, paneltillstånd, observationstid/plats, sökning och objektdetaljer |
 | `src/HorizonView.tsx`, `src/SkyMap.tsx` | Perspektivvy respektive cirkulär karta |
 | `src/skyProjection.ts`, `src/starMotion.ts` | Horisontella koordinater, projektion och egenrörelse |
 | `src/constellations.ts`, `src/generated/` | Stjärnbildsgeometri och licensierade katalogdata |
@@ -122,7 +114,7 @@ Detta är ett planerat krav, **inte en redan utförd ändring eller ett separat 
 | `src/GuidedFinder.tsx`, `src/finderGuidance.ts` | Vägledningslager, vinkelavvikelser och centrering |
 | `src/VisibilityChart.tsx` | Höjdkurvor och skymningsbakgrund |
 | `src/data.ts` | Objektkatalog, texter och positionskällor |
-| `src/style.css` | Layout och utseende |
+| `src/style.css`, `src/workspace.css` | Delade komponenter respektive helskärmslayout, paneler och responsivitet |
 | `.github/workflows/deploy.yml` | Tester, bygge och Pages-publicering |
 
 ## Rutin för att hålla överlämningen aktuell

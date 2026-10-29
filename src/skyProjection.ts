@@ -56,6 +56,7 @@ export function projectBrightStars(time: Date, location: ObservingLocation, widt
 }
 
 export type ViewDirection = {heading: number; pitch: number};
+export const perspectiveFocal = (width: number, height: number) => Math.max(width, height) / 2;
 
 // Rectilinear eye-level view. Heading is clockwise from north, pitch is above
 // the geometric horizon. The camera has no roll; the horizon stays level.
@@ -68,7 +69,7 @@ export function projectPerspective(position: SkyPosition, view: ViewDirection, w
   if (depth <= 0) return null;
   const right = Math.cos(altitude) * Math.sin(delta);
   const up = Math.sin(altitude) * Math.cos(pitch) - Math.cos(altitude) * Math.cos(delta) * Math.sin(pitch);
-  const focal = width / 2; // 90-degree horizontal field of view.
+  const focal = perspectiveFocal(width, height); // Limit the longer axis to 90°.
   const x = width / 2 + focal * right / depth;
   const y = height / 2 - focal * up / depth;
   return !clipToViewport || (x >= 0 && x <= width && y >= 0 && y <= height) ? {x, y} : null;

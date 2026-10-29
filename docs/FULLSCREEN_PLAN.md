@@ -1,6 +1,6 @@
 # Förslag: himlen som huvudvy
 
-Analyserat 2026-10-29. **Designförslag att granska; implementation är inte godkänd.**
+Analyserat 2026-10-29. **Godkänd av användaren genom ”Kör” och implementerad. Publicering verifieras och dokumenteras i HANDOVER.md.**
 
 ## Utgångspunkt
 
@@ -64,4 +64,4 @@ Erbjud dessutom en frivillig knapp för webbläsarens faktiska helskärmsläge d
 
 ## Modell och beslutsläge
 
-Rekommenderad modell: **GPT-6.1 Sol med hög resonemangsnivå**. Detta är en rekommenderad utformning, inte ett startgodkännande. Användaren kan lägga till ändringar före nästa körning. Uppdatera detta förslag när användaren tar ställning.
+Rekommenderad modell: **GPT-6.1 Sol med hög resonemangsnivå**. Användaren har godkänt denna körning. Lösningen är implementerad och verifieras med tester och webbläsarprov. Nästa utvecklingssteg kräver ett nytt klartecken. Panelpaus behåller en aktiv sensorsession för att bevara nordkalibrering, medan explicit stopp eller dold sida avslutar den. Den tidigare mobila projektionen har anpassats så att den längre axelns synfält är högst 90°.
