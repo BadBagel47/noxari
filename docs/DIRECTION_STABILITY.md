@@ -15,6 +15,14 @@ The user approved this bounded stability fix after reporting over 100° of yaw e
 
 Only aggregate measurements are stored here; the user's full sensor report and screenshots are not committed to the repository.
 
+### Follow-up: explicit recovery confirmed
+
+The user supplied a second report and confirmed that **Use compass reference → Resume following** jumps back to the correct real direction without reloading. This physically validates the existing explicit recovery in this trial; a sensor subscription restart was not required. It supports loss of agreement between the retained relative reference and the usable current compass as the next correction target, while the original onset mechanism remains unrecorded.
+
+The second report contains 400 retained events over 13.649 seconds (200 regular, 200 absolute). It starts about 1.74 seconds after the new reference and ends about 15.39 seconds after it. All retained checks have no uncertainty reason: 250 consistent, 150 checking. The download snapshot is consistent, with 2.8° disagreement and a ready compass. Retained signed differences range from −0.30° to 6.17°, median 2.80°. The reconstructed app offset is constant at +55.60°. These are sensor agreement measurements, not measured true-north accuracy or proof of stability over longer movement sequences. The reanchor action itself is outside the retained sample window; the user's observation supplies its physical result.
+
+Proposed next development, **awaiting explicit approval**: guarded automatic reanchoring for compass-origin sessions after a large sustained disagreement and fresh stable stationary data. Keep relative motion during turns, preserve manually aligned true north, expose any correction clearly, and retain uncertainty/manual recovery when data cannot support a correction. Record the warning/reanchor transition so future reports retain the onset instead of only the final rolling window. Continuous small compass corrections are not proposed. The thresholds, transition behavior and regression cases need a concrete design within that approved scope before implementation.
+
 ## Reference lifecycle
 
 - Regular `deviceorientation` drives relative motion when available. Absolute readings continue to be collected; they do not continuously move the displayed heading toward the compass.
