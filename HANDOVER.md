@@ -30,16 +30,16 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md` och `README.md`. Den 
 
 ## Aktuellt arbetsläge
 
-**Aktivt godkänt steg:** den avgränsade stabilitetsrättningen efter jämförelsen med Google Maps: båda riktningskällor kontrolleras, bestående avvikelse/referensbyte hanteras och återkalibrering görs uttrycklig. Godkänt genom användarens senaste ”Kör”. Implementerat och lokalt verifierat; publicering återstår. Dagsljus-/nattval, nedåtvyns dagsljusrättning och månkalibrering ingår inte i detta klartecken.
+**Det godkända stabilitetssteget är genomfört och publicerat.** Nästa utvecklingssteg kräver nytt klartecken och modellrekommendation. Dagsljus-/nattval, nedåtvyns dagsljusrättning och månkalibrering ingick inte och är fortsatt inte startgodkända.
 
-- Föregående verifierade och publicerade **appcommit**: `039d3cb8e07653b6a9f7904c095b2eae44c8d2a6`.
-- Actions: https://github.com/BadBagel47/noxari/actions/runs/40963910964 — tester, bygge och publicering lyckades.
-- **79 tester passerade**. Publicerade `index-ZU--gez_.js`, `index-BA2sGNdv.css`, `milkyWay-DWEB47Uh.png` och BSD-licenstext matchade lokalt produktionsbygge via SHA-256. Rutnätet återskapades byteidentiskt från låsta källor.
-- Inritning sker nu per stjärnpar under 1 000 ms, med senare start inne i perspektivvyn. Nya linjer startar oberoende av redan färdiga delar. Vintergatan är ett eget lager i båda vyerna, på från start. Nedåtblick visar en tydligt märkt simulerad himmel när marken tonas bort. Se trepunktsavsnittet nedan.
-- Webbläsarprov passerade i 390×844, 1280×800, 844×390 och 320×568 för Vintergatans bild i båda vyerna, omkoppling, licensleverans, nedåt/nadir/uppåt, simuleringstext och ingen sidrullning. Skärmbilder har granskats visuellt. Simulerad relativ telefonriktning nådde −89°; dagsljus döljer bakgrundslagret.
-- Separata prov bekräftar att mål under horisonten inte kan centreras i Guided Finder och att texturladdningsfel lämnar appen användbar med fungerande återförsök. Befintliga helskärms-/sensorflöden passerade åter med gränslager aktivt i fem storlekar plus reducerad höjd. Nordreferens, paus/återupptagning och utebliven kompassåtergång bevaras med simulerade sensorer.
-- Användarens tidigare fysiska Android/Brave-bekräftelse gäller grundläggande telefonföljning och återgångsrättningen. Användaren har senare rapporterat fel vid ett verkligt måntest; se analysavsnittet. Riktprecisionen är därmed inte fysiskt verifierad. Vintergatans ljusstyrka är illustrativ; täta etiketter kan fortfarande överlappa.
-- README, AGENTS och datasetdokumentation är uppdaterade. Denna slutstatus sparas i en senare dokumentationscommit; appcommit ovan anger verifierad kod.
+- Senast verifierade och publicerade **appcommit**: `5695eca291f9bd55109820cfd243b1ffe20478e3`.
+- Actions: https://github.com/BadBagel47/noxari/actions/runs/41081631771 — tester, bygge och publicering lyckades.
+- **90 tester passerade**, varav 20 riktningsfall. Publicerade `index-BmmPZIwC.js`, `index-DkTYztpj.css`, `milkyWay-DWEB47Uh.png` och BSD-licenstext matchade lokalt produktionsbygge via SHA-256.
+- Relativa rörelser driver fortsatt himlen. Färsk stillastående startparning, bevakning av bestående kompassavvikelse/referensbyte, tydligt osäkert läge och uttrycklig återankring är implementerade. Ingen kontinuerlig kompassåtergång införs. Lokal riktningsrapport finns i telefonpanelen. Se stabilitetsavsnittet och `docs/DIRECTION_STABILITY.md`.
+- Simulerade webbläsarprov passerade i 390×844, 1280×800 och 568×320 för 120° avvikelse, hållen vy, återankring/återupptagning, referensbyte, rapportnedladdning och utebliven långsam återgång. Separat prov bekräftar timeout när primär rörelsedata upphör trots fortsatt kompassdata. Befintliga helskärms-/sensorflöden passerade i fem storlekar plus reducerad höjd; fördröjd behörighet kan fortsatt avbrytas.
+- Användarens tidigare fysiska Android/Brave-bekräftelse gäller grundläggande telefonföljning och återgångsrättningen. Den senare över 100° stora driften efter åttarörelse är ännu inte fysiskt validerad efter denna rättning. Simulerade felvägar är reproducerade och skyddade; OS-orsak och verklig precision är inte fastställda.
+- Tidigare trepunktsstegets Vintergata, inritning och nedåtblick är bevarade. Deras appcommit var `039d3cb8e07653b6a9f7904c095b2eae44c8d2a6` med 79 tester. Se historiska funktionsavsnitt nedan.
+- README, AGENTS och teknisk dokumentation är uppdaterade. Denna publiceringsstatus sparas i en senare dokumentationscommit; appcommit ovan anger verifierad kod.
 
 ## Historik: analys — dagsljus och felvisning mot månen
 
@@ -158,7 +158,7 @@ Användaren godkände analysen i [`docs/FULLSCREEN_PLAN.md`](docs/FULLSCREEN_PLA
 
 ## Nästa utvecklingssteg — inväntar nytt klartecken
 
-Stabilitetsrättningen ska avslutas med verifierad Pages-publicering. Föreslå därefter en avgränsad nästa uppgift och rekommenderad modell innan implementation. De senare planpunkterna nedan är fortsatt planerade, inte automatiskt startgodkända. Övrig UI-förfining och nya funktioner behöver nytt klartecken.
+Stabilitetsrättningen är publicerad och inväntar fysisk Android/Brave-återkoppling. Föreslå en avgränsad nästa uppgift och rekommenderad modell innan implementation. De senare planpunkterna nedan är fortsatt planerade, inte automatiskt startgodkända. Övrig UI-förfining och nya funktioner behöver nytt klartecken.
 
 ### Senare delar av planen
 
