@@ -7,6 +7,7 @@ Status: analys genomförd; **ingen implementation är godkänd**. Appversionen �
 - Under dagtid döljs stjärnor även i den simulerade nedåtvyn. Rättning föreslagen men inte startgodkänd.
 - Användaren föreslår att appen på dagtid visar en säsongsanpassad framtida stjärnhimmel, samtidigt som sol/måne ska kunna ses dagtid och Venus tidigare än svagare stjärnor.
 - Vid ett verkligt nattprov stämde månmarkören inte med månen. Upprepade åttarörelser med mobilen försämrade överensstämmelsen. Användaren preciserade senare att avvikelsen var **över 100° i sidled** (uppskattning), samt att riktningen fungerade ganska bra före åttarörelsen. Det prioriterar undersökning av en referensändring under pågående följning framför enbart en felaktig första ankning.
+- Senaste jämförelse: användaren uppger att Noxari kan driva kraftigt efter stora telefonrörelser, medan Google Maps åter ger samma riktning när det öppnas. Detta är stark jämförande återkoppling; inga samtidiga råa avläsningar från båda applikationerna finns.
 - Tidigare känd telefon/webbläsare: Android med Brave. Inga råa sensorloggar eller uppgifter om exakt modell, provtid eller provplats finns för detta tillfälle.
 - Två kompletteringar har efterfrågats: Nu med GPS eller vald tid/annan plats; huvudsakligen sidled/höjdled/båda och ungefärlig avvikelse. Sidled och storleksordning har besvarats: över 100°. Nu/GPS kontra vald tid/annan plats är fortfarande obesvarat. Dokumentera senare svar i HANDOVER utan privata koordinater eller chattloggar.
 
@@ -81,6 +82,25 @@ Detta visar hur en **villkorad referensändring under samma eventtyp** kan förs
 
 Nästa föreslagna rättningspaket behöver därför omfatta rå `event.absolute`, eventnamn, råvinklar, referensursprung och tider före/efter rörelsen, samt tydlig hantering av osäker referens under pågående följning. Misstänkt referensbyte bör kunna kräva uttrycklig omkalibrering; ingen automatisk korrigering får anta att telefonen stod still eller att all vinkeländring är sensorfel. Manuell mån-/nordankring ska kunna återställa riktningen efter avslutad OS-kalibrering. Bevara den tidigare relativa följningen som stoppade långsam återgång.
 
+### Uppföljning: Google Maps återger stabil riktning efter rörelser
+
+Jämförelsen gör ett problem i Noxaris/browserns följningsväg mer angeläget än en allmän rekommendation om att fortsätta kalibrera telefonen. Den visar att en annan applikation kan få eller återställa en användbar riktning. Den bevisar inte att Maps och Brave använder identiska sensorer, fusion, nordkonventioner eller avläsningar. Maps-typen (native/webb) har inte uttryckligen angetts.
+
+Koden har en direkt relevant egenskap: efter att relativ följning fått en nordreferens kastas senare `deviceorientationabsolute`-avläsningar bort. Den tidigare rättningen stoppade den långsamma kompassåtergången men lämnade ingen löpande kontroll av avvikelsen mot en absolut referens.
+
+En syntetisk kontroll med etablerad 0°-ankring och stabila absoluta 0°-avläsningar, men tillförda relativa riktningar 0°, 30°, 60°, 120°, gav appvisning 0°, 30°, 60°, 120°. Samtliga absoluta kontrollvärden ignorerades. Det är förväntat beteende för nuvarande modell och visar varför en stabil kompass inte själv rättar en ändrad relativ referens. Det bevisar inte vilka värden Brave levererade på den faktiska telefonen.
+
+Nästa avgränsade stabilitetsrättning bör omfatta:
+
+- Samla och särskilj båda strömmarna, deras färskhet, råa referensflaggor och kalibreringsursprung. Relativ rörelse kan fortsatt användas för respons, men en etablerad offset får inte ensam innebära verifierad riktning.
+- Kontrollera varaktig avvikelse mot en färsk och stabil absolut referens när en sådan finns. Redovisa osäkerhet/återkalibreringsbehov och använd kontrollerad återankring. Anta inte att varje avvikelse är gyrodrift eller att den absoluta strömmen alltid är korrekt.
+- Hantera både startparning och referensändring under sessionen. Bevara de tidigare testerna mot långsam återgång och kontrollera hållbarhet efter stora 3D-rörelser.
+- Gör manuell mån-/nordkalibrering till en användbar reserv och referenskontroll; en sådan knapp ensam löser inte långsiktig drift.
+
+Appväxling är också relevant för själva provmetoden: `visibilitychange` stoppar Noxaris sensorsession när sidan döljs. Vid återkomst kan vyn därför stå kvar i sin senaste manuella riktning, och en ny start etablerar en ny tracker. Ett kontrollerat före/efter-prov behöver dokumentera Följer/Manuell, omstart, fysisk pose samt relativ och absolut riktning. Det hjälper oss skilja på drift i samma session och ett nytt ankningsfel efter appbyte.
+
+Detta prioriterar en stabilitetsrättning för Noxari med diagnostik på Android/Brave. Ingen sådan implementation är ännu godkänd eller gjord.
+
 ## 3. Månen, tid/plats och centreringsprecision
 
 Positionen beräknas topocentriskt med `Equator(Body.Moon, time, observer, true, true)` och geometrisk `Horizon`, alltså med observatörens plats och utan atmosfärisk refraktion. Den använder inte enbart månens geocentriska RA/Dec.
@@ -118,7 +138,7 @@ Guided Finder visar centrerat inom **3°**. Månens skenbara diameter är ungef�
 
 ## 4. Föreslaget nästa rättningssteg — behöver nytt klartecken
 
-Prioritera den första nordankringens samtidighetsbrist och riktningsdiagnostik innan automatisk nattstart:
+Prioritera riktningens stabilitet under hela sessionen, första nordankringens samtidighet och verifierbar diagnostik innan automatisk nattstart:
 
 1. Undersök och hantera referensändring under redan pågående följning enligt uppföljningen ovan. Rätta även parningen av relativ och absolut referens vid start/omstart med granskad färskhet/samtidighet och stabilitetskontroll. Testa det reproducerade 120°-fallet och korrekta kontrollfall utan att ändra den bekräftade relativa följningsmodellen. Visa källtyp, nordreferensens ursprung/ålder och att noggrannhet är okänd när webbläsaren inte ger sådan information. Erbjud lokal, frivillig diagnostik för råvinklar, källbyten och riktning före/efter en kalibreringsrörelse.
 2. Förtydliga skillnaden mellan OS-kompasskalibrering, **Rikta mot norr** och **Centrera manuell vy**. Visa inte enbart Följer som om det bekräftade precision.
