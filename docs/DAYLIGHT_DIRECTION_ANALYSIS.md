@@ -6,7 +6,7 @@ Status: analys genomförd; **ingen implementation är godkänd**. Appversionen �
 
 - Under dagtid döljs stjärnor även i den simulerade nedåtvyn. Rättning föreslagen men inte startgodkänd.
 - Användaren föreslår att appen på dagtid visar en säsongsanpassad framtida stjärnhimmel, samtidigt som sol/måne ska kunna ses dagtid och Venus tidigare än svagare stjärnor.
-- Vid ett verkligt nattprov stämde månmarkören inte med månen. Upprepade åttarörelser med mobilen försämrade överensstämmelsen. Användaren preciserade senare att avvikelsen var **över 100° i sidled** (uppskattning).
+- Vid ett verkligt nattprov stämde månmarkören inte med månen. Upprepade åttarörelser med mobilen försämrade överensstämmelsen. Användaren preciserade senare att avvikelsen var **över 100° i sidled** (uppskattning), samt att riktningen fungerade ganska bra före åttarörelsen. Det prioriterar undersökning av en referensändring under pågående följning framför enbart en felaktig första ankning.
 - Tidigare känd telefon/webbläsare: Android med Brave. Inga råa sensorloggar eller uppgifter om exakt modell, provtid eller provplats finns för detta tillfälle.
 - Två kompletteringar har efterfrågats: Nu med GPS eller vald tid/annan plats; huvudsakligen sidled/höjdled/båda och ungefärlig avvikelse. Sidled och storleksordning har besvarats: över 100°. Nu/GPS kontra vald tid/annan plats är fortfarande obesvarat. Dokumentera senare svar i HANDOVER utan privata koordinater eller chattloggar.
 
@@ -64,6 +64,23 @@ Felvägen gäller när nordreferensen ännu inte är etablerad, till exempel vid
 
 Prioritera därför en granskad parning av färska relativa/absoluta värden och ankning först vid samstämmig/stillastående pose, med tydlig manuell referens som reserv. Bevara den efterföljande relativa följningen som stoppade kompassens långsamma återgång. Försök inte reparera den nya bristen genom att återinföra kontinuerlig magnetometerkorrigering. Lägg till regressionsfall för båda ankomstordningar, fördröjda värden under rörelse, olika ramnollpunkter och manuellt fastställd nord.
 
+### Uppföljning: användbar riktning före åttarörelsen, stort fel efteråt
+
+Den senaste användaruppgiften gör start/omstartsfelvägen mindre sannolik som ensam förklaring till det observerade förloppet. Den kvarstår som separat verifierad brist. Huvudspåret för nattprovet blir en ändrad råreferens eller sensorkälla under en redan fungerande session. Nu/GPS är fortfarande inte bekräftat.
+
+Kodraden som definierar `relative` behåller relativ behandling för `deviceorientation` när den källan en gång har valts, även om senare event anger `absolute: true`. Det är avsiktligt kompatibelt med vissa tidigare scenarier där kompassinformation blir tillgänglig utan att råvinklarnas ram ändras. Koden saknar däremot en explicit modell av om råvinklarnas referensram faktiskt har ändrats under samma eventnamn.
+
+En ytterligare syntetisk sekvens mot oförändrad kod:
+
+1. Anta telefonen fysiskt riktad norrut. Relativ `deviceorientation` har alpha 120°, beta 90°, gamma 0° och `absolute: false` (godtycklig relativ nollpunkt).
+2. Manuell nordankring ger korrekt appvisning 0°. Samma råvärden fortsätter ge 0°.
+3. Anta att webbläsaren därefter byter till en jordrelaterad råram inom samma `deviceorientation`-eventnamn: alpha 0°, beta 90°, gamma 0°, `absolute: true`, utan ändrad fysisk pose.
+4. Appen behåller den gamla offseten och visar **120°**, även i nästa stabila avläsning. Statusen anger fortfarande att nordreferens finns.
+
+Detta visar hur en **villkorad referensändring under samma eventtyp** kan förstöra en redan användbar ankning. Det visar inte att Android/Brave verkligen gör just detta vid en åttarörelse; inga sådana loggar finns. En ändring av flaggan ensam med oförändrade råvärden ska inte blandas ihop med ett verkligt rambyte. De befintliga iOS-/sen-kompasskontrollerna ska fortsätta fungera.
+
+Nästa föreslagna rättningspaket behöver därför omfatta rå `event.absolute`, eventnamn, råvinklar, referensursprung och tider före/efter rörelsen, samt tydlig hantering av osäker referens under pågående följning. Misstänkt referensbyte bör kunna kräva uttrycklig omkalibrering; ingen automatisk korrigering får anta att telefonen stod still eller att all vinkeländring är sensorfel. Manuell mån-/nordankring ska kunna återställa riktningen efter avslutad OS-kalibrering. Bevara den tidigare relativa följningen som stoppade långsam återgång.
+
 ## 3. Månen, tid/plats och centreringsprecision
 
 Positionen beräknas topocentriskt med `Equator(Body.Moon, time, observer, true, true)` och geometrisk `Horizon`, alltså med observatörens plats och utan atmosfärisk refraktion. Den använder inte enbart månens geocentriska RA/Dec.
@@ -103,7 +120,7 @@ Guided Finder visar centrerat inom **3°**. Månens skenbara diameter är ungef�
 
 Prioritera den första nordankringens samtidighetsbrist och riktningsdiagnostik innan automatisk nattstart:
 
-1. Rätta parningen av relativ och absolut referens vid start/omstart med granskad färskhet/samtidighet och stabilitetskontroll. Testa det reproducerade 120°-fallet och korrekta kontrollfall utan att ändra den bekräftade relativa följningsmodellen. Visa källtyp, nordreferensens ursprung/ålder och att noggrannhet är okänd när webbläsaren inte ger sådan information. Erbjud lokal, frivillig diagnostik för råvinklar, källbyten och riktning före/efter en kalibreringsrörelse.
+1. Undersök och hantera referensändring under redan pågående följning enligt uppföljningen ovan. Rätta även parningen av relativ och absolut referens vid start/omstart med granskad färskhet/samtidighet och stabilitetskontroll. Testa det reproducerade 120°-fallet och korrekta kontrollfall utan att ändra den bekräftade relativa följningsmodellen. Visa källtyp, nordreferensens ursprung/ålder och att noggrannhet är okänd när webbläsaren inte ger sådan information. Erbjud lokal, frivillig diagnostik för råvinklar, källbyten och riktning före/efter en kalibreringsrörelse.
 2. Förtydliga skillnaden mellan OS-kompasskalibrering, **Rikta mot norr** och **Centrera manuell vy**. Visa inte enbart Följer som om det bekräftade precision.
 3. Inför föreslagen **Kalibrera mot månen**: användaren riktar telefonens baksida mot den verkliga månen och bekräftar. Kontrollera Nu och plats, och redovisa om rättningen avser sidled, höjd eller båda. Detta är en manuell referens, inte automatisk optisk måndetektering. Testa hållbarhet efter stora 3D-rörelser och ny kalibrering utan att återinföra den gamla återgången.
 4. Lägg till kontroll mot fel vald tid/plats vid verklig riktning. Bevara möjligheten att utforska vald tid med telefonföljning, med tydlig simuleringsstatus.
