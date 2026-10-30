@@ -2,6 +2,8 @@
 
 The user approved this bounded stability fix after reporting over 100° of yaw error after figure-eight movements while Google Maps returned a stable direction. The actual Android/Brave sensor sequence remains unrecorded. This implementation guards the reproduced failure paths and exposes a local report for physical validation. It does not establish instrument accuracy or claim that every browser exposes an independent compass.
 
+**Physical feedback after deployment (2026-10-30):** the user reports that the error still occurs and reloading the page restores correct direction. The reported physical problem is therefore unresolved. A report from the faulty session before reload and the Following/Check north status have been requested. Reload resets the app tracker and sensor subscription; this observation alone cannot distinguish an app-reference problem from browser sensor state. The checks below require comparable stable streams and do not detect or correct every form of drift.
+
 ## Reference lifecycle
 
 - Regular `deviceorientation` drives relative motion when available. Absolute readings continue to be collected; they do not continuously move the displayed heading toward the compass.
