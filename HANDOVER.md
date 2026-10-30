@@ -1,6 +1,6 @@
 # Noxari — överlämning och arbetsläge
 
-Senast uppdaterad: **2026-10-29**, Europe/Stockholm.
+Senast uppdaterad: **2026-10-30**, Europe/Stockholm.
 
 Läs denna fil vid en ny chatt tillsammans med `AGENTS.md` och `README.md`. Den sammanfattar användarens beslut och aktuellt läge; projektkoden och Git-historiken behövs också. Kontrollera alltid aktuell branch, HEAD och arbetskatalogens ändringar innan arbetet fortsätter. Uppgifterna nedan är en ögonblicksbild, inte en ersättning för verifiering.
 
@@ -30,9 +30,9 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md` och `README.md`. Den 
 
 ## Aktuellt arbetsläge
 
-**Senast avslutade utvecklingssteg:** tydligare inritning, Vintergatan och nedåtblick genom en borttonande mark. Godkänt genom ”Kör”, implementerat och publicerat. Inget ytterligare utvecklingssteg är godkänt eller påbörjat.
+**Aktivt godkänt steg:** den avgränsade stabilitetsrättningen efter jämförelsen med Google Maps: båda riktningskällor kontrolleras, bestående avvikelse/referensbyte hanteras och återkalibrering görs uttrycklig. Godkänt genom användarens senaste ”Kör”. Implementerat och lokalt verifierat; publicering återstår. Dagsljus-/nattval, nedåtvyns dagsljusrättning och månkalibrering ingår inte i detta klartecken.
 
-- Senast verifierade och publicerade **appcommit**: `039d3cb8e07653b6a9f7904c095b2eae44c8d2a6`.
+- Föregående verifierade och publicerade **appcommit**: `039d3cb8e07653b6a9f7904c095b2eae44c8d2a6`.
 - Actions: https://github.com/BadBagel47/noxari/actions/runs/40963910964 — tester, bygge och publicering lyckades.
 - **79 tester passerade**. Publicerade `index-ZU--gez_.js`, `index-BA2sGNdv.css`, `milkyWay-DWEB47Uh.png` och BSD-licenstext matchade lokalt produktionsbygge via SHA-256. Rutnätet återskapades byteidentiskt från låsta källor.
 - Inritning sker nu per stjärnpar under 1 000 ms, med senare start inne i perspektivvyn. Nya linjer startar oberoende av redan färdiga delar. Vintergatan är ett eget lager i båda vyerna, på från start. Nedåtblick visar en tydligt märkt simulerad himmel när marken tonas bort. Se trepunktsavsnittet nedan.
@@ -41,7 +41,9 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md` och `README.md`. Den 
 - Användarens tidigare fysiska Android/Brave-bekräftelse gäller grundläggande telefonföljning och återgångsrättningen. Användaren har senare rapporterat fel vid ett verkligt måntest; se analysavsnittet. Riktprecisionen är därmed inte fysiskt verifierad. Vintergatans ljusstyrka är illustrativ; täta etiketter kan fortfarande överlappa.
 - README, AGENTS och datasetdokumentation är uppdaterade. Denna slutstatus sparas i en senare dokumentationscommit; appcommit ovan anger verifierad kod.
 
-## Senaste analys — dagsljus och felvisning mot månen
+## Historik: analys — dagsljus och felvisning mot månen
+
+Den avgränsade stabilitetsrättningen nedan är därefter godkänd och genomförd. Historikens formuleringar om väntande klartecken avser den dåvarande analysfasen. Övriga dagsljus-/nattförslag och månkalibrering är fortfarande inte godkända.
 
 Användaren har därefter rapporterat att stjärnor saknas dagtid även under horisonten, föreslagit automatisk nattförhandsvisning med säsongsanpassad tid samt frågat om dagssol/måne och tidigare synlig Venus. En föreslagen rättning för den simulerade nedåtvyns dagsljusfilter är **inte startgodkänd eller implementerad**.
 
@@ -142,9 +144,21 @@ Användaren godkände analysen i [`docs/FULLSCREEN_PLAN.md`](docs/FULLSCREEN_PLA
 - 79 tester totalt. Nya/utökade tester täcker start inne i bild, nya linjer i samma figur, ensekundsförlopp, nedåtprojektion/nadir, mjuk mark, oförändrade horisontvillkor, Vintergatans kända ljusa/mörka områden, RA-söm och cachning/klippning. Webbläsarprov för båda vyer, lageromkoppling, licenslänk, nedåt/nadir/uppåt, simulerad telefon −89°, dagsljus, underhorisontsmål och texturladdningsfel/återförsök. Helskärms-/sensorregressioner passerade åter i fem storlekar. Verklig mobilvalidering återstår.
 - Källa/metod/reproduktion: `src/generated/README.md`, `scripts/generate_milky_way.py`. Tidigare fempunktsbeskrivnings siffror gäller den förra versionen; detta avsnitt anger den nya inritningsmodellen.
 
+## Riktningsstabilitet — godkänd och implementerad rättning
+
+- Relativa rörelser driver fortfarande vyn. Absoluta värden samlas och kontrollerar referensen i stället för att kastas bort. Startankring kräver färska, stillastående och tidsmässigt parade värden. Gamla värden från olika telefonlägen kan inte längre automatiskt skapa den reproducerade 120°-ankringen.
+- Minst 20° bestående skillnad under 1 500 ms med stabila jämförbara data, eller ett betydande referensbyte inom samma eventtyp, ger **Kalibrera** och håller himmelsvyn stilla. Ingen långsam automatisk tillbakadragning mot kompassen införs. Normal snabb vridning och små kompassjusteringar är regressionstestade.
+- Mer → Telefonriktning har **Använd kompassreferens** när färska stabila data finns. **Rikta mot norr** finns kvar som manuell reserv och bevarar avsiktlig skillnad mot magnetisk nord när den kan jämföras. Paneler behåller sessionen; efter återankring väljs **Återuppta följning** uttryckligen.
+- Riktningskontroll visar referensursprung, rörelsekälla och jämförbar skillnad. Ingen färsk kompass, enbart kompass och manuell referens utan jämförelse är separata tillstånd. Samstämmighet är inte verifierad verklig noggrannhet.
+- Lokal JSON-rapport: senaste 400 glesade sensoravläsningar, råflaggor, tider och referensstatus. Ingen GPS eller observationstid/plats ingår och ingen automatisk uppladdning görs. Rapporten kan laddas ned även när data är oanvändbara eller sessionen är avslutad.
+- Förlorad primär rörelsedata pausar publiceringen efter 500 ms och avslutar sessionen efter åtta sekunder även om sekundära kompassvärden fortsätter komma; verifierat i separat mobilt webbläsarprov.
+- **90 tester passerade**, varav 20 riktningsfall. Nya regressioner täcker två startordningar, försenad parning, referensbyte, 120° bestående fel, kontrollerad återankring, manuell nordbias, iOS, avrundade tidsstämplar, långsam kompass, vertikala riktningar och reservkällor.
+- Webbläsarprov i 390×844, 1280×800 och 568×320: automatisk referens efter stillahållning, ingen långsam kompassåtergång, stopp vid 120° skillnad, återankring/återupptagning, byte av råreferens och rapportnedladdning. Befintliga helskärms-/sensorprov passerade åter i fem storlekar och reducerad höjd; fördröjd behörighet kan fortsatt avbrytas utan oväntad start.
+- Tekniska trösklar, metod och fysiskt testförslag: `docs/DIRECTION_STABILITY.md`. Sensordata i verifieringen är simulerade. Den verkliga Android/Brave-orsaken och förbättringen behöver fortfarande användarbekräftelse. Ingen ny appdependency eller ändring av astronomiska positioner/tidsval.
+
 ## Nästa utvecklingssteg — inväntar nytt klartecken
 
-Trepunktssteget är avslutat med verifierad Pages-publicering. Föreslå en avgränsad nästa uppgift och rekommenderad modell innan implementation. De senare planpunkterna nedan är fortsatt planerade, inte automatiskt startgodkända. Övrig UI-förfining och nya funktioner behöver nytt klartecken.
+Stabilitetsrättningen ska avslutas med verifierad Pages-publicering. Föreslå därefter en avgränsad nästa uppgift och rekommenderad modell innan implementation. De senare planpunkterna nedan är fortsatt planerade, inte automatiskt startgodkända. Övrig UI-förfining och nya funktioner behöver nytt klartecken.
 
 ### Senare delar av planen
 

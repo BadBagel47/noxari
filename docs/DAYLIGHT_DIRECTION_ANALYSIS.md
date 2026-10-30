@@ -1,6 +1,6 @@
 # Dagsljus, nattförhandsvisning och riktningsfel — analys
 
-Status: analys genomförd; **ingen implementation är godkänd**. Appversionen är fortsatt `039d3cb8e07653b6a9f7904c095b2eae44c8d2a6`. Rekommenderad modell för nästa avgränsade rättning: GPT-6.1 Sol med hög resonemangsnivå.
+Status: den efterföljande avgränsade stabilitetsrättningen är **godkänd och implementerad**, se [DIRECTION_STABILITY.md](DIRECTION_STABILITY.md). Analysen nedan beskriver främst den tidigare appversionen och är historiskt underlag. Dagsljusförslagen och månkalibrering är fortsatt inte startgodkända. Appversionen som analyserades var `039d3cb8e07653b6a9f7904c095b2eae44c8d2a6`. Rekommenderad modell för nästa avgränsade rättning: GPT-6.1 Sol med hög resonemangsnivå.
 
 ## Användarens observationer och öppna frågor
 

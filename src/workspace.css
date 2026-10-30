@@ -97,3 +97,10 @@ html,body,#root{width:100%;height:100%;overflow:hidden}
 .sky-workspace button.sky-object:active .sky-point,.sky-workspace button.sky-object:focus-visible .sky-point{outline:2px solid #c9e8ff;outline-offset:5px}
 @media(hover:hover){.sky-workspace button.sky-object:hover .sky-point{outline:1px solid #c9e8ff;outline-offset:5px}}
 @media(min-width:761px),(orientation:landscape) and (min-width:568px){.quick-tools button{width:68px}}
+
+.direction-chip.recalibrate{border-color:#e0b775;color:#f8d596}
+.direction-diagnostics{margin-top:20px;padding:14px;border:1px solid #496681;border-radius:10px;font-size:14px;line-height:1.6}
+.direction-diagnostics summary{cursor:pointer;min-height:44px;font-weight:650}
+.direction-diagnostics dl{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.direction-diagnostics dt{color:#aec5db}.direction-diagnostics dd{margin:0;overflow-wrap:anywhere}
+.sheet-body .direction-diagnostics p{font-size:14px}
