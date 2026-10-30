@@ -38,8 +38,20 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md` och `README.md`. Den 
 - Inritning sker nu per stjärnpar under 1 000 ms, med senare start inne i perspektivvyn. Nya linjer startar oberoende av redan färdiga delar. Vintergatan är ett eget lager i båda vyerna, på från start. Nedåtblick visar en tydligt märkt simulerad himmel när marken tonas bort. Se trepunktsavsnittet nedan.
 - Webbläsarprov passerade i 390×844, 1280×800, 844×390 och 320×568 för Vintergatans bild i båda vyerna, omkoppling, licensleverans, nedåt/nadir/uppåt, simuleringstext och ingen sidrullning. Skärmbilder har granskats visuellt. Simulerad relativ telefonriktning nådde −89°; dagsljus döljer bakgrundslagret.
 - Separata prov bekräftar att mål under horisonten inte kan centreras i Guided Finder och att texturladdningsfel lämnar appen användbar med fungerande återförsök. Befintliga helskärms-/sensorflöden passerade åter med gränslager aktivt i fem storlekar plus reducerad höjd. Nordreferens, paus/återupptagning och utebliven kompassåtergång bevaras med simulerade sensorer.
-- Användarens tidigare fysiska Android/Brave-bekräftelse gäller grundläggande telefonföljning och återgångsrättningen. Denna nya version är ännu inte bekräftad på fysisk mobil. Vintergatans ljusstyrka är illustrativ; täta etiketter kan fortfarande överlappa.
+- Användarens tidigare fysiska Android/Brave-bekräftelse gäller grundläggande telefonföljning och återgångsrättningen. Användaren har senare rapporterat fel vid ett verkligt måntest; se analysavsnittet. Riktprecisionen är därmed inte fysiskt verifierad. Vintergatans ljusstyrka är illustrativ; täta etiketter kan fortfarande överlappa.
 - README, AGENTS och datasetdokumentation är uppdaterade. Denna slutstatus sparas i en senare dokumentationscommit; appcommit ovan anger verifierad kod.
+
+## Senaste analys — dagsljus och felvisning mot månen
+
+Användaren har därefter rapporterat att stjärnor saknas dagtid även under horisonten, föreslagit automatisk nattförhandsvisning med säsongsanpassad tid samt frågat om dagssol/måne och tidigare synlig Venus. En föreslagen rättning för den simulerade nedåtvyns dagsljusfilter är **inte startgodkänd eller implementerad**.
+
+Vid ett nytt verkligt nattprov stämde appens måne inte med den verkliga månen. Upprepade åttarörelser med telefonen försämrade läget. Detta är ny fysisk felåterkoppling, inte en godkänd riktprecision. Tidigare telefonuppgift är Android/Brave; aktuell modell, råa sensordata, exakt tid/plats och felstorlek saknas.
+
+Analysen finns i [`docs/DAYLIGHT_DIRECTION_ANALYSIS.md`](docs/DAYLIGHT_DIRECTION_ANALYSIS.md). Den visar två syntetiska felvägar där ändrad absolut sensorvinkel eller ändrad relativ referens ger 30–50° fel utan förlorad Följer-status. Detta är ett bekräftat kodbeteende, inte bevis för OS-förloppet på användarens mobil. En åttarörelse kan kalibrera OS-kompassen men sätter inte appens sparade nordreferens. Statusen visar att en referens finns, inte mätt noggrannhet. Den tidigare relativa följningsrättningen som stoppade långsam återgång ska bevaras.
+
+Månens befintliga topocentriska beräkningsväg jämfördes med NASA/JPL i ett separat exempel och skilde cirka 0,0011°. I samma exempel gav 10 minuters tidsfel cirka 2,13° riktfel. Guided Finders centreringsgräns är 3°, alltså betydligt grövre än månens cirka 0,5° diameter. 22 befintliga riktnings-, finder- och astronomitester passerade. Ingen appkod ändrades.
+
+Två kompletteringar har efterfrågats och inväntas: Nu/GPS kontra vald tid/annan plats samt sidled/höjdled/båda och ungefärlig felstorlek. Nästa rekommenderade avgränsning är riktningens diagnostik, tydligare referensstatus och eventuell manuell kalibrering mot verkliga månen under kontrollerad Nu/plats. Dagsljusförslaget bör ge ett tydligt **Visa stjärnhimlen i kväll**-val; undvik tyst tidsflytt vid verklig inriktning. Alla dessa implementationer behöver nytt klartecken och rekommenderad modell först.
 
 ## Det som fungerar
 
