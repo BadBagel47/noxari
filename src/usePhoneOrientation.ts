@@ -2,6 +2,7 @@ import {clampViewPitch} from './groundView';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {deviceDirection, orientationSampleTime, PhoneDirectionTracker, type DirectionDiagnostics, type OrientationReading} from './deviceDirection';
 import type {ViewDirection} from './skyProjection';
+import {DirectionReportLog} from './directionReport';
 
 export type SensorStatus = 'off' | 'requesting' | 'waiting' | 'align' | 'tracking' | 'paused' | 'denied' | 'unavailable' | 'missing' | 'recalibrate';
 type SensorConstructor = typeof DeviceOrientationEvent & {requestPermission?: () => Promise<string>};
@@ -10,14 +11,14 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
   const [status, setStatus] = useState<SensorStatus>('off');
   const [needsAlignment, setNeedsAlignment] = useState(false);
   const [diagnostics, setDiagnostics] = useState<DirectionDiagnostics>(() => new PhoneDirectionTracker().diagnostics());
-  const trace = useRef<object[]>([]);
-  const traceAt = useRef<Record<string, number>>({});
+  const report = useRef(new DirectionReportLog());
   const uiAt = useRef(0);
   const lastDiagnostics = useRef(diagnostics);
   const refreshDiagnostics = (force = false) => {
     const now = performance.now(), next = tracker.current.diagnostics(now);
     if (force || now - uiAt.current >= 200 || next.reason !== lastDiagnostics.current.reason
-      || next.reference !== lastDiagnostics.current.reference || next.compassReady !== lastDiagnostics.current.compassReady || next.check !== lastDiagnostics.current.check) {
+      || next.reference !== lastDiagnostics.current.reference || next.compassReady !== lastDiagnostics.current.compassReady
+      || next.autoCorrections !== lastDiagnostics.current.autoCorrections || next.check !== lastDiagnostics.current.check) {
       uiAt.current = now; lastDiagnostics.current = next; setDiagnostics(next);
     }
     return next;
@@ -66,6 +67,7 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
   };
   const applyReference = (kind: 'north' | 'compass') => {
     const direction = kind === 'north' ? tracker.current.alignNorth() : tracker.current.useCompass();
+    for (const event of tracker.current.takeTransitions()) report.current.recordTransition(event);
     refreshDiagnostics(true);
     if (!direction) return;
     last.current = direction; setNeedsAlignment(false);
@@ -74,8 +76,9 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
   const alignNorth = () => applyReference('north');
   const useCompass = () => applyReference('compass');
   const downloadReport = () => {
-    const data = {application: 'Noxari', createdAt: new Date().toISOString(), sessionActive: running.current,
-      diagnostics: tracker.current.diagnostics(), samples: trace.current};
+    const data = {application: 'Noxari', reportVersion: 2, createdAt: new Date().toISOString(), sessionActive: running.current,
+      following: following.current, viewEnabled: allowed.current,
+      diagnostics: tracker.current.diagnostics(), ...report.current.snapshot()};
     const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'}));
     const link = document.createElement('a'); link.href = url; link.download = 'noxari-direction.json'; link.click();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
@@ -102,7 +105,7 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
     if (token !== generation.current) return;
     requesting.current = false;
     tracker.current = new PhoneDirectionTracker();
-    trace.current = []; traceAt.current = {}; refreshDiagnostics(true);
+    report.current = new DirectionReportLog(); refreshDiagnostics(true);
     running.current = true; following.current = true;
     let frame = 0, lastAt = performance.now();
     setStatus('waiting');
@@ -115,11 +118,13 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
       const sampleAt = orientationSampleTime(reading.timeStamp, now, performance.timeOrigin);
       const direction = tracker.current.update(input, event.type, sampleAt, now);
       const check = refreshDiagnostics();
-      if (now - (traceAt.current[event.type] ?? -Infinity) >= 50) {
-        traceAt.current[event.type] = now;
-        trace.current.push({receivedAtMs: now, sampleAtMs: sampleAt, source: event.type, rawAbsolute: reading.absolute, input, direction, check});
-        if (trace.current.length > 400) trace.current.shift();
-      }
+      const transitions = tracker.current.takeTransitions();
+      for (const transition of transitions) report.current.recordTransition(transition);
+      report.current.recordSample({receivedAtMs: now, sampleAtMs: sampleAt, source: event.type,
+        rawAbsolute: reading.absolute, input, direction, check, following: following.current,
+        viewEnabled: allowed.current}, transitions.length > 0);
+      // Recovery changes the reference, not whether the user chose to follow.
+      if (transitions.some(transition => transition.kind === 'auto-reanchor') && (!following.current || !allowed.current)) setStatus('paused');
       if (check.reason) { setNeedsAlignment(true); setStatus('recalibrate'); }
       if (direction) { last.current = direction; lastAt = now; setNeedsAlignment(!direction.absolute); }
       if (!check.reason && check.motionAgeMs !== null && check.motionAgeMs > 500 && following.current && allowed.current) setStatus('waiting');
@@ -140,5 +145,5 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
       clearInterval(timeout); cancelAnimationFrame(frame);
     };
   };
-  return {status, start, stop, pause, alignNorth, useCompass, downloadReport, diagnostics, hasReport: trace.current.length > 0, needsAlignment, active: ['requesting', 'waiting', 'align', 'tracking', 'recalibrate'].includes(status)};
+  return {status, start, stop, pause, alignNorth, useCompass, downloadReport, diagnostics, hasReport: report.current.hasData, needsAlignment, active: ['requesting', 'waiting', 'align', 'tracking', 'recalibrate'].includes(status)};
 }

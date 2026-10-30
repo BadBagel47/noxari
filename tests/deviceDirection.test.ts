@@ -110,8 +110,8 @@ describe('continuous phone following', () => {
     }
   });
 
-  it('detects persistent 120° disagreement at rest, never rewinds automatically, and explicitly reanchors', () => {
-    const tracker = new PhoneDirectionTracker(); settle(tracker);
+  it('holds a manual north reference on persistent disagreement until explicitly reanchored', () => {
+    const tracker = new PhoneDirectionTracker(); settle(tracker); tracker.alignNorth(1000);
     for (let t = 1100; t <= 5000; t += 100) {
       tracker.update(relative(240), 'deviceorientation', t);
       tracker.update(absolute(0), 'deviceorientationabsolute', t);
@@ -206,7 +206,9 @@ describe('continuous phone following', () => {
       tracker.update(relative(t <= 1000 ? 0 : 240), 'deviceorientation', t);
       if (t % 1000 === 0) tracker.update(absolute(0), 'deviceorientationabsolute', t);
     }
-    expect(tracker.diagnostics(7000).reason).toBe('disagreement');
+    expect(tracker.diagnostics(7000).reason).toBeNull();
+    expect(tracker.diagnostics(7000).autoCorrections).toBe(1);
+    expect(tracker.update(relative(240), 'deviceorientation', 7050)!.heading).toBeCloseTo(0);
   });
 
   it('accepts a newer pose with a rounded equal timestamp without fabricating elapsed stability', () => {
@@ -220,6 +222,105 @@ describe('continuous phone following', () => {
       first.update(absolute(0), 'deviceorientationabsolute', 100, now);
     }
     expect(first.diagnostics(450).reference).toBe('none');
+  });
+
+  it('automatically reanchors a sustained 120° error once, preserving subsequent relative turns', () => {
+    const tracker = new PhoneDirectionTracker(); settle(tracker); tracker.takeTransitions();
+    for (let t = 1100; t <= 6000; t += 100) {
+      tracker.update(relative(240), 'deviceorientation', t);
+      tracker.update(absolute(0), 'deviceorientationabsolute', t);
+    }
+    const d = tracker.diagnostics(6000);
+    expect(d.reason).toBeNull(); expect(d.autoCorrections).toBe(1);
+    expect(d.lastAutoCorrectionDegrees).toBeCloseTo(-120);
+    expect(d.differenceDegrees).toBeCloseTo(0);
+    const events = tracker.takeTransitions();
+    expect(events.map(event => event.kind)).toEqual(['disagreement-start', 'uncertain', 'auto-reanchor']);
+    const recovery = events[2];
+    expect(recovery.headingBeforeDegrees).toBeCloseTo(120);
+    expect(recovery.headingAfterDegrees).toBeCloseTo(0);
+    expect(recovery.differenceDegrees).toBeCloseTo(120);
+    expect(recovery.correctionDegrees).toBeCloseTo(-120);
+    expect(tracker.update(relative(150), 'deviceorientation', 6100)!.heading).toBeCloseTo(90);
+    tracker.update(absolute(285), 'deviceorientationabsolute', 6100);
+    for (let t = 6200; t <= 10000; t += 100) {
+      tracker.update(relative(150), 'deviceorientation', t);
+      tracker.update(absolute(285), 'deviceorientationabsolute', t);
+    }
+    expect(tracker.update(relative(150), 'deviceorientation', 10050)!.heading).toBeCloseTo(90);
+    expect(tracker.diagnostics(10050).autoCorrections).toBe(1);
+  });
+
+  it('corrects the report-sized disagreement from fresh paired tilted readings', () => {
+    const tracker = new PhoneDirectionTracker(); settle(tracker, 0, 0, 17.8894731311);
+    for (let t = 1100; t <= 5000; t += 100) {
+      tracker.update({alpha: 180.4, beta: 93.4, gamma: 15.4}, 'deviceorientation', t);
+      tracker.update({alpha: 254.4, beta: 93.4, gamma: 15.4, absolute: true}, 'deviceorientationabsolute', t);
+    }
+    expect(tracker.diagnostics(5000).autoCorrections).toBe(1);
+    expect(tracker.diagnostics(5000).lastAutoCorrectionDegrees).toBeCloseTo(-56.1105, 3);
+    expect(tracker.update({alpha: 180.4, beta: 93.4, gamma: 15.4}, 'deviceorientation', 5050)!.heading).toBeCloseTo(90.1741, 3);
+  });
+
+  it('waits for a sustained stationary disagreement and does not correct from stale evidence', () => {
+    const tracker = new PhoneDirectionTracker(); settle(tracker);
+    for (let t = 1100; t <= 2600; t += 100) {
+      tracker.update(relative(240), 'deviceorientation', t);
+      tracker.update(absolute(0), 'deviceorientationabsolute', t);
+    }
+    expect(tracker.diagnostics(2600).autoCorrections).toBe(0);
+    // Reading diagnostics later cannot itself perform a correction.
+    expect(tracker.diagnostics(5000).autoCorrections).toBe(0);
+    for (let t = 5100; t <= 8000; t += 100) tracker.update(relative(240), 'deviceorientation', t);
+    expect(tracker.diagnostics(8000).autoCorrections).toBe(0);
+    expect(tracker.update(relative(240), 'deviceorientation', 8050)!.heading).toBeCloseTo(120);
+  });
+
+  it('holds another large discrepancy during the ten-second automatic correction cooldown', () => {
+    const tracker = new PhoneDirectionTracker(); settle(tracker);
+    for (let t = 1100; t <= 12000; t += 100) {
+      tracker.update(relative(t < 5000 ? 240 : 120), 'deviceorientation', t);
+      tracker.update(absolute(0), 'deviceorientationabsolute', t);
+    }
+    expect(tracker.diagnostics(12000).autoCorrections).toBe(1);
+    expect(tracker.diagnostics(12000).reason).toBe('disagreement');
+    for (let t = 12100; t <= 16000; t += 100) {
+      tracker.update(relative(120), 'deviceorientation', t);
+      tracker.update(absolute(0), 'deviceorientationabsolute', t);
+    }
+    expect(tracker.diagnostics(16000).autoCorrections).toBe(2);
+    expect(tracker.diagnostics(16000).reason).toBeNull();
+    expect(tracker.update(relative(120), 'deviceorientation', 16050)!.heading).toBeCloseTo(0);
+  });
+
+  it('keeps automatic corrections out of compass-only, vertical and manual sessions', () => {
+    const tracker = new PhoneDirectionTracker(); settle(tracker); tracker.alignNorth(1000);
+    for (let t = 1100; t <= 15000; t += 100) {
+      tracker.update(relative(240), 'deviceorientation', t);
+      tracker.update(absolute(0), 'deviceorientationabsolute', t);
+    }
+    expect(tracker.diagnostics(15000).reference).toBe('manual');
+    expect(tracker.diagnostics(15000).autoCorrections).toBe(0);
+    expect(tracker.diagnostics(15000).reason).toBe('disagreement');
+    const only = new PhoneDirectionTracker();
+    for (let t = 0; t <= 6000; t += 100) only.update(absolute(t < 1000 ? 0 : 240), 'deviceorientationabsolute', t);
+    expect(only.diagnostics(6000).autoCorrections).toBe(0);
+    const vertical = new PhoneDirectionTracker(); settle(vertical);
+    for (let t = 1100; t <= 6000; t += 100) {
+      vertical.update({...relative(240), beta: 175}, 'deviceorientation', t);
+      vertical.update({...absolute(0), beta: 175}, 'deviceorientationabsolute', t);
+    }
+    expect(vertical.diagnostics(6000).autoCorrections).toBe(0);
+  });
+
+  it('rejects invalid webkit compass quality as evidence for automatic recovery', () => {
+    for (const invalid of [{webkitCompassHeading: 0, webkitCompassAccuracy: NaN},
+      {webkitCompassHeading: NaN, webkitCompassAccuracy: 10}, {webkitCompassHeading: 0, webkitCompassAccuracy: 60}]) {
+      const tracker = new PhoneDirectionTracker(); settle(tracker);
+      for (let t = 1100; t <= 7000; t += 100) tracker.update({...relative(240), ...invalid}, 'deviceorientation', t);
+      expect(tracker.diagnostics(7000).autoCorrections).toBe(0);
+      expect(tracker.diagnostics(7000).compassReady).toBe(false);
+    }
   });
 
 });

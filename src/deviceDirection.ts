@@ -32,16 +32,29 @@ export function deviceDirection(reading: OrientationReading): (ViewDirection & {
 
 type Direction = NonNullable<ReturnType<typeof deviceDirection>>;
 type Sample = {value: Direction; raw: Direction; at: number; frame: boolean; independent: boolean};
+type UncertaintyReason = 'reference-changed' | 'source-changed' | 'disagreement';
+export type DirectionTransition = {
+  id: number; atMs: number;
+  kind: 'initial-compass' | 'manual-north' | 'compass-reference' | 'disagreement-start' | 'uncertain' | 'auto-reanchor';
+  reason: UncertaintyReason | null;
+  reference: 'none' | 'compass' | 'manual';
+  offsetBeforeDegrees: number | null; offsetAfterDegrees: number | null;
+  headingBeforeDegrees: number | null; headingAfterDegrees: number | null;
+  differenceDegrees: number | null; correctionDegrees: number | null;
+};
 export type DirectionDiagnostics = {
   motionSource: 'relative' | 'earth' | 'compass' | 'none';
   reference: 'none' | 'compass' | 'manual';
   referenceAgeMs: number | null;
   check: 'waiting' | 'no-compass' | 'manual-only' | 'checking' | 'consistent' | 'compass-only' | 'uncertain';
-  reason: 'reference-changed' | 'source-changed' | 'disagreement' | null;
+  reason: UncertaintyReason | null;
   differenceDegrees: number | null;
   compassReady: boolean;
   motionAgeMs: number | null;
   compassAgeMs: number | null;
+  autoCorrections: number;
+  lastAutoCorrectionDegrees: number | null;
+  lastAutoCorrectionAgeMs: number | null;
 };
 const delta = (a: number, b: number) => (a - b + 540) % 360 - 180;
 const fresh = (sample: Sample | null, now: number) => Boolean(sample && now - sample.at >= 0 && now - sample.at <= 500);
@@ -61,6 +74,22 @@ export class PhoneDirectionTracker {
   private uncertain: DirectionDiagnostics['reason'] = null;
   private mismatchSince: number | null = null;
   private lastMismatchAt: number | null = null;
+  private transitions: DirectionTransition[] = [];
+  private transitionId = 0;
+  private autoCorrections = 0;
+  private lastAutoAt = -Infinity;
+  private lastAutoDegrees: number | null = null;
+
+  takeTransitions() { return this.transitions.splice(0); }
+  private record(kind: DirectionTransition['kind'], now: number, beforeOffset: number | null,
+    beforeHeading: number | null, difference: number | null = null, reason = this.uncertain) {
+    const afterHeading = this.northOffset === null ? null : this.direction()?.heading ?? null;
+    this.transitions.push({id: ++this.transitionId, atMs: now, kind, reason, reference: this.origin,
+      offsetBeforeDegrees: beforeOffset, offsetAfterDegrees: this.northOffset,
+      headingBeforeDegrees: beforeHeading, headingAfterDegrees: afterHeading, differenceDegrees: difference,
+      correctionDegrees: beforeHeading === null || afterHeading === null ? null : delta(afterHeading, beforeHeading)});
+    if (this.transitions.length > 32) this.transitions.shift();
+  }
 
   private append(history: Sample[], sample: Sample) {
     // Privacy-reduced browser clocks can give successive events equal stamps.
@@ -87,15 +116,25 @@ export class PhoneDirectionTracker {
       ? this.paired(now) && this.stable(this.motionHistory, now) && this.stable(this.compassHistory, now)
       : fresh(this.compass, now) && this.stable(this.fallbackHistory, now) && this.stable(this.compassHistory, now);
   }
-  private invalidate(reason: NonNullable<DirectionDiagnostics['reason']>) {
-    this.uncertain ??= reason;
+  private invalidate(reason: UncertaintyReason, now: number, difference: number | null = null) {
+    if (this.uncertain) return;
+    this.uncertain = reason;
     this.mismatchSince = null;
     this.lastMismatchAt = null;
+    this.record('uncertain', now, this.northOffset, this.direction()?.heading ?? null, difference);
   }
-  private anchor(offset: number, origin: 'compass' | 'manual', now: number) {
+  private anchor(offset: number, origin: 'compass' | 'manual', now: number,
+    kind: DirectionTransition['kind'], difference: number | null = null) {
+    const beforeOffset = this.northOffset, beforeHeading = beforeOffset === null ? null : this.direction()?.heading ?? null;
+    const reason = this.uncertain;
     this.northOffset = wrapHeading(offset); this.origin = origin; this.referenceAt = now;
     this.uncertain = null; this.mismatchSince = null;
     this.lastMismatchAt = null;
+    if (kind === 'auto-reanchor') {
+      this.autoCorrections++; this.lastAutoAt = now;
+      this.lastAutoDegrees = delta(this.direction()!.heading, beforeHeading!);
+    }
+    this.record(kind, now, beforeOffset, beforeHeading, difference, reason);
   }
 
   update(reading: OrientationReading, source: string, at = performance.now(), now = at): ReturnType<typeof deviceDirection> {
@@ -104,7 +143,7 @@ export class PhoneDirectionTracker {
     const referenced = deviceDirection(reading);
     if (!raw || !referenced) return null;
     const sample: Sample = {value: raw, raw, at, frame: reading.absolute === true,
-      independent: source !== 'deviceorientation' || typeof reading.webkitCompassHeading === 'number'};
+      independent: source !== 'deviceorientation' || (typeof reading.webkitCompassHeading === 'number' && Number.isFinite(reading.webkitCompassHeading))};
     const isMotion = source === 'deviceorientation';
     const before = this.northOffset;
     if (isMotion) {
@@ -113,19 +152,20 @@ export class PhoneDirectionTracker {
         // Preserve the last display direction during a late source handoff,
         // but do not silently trust a reference from a different pose/frame.
         this.northOffset = wrapHeading(this.compass.raw.heading + this.northOffset - raw.heading);
-        this.invalidate('source-changed');
+        this.invalidate('source-changed', now);
       }
       if (this.motion && this.northOffset !== null && sample.frame !== this.motion.frame
         && Math.abs(raw.pitch) < 75 && Math.abs(this.motion.value.pitch) < 75
         && Math.abs(delta(raw.heading, this.motion.value.heading)) > 30) {
-        this.invalidate('reference-changed');
+        this.invalidate('reference-changed', now);
         this.motionHistory = [];
       }
       this.motion = sample;
       this.append(this.motionHistory, sample);
     }
     const accuracy = reading.webkitCompassAccuracy;
-    const badCompass = typeof reading.webkitCompassHeading === 'number' && accuracy !== undefined && (accuracy < 0 || accuracy > 25);
+    const badCompass = typeof reading.webkitCompassHeading === 'number' && (!Number.isFinite(reading.webkitCompassHeading)
+      || (accuracy !== undefined && (!Number.isFinite(accuracy) || accuracy < 0 || accuracy > 25)));
     if (referenced.absolute && !badCompass && (!this.compass || at > this.compass.at
       || (at === this.compass.at && (sample.independent || !this.compass.independent)))) {
       this.compass = {...sample, value: referenced};
@@ -139,10 +179,11 @@ export class PhoneDirectionTracker {
   private evaluate(now: number) {
     const primary = this.motion ?? this.compass;
     if (this.northOffset === null && !this.uncertain && primary && this.compassReady(now)) {
-      this.anchor(this.compass!.value.heading - primary.raw.heading, 'compass', now);
+      this.anchor(this.compass!.value.heading - primary.raw.heading, 'compass', now, 'initial-compass');
       this.compassBias = 0;
     }
-    if (this.northOffset === null || this.uncertain || !this.motion || this.compassBias === null || !this.compass?.independent) return;
+    if (this.northOffset === null || (this.uncertain && this.uncertain !== 'disagreement')
+      || !this.motion || this.compassBias === null || !this.compass?.independent) return;
     if (!this.compassReady(now)) {
       // Sparse compass streams may leave gaps between valid pairs. Keep only
       // recent evidence while both poses remain stable; motion cancels it.
@@ -152,17 +193,28 @@ export class PhoneDirectionTracker {
       }
       return;
     }
-    const difference = Math.abs(delta(this.motion.value.heading + this.northOffset, this.compass!.value.heading + this.compassBias));
-    if (difference < 20) { this.mismatchSince = null; this.lastMismatchAt = null; return; }
-    this.mismatchSince ??= now;
+    const difference = delta(this.motion.value.heading + this.northOffset, this.compass!.value.heading + this.compassBias);
+    if (Math.abs(difference) < 20) { this.mismatchSince = null; this.lastMismatchAt = null; return; }
+    if (this.mismatchSince === null) {
+      this.mismatchSince = now;
+      this.record('disagreement-start', now, this.northOffset, this.direction()!.heading, difference);
+    }
     this.lastMismatchAt = now;
-    if (now - this.mismatchSince >= 1500) this.invalidate('disagreement');
+    if (now - this.mismatchSince >= 1500) {
+      this.invalidate('disagreement', now, difference);
+      // One checked correction, never a continuous compass pull. Manual north
+      // and reference/source changes still need explicit user recovery.
+      if (this.origin === 'compass' && now - this.lastAutoAt >= 10000) {
+        this.anchor(this.compass!.value.heading - this.motion.raw.heading, 'compass', now, 'auto-reanchor', difference);
+        this.compassBias = 0;
+      }
+    }
   }
 
   alignNorth(now = performance.now()): ReturnType<typeof deviceDirection> {
     const primary = this.motion ?? this.compass;
     if (!primary || !fresh(primary, now)) return null;
-    this.anchor(-primary.raw.heading, 'manual', now);
+    this.anchor(-primary.raw.heading, 'manual', now, 'manual-north');
     // A manual true-north reference may deliberately differ from magnetic
     // north. Capture that bias only from fresh, stationary paired readings.
     this.compassBias = this.compassReady(now) ? delta(0, this.compass!.value.heading) : null;
@@ -172,13 +224,13 @@ export class PhoneDirectionTracker {
   useCompass(now = performance.now()): ReturnType<typeof deviceDirection> {
     if (!this.compassReady(now)) return null;
     const primary = this.motion ?? this.compass!;
-    this.anchor(this.compass!.value.heading - primary.raw.heading, 'compass', now);
+    this.anchor(this.compass!.value.heading - primary.raw.heading, 'compass', now, 'compass-reference');
     this.compassBias = 0;
     return this.direction();
   }
 
   diagnostics(now = performance.now()): DirectionDiagnostics {
-    this.evaluate(now);
+    // Diagnostics are read-only: corrections happen on received sensor data.
     const primary = this.motion ?? this.compass;
     const paired = this.paired(now);
     const difference = paired && this.compass?.independent && this.northOffset !== null && this.compassBias !== null
@@ -191,7 +243,9 @@ export class PhoneDirectionTracker {
       reference: this.origin, referenceAgeMs: this.origin === 'none' ? null : Math.max(0, now - this.referenceAt),
       check, reason: this.uncertain, differenceDegrees: difference, compassReady: this.compassReady(now),
       motionAgeMs: primary ? Math.max(0, now - primary.at) : null,
-      compassAgeMs: this.compass ? Math.max(0, now - this.compass.at) : null};
+      compassAgeMs: this.compass ? Math.max(0, now - this.compass.at) : null,
+      autoCorrections: this.autoCorrections, lastAutoCorrectionDegrees: this.lastAutoDegrees,
+      lastAutoCorrectionAgeMs: this.lastAutoDegrees === null ? null : Math.max(0, now - this.lastAutoAt)};
   }
 
   private direction(): ReturnType<typeof deviceDirection> {
