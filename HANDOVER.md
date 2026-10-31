@@ -37,6 +37,8 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md`, `README.md` och `BAC
 
 **Så begär användaren en katalogkontroll:** skriv i chatten att katalogerna ska kontrolleras. Assistenten kör `npm run catalogs:check` mot aktuella källor och redovisar om något har lagts till, ändrats eller saknas. Vid ändringar föreslår assistenten en granskad uppdatering och väntar på klartecken innan katalogfiler skrivs om. Saknade upstream-poster tas inte bort automatiskt; bekräftade namnbyten behåller stabilt app-ID och får alias. NASA/Hubble-faktasnapshot, bilder/licenser och kandidaters upptäckt/status/fysiska data är fortsatt manuella granskningar. Detaljer finns i `data/README.md`.
 
+F-019 är publicerad som appcommit `17723f25d46af2d9b5270e00bcbdc636e6a3423e`. [GitHub Actions-körning 41250180468](https://github.com/BadBagel47/noxari/actions/runs/41250180468) passerade test, bygge och Pages-publicering. Den publicerade JS- och CSS-filen matchade lokalt byggda resurser med SHA-256. Lokal produktions-Chromiumkontroll verifierade sökfiltret med fem dvärgplaneter och filtret med Vesta; vid mobilbredd 390 px fanns inget sidöverflöde. Slutlig kontroll: 114 tester, bygge, `npm run catalogs:check -- --fail-on-changes` utan upstream-skillnader samt `git diff --check` passerade. Bygget ger fortsatt en Vite-varning om JavaScript-paket över 500 kB.
+
 - F-018 pinade även HYG v4.1 till den exakta upstream-commiten `3bf37f4b2d5460e1278286320d1d62fab9b493c1`; omgenerering verifierade 8 922 stjärnor/88 figurer och gav ingen diff i genererade data.
 
 - Verifierad **appcommit**: `ba1fa7edac7c6eeb016b87e13f28284515c59d56` (`ba1fa7e`).
