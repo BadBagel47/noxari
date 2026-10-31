@@ -8,6 +8,7 @@ import {Body} from 'astronomy-engine';
 import {objectPositioner, positionAt, showObjectMarker, type ObservingLocation} from './astronomy';
 import {objects, type SpaceObject} from './data';
 import {horizontalStarCatalog, projectHorizontal} from './skyProjection';
+import {stellarBrightness} from './skyVisibility';
 
 type Props = {
   selectedId?: string;
@@ -156,7 +157,7 @@ export function SkyMap({selectedId, time, location, label, sunLabel, onSelect, s
 
       if (starVisibility > 0) {
         for (const star of stars) {
-          const brightness = Math.max(0.18, Math.min(1, (6.1 - star.magnitude) / 5.8));
+          const brightness = stellarBrightness(star.magnitude);
           context.globalAlpha = starVisibility * (0.28 + brightness * 0.72);
           context.fillStyle = '#e2efff';
           const radius = star.magnitude < 0 ? 2.9 : star.magnitude < 2 ? 2.1 : star.magnitude < 4 ? 1.35 : 0.8;

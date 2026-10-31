@@ -4,7 +4,7 @@
 
 `brightStars.ts` is adapted from [HYG Database v4.1](https://github.com/astronexus/HYG-Database) by Astronexus contributors. The source and adapted subset are licensed under [Creative Commons Attribution-ShareAlike 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 
-Changes: exclude the Sun, select 4,105 stars to visual magnitude 5.8 plus five fainter HIP endpoints required by the constellation figures (4110 stars total), round coordinates/magnitudes, retain bright names, proper motions and HIP identifiers. Coordinates are epoch/equinox J2000; pmRA is the Hipparcos cos(dec)-weighted component in milliarcseconds/year. Missing proper-motion components default to zero. Apparent brightness remains stylized.
+Changes: exclude the Sun, select 8,920 stars to visual magnitude 6.5 plus HIP 30665 (V=6.60) and HIP 33165 (V=6.65), which are required endpoints for the constellation figures (8,922 stars total). Round coordinates/magnitudes and retain bright names, proper motions and HIP identifiers. Stars beyond V=5.8 use a dimmer display curve. Coordinates are epoch/equinox J2000; pmRA is the Hipparcos cos(dec)-weighted component in milliarcseconds/year. Missing proper-motion components default to zero. Apparent brightness remains stylized.
 
 CSV source: `https://raw.githubusercontent.com/astronexus/HYG-Database/main/hyg/CURRENT/hygdata_v41.csv`.
 

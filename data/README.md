@@ -7,3 +7,24 @@ Snapshot SHA-256: `c7ebeb9fe4e74c70e3cd0aacc86d7ac40e3e08cc389408bfce7cc2b39d8b9
 For M33, M67 and M76 the approximate distance is taken from the page's factual text rather than a structured Distance field. A missing/unsuitable source value is left missing. The generated catalog has 22 entries without a single distance: 19 missing source values and three special cases (M24, M40, M73) for which no common distance is assigned. No distances are inferred from redshift, magnitude or unrelated objects.
 
 To review/update this snapshot, check each source page, retain the factual value, retrieval date and full-page checksum, then explicitly update the snapshot checksum in `scripts/generate_messier.py`. Page checksums record the retrieval; live NASA pages may change. Tests and builds use the committed snapshot without network requests. See `src/generated/README.md` for the separately licensed OpenNGC coordinate/type dataset and reproduction instructions.
+
+## Selected Messier images
+
+`object-images.json` is the source of record for eight 960-pixel Commons thumbnails used in object Details. It retains the individual source-file page, creator credit, license label/link, accessible English/Swedish descriptions, download URL and SHA-256 for the exact thumbnail bytes shipped in `public/images/objects/`. Reproduce or integrity-check the files with:
+
+```sh
+python3 scripts/download_object_images.py
+```
+
+The original Commons records identify seven images as public domain and the M31 photograph as CC BY-SA 2.5. The app shows each creator, source record and license beside its image. The M31 file is distributed unchanged and its source license remains linked. Images are processed astronomical images; colors and contrast may be enhanced and do not represent unaided-eye appearance. Tests verify IDs, accessibility text, source/license metadata, JPEG headers and asset hashes offline.
+
+| Object | Commons record | Creator credit | Commons license |
+| --- | --- | --- | --- |
+| M31 | [M31-Andromede-16-09-2023-Hamois.jpg](https://commons.wikimedia.org/wiki/File:M31-Andromede-16-09-2023-Hamois.jpg) | Lviatour | [CC BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5/) |
+| M42 | [Orion Nebula - Hubble 2006 mosaic 18000.jpg](https://commons.wikimedia.org/wiki/File:Orion_Nebula_-_Hubble_2006_mosaic_18000.jpg) | NASA, ESA, M. Robberto and the Hubble Orion Treasury Team | Public domain |
+| M45 | [Pleiades large.jpg](https://commons.wikimedia.org/wiki/File:Pleiades_large.jpg) | NASA, ESA, AURA/Caltech, Palomar Observatory and listed science team | Public domain |
+| M13 | [Heart of M13 Hercules Globular Cluster.jpg](https://commons.wikimedia.org/wiki/File:Heart_of_M13_Hercules_Globular_Cluster.jpg) | ESA/Hubble and NASA | Public domain |
+| M57 | [Hubble image of the Ring Nebula (Messier 57).jpg](https://commons.wikimedia.org/wiki/File:Hubble_image_of_the_Ring_Nebula_(Messier_57).jpg) | NASA, ESA, C. Robert O’Dell | Public domain |
+| M51 | [Messier51 sRGB.jpg](https://commons.wikimedia.org/wiki/File:Messier51_sRGB.jpg) | NASA and the European Space Agency | Public domain |
+| M81 | [Messier 81 HST.jpg](https://commons.wikimedia.org/wiki/File:Messier_81_HST.jpg) | NASA, ESA and the Hubble Heritage Team | Public domain |
+| M104 | [M104 ngc4594 sombrero galaxy hi-res.jpg](https://commons.wikimedia.org/wiki/File:M104_ngc4594_sombrero_galaxy_hi-res.jpg) | NASA/ESA and the Hubble Heritage Team | Public domain |

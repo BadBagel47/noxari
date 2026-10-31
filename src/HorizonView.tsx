@@ -6,11 +6,11 @@ import {boundarySky, drawBoundaries} from './constellationBoundaries';
 import {Body} from 'astronomy-engine';
 import {nextObjectRise, objectPosition, objectPositioner, positionAt, showObjectMarker, type ObservingLocation, type SkyPosition} from './astronomy';
 import {objects, type SpaceObject} from './data';
-import {horizontalStarCatalog, perspectiveFocal, projectPerspective, type MapPoint, type ViewDirection} from './skyProjection';
+import {createPreparedPerspectiveProjector, horizontalStarCatalog, perspectiveFocal, prepareHorizontalStars, projectPerspective, type MapPoint, type ViewDirection} from './skyProjection';
 import {GuidedFinder} from './GuidedFinder';
 import {clampViewPitch, groundOpacity} from './groundView';
 import {MilkyWayPainter, type MilkyWayTexture} from './milkyWay';
-import {darkSkyVisibility, projectedStarVisibility} from './skyVisibility';
+import {darkSkyVisibility, projectedStarVisibility, stellarBrightness} from './skyVisibility';
 import type {usePhoneOrientation} from './usePhoneOrientation';
 
 type Props = {
@@ -49,7 +49,7 @@ export function HorizonView({selectedId, time, location, label, sunLabel, onSele
   const suppressClick = useRef(false);
   const [zoom, setZoom] = useState(1);
   const [size, setSize] = useState({width: 0, height: 0});
-  const stars = useMemo(() => horizontalStarCatalog(time, location), [time, location]);
+  const stars = useMemo(() => prepareHorizontalStars(horizontalStarCatalog(time, location)), [time, location]);
   const figures = useMemo(() => constellationSky(stars, figureMode), [stars, figureMode]);
   const boundaries = useMemo(() => showBoundaries ? boundarySky(time, location) : [], [showBoundaries, time, location]);
   const sun = useMemo(() => positionAt(Body.Sun, time, location), [time, location]);
@@ -115,6 +115,7 @@ export function HorizonView({selectedId, time, location, label, sunLabel, onSele
       const daylight = Math.max(0, Math.min(1, (sun.altitude + 18) / 24));
       const starVisibility = darkSkyVisibility(sun.altitude);
       const horizonY = height / 2 + perspectiveFocal(width, height, zoom) * Math.tan(view.pitch * Math.PI / 180);
+      const projectStar = createPreparedPerspectiveProjector(view, width, height, true, belowReveal > 0, zoom);
       const sky = context.createLinearGradient(0, 0, 0, height);
       sky.addColorStop(0, daylight ? `rgb(${Math.round(6 + 52 * daylight)},${Math.round(14 + 92 * daylight)},${Math.round(35 + 145 * daylight)})` : '#040c1b');
       sky.addColorStop(1, daylight ? `rgb(${Math.round(21 + 77 * daylight)},${Math.round(41 + 103 * daylight)},${Math.round(69 + 139 * daylight)})` : '#14304b');
@@ -164,9 +165,9 @@ export function HorizonView({selectedId, time, location, label, sunLabel, onSele
         for (const star of stars) {
           const visibility = projectedStarVisibility(sun.altitude, star.altitude, belowReveal);
           if (visibility <= 0) continue;
-          const point = project(star);
+          const point = projectStar(star);
           if (!point) continue;
-          const brightness = Math.max(.18, Math.min(1, (6.1 - star.magnitude) / 5.8));
+          const brightness = stellarBrightness(star.magnitude);
           context.globalAlpha = visibility * (.28 + brightness * .72);
           const radius = star.magnitude < 0 ? 3 : star.magnitude < 2 ? 2.2 : star.magnitude < 4 ? 1.5 : .9;
           context.beginPath();
@@ -180,7 +181,7 @@ export function HorizonView({selectedId, time, location, label, sunLabel, onSele
           for (const star of stars) {
             if (!star.name || star.name === 'Sirius') continue;
             if (projectedStarVisibility(sun.altitude, star.altitude, belowReveal) <= .5) continue;
-            const point = project(star);
+            const point = projectStar(star);
             if (point && point.x < width - 85 && point.y > 20) context.fillText(star.name, point.x + 6, point.y - 6);
           }
         }

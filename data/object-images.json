@@ -1,0 +1,99 @@
+[
+  {
+    "id": "m31",
+    "file": "m31.jpg",
+    "downloadUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/M31-Andromede-16-09-2023-Hamois.jpg/960px-M31-Andromede-16-09-2023-Hamois.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "sha256": "d6135a2d1892945c9f56fe0c23a441c7e0919688c62dcd27413209fd2914e684",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:M31-Andromede-16-09-2023-Hamois.jpg",
+    "credit": "Lviatour",
+    "license": "CC BY-SA 2.5",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.5/",
+    "altEn": "Wide-field photograph of the Andromeda Galaxy with its companion galaxies",
+    "altSv": "Vidvinkelfotografi av Andromedagalaxen och dess följeslagargalaxer"
+  },
+  {
+    "id": "m42",
+    "file": "m42.jpg",
+    "downloadUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f3/Orion_Nebula_-_Hubble_2006_mosaic_18000.jpg/960px-Orion_Nebula_-_Hubble_2006_mosaic_18000.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "sha256": "ed0a9cdba083fc1f8603d9265b7f7a11cc52d36995ff29857800949dffb625c0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Orion_Nebula_-_Hubble_2006_mosaic_18000.jpg",
+    "credit": "NASA, ESA, M. Robberto (STScI/ESA), and the Hubble Space Telescope Orion Treasury Project Team",
+    "license": "Public domain",
+    "licenseUrl": "https://commons.wikimedia.org/wiki/Commons:Reuse_of_PD-Art_photographs",
+    "altEn": "Hubble mosaic of the Orion Nebula in visible and infrared bands",
+    "altSv": "Hubblemosaik av Orionnebulosan i synligt och infrarött ljus"
+  },
+  {
+    "id": "m45",
+    "file": "m45.jpg",
+    "downloadUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4e/Pleiades_large.jpg/960px-Pleiades_large.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "sha256": "3978818e5bfc7dcec15d06954f14bd11d8ff852cdd623ae57e1b5e8046eb57f5",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Pleiades_large.jpg",
+    "credit": "NASA, ESA, AURA/Caltech, Palomar Observatory; science team: D. Soderblom, E. Nelan, F. Benedict, B. Arthur, and B. Jones",
+    "license": "Public domain",
+    "licenseUrl": "https://commons.wikimedia.org/wiki/Commons:Reuse_of_PD-Art_photographs",
+    "altEn": "The Pleiades open star cluster surrounded by blue reflection nebulosity",
+    "altSv": "Den öppna stjärnhopen Plejaderna omgiven av blå reflektionsnebulositet"
+  },
+  {
+    "id": "m13",
+    "file": "m13.jpg",
+    "downloadUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/60/Heart_of_M13_Hercules_Globular_Cluster.jpg/960px-Heart_of_M13_Hercules_Globular_Cluster.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "sha256": "2479b3853dec593940216d0fb5eed860837f653dc477fe7bf9c29d3ab49e1b62",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Heart_of_M13_Hercules_Globular_Cluster.jpg",
+    "credit": "ESA/Hubble and NASA",
+    "license": "Public domain",
+    "licenseUrl": "https://commons.wikimedia.org/wiki/Commons:Reuse_of_PD-Art_photographs",
+    "altEn": "The dense central region of the Hercules globular cluster M13",
+    "altSv": "Den täta centrala delen av den klotformiga stjärnhopen M13 i Herkules",
+    "note": "Hubble composite using blue, red, and near-infrared filters."
+  },
+  {
+    "id": "m57",
+    "file": "m57.jpg",
+    "downloadUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fe/Hubble_image_of_the_Ring_Nebula_%28Messier_57%29.jpg/960px-Hubble_image_of_the_Ring_Nebula_%28Messier_57%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "sha256": "bbf66a6ac6e7156be74ca27aa954736f6043af3b33a5ff31cabbf724442f8d25",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Hubble_image_of_the_Ring_Nebula_(Messier_57).jpg",
+    "credit": "NASA, ESA, and C. Robert O’Dell (Vanderbilt University)",
+    "license": "Public domain",
+    "licenseUrl": "https://commons.wikimedia.org/wiki/Commons:Reuse_of_PD-Art_photographs",
+    "altEn": "Hubble image of the ring-shaped planetary nebula M57",
+    "altSv": "Hubblebild av den ringformade planetariska nebulosan M57"
+  },
+  {
+    "id": "m51",
+    "file": "m51.jpg",
+    "downloadUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/db/Messier51_sRGB.jpg/960px-Messier51_sRGB.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "sha256": "990ab316e537add392dd0b54a39964206b999a42f2162b0c74869decf9a012a1",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Messier51_sRGB.jpg",
+    "credit": "NASA and the European Space Agency",
+    "license": "Public domain",
+    "licenseUrl": "https://commons.wikimedia.org/wiki/Commons:Reuse_of_PD-Art_photographs",
+    "altEn": "The Whirlpool Galaxy M51 and its smaller companion galaxy",
+    "altSv": "Virvelgalaxen M51 och dess mindre följeslagargalax"
+  },
+  {
+    "id": "m81",
+    "file": "m81.jpg",
+    "downloadUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/63/Messier_81_HST.jpg/960px-Messier_81_HST.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "sha256": "0fe7a32c1179cb6683ced485bc52a39494954beb899d42ebe26244a10a6f225a",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Messier_81_HST.jpg",
+    "credit": "NASA, ESA, and the Hubble Heritage Team (STScI/AURA)",
+    "license": "Public domain",
+    "licenseUrl": "https://commons.wikimedia.org/wiki/Commons:Reuse_of_PD-Art_photographs",
+    "altEn": "Hubble view of the spiral galaxy Messier 81",
+    "altSv": "Hubblebild av spiralgalaxen Messier 81"
+  },
+  {
+    "id": "m104",
+    "file": "m104.jpg",
+    "downloadUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/M104_ngc4594_sombrero_galaxy_hi-res.jpg/960px-M104_ngc4594_sombrero_galaxy_hi-res.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "sha256": "71ca72c77832c341120384b1b5dac425157b048ce58a161092021bcb0bd33ea3",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:M104_ngc4594_sombrero_galaxy_hi-res.jpg",
+    "credit": "NASA/ESA and the Hubble Heritage Team (STScI/AURA)",
+    "license": "Public domain",
+    "licenseUrl": "https://commons.wikimedia.org/wiki/Commons:Reuse_of_PD-Art_photographs",
+    "altEn": "Hubble image of the Sombrero Galaxy with its prominent dust lane",
+    "altSv": "Hubblebild av Sombrerogalaxen med dess tydliga stoftband"
+  }
+]

@@ -20,6 +20,7 @@ html,body,#root{width:100%;height:100%;overflow:hidden}
 .sheet-head h1{font-size:21px;letter-spacing:-.3px;margin:0}.panel-close{display:grid;place-items:center;min-width:44px;height:44px;border:1px solid #54718c;border-radius:10px;background:#182e46;color:#e4f3fe}
 .sheet-body{font-size:16px;line-height:1.6;overflow:auto;overscroll-behavior:contain;touch-action:pan-y;padding:18px 16px max(24px,env(safe-area-inset-bottom));min-height:0;scrollbar-width:thin;scrollbar-color:#426784 transparent}
 .sheet-body .cards-grid{grid-template-columns:1fr;gap:12px}.sheet-body .detail-body{padding:0}.sheet-body .detail-body .description{margin-top:0}
+.object-photo{margin:16px 0 8px;border:1px solid #385672;border-radius:12px;overflow:hidden;background:#07111e}.object-photo img{display:block;width:100%;max-height:min(36dvh,320px);object-fit:contain;background:#030811}.object-photo figcaption{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;padding:8px 10px;color:#b5c9dc;font-size:12px;line-height:1.5}.object-photo a{color:#a9dcfb;text-decoration:underline;text-underline-offset:2px}
 .sheet-body .detail-actions button{min-height:44px;flex-basis:auto}.sheet-body .sky-mode{margin:0;justify-content:center}.sheet-body .sky-mode button{min-height:44px;flex:1}
 .sheet-body .figure-controls{padding:18px 0;background:none;border:0;gap:18px}.sheet-body .figure-controls label{min-height:44px;font-size:16px}
 .sheet-body .sky-credit{padding:18px 0;font-size:14px;line-height:1.9;border-color:#35516b}

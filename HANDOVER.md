@@ -32,12 +32,14 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md`, `README.md` och `BAC
 
 ## Aktuellt arbetsläge
 
-**Senaste utvecklingssteg:** **F-013 + F-007**, godkänt med ”Kör med Luna enligt rekommendation”. GPT-6 Luna High rekommenderades, men aktiv modell kan inte bytas eller verifieras från körningsmiljön. Implementerat, testat och publicerat. F-013 samlar utvecklarens återkommande kontroller i `docs/DEVELOPMENT_DIAGNOSTICS.md`. F-007 delar bokmärken som `?list=…`; delade listor är skrivskyddade tills mottagaren väljer Spara alla. B-001 är fortsatt pausad; B-004 ingick inte.
+**Senaste publicerade steg:** **F-013 + F-007**, godkänt med ”Kör med Luna enligt rekommendation”. GPT-6 Luna High rekommenderades, men aktiv modell kan inte bytas eller verifieras från körningsmiljön. Implementerat, testat och publicerat. F-013 samlar utvecklarens återkommande kontroller i `docs/DEVELOPMENT_DIAGNOSTICS.md`. F-007 delar bokmärken som `?list=…`; delade listor är skrivskyddade tills mottagaren väljer Spara alla.
 
-- Senast verifierade **appcommit**: `dd0eebc1e8d888fd869d50c3f177321c31418c35` (`dd0eebc`).
+**Aktuellt godkänd körning: F-003 + F-005.** Ändringarna är implementerade och lokalt verifierade; publicering återstår. F-003 utökar den pinnade HYG-katalogen till 8 920 stjärnor t.o.m. V=6,5 plus två svagare stjärnbildsändpunkter (8 922 totalt), med svagare ritning för de nya stjärnorna. F-005 lägger till åtta lokala, licens- och källmärkta bilder för M31, M42, M45, M13, M57, M51, M81 och M104 i objektdetaljerna. B-001 är fortsatt pausad.
+
+- Senast verifierade publicerade **appcommit**: `dd0eebc1e8d888fd869d50c3f177321c31418c35` (`dd0eebc`). F-003 + F-005 har ännu inte publicerats.
+- Lokal verifiering för F-003 + F-005: 107 tester passerar och `npm run build` lyckas. Chromium vid 390×844 öppnade alla åtta objektdetaljer, avkodade 960 px-bilderna och kontrollerade alt-text, kredit, källa/licens, horisontell overflow och webbläsarfel. Fyrdubbel CPU-throttle gav i två simulerade körningar median 17 ms per bildruta för både baslinje och ändring; p90 varierade 33–50 ms och är brusigt med detta lilla urval. Ingen fysisk mobilprestandamätning är gjord. Vites varning om ett JavaScript-paket över 500 kB kvarstår.
 - Actions: https://github.com/BadBagel47/noxari/actions/runs/41209604998 — tester, bygge och Pages-publicering lyckades.
-- **103 tester passerade** och `npm run build` lyckades (Vites varning om JavaScript-paket över 500 kB kvarstår). Chromium vid 390×844 verifierade delningslista, filtrering/deduplicering, att bokmärken inte ändras förrän importen uttryckligen väljs, listdelning, ogiltig länk samt fortsatt `?object=m31`-delning. Inga webbläsarfel.
-- Publicerade `assets/index-CAQiMmnq.js`, `assets/index-DeSspBVK.css`, `assets/milkyWay-DWEB47Uh.png` och licenstextens SHA-256 matchar lokalt `dist/` exakt.
+- F-013 + F-007 verifierades med 103 tester och publicerat bygge; se Actions-länken och resurshasharna i den historiska körningsanteckningen nedan.
 - Actions: https://github.com/BadBagel47/noxari/actions/runs/41207977710 — tester, bygge och Pages-publicering lyckades.
 - **100 tester passerade** och `npm run build` lyckades (Vites varning om ett JavaScript-paket över 500 kB kvarstår). Chromium vid 390×844 verifierade kvällsförhandsvisning, återgång till Nu, bright-sky varning, dagsljusets stjärnfilter ovan horisonten och synliga stjärnor i den simulerade nedåtvyn; inga webbläsarfel.
 - Publicerade `index-C0A6Qr5B.js`, `index-DeSspBVK.css`, `milkyWay-DWEB47Uh.png` och BSD-licenstext matchar lokalt produktionsbygge via SHA-256.
@@ -77,7 +79,7 @@ Komplettering om Nu/GPS kontra vald tid/annan plats inväntas fortfarande. Sidle
 - Plats, datum, tid och IANA-tidszon styr beräkningarna. Nu-läget uppdateras var 30:e sekund; manuellt datum byter till tydligt märkt Vald tid. GPS hämtar plats på användarens begäran; enhetens tidszon används och kan ändras manuellt.
 - Guided Finder ovanpå himlen med en central ring och pilhuvud längs kanten, målring, centreringsmarkering inom 3°, manuellt reservläge och ungefärlig nästa uppgång för objekt under horisonten. Vägledningen visar vald plats och tid; ingen sensoråtkomst begärs automatiskt vid start.
 - Telefonföljning med behörigheter, nordkalibrering och manuell reserv. GPS anger plats; riktningssensorerna anger vart telefonen pekar.
-- 4 105 HYG-stjärnor till magnitud 5,8 samt fem svagare ändpunkter för stjärnbildsfigurer. Första ordningens egenrörelse från J2000 ingår.
+- 8 920 HYG-stjärnor till magnitud 6,5 samt två svagare ändpunkter för stjärnbildsfigurer. Första ordningens egenrörelse från J2000 ingår.
 - Linjefigurer för alla 88 stjärnbilder samt separat valbara officiella IAU-gränser från Stellariums öppna data. Gränserna visas som lila streckade linjer och är avstängda från start. Mer → Himmelsvy har separata reglage för figurer, latinska namn och gränser, i båda vyerna.
 - Solen, månen och alla sju andra planeter har beräknade positioner. Solsystemsobjekt har avstånd, uppskattad magnitud, belyst andel, solavstånd i vinkel och stjärnbild för vald tid.
 - ”Ikväll” ger ungefärliga förslag efter vald tid utifrån höjd, mörker, månljus och utrustning. Även exkluderade objekt får skäl. Stjärnbildernas demokurvor deltar inte.
@@ -195,7 +197,7 @@ Ingen körning är godkänd härnäst. Användaren vill kunna samla fler ändrin
 
 ### Senare delar av planen
 
-Se `BACKLOG.md` för samtliga kvarstående poster och permanent numrering: F-002 dagsvy för alla relevanta dagsljusobjekt, F-003 djupare stjärnor, F-005 bilder och F-006 delningsförhandsvisningar. UI-förfining F-008 och bredare mobilprov F-009 ligger senare. Månkalibrering F-010 och kamera/AR F-011 är fortsatt uppskjutna; AR har låg prioritet. B-003 gäller överlappande etiketter och hör till den senare UI-genomgången. F-001, B-002, F-007 och F-013 är genomförda och publicerade.
+Se `BACKLOG.md` för samtliga kvarstående poster och permanent numrering: efter publicering av godkända F-003 + F-005 återstår bland annat F-002 dagsvy för alla relevanta dagsljusobjekt och F-006 delningsförhandsvisningar. UI-förfining F-008 och bredare mobilprov F-009 ligger senare. Månkalibrering F-010 och kamera/AR F-011 är fortsatt uppskjutna; AR har låg prioritet. B-003 gäller överlappande etiketter och hör till den senare UI-genomgången. F-001, B-002, F-007 och F-013 är genomförda och publicerade. F-003 + F-005 är implementerade lokalt; verifiering och publicering pågår.
 
 ## Begränsningar och källor
 
@@ -205,7 +207,7 @@ Se `BACKLOG.md` för samtliga kvarstående poster och permanent numrering: F-002
 - Stjärnbildsfigurerna är schematiska; officiella IAU-gränser är ett separat valbart lager med samplad klippning och Astronomy Engines B1875-konvention. Orion och Stora björnen har fortfarande tydligt märkta demokurvor.
 - ”Ikväll” använder en redovisad heuristik, inte en väderprognos eller sannolikhet för synlighet. Högsta höjd på diagrammet kan skilja sig från rekommenderad tid. Korta tillfällen kan missas mellan provpunkterna.
 - Sol-/planetmarkörer visar positioner och innebär inte garanterad synlighet. Förklaringar och utrustningsråd ska bevaras.
-- HYG, Stellariums använda figur- och gränsdata och den anpassade OpenNGC-katalogen är CC BY-SA 4.0. Bevara åtkomlig attribution, licenslänkar och uppgift om bearbetning i Om och källor. Ingen extern astronomisk bild är ännu inbäddad.
+- HYG, Stellariums använda figur- och gränsdata och den anpassade OpenNGC-katalogen är CC BY-SA 4.0. Bevara åtkomlig attribution, licenslänkar och uppgift om bearbetning i Om och källor. Åtta lokalt lagrade, källbundna Messierbilder finns i objektdetaljerna; manifest, hashkontroller och licenser finns i `data/object-images.json` och `data/README.md`.
 - Se `src/generated/README.md` för exakta källor, checksummer och reproduktion. Se `README.md` för beräkningsmodell och begränsningar. NASA/JPL-referenser för planeter ligger i `tests/fixtures/planets-horizons.json` och testerna körs utan nätverk.
 - Lagra inga hemligheter, privata positionsuppgifter eller fullständiga chattloggar i överlämningsfilen.
 

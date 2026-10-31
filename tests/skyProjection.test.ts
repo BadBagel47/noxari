@@ -2,7 +2,7 @@ import {describe, expect, it} from 'vitest';
 import {brightStars} from '../src/generated/brightStars';
 import {objects} from '../src/data';
 import {objectPosition, stockholm} from '../src/astronomy';
-import {catalogStarPosition, projectBrightStars, projectHorizontal, projectPerspective} from '../src/skyProjection';
+import {catalogStarPosition, createPreparedPerspectiveProjector, horizontalStarCatalog, prepareHorizontalStars, projectBrightStars, projectHorizontal, projectPerspective} from '../src/skyProjection';
 
 describe('real all-sky projection', () => {
   it('puts zenith at center and the cardinal horizons on the circle', () => {
@@ -32,16 +32,35 @@ describe('real all-sky projection', () => {
     expect(Math.min(polaris.azimuth, 360 - polaris.azimuth)).toBeLessThan(2);
   });
 
-  it('shows the visible half of a licensed star subset and responds to Earth rotation', () => {
-    expect(brightStars).toHaveLength(4110);
-    expect(brightStars.filter(star => star[2] <= 5.8)).toHaveLength(4105);
+  it('shows the visible half of the licensed catalog through magnitude 6.5 and responds to Earth rotation', () => {
+    expect(brightStars).toHaveLength(8922);
+    expect(brightStars.filter(star => star[2] <= 6.5)).toHaveLength(8920);
+    expect(brightStars.filter(star => star[2] > 6.5).map(star => star[6]).sort()).toEqual([30665, 33165]);
     expect(brightStars.every(star => star[2] > -20)).toBe(true); // HYG row zero (Sol) is excluded.
     const first = projectBrightStars(new Date('2026-01-15T18:00:00Z'), stockholm, 400, 400);
     const later = projectBrightStars(new Date('2026-01-15T22:00:00Z'), stockholm, 400, 400);
-    expect(first.length).toBeGreaterThan(1500);
-    expect(first.length).toBeLessThan(3000);
+    expect(first.length).toBeGreaterThan(4000);
+    expect(first.length).toBeLessThan(5000);
     expect(first[0].x).not.toBeCloseTo(later[0].x, 1);
     expect(first.every(star => Number.isFinite(star.x) && Number.isFinite(star.y))).toBe(true);
+  });
+
+  it('keeps the prepared panning projection numerically aligned with the reference projection', () => {
+    const time = new Date('2026-01-15T22:00:00Z');
+    const stars = prepareHorizontalStars(horizontalStarCatalog(time, stockholm));
+    for (const view of [{heading: 359, pitch: 0}, {heading: 124, pitch: 37}, {heading: 212, pitch: -28}]) {
+      const allowBelow = view.pitch < 0;
+      const fastProject = createPreparedPerspectiveProjector(view, 390, 844, true, allowBelow, 1.7);
+      for (let index = 0; index < stars.length; index += 211) {
+        const expected = projectPerspective(stars[index], view, 390, 844, true, allowBelow, 1.7);
+        const actual = fastProject(stars[index]);
+        expect(actual === null).toBe(expected === null);
+        if (actual && expected) {
+          expect(actual.x).toBeCloseTo(expected.x, 9);
+          expect(actual.y).toBeCloseTo(expected.y, 9);
+        }
+      }
+    }
   });
 });
 
