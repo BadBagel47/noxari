@@ -188,11 +188,11 @@ Detta beskriver versionen med uttrycklig återankring; den senare godkända auto
 
 ## Nästa föreslagna körning — inväntar nytt klartecken
 
-Ingen körning är godkänd härnäst. Användaren vill kunna samla fler ändringar; rekommendera modell när nästa batch avgränsas och invänta uttryckligt klartecken.
+Ingen körning är godkänd härnäst. Användaren vill kunna samla fler ändringar; rekommendera modell när nästa batch avgränsas och invänta uttryckligt klartecken. Användaren har förtydligat att **F-002** ska omfatta alla relevanta objekt som kan synas i dagsljus, inte bara Venus. Den godkända körningen behöver avgränsa urval och regler utifrån beräknad position, solhöjd, ljusstyrka och solavstånd.
 
 ### Senare delar av planen
 
-Se `BACKLOG.md` för samtliga kvarstående poster och permanent numrering: F-002 dagsvy/Venus, F-003 djupare stjärnor, F-005 bilder, F-006 delningsförhandsvisningar, F-007 observationslistor och F-013 utvecklardiagnostik. UI-förfining F-008 och bredare mobilprov F-009 ligger senare. Månkalibrering F-010 och kamera/AR F-011 är fortsatt uppskjutna; AR har låg prioritet. B-003 gäller överlappande etiketter och hör till den senare UI-genomgången. F-001 och B-002 är klara i den aktuella körningen.
+Se `BACKLOG.md` för samtliga kvarstående poster och permanent numrering: F-002 dagsvy för alla relevanta dagsljusobjekt, F-003 djupare stjärnor, F-005 bilder, F-006 delningsförhandsvisningar, F-007 observationslistor och F-013 utvecklardiagnostik. UI-förfining F-008 och bredare mobilprov F-009 ligger senare. Månkalibrering F-010 och kamera/AR F-011 är fortsatt uppskjutna; AR har låg prioritet. B-003 gäller överlappande etiketter och hör till den senare UI-genomgången. F-001 och B-002 är klara i den aktuella körningen.
 
 ## Begränsningar och källor
 
