@@ -172,6 +172,8 @@ Detta beskriver versionen med uttrycklig återankring; den senare godkända auto
 
 ## Nästa utvecklingssteg — inväntar nytt klartecken
 
+Senaste önskemål: **F-004**, zooma in/ut med tvåfingerspinch. Registrerat som planerad funktion, med bibehållet svep, objektval och telefonföljning. Föreslagen avgränsning är perspektivvy och karta med rimliga zoomgränser. Rekommenderad modell: GPT-6.1 Sol med hög resonemangsnivå. Invänta uttryckligt klartecken före kodändring.
+
 **B-001 är pausad genom användarbeslut 2026-10-31.** Uttrycklig kompassåterankring är fysiskt bekräftad, medan automatiken och långsiktig precision fortfarande behöver valideras när riktningsarbetet återupptas.
 
 B-005 + F-014 + F-015 är publicerade. Nytt klartecken krävs för nästa steg; F-001 + B-002 är kvarstående förslag. Rekommenderad modell: GPT-6.1 Sol med hög resonemangsnivå. Användaren kan samla ytterligare poster före nästa körning.
