@@ -8,7 +8,7 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md`, `README.md` och `BAC
 
 - Kommunicera på svenska, kort och konkret.
 - Använd permanenta **F-###** för funktioner och **B-###** för buggar från och med 2026-10-31. Se `BACKLOG.md` för återstående arbete och status; ID:n återanvänds eller numreras inte om. Ange ID:n när en körning avgränsas och när arbetet redovisas.
-- Enkel användning är användarens övergripande designprincip för alla funktioner (**F-012**). Senaste önskemål finns under **F-013–F-015** och **B-004** i backloggen; ingen implementering av dessa poster har startgodkänts.
+- Enkel användning är användarens övergripande designprincip för alla funktioner (**F-012**). Senaste önskemål finns under **F-013–F-015** och **B-004** i backloggen. Senaste prioritet **B-005** är att aktiv telefonföljning fortsätter genom sökning/paneler tills användaren trycker Stoppa. Den konkreta koden behöver uttryckligt startklartecken.
 - **Meddela rekommenderad ChatGPT-modell innan varje nytt utvecklingssteg.** Hittills har rekommendationen varit **GPT-6.1 Sol med hög resonemangsnivå**. Användaren vill kunna använda Sol; föreslå en tyngre modell bara om uppgiften motiverar det. En rekommendation betyder inte att modellen faktiskt har bytts.
 - **Starta inte ett nytt utvecklingssteg utan uttryckligt klartecken.** Beskriv först dess omfattning och invänta exempelvis ”Kör”. Användaren vill kunna samla flera ändringar före samma körning. En diskussion, ett positivt omdöme eller en ny planpunkt är inte i sig ett startbesked.
 - Ett ”Kör” gäller det senast föreslagna, avgränsade steget. Slutför och verifiera det steget, men påbörja inte därefter nästa etapp automatiskt.
@@ -32,7 +32,7 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md`, `README.md` och `BAC
 
 ## Aktuellt arbetsläge
 
-**Senaste beslut 2026-10-31:** användaren pausar riktningsarbetet som **B-001** för att prioritera övrig funktionalitet. Automatisk kompassåterankring och bevarad felhistorik är publicerade; fysisk bekräftelse av automatiken och långsiktig precision återstår, och buggen är inte avslutad. Bevara befintlig sensorkod och underlag. Återuppta inte felsökning eller fysisk riktvalidering utan nytt beslut. `BACKLOG.md` är den numrerade listan för återstående arbete. Föreslagen nästa körning är **F-001 + B-002**, men ingen ny kodimplementation är startgodkänd. Fortsätt rekommendera modell och invänta klartecken före varje utvecklingssteg.
+**Senaste beslut 2026-10-31:** användaren pausar det fysiska riktprecisionstestet som **B-001**. En separat följningsbugg, **B-005**, har högre prioritet: öppning av sök-/inställningspaneler ska inte stänga av telefonföljningen; den ska vara aktiv tills användaren trycker Stoppa. Rekommenderad modell är GPT-6.1 Sol med hög resonemangsnivå. `BACKLOG.md` har full scope/status. F-001 + B-002 är det tidigare planförslaget. Invänta det uttryckliga klartecknet innan utvecklingskod ändras.
 
 - Senast verifierade och publicerade **appcommit**: `4785be060ea4046cda168284c97143b447820054`.
 - Actions: https://github.com/BadBagel47/noxari/actions/runs/41104029942 — tester, bygge och publicering lyckades.

@@ -19,7 +19,7 @@ Denna fil är den gemensamma listan för återstående funktioner och kända öp
 
 Användaren har **pausat B-001** och vill prioritera att färdigställa övrig funktionalitet. Ingen ny kodimplementation är startgodkänd. Befintlig sensorkod ligger kvar; detta beslut innebär ingen återställning eller avstängning av publicerade funktioner.
 
-**Rekommenderad nästa körning: F-001 + B-002.** Gör det möjligt att utforska kvällens stjärnhimmel från dagtid och rätta den simulerade nedåtvyn. Modellförslag: **GPT-6.1 Sol med hög resonemangsnivå**. Körningen inväntar klartecken; numreringen innebär ingen beslutad ordning för resten av listan.
+**Senaste prioritering: B-005.** Behåll aktiv telefonföljning över sökning och andra gränssnittspaneler; sluta följa när användaren trycker Stoppa. Rekommenderad modell för rättningen: **GPT-6.1 Sol med hög resonemangsnivå**. Starta implementation enligt användarens uttryckliga klarteckensregel. Det tidigare förslaget **F-001 + B-002** kan tas upp igen senare.
 
 ## Buggar
 
@@ -29,6 +29,7 @@ Användaren har **pausat B-001** och vill prioritera att färdigställa övrig f
 | **B-002** | Dagsljus döljer stjärnor även under den genomskinliga marken | **Planerad** | Den tydligt märkta simulerade nedåtvyn ska kunna visa stjärnhimlen trots dag ovan horisonten. Bevara dagvyn ovan horisonten samt verkliga horisontvillkor för Guided Finder/Ikväll. Se [DAYLIGHT_DIRECTION_ANALYSIS.md](docs/DAYLIGHT_DIRECTION_ANALYSIS.md). |
 | **B-003** | Täta objektetiketter kan överlappa | **Senare** | Förbättra placering/urval av etiketter på mobil och dator utan att förlora objektens beräknade riktningar eller tryckbarhet. Hanteras tillsammans med F-008. |
 | **B-004** | Himmelsvyn hackar vid panorering | **Planerad — orsaken okänd** | Mät respons med Vintergatan av/på och undersök bakgrundsritning, projektion och bildrutor. Optimera den berörda renderingsvägen om provet visar att den bidrar; bevara utseende och fungerande svep. Orsaken är ännu inte fastställd. |
+| **B-005** | Telefonföljningen pausas automatiskt när paneler öppnas | **Planerad** | Behåll aktiv följning när användaren söker/bläddrar och stäng panelen. Följningen ska stanna när användaren väljer Stoppa. Granska även manuella styrhandlingar så att de följer denna regel. Dokumentera plattformsbegränsningar, exempelvis när webbläsaren döljs eller sensordata upphör. |
 
 ## Funktioner och förbättringar
 
