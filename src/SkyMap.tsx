@@ -10,6 +10,7 @@ import {objects, type SpaceObject} from './data';
 import {horizontalStarCatalog, projectHorizontal} from './skyProjection';
 
 type Props = {
+  selectedId?: string;
   time: Date;
   location: ObservingLocation;
   label: (object: SpaceObject) => string;
@@ -22,7 +23,7 @@ type Props = {
   milkyWay: MilkyWayTexture | null;
 };
 
-export function SkyMap({time, location, label, sunLabel, onSelect, showFigures, showFigureNames, figureMode, showBoundaries, milkyWay}: Props) {
+export function SkyMap({selectedId, time, location, label, sunLabel, onSelect, showFigures, showFigureNames, figureMode, showBoundaries, milkyWay}: Props) {
   const container = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const reveal = useRef(new ConstellationReveal());
@@ -149,7 +150,7 @@ export function SkyMap({time, location, label, sunLabel, onSelect, showFigures, 
 
   return <div className="sky-canvas sky-map" ref={container}>
     <canvas ref={canvas} aria-label="Calculated zenith-centered sky with proper motion and optional constellation figures and IAU boundaries; horizon is the outer circle" role="img"/>
-    {markers.map(({object, point, altitude}) => <button key={object.id} className="sky-object" style={{left: point.x, top: point.y}} onClick={() => onSelect(object)} title={`${label(object)} · ${altitude.toFixed(1)}°`} aria-label={`${label(object)}, altitude ${altitude.toFixed(1)}°`}><span className="sky-point" style={{width: object.size + 4, height: object.size + 4, background: object.color, boxShadow: `0 0 16px ${object.color}`}}/><span>{label(object)}</span></button>)}
+    {markers.map(({object, point, altitude}) => <button key={object.id} className={`sky-object ${selectedId === object.id ? 'is-selected' : ''}`} aria-pressed={selectedId === object.id} style={{left: point.x, top: point.y}} onClick={() => onSelect(object)} title={`${label(object)} · ${altitude.toFixed(1)}°`} aria-label={`${label(object)}, altitude ${altitude.toFixed(1)}°`}><span className="sky-point" style={{width: object.size + 4, height: object.size + 4, background: object.color, boxShadow: `0 0 16px ${object.color}`}}/><span>{label(object)}</span></button>)}
     {sunPoint && <span className="sky-object sky-sun" style={{left: sunPoint.x, top: sunPoint.y}} role="img" aria-label={`${sunLabel}, altitude ${sun.altitude.toFixed(1)}°`}><span className="sky-point"/><span>{sunLabel}</span></span>}
   </div>;
 }

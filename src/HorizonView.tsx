@@ -13,6 +13,7 @@ import {MilkyWayPainter, type MilkyWayTexture} from './milkyWay';
 import type {usePhoneOrientation} from './usePhoneOrientation';
 
 type Props = {
+  selectedId?: string;
   time: Date;
   location: ObservingLocation;
   label: (object: SpaceObject) => string;
@@ -35,7 +36,7 @@ type Props = {
 const wrap = (degrees: number) => (degrees % 360 + 360) % 360;
 const cardinal = (heading: number) => ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(wrap(heading) / 45) % 8];
 
-export function HorizonView({time, location, label, sunLabel, onSelect, language, view, onViewChange, showFigures, showFigureNames, figureMode, showBoundaries, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails}: Props) {
+export function HorizonView({selectedId, time, location, label, sunLabel, onSelect, language, view, onViewChange, showFigures, showFigureNames, figureMode, showBoundaries, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails}: Props) {
   const root = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const reveal = useRef(new ConstellationReveal());
@@ -238,7 +239,7 @@ export function HorizonView({time, location, label, sunLabel, onSelect, language
   };
 
   return <div className={`sky-canvas horizon-view ${finderTarget ? 'finder-active' : ''}`} ref={root} tabIndex={0}
-    aria-label={language === 'sv' ? 'Svepbar himmelsvy. Dra för att vrida, använd piltangenter för att ändra riktning.' : 'Interactive sky view. Drag to turn, or use arrow keys to change direction.'}
+    aria-label={phone.active ? (language === 'sv' ? 'Telefonföljning aktiv. Tryck Stoppa för manuell styrning.' : 'Phone following active. Press Stop for manual control.') : (language === 'sv' ? 'Svepbar himmelsvy. Dra för att vrida, använd piltangenter för att ändra riktning.' : 'Interactive sky view. Drag to turn, or use arrow keys to change direction.')}
     onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={finishPointer} onPointerCancel={endPointer}
     onLostPointerCapture={event => { if (event.target === event.currentTarget) endPointer(event); }}
     onClickCapture={event => { if (suppressClick.current && event.detail !== 0 && event.target instanceof Element && !event.target.closest('[data-sky-controls], .horizon-controls')) { event.preventDefault(); event.stopPropagation(); } }}
@@ -250,7 +251,7 @@ export function HorizonView({time, location, label, sunLabel, onSelect, language
     }}>
     <canvas ref={canvas} aria-hidden="true"/>
     <div className="horizon-heading" aria-live="off">{language === 'sv' ? 'Mot' : 'Facing'} {cardinal(view.heading)} · {Math.round(view.heading)}° <span>{view.pitch < 0 ? '↓' : '↑'} {Math.round(Math.abs(view.pitch))}°</span>{view.pitch < 0 && <span className="below-horizon-label">{language === 'sv' ? 'Under horisonten · simulerad vy' : 'Below horizon · simulated view'}</span>}</div>
-    {markers.map(({object, position, point}) => <button key={object.id} className="sky-object" style={{left: point.x, top: point.y, opacity: position.altitude < 0 ? belowReveal * .8 : 1}} onClick={() => onSelect(object)} title={`${label(object)} · ${position.altitude.toFixed(1)}°`} aria-label={`${label(object)}, ${language === 'sv' ? 'höjd' : 'altitude'} ${position.altitude.toFixed(1)}°`}><span className="sky-point" style={{width: object.size + 4, height: object.size + 4, background: object.color, boxShadow: `0 0 16px ${object.color}`}}/><span>{label(object)}</span></button>)}
+    {markers.map(({object, position, point}) => <button key={object.id} className={`sky-object ${selectedId === object.id ? 'is-selected' : ''}`} aria-pressed={selectedId === object.id} style={{left: point.x, top: point.y, opacity: position.altitude < 0 ? belowReveal * .8 : 1}} onClick={() => onSelect(object)} title={`${label(object)} · ${position.altitude.toFixed(1)}°`} aria-label={`${label(object)}, ${language === 'sv' ? 'höjd' : 'altitude'} ${position.altitude.toFixed(1)}°`}><span className="sky-point" style={{width: object.size + 4, height: object.size + 4, background: object.color, boxShadow: `0 0 16px ${object.color}`}}/><span>{label(object)}</span></button>)}
     {sunPoint && <span className="sky-object sky-sun" style={{left: sunPoint.x, top: sunPoint.y, opacity: sun.altitude < 0 ? belowReveal * .8 : 1}} role="img" aria-label={`${sunLabel}, ${language === 'sv' ? 'höjd' : 'altitude'} ${sun.altitude.toFixed(1)}°`}><span className="sky-point"/><span>{sunLabel}</span></span>}
     {finderTarget && targetPosition && <GuidedFinder object={finderTarget} position={targetPosition} nextRise={nextRise} location={location} view={view} width={size.width} height={size.height} language={language} phone={phone} sunAltitude={sun.altitude} onClose={onStopFinder} onDetails={onFinderDetails}/>}
     <div className="horizon-help">{language === 'sv' ? 'Dra eller svep för att se dig omkring' : 'Drag or swipe to look around'}</div>

@@ -8,7 +8,7 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md`, `README.md` och `BAC
 
 - Kommunicera på svenska, kort och konkret.
 - Använd permanenta **F-###** för funktioner och **B-###** för buggar från och med 2026-10-31. Se `BACKLOG.md` för återstående arbete och status; ID:n återanvänds eller numreras inte om. Ange ID:n när en körning avgränsas och när arbetet redovisas.
-- Enkel användning är användarens övergripande designprincip för alla funktioner (**F-012**). Senaste önskemål finns under **F-013–F-015** och **B-004** i backloggen. Senaste prioritet **B-005** är att aktiv telefonföljning fortsätter genom sökning/paneler tills användaren trycker Stoppa. Den konkreta koden behöver uttryckligt startklartecken.
+- Enkel användning är användarens övergripande designprincip för alla funktioner (**F-012**). Senaste önskemål finns under **F-013–F-015** och **B-004** i backloggen. Senaste prioritet **B-005** är att aktiv telefonföljning fortsätter genom sökning/paneler tills användaren trycker Stoppa. B-005 godkändes därefter tillsammans med F-014 och F-015 genom ”Kör”.
 - **Meddela rekommenderad ChatGPT-modell innan varje nytt utvecklingssteg.** Hittills har rekommendationen varit **GPT-6.1 Sol med hög resonemangsnivå**. Användaren vill kunna använda Sol; föreslå en tyngre modell bara om uppgiften motiverar det. En rekommendation betyder inte att modellen faktiskt har bytts.
 - **Starta inte ett nytt utvecklingssteg utan uttryckligt klartecken.** Beskriv först dess omfattning och invänta exempelvis ”Kör”. Användaren vill kunna samla flera ändringar före samma körning. En diskussion, ett positivt omdöme eller en ny planpunkt är inte i sig ett startbesked.
 - Ett ”Kör” gäller det senast föreslagna, avgränsade steget. Slutför och verifiera det steget, men påbörja inte därefter nästa etapp automatiskt.
@@ -32,7 +32,7 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md`, `README.md` och `BAC
 
 ## Aktuellt arbetsläge
 
-**Senaste beslut 2026-10-31:** användaren pausar det fysiska riktprecisionstestet som **B-001**. En separat följningsbugg, **B-005**, har högre prioritet: öppning av sök-/inställningspaneler ska inte stänga av telefonföljningen; den ska vara aktiv tills användaren trycker Stoppa. Rekommenderad modell är GPT-6.1 Sol med hög resonemangsnivå. `BACKLOG.md` har full scope/status. F-001 + B-002 är det tidigare planförslaget. Invänta det uttryckliga klartecknet innan utvecklingskod ändras.
+**Aktivt godkänt steg:** B-005 + F-014 + F-015, godkänt genom senaste ”Kör”. Implementerat och lokalt verifierat; publicering pågår. Följning behålls genom sökning/paneler, valt objekt markeras och spara/dela använder ikoner. B-001 är fortsatt pausad och B-004 ingår inte i detta steg.
 
 - Senast verifierade och publicerade **appcommit**: `4785be060ea4046cda168284c97143b447820054`.
 - Actions: https://github.com/BadBagel47/noxari/actions/runs/41104029942 — tester, bygge och publicering lyckades.
@@ -174,7 +174,7 @@ Detta beskriver versionen med uttrycklig återankring; den senare godkända auto
 
 **B-001 är pausad genom användarbeslut 2026-10-31.** Uttrycklig kompassåterankring är fysiskt bekräftad, medan automatiken och långsiktig precision fortfarande behöver valideras när riktningsarbetet återupptas.
 
-Föreslagen nästa avgränsning: **F-001 + B-002**, kvällsförhandsvisning och dagsljusfiltret i den simulerade nedåtvyn. Rekommenderad modell: **GPT-6.1 Sol med hög resonemangsnivå**. Invänta klartecken; användaren kan lägga till fler ändringar före samma körning. Inga appändringar startas av dokumentations-/numreringsbeslutet.
+B-005 + F-014 + F-015 slutförs med publicering. Därefter krävs nytt klartecken för nästa steg; F-001 + B-002 är kvarstående förslag. Rekommenderad modell: GPT-6.1 Sol med hög resonemangsnivå. Användaren kan samla ytterligare poster före nästa körning.
 
 ### Senare delar av planen
 
@@ -226,3 +226,10 @@ Efter varje avslutat steg, felrättning eller nytt planbeslut:
 6. Commitera dokumentationen tillsammans med ändringen när det är möjligt. Håll `README.md` och `AGENTS.md` förenliga med denna fil.
 
 Vid överlämning: lämna över projektet inklusive Git-historik när möjligt, denna fil, `BACKLOG.md`, `AGENTS.md` och `README.md`. Be den nya assistenten börja med att sammanfatta arbetsläget och invänta klartecken för nästa utvecklingssteg.
+
+## Interaktionsrunda B-005 / F-014 / F-015
+
+- Följningen fortsätter genom sökning, objektval, paneler, avmarkering och avslut av Finder. Himmelskartan behåller sensorsessionen; återgång visar senaste färska riktning. Manuell panorering, knappar och centrering används efter Stoppa. Dold sida/sensortimeout och osäkerhetsstopp kvarstår.
+- Beständig guldfärgad ring markerar valt objekt i perspektivvy och karta; aria-pressed anger tillståndet. Finder har fortsatt egen målring.
+- Spara/dela i objektdetaljer använder ikoner med tillgängliga namn och titel. Bokmärken visar tryckt/sparat tillstånd.
+- 98 tester och bygge passerar. Simulerade webbläsarprov i 390×844, 1280×800 och 568×320 täcker flödena ovan. Touch/Enter/Space, avbruten gest, Stoppa under väntande behörighet, dold sida och timeout trots fortsatt sekundär kompass verifierade separat. Skärmbild granskad. Ingen fysisk riktprecision påstås; B-001 är pausad.

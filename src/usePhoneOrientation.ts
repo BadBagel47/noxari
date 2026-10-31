@@ -39,15 +39,6 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
     last.current = null;
     setNeedsAlignment(false); setStatus('off');
   }, []);
-  const pause = useCallback(() => {
-    if (requesting.current) { stop(); return; }
-    if (!running.current) return;
-    following.current = false;
-    setStatus(tracker.current.diagnostics().reason ? 'recalibrate' : 'paused');
-  }, [stop]);
-  // A panel pauses publication, not the calibrated sensor session. Continuing
-  // to read the same source preserves its relative reference while editing.
-  useEffect(() => { if (!enabled) pause(); }, [enabled, pause]);
   useEffect(() => {
     const hide = () => { if (document.hidden) stop(); };
     document.addEventListener('visibilitychange', hide);
@@ -65,13 +56,15 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
       setStatus('tracking');
     } else setStatus(direction ? 'align' : 'waiting');
   };
+  // Return from the map with the latest pose and the same following choice.
+  useEffect(() => { if (enabled) publish(); }, [enabled]);
   const applyReference = (kind: 'north' | 'compass') => {
     const direction = kind === 'north' ? tracker.current.alignNorth() : tracker.current.useCompass();
     for (const event of tracker.current.takeTransitions()) report.current.recordTransition(event);
     refreshDiagnostics(true);
     if (!direction) return;
     last.current = direction; setNeedsAlignment(false);
-    if (!following.current || !allowed.current) setStatus('paused'); else publish();
+    if (allowed.current) publish(); else setStatus('tracking');
   };
   const alignNorth = () => applyReference('north');
   const useCompass = () => applyReference('compass');
@@ -124,9 +117,10 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
         rawAbsolute: reading.absolute, input, direction, check, following: following.current,
         viewEnabled: allowed.current}, transitions.length > 0);
       // Recovery changes the reference, not whether the user chose to follow.
-      if (transitions.some(transition => transition.kind === 'auto-reanchor') && (!following.current || !allowed.current)) setStatus('paused');
       if (check.reason) { setNeedsAlignment(true); setStatus('recalibrate'); }
-      if (direction) { last.current = direction; lastAt = now; setNeedsAlignment(!direction.absolute); }
+      if (direction) { last.current = direction; lastAt = now; setNeedsAlignment(!direction.absolute);
+        if (!allowed.current && !check.reason) setStatus(direction.absolute ? 'tracking' : 'align');
+      }
       if (!check.reason && check.motionAgeMs !== null && check.motionAgeMs > 500 && following.current && allowed.current) setStatus('waiting');
       if ((!direction && !check.reason) || !following.current || !allowed.current) return;
       if (!frame) frame = requestAnimationFrame(() => { frame = 0; publish(); });
@@ -145,5 +139,5 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
       clearInterval(timeout); cancelAnimationFrame(frame);
     };
   };
-  return {status, start, stop, pause, alignNorth, useCompass, downloadReport, diagnostics, hasReport: report.current.hasData, needsAlignment, active: ['requesting', 'waiting', 'align', 'tracking', 'recalibrate'].includes(status)};
+  return {status, start, stop, alignNorth, useCompass, downloadReport, diagnostics, hasReport: report.current.hasData, needsAlignment, active: ['requesting', 'waiting', 'align', 'tracking', 'recalibrate'].includes(status)};
 }
