@@ -20,7 +20,7 @@ describe('separate dwarf-planet candidate collection', () => {
     ]);
   });
 
-  it('reproduces the JPL/Horizons apparent equatorial position near its element epoch', () => {
+  it('matches the JPL/Horizons apparent equatorial position on the reference date', () => {
     // Horizons, geocentric observer, 2026-10-31 00:00 UTC:
     // RA 18h 11m 15.69s, Dec -42° 13′ 20.4″.
     const position = keplerianEquatorial(candidate, new Date('2026-10-31T00:00:00Z'))!;

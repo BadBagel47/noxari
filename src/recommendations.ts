@@ -18,7 +18,8 @@ export function moonSeparation(sample: NightSample) {
 export function sampleQuality(object: SpaceObject, sample: NightSample, maxSunAltitude: number) {
   const minimumAltitude = isDiffuse(object) ? 15 : 10;
   if (sample.altitude < minimumAltitude || sample.sunAltitude >= maxSunAltitude) return null;
-  if (object.kind === 'Planet' && (sample.sunSeparation === undefined || sample.sunSeparation < 15)) return null;
+  if (['Planet', 'Dwarf planet', 'Asteroid'].includes(object.kind)
+      && (sample.sunSeparation === undefined || sample.sunSeparation < 15)) return null;
   const height = Math.sin(sample.altitude * RAD);
   const darkness = clamp((-sample.sunAltitude - 6) / 12);
   const moonPenalty = isDiffuse(object)

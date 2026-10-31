@@ -14,7 +14,7 @@ describe('complete, traceable Messier catalog', () => {
     expect(messierObjects).toHaveLength(110);
     expect(messierObjects.map(object => object.catalogNumber)).toEqual(Array.from({length: 110}, (_, i) => i + 1));
     expect(new Set(objects.map(object => object.id)).size).toBe(objects.length);
-    expect(objects).toHaveLength(121);
+    expect(objects).toHaveLength(127);
     for (const id of ['m31', 'm45', 'm42', 'm13', 'm57', 'sirius', 'moon', 'orion', 'ursa-major']) expect(objects.some(object => object.id === id)).toBe(true);
   });
   it('retains valid J2000 centers and explicit source references for every entry', () => {
@@ -86,7 +86,7 @@ describe('scalable fixed-object astrometry', () => {
   it('calculates a shared night and recommendations for the whole catalog without demo leakage', () => {
     const date = new Date('2026-01-15T18:00:00Z'), context = nightContext(date, stockholm);
     const curves = nightCatalog(objects, date, stockholm, context);
-    expect(curves.size).toBe(121);
+    expect(curves.size).toBe(127);
     for (const object of messierObjects) {
       const curve = curves.get(object.id)!;
       expect(curve.real).toBe(true);
@@ -95,7 +95,7 @@ describe('scalable fixed-object astrometry', () => {
       expect(curve.samples[0].time).toBe(context.samples[0].time);
     }
     const ranked = rankTonight(objects, curves, 'all', date);
-    expect(ranked).toHaveLength(119);
+    expect(ranked).toHaveLength(125);
     expect(ranked.find(item => item.object.id === 'm110')).toBeDefined();
     expect(ranked.find(item => item.object.id === 'orion')).toBeUndefined();
     expect(curves.get('m110')!.samples[20].altitude).toBeCloseTo(objectPosition(get(110), context.samples[20].time, stockholm)!.altitude, 10);

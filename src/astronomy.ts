@@ -28,7 +28,7 @@ const eclipticToEquatorial = Rotation_ECL_EQJ();
 const AU_LIGHT_DAYS = 0.0057755183;
 const DEG = Math.PI / 180;
 
-export function keplerianEquatorial(object: SpaceObject, time: Date) {
+function keplerianState(object: SpaceObject, time: Date) {
   const orbit = object.position;
   if (!orbit || orbit.kind !== 'keplerian') return null;
   const heliocentric = (date: Date) => {
@@ -54,12 +54,21 @@ export function keplerianEquatorial(object: SpaceObject, time: Date) {
   const earth = HelioVector(Body.Earth, time);
   let emissionTime = time.getTime() - 0.28 * 86_400_000;
   let geo = new Vector(0, 0, 0, new AstroTime(time));
+  let target = new Vector(0, 0, 0, new AstroTime(time));
   for (let i = 0; i < 3; i++) {
-    const target = heliocentric(new Date(emissionTime));
+    target = heliocentric(new Date(emissionTime));
     geo = new Vector(target.x - earth.x, target.y - earth.y, target.z - earth.z, new AstroTime(time));
     emissionTime = time.getTime() - geo.Length() * AU_LIGHT_DAYS * 86_400_000;
   }
-  return EquatorFromVector(geo);
+  const sunDistance = target.Length(), earthDistance = geo.Length(), earthHelioDistance = earth.Length();
+  const clampCos = (value: number) => Math.max(-1, Math.min(1, value));
+  const phaseAngle = Math.acos(clampCos((target.x * geo.x + target.y * geo.y + target.z * geo.z) / (sunDistance * earthDistance)));
+  const sunSeparation = Math.acos(clampCos(-(geo.x * earth.x + geo.y * earth.y + geo.z * earth.z) / (earthDistance * earthHelioDistance))) / DEG;
+  return {equatorial: EquatorFromVector(geo), sunDistance, earthDistance, phaseAngle, sunSeparation};
+}
+
+export function keplerianEquatorial(object: SpaceObject, time: Date) {
+  return keplerianState(object, time)?.equatorial ?? null;
 }
 
 // Share one J2000->horizontal rotation across any number of catalog centers.
@@ -71,7 +80,7 @@ export function objectPositioner(time: Date, location: ObservingLocation) {
     if (!object.position) return null;
     if (object.position.kind === 'solar') return positionAt(Body[object.position.body], time, location);
     if (object.position.kind === 'keplerian') {
-      const equatorial = keplerianEquatorial(object, time);
+      const equatorial = keplerianState(object, time)?.equatorial;
       if (!equatorial || !Number.isFinite(equatorial.ra) || !Number.isFinite(equatorial.dec)) return null;
       return project(equatorial.ra, equatorial.dec);
     }
@@ -90,12 +99,27 @@ export function objectPosition(object: SpaceObject, time: Date, location: Observ
 // Geocentric photometry and distance, separate from the observer's topocentric
 // altitude/azimuth. Magnitude is a model without atmospheric extinction.
 export function solarAppearance(object: SpaceObject, time: Date) {
-  if (object.position?.kind !== 'solar') return null;
-  const body = Body[object.position.body];
-  const light = Illumination(body, time);
-  const equatorial = EquatorFromVector(GeoVector(body, time, true));
-  return {distanceAu: light.geo_dist, magnitude: light.mag, illuminatedFraction: light.phase_fraction,
-    sunSeparation: AngleFromSun(body, time), constellation: Constellation(equatorial.ra, equatorial.dec).name};
+  if (object.position?.kind === 'solar') {
+    const body = Body[object.position.body];
+    const light = Illumination(body, time);
+    const equatorial = EquatorFromVector(GeoVector(body, time, true));
+    return {distanceAu: light.geo_dist, magnitude: light.mag, illuminatedFraction: light.phase_fraction,
+      sunSeparation: AngleFromSun(body, time), constellation: Constellation(equatorial.ra, equatorial.dec).name};
+  }
+  if (object.position?.kind !== 'keplerian' || object.position.absoluteMagnitude === undefined) return null;
+  const state = keplerianState(object, time);
+  if (!state) return null;
+  const {absoluteMagnitude, phaseSlope} = object.position;
+  let phaseFunction = 1;
+  if (phaseSlope !== undefined) {
+    const tangent = Math.tan(state.phaseAngle / 2);
+    const phi1 = Math.exp(-3.33 * tangent ** 0.63);
+    const phi2 = Math.exp(-1.87 * tangent ** 1.22);
+    phaseFunction = (1 - phaseSlope) * phi1 + phaseSlope * phi2;
+  }
+  const magnitude = absoluteMagnitude + 5 * Math.log10(state.sunDistance * state.earthDistance) - 2.5 * Math.log10(Math.max(phaseFunction, 1e-12));
+  return {distanceAu: state.earthDistance, magnitude, illuminatedFraction: (1 + Math.cos(state.phaseAngle)) / 2,
+    sunSeparation: state.sunSeparation, constellation: Constellation(state.equatorial.ra, state.equatorial.dec).name};
 }
 
 // Marker policy is schematic, not a claim of naked-eye visibility. Bright
@@ -173,6 +197,7 @@ export function darkestNightSample(context: NightContext): NightEnvironment | nu
 
 export function maxSunAltitude(object: SpaceObject) {
   if (object.kind === 'Moon' || (object.kind === 'Planet' && !['uranus', 'neptune'].includes(object.id))) return -1;
+  if (object.kind === 'Dwarf planet' || object.kind === 'Asteroid') return -12;
   return object.kind === 'Star' ? -6 : -12;
 }
 
@@ -184,8 +209,8 @@ export function nightVisibility(object: SpaceObject, time: Date, location: Obser
     const fractional = index * ((demo?.length ?? 1) - 1) / (count - 1);
     const lower = Math.floor(fractional);
     const illustrative = demo ? demo[lower] + (demo[Math.min(lower + 1, demo.length - 1)] - demo[lower]) * (fractional - lower) : NaN;
-    const sunSeparation = object.position?.kind === 'solar' && object.kind === 'Planet'
-      ? AngleFromSun(Body[object.position.body], environment.time) : undefined;
+    const sunSeparation = (object.kind === 'Planet' || object.kind === 'Dwarf planet' || object.kind === 'Asteroid')
+      ? solarAppearance(object, environment.time)?.sunSeparation : undefined;
     return {...environment, altitude: actual?.altitude ?? illustrative, azimuth: actual?.azimuth ?? NaN, sunSeparation};
   });
   return {samples, real: Boolean(object.position), timeZone: location.timeZone, maxSunAltitude: maxSunAltitude(object)};

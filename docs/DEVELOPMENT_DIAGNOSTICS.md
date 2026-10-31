@@ -15,7 +15,7 @@ npm run catalogs:check
 
 - `npm test` runs all committed offline Vitest tests in `tests/`. NASA/JPL fixture comparisons and catalog/source checks use checked-in fixtures; they do not need live astronomy APIs.
 - `npm run build` runs the TypeScript project build and Vite production build. A warning about the large JavaScript bundle has been observed; check current output rather than treating it as a failed build.
-- `npm run catalogs:check` compares OpenNGC, the selected HYG stars, Stellarium constellation/boundary data and listed JPL candidate orbits. It is read-only and reports additions, missing upstream IDs and changed values; it never edits catalog files. Missing entries require review before retirement. NASA/Hubble distance facts, candidate discovery/status and object images remain manual checks.
+- `npm run catalogs:check` compares OpenNGC, the selected HYG stars, Stellarium constellation/boundary data and listed JPL orbits in both small-body collections. It is read-only and reports additions, missing upstream IDs and changed values; it never edits catalog files. Missing entries require review before retirement. NASA/Hubble distance facts, candidate discovery/status and object images remain manual checks.
 - `npm run dev` serves the app locally. `npm run preview` serves the production build. Use the Vite network address for a phone on the same network; sensor permissions require a secure context, so physical sensor checks belong on the deployed HTTPS site or a trusted local HTTPS setup.
 - `.github/workflows/deploy.yml` repeats install, tests and build on pushes to `main`, then deploys the artifact to GitHub Pages. A successful local build does not confirm deployment; inspect the Actions run and the live app separately.
 

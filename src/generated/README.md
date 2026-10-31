@@ -2,7 +2,7 @@
 
 ## Reviewing source updates
 
-Run `npm run catalogs:check` from the repository root to produce a read-only report for OpenNGC, the app's selected HYG stars, Stellarium constellation/boundary data and pinned JPL candidate orbits. The report compares stable IDs and retained values; it does not write generated files. Missing upstream entries are review items, never automatic deletions. Update source revision/checksum pins only after reviewing the diff and license, then regenerate and inspect the checked-in changes. NASA/Hubble fact pages and object-photo files use their own manual source and checksum procedures in `data/README.md`.
+Run `npm run catalogs:check` from the repository root to produce a read-only report for OpenNGC, the app's selected HYG stars, Stellarium constellation/boundary data and pinned JPL orbits for Keplerian small bodies. The report compares stable IDs and retained values; it does not write generated files. Missing upstream entries are review items, never automatic deletions. Update source revision/checksum pins only after reviewing the diff and license, then regenerate and inspect the checked-in changes. NASA/Hubble fact pages and object-photo files use their own manual source and checksum procedures in `data/README.md`.
 
 ## HYG stars
 

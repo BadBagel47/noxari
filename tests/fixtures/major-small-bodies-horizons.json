@@ -1,0 +1,13 @@
+{
+  "source": "NASA/JPL Horizons geocentric apparent RA/Dec (airless), quantity 1",
+  "time": "2026-10-31T00:00:00Z",
+  "coordinates": "Degrees, equatorial",
+  "objects": {
+    "ceres": {"ra": 114.13279, "dec": 23.96125},
+    "pluto": {"ra": 306.09137, "dec": -23.70030},
+    "eris": {"ra": 26.89183, "dec": -0.14164},
+    "haumea": {"ra": 220.59801, "dec": 13.39549},
+    "makemake": {"ra": 202.14576, "dec": 19.60222},
+    "vesta": {"ra": 18.47382, "dec": -4.44073}
+  }
+}

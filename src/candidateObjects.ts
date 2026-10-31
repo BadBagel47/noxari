@@ -1,7 +1,7 @@
 import type {SpaceObject} from './data';
 
 // A reviewed extra collection. JPL SBDB orbit solution #2 was issued
-// 2026-10-29, with epoch JD 2461200.5 (2026-10-31 TDB).
+// 2026-10-29, with epoch JD 2461200.5 (2026-06-09 TDB).
 export const candidateObjects: SpaceObject[] = [{
   id: '2026-ed138',
   en: '2026 ED138 (dwarf planet candidate)',
@@ -32,6 +32,7 @@ export const candidateObjects: SpaceObject[] = [{
     argumentOfPerihelionDegrees: 167.9532328404424,
     meanAnomalyDegrees: 128.3342024098231,
     meanMotionDegreesPerDay: 0.003501701413101125,
+    jplSolutionId: '2',
   },
   color: '#d2b8ff',
   size: 5,

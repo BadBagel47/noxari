@@ -200,63 +200,65 @@ def check_stellarium():
     return any_change
 
 
-def check_jpl_candidates():
-    source = (ROOT / 'src/candidateObjects.ts').read_text()
-    starts = [match.start() for match in re.finditer(r"id:\s*'([^']+)'", source)]
-    print('\nReviewed small-body candidates (JPL SBDB orbits)')
+def check_jpl_orbits():
+    print('\nJPL SBDB orbit snapshots')
     any_change = False
-    for index, start in enumerate(starts):
-        end = starts[index + 1] if index + 1 < len(starts) else source.find('];', start)
-        block = source[start:end]
-        object_id = re.search(r"id:\s*'([^']+)'", block).group(1)
-        match = re.search(r"url:\s*'([^']*sbdb_lookup[^']*)'", block)
-        if not match:
-            print(f'  {object_id}: no JPL link; manual review required.')
-            any_change = True
-            continue
-        fragment = urlparse(match.group(1)).fragment.split('?', 1)[-1]
-        designation = parse_qs(fragment).get('sstr', [None])[0]
-        if not designation:
-            raise RuntimeError('Cannot read object designation from JPL SBDB reference')
-        designation = unquote(designation)
-        pos = re.search(r'position:\s*\{([\s\S]*?)\n\s*\},\n\s*color:', block)
-        if not pos or "kind: 'keplerian'" not in pos.group(1):
-            print(f'  {designation}: non-Keplerian source; manual review required.')
-            any_change = True
-            continue
-        params = dict((key, float(value)) for key, value in
-                      re.findall(r'(epochJD|semiMajorAxisAu|eccentricity|inclinationDegrees|'
-                                 r'ascendingNodeDegrees|argumentOfPerihelionDegrees|'
-                                 r'meanAnomalyDegrees|meanMotionDegreesPerDay):\s*([0-9.]+)', pos.group(1)))
-        solution_match = re.search(r'solution #(\d+)', block, re.I)
-        pinned_solution = solution_match.group(1) if solution_match else None
-        query = f'https://ssd-api.jpl.nasa.gov/sbdb.api?sstr={quote(designation)}&full-prec=1'
-        data = json.loads(get(query))
-        orbit = data.get('orbit') or {}
-        remote = {element['name']: float(element['value']) for element in orbit.get('elements', [])}
-        mapping = {'a': 'semiMajorAxisAu', 'e': 'eccentricity', 'i': 'inclinationDegrees',
-                   'om': 'ascendingNodeDegrees', 'w': 'argumentOfPerihelionDegrees',
-                   'ma': 'meanAnomalyDegrees', 'n': 'meanMotionDegreesPerDay'}
-        changed = []
-        if not params:
-            print(f'  {designation}: pinned orbit could not be parsed; manual review required.')
-            any_change = True
-            continue
-        if pinned_solution and pinned_solution != str(orbit.get('orbit_id')):
-            changed.append('solution ID')
-        if float(orbit.get('epoch', 'nan')) != params.get('epochJD'):
-            changed.append('epoch')
-        for element, field in mapping.items():
-            if element not in remote or field not in params or remote[element] != params[field]:
-                changed.append(field)
-        print(f"  {designation}: pinned solution #{pinned_solution or '?'} "
-              f"at JD {params.get('epochJD')}; current JPL solution #{orbit.get('orbit_id')} "
-              f"at JD {orbit.get('epoch')}.")
-        if changed:
-            print('    Orbit differences require review: ' + ', '.join(changed))
-            any_change = True
-        else:
-            print('    Pinned orbital elements match current JPL values.')
+    mapping = {'a': 'semiMajorAxisAu', 'e': 'eccentricity', 'i': 'inclinationDegrees',
+               'om': 'ascendingNodeDegrees', 'w': 'argumentOfPerihelionDegrees',
+               'ma': 'meanAnomalyDegrees', 'n': 'meanMotionDegreesPerDay'}
+    for filename in ('src/candidateObjects.ts', 'src/majorSmallBodies.ts'):
+        source = (ROOT / filename).read_text()
+        starts = [match.start() for match in re.finditer(r"id:\s*'([^']+)'", source)]
+        for index, start in enumerate(starts):
+            end = starts[index + 1] if index + 1 < len(starts) else source.find('];', start)
+            block = source[start:end]
+            object_id = re.search(r"id:\s*'([^']+)'", block).group(1)
+            pos = re.search(r'position:\s*\{([\s\S]*?)\}', block)
+            if not pos or "kind: 'keplerian'" not in pos.group(1):
+                continue
+            match = re.search(r"url:\s*(?:'([^']*sbdb_lookup[^']*)'|jpl\('([^']+)'\))", block)
+            if not match:
+                print(f'  {object_id}: no JPL link; manual review required.')
+                any_change = True
+                continue
+            if match.group(1):
+                fragment = urlparse(match.group(1)).fragment.split('?', 1)[-1]
+                designation = parse_qs(fragment).get('sstr', [None])[0]
+            else:
+                designation = match.group(2)
+            if not designation:
+                raise RuntimeError(f'Cannot read JPL designation for {object_id}')
+            designation = unquote(designation)
+            params = dict((key, float(value)) for key, value in
+                          re.findall(r'(epochJD|semiMajorAxisAu|eccentricity|inclinationDegrees|'
+                                     r'ascendingNodeDegrees|argumentOfPerihelionDegrees|'
+                                     r'meanAnomalyDegrees|meanMotionDegreesPerDay):\s*([0-9.]+)', pos.group(1)))
+            solution_match = re.search(r"jplSolutionId:\s*'([^']+)'", pos.group(1))
+            pinned_solution = solution_match.group(1) if solution_match else None
+            query = f'https://ssd-api.jpl.nasa.gov/sbdb.api?sstr={quote(designation)}&full-prec=1'
+            data = json.loads(get(query))
+            orbit = data.get('orbit') or {}
+            remote = {element['name']: float(element['value']) for element in orbit.get('elements', [])}
+            changed = []
+            if not params:
+                print(f'  {object_id}: pinned orbit could not be parsed; manual review required.')
+                any_change = True
+                continue
+            if pinned_solution and pinned_solution != str(orbit.get('orbit_id')):
+                changed.append('solution ID')
+            if float(orbit.get('epoch', 'nan')) != params.get('epochJD'):
+                changed.append('epoch')
+            for element, field in mapping.items():
+                if element not in remote or field not in params or remote[element] != params[field]:
+                    changed.append(field)
+            print(f"  {designation}: pinned solution #{pinned_solution or '?'} "
+                  f"at JD {params.get('epochJD')}; current JPL solution #{orbit.get('orbit_id')} "
+                  f"at JD {orbit.get('epoch')}.")
+            if changed:
+                print('    Orbit differences require review: ' + ', '.join(changed))
+                any_change = True
+            else:
+                print('    Pinned orbital elements match current JPL values.')
     return any_change
 
 
@@ -267,7 +269,7 @@ def main():
     args = parser.parse_args()
     print('Catalog update audit (read-only). No project data will be changed.')
     try:
-        changes = check_openngc() | check_hyg() | check_stellarium() | check_jpl_candidates()
+        changes = check_openngc() | check_hyg() | check_stellarium() | check_jpl_orbits()
     except Exception as error:
         print(f'\nAudit incomplete: {error}', file=sys.stderr)
         return 2
