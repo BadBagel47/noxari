@@ -5,7 +5,7 @@ import React, {useEffect, useLayoutEffect, useMemo, useRef, useState} from 'reac
 import {createRoot} from 'react-dom/client';
 import {Search, Star, Compass, Bookmark, Settings2, MapPin, Clock3, ChevronRight, Share2, X, Eye, LocateFixed, Globe2, Info, Check, MoreHorizontal, SlidersHorizontal, Maximize, Minimize} from 'lucide-react';
 import {objects, zodiac, type SpaceObject, type Gear} from './data';
-import {clockTime, localDateTimeValue, nightContext, nightWindow, nightCatalog, objectPosition, positionAt, solarAppearance, selectedLocalTime, stockholm, type ObservingLocation} from './astronomy';
+import {clockTime, darkestNightSample, localDateTimeValue, nightContext, nightWindow, nightCatalog, objectPosition, positionAt, solarAppearance, selectedLocalTime, stockholm, type ObservingLocation} from './astronomy';
 import {Body} from 'astronomy-engine';
 import {DateTime} from 'luxon';
 import {VisibilityChart, peakSample} from './VisibilityChart';
@@ -55,7 +55,7 @@ function App() {
   const [gear, setGear] = useState<'all'|Gear>('all');
   const [category, setCategory] = useState('All');
   const [time, setTime] = useState(() => new Date());
-  const [timeMode, setTimeMode] = useState<'live' | 'fixed'>('live');
+  const [timeMode, setTimeMode] = useState<'live' | 'fixed' | 'preview'>('live');
   const [location, setLocation] = useState<ObservingLocation>(initialLocation);
   const [latitudeInput, setLatitudeInput] = useState(String(initialLocation.latitude));
   const [longitudeInput, setLongitudeInput] = useState(String(initialLocation.longitude));
@@ -121,6 +121,16 @@ function App() {
   }), [search, category]);
 
   const notify = (message: string) => { setToast(message); window.setTimeout(() => setToast(''), 2600); };
+  const showNightPreview = () => {
+    if (phone.active) return;
+    const sample = darkestNightSample(night);
+    if (!sample) return;
+    setTimeMode('preview');
+    setTime(sample.time);
+    closePanel();
+    if (night.window.kind === 'polarDay') notify(t(lang, 'Polar day: no dark sky is calculated tonight. Showing the darkest time.', 'Midnattssol: ingen mörk stjärnhimmel beräknas i natt. Visar tiden då solen står som lägst.'));
+    else if (sample.sunAltitude > -14) notify(t(lang, 'No fully dark sky tonight. Showing the time when the Sun is lowest.', 'Ingen helt mörk stjärnhimmel i natt. Visar tiden då solen står som lägst.'));
+  };
   const toggleSaved = (id: string) => setSaved(current => current.includes(id) ? current.filter(item => item !== id) : [...current, id]);
   const pickObject = (object: SpaceObject) => {
     setSelected(object); setFinderTarget(null); setPanel(null);
@@ -225,7 +235,7 @@ function App() {
     about: t(lang, 'About & sources', 'Om och källor'), more: t(lang, 'More', 'Mer'), details: selected ? display(selected, lang) : t(lang, 'Details', 'Detaljer'), phone: t(lang, 'Phone direction', 'Telefonriktning'),
   };
   const phoneLabel = phone.status === 'recalibrate' ? t(lang, 'Check north', 'Kalibrera') : phone.status === 'tracking' ? t(lang, 'Following', 'Följer') : phone.status === 'paused' ? t(lang, 'Paused', 'Pausad') : phone.status === 'align' ? t(lang, 'Align north', 'Kalibrera') : ['waiting', 'requesting'].includes(phone.status) ? t(lang, 'Waiting', 'Väntar') : t(lang, 'Manual', 'Manuell');
-  const stamp = timeMode === 'live' ? `${t(lang, 'Now', 'Nu')} · ${clockTime(time, location.timeZone)}` : `${t(lang, 'Selected time', 'Vald tid')} · ${DateTime.fromJSDate(time, {zone: location.timeZone}).setLocale(lang).toFormat('dd LLL HH:mm')}`;
+  const stamp = timeMode === 'live' ? `${t(lang, 'Now', 'Nu')} · ${clockTime(time, location.timeZone)}` : `${timeMode === 'preview' ? t(lang, 'Night preview', 'Kvällshimmel') : t(lang, 'Selected time', 'Vald tid')} · ${DateTime.fromJSDate(time, {zone: location.timeZone}).setLocale(lang).toFormat('dd LLL HH:mm')}`;
   const correctedRecently = ['tracking', 'paused'].includes(phone.status) && phone.diagnostics.lastAutoCorrectionAgeMs !== null && phone.diagnostics.lastAutoCorrectionAgeMs < 6000;
   const needsPhoneHelp = correctedRecently || ['requesting', 'waiting', 'align', 'denied', 'unavailable', 'missing', 'recalibrate'].includes(phone.status);
   return <div className="app sky-app" ref={appRoot}>
@@ -250,6 +260,7 @@ function App() {
       {panel === 'observation' && <>      <section className="observation-controls" aria-label="Observation settings">
         <label><span><Clock3 size={15}/>{t(lang, 'Date and time', 'Datum och tid')}</span><input type="datetime-local" value={localDateTimeValue(time, location.timeZone)} onChange={event => { const next = selectedLocalTime(event.target.value, location.timeZone); if (next) { setTimeMode('fixed'); setTime(next); } else if (event.target.value) notify(t(lang, 'This local time does not exist in the selected timezone.', 'Denna lokala tid finns inte i den valda tidszonen.')); }}/></label>
         <button className="control-button" onClick={() => { setTimeMode('live'); setTime(new Date()); }}>{t(lang, 'Now', 'Nu')}</button>
+        <div className="night-preview-control"><button className="control-button" onClick={showNightPreview} disabled={phone.active}>{t(lang, 'Show stars tonight', 'Visa stjärnhimlen ikväll')}</button><p>{phone.active ? t(lang, 'Stop phone following before previewing another time.', 'Stoppa telefonföljningen innan du visar en annan tid.') : t(lang, 'Uses the darkest calculated time for this local night. Summer skies may stay bright.', 'Använder den mörkaste beräknade tiden för den lokala natten. Sommarhimlen kan förbli ljus.')}</p></div>
         <label><span><MapPin size={15}/>{t(lang, 'Location', 'Plats')}</span><select aria-label={t(lang, 'Location', 'Plats')} value={presets.some(item => item.name === location.name) ? location.name : 'Custom'} onChange={event => selectPreset(event.target.value)}>{presets.map(item => <option key={item.name} value={item.name}>{item.name}</option>)}<option value="Custom">{t(lang, 'Custom coordinates', 'Egna koordinater')}</option></select></label>
         <label className="coordinate"><span>{t(lang, 'Latitude', 'Latitud')}</span><input aria-label="Latitude" type="number" min="-90" max="90" step="any" value={latitudeInput} onChange={event => setLatitudeInput(event.target.value)}/></label>
         <label className="coordinate"><span>{t(lang, 'Longitude', 'Longitud')}</span><input aria-label="Longitude" type="number" min="-180" max="180" step="any" value={longitudeInput} onChange={event => setLongitudeInput(event.target.value)}/></label>

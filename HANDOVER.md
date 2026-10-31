@@ -32,11 +32,11 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md`, `README.md` och `BAC
 
 ## Aktuellt arbetsläge
 
-**Senaste avslutade körning:** **F-004 + F-016**, uttryckligen startad med ”Kör” under GPT-6 Luna High; implementerat, verifierat och publicerat. B-001 är fortsatt pausad och B-004 ingick inte i körningen.
+**Senaste godkända körning:** **F-001 + B-002**, uttryckligen startad med ”Kör”. Implementeringen är klar och lokalt verifierad; publicering inväntar push/Actions. Luna High rekommenderades, men modellväxling kan inte bekräftas från den här körningsmiljön. B-001 är fortsatt pausad; B-004 ingår inte.
 
-- Senast verifierade och publicerade **appcommit**: `09367a89a4723f7aa6eb28bac017bfb51e3cec15` (`09367a8`).
-- Actions: https://github.com/BadBagel47/noxari/actions/runs/41155974692 — tester, bygge och Pages-publicering lyckades.
-- **98 tester passerade**, varav 26 riktningsfall och två för rapporthistorik. `npm run build` lyckades (Vites befintliga varning om ett JavaScript-paket över 500 kB kvarstår). Publicerade `index-B4cM3hrN.js`, `index-CNcQ60QB.css`, `milkyWay-DWEB47Uh.png` och BSD-licenstext matchade lokalt produktionsbygge via SHA-256.
+- Senast verifierade och publicerade **appcommit före den nuvarande körningen**: `09367a89a4723f7aa6eb28bac017bfb51e3cec15` (`09367a8`). Aktuell kandidatcommit och Actions-resultat fylls i efter push/publicering.
+- Föregående F-004/F-016 Actions: https://github.com/BadBagel47/noxari/actions/runs/41155974692 — tester, bygge och Pages-publicering lyckades.
+- Nuvarande kod klarar **100 tester** och `npm run build` (Vites varning om ett JavaScript-paket över 500 kB kvarstår). Chromium vid 390×844 verifierade kvällsförhandsvisning, återgång till Nu, noll stjärnpixlar på dagsljushimlen ovan horisonten jämfört med synliga stjärnor i den simulerade nedåtvyn och inga webbläsarfel. Publicerade tillgångar ska kontrolleras efter Actions.
 - Chromium vid 390×844 verifierade pinch i perspektivvy och karta, ändrade objektpositioner, oförändrad markörselektion under pinch, normalt val efteråt och Guided Finder-pilens riktning/gröna centrering. Inga webbläsarfel. Detta är simulerade pekhändelser, inte fysisk telefonvalidering.
 - Relativa rörelser driver fortsatt himlen. Kompassbaserade sessioner kan nu återankras automatiskt vid stor bestående avvikelse efter färsk stabil parning och stillahållning. Minst tio sekunder mellan automatiska korrigeringar. Manuell norr och käll-/referensbyten behåller uttrycklig återhämtning. B-005 behåller nu följningen genom paneler och objektval; manuella vyändringar kräver Stoppa. Rapportversion 2 bevarar felövergångar och korrigeringar. Ingen kontinuerlig kompassåtergång införs. Se de två stabilitetsavsnitten och `docs/DIRECTION_STABILITY.md`.
 - Produktionsbyggets simulerade webbläsarprov passerade i 390×844, 1280×800 och 568×320 för automatisk 120° återankring, fortsatt relativ följning utan liten kompassåtergång, återankring bakom pausad panel med hållen vy, skyddad manuell nordreferens, uttrycklig återhämtning och fördröjd rapportnedladdning med bevarat fel- och korrigeringsförlopp. Separat prov bekräftar timeout när primär rörelsedata upphör trots fortsatt kompassdata. Befintliga helskärms-/sensorflöden passerade i fem storlekar plus reducerad höjd; fördröjd behörighet kan fortsatt avbrytas.
@@ -176,15 +176,22 @@ Detta beskriver versionen med uttrycklig återankring; den senare godkända auto
 - F-004: tvåfingerspinch zoomar i både perspektivvy och karta. Gränser är 1×–3× respektive 1×–2,5×. Stjärnor, markörer, figurer, IAU-gränser och Vintergata delar samma projektion. Enfingerssvep och objektval bevaras; pinch över en markör väljer den inte. Sensorföljningens vy kan ändras medan lokal zoom ligger kvar.
 - F-016: Guided Finder har en centrerad ring med ett pilhuvud som roterar längs kanten mot målobjektet. Ringen lyser grönt inom befintliga 3°; målprojektionen följer zoom. Pil saknas vid centrerad riktning och under horisonten. Animationen respekterar reducerad rörelse.
 - Lokal `npm run build` lyckades och `npm test` passerade: 98 tester. Chromium-prov vid 390×844 bekräftade zoom i båda vyerna, markörval efter pinch, 68 px centrerring med riktad pil, grön centrering och inga webbläsarfel. Pages Actions lyckades och publicerade JavaScript, CSS, PNG och licens matchar lokalt `dist/` via SHA-256.
-- Godkänd modell för denna körning: **GPT-6 Luna med hög resonemangsnivå**, på användarens uttryckliga önskemål att spara veckokvot. B-001 fortsatt pausad; B-004 inte felsökt eller omklassificerad.
+- Modellförslag för denna körning var **GPT-6 Luna High** enligt användarens önskemål. Körningsmiljön exponerar ingen funktion för modellbyte eller bekräftelse av aktiv modell. B-001 fortsatt pausad; B-004 inte felsökt eller omklassificerad.
+
+## F-001 + B-002 — godkänt, implementerat; publicering inväntar verifiering
+
+- F-001 lägger till **Visa stjärnhimlen ikväll** i Tid och plats. Den väljer den lägsta samplade solhöjden i den lokala middag-till-middag-natten (nattkontextens cirka 10-minuterssteg), märker statusen **Kvällshimmel** och använder befintliga Nu/Vald tid-lägen för återgång och manuell tid. Ljusa sommarkvällar och polardag ger ett förklarande meddelande. Inget sker automatiskt och förhandsvisningen är avstängd under telefonföljning.
+- B-002 låter stjärnor i den simulerade nedre himlen följa hur marken tonas bort, även när solen står över horisonten. Den synliga nedre delen får mörk bakgrund; den verkliga dagsljushimlen ovanför och horisontvillkor för objekt/Finder/Ikväll är oförändrade. Detta är fortfarande uttryckligen en simulerad vy.
+- Full `npm test`: 100 tester passerade. `npm run build` lyckades. Mobil-webbläsarprov 390×844 passerade för kvällstid, tidslägesetikett, Now-återgång och dagsljusstjärnor endast i den simulerade nedåtvyn. Polardag och säsongsskillnad täcks av tester.
+- Modellförslag var **GPT-6 Luna High**; aktiv modell kan inte bekräftas från exekveringsmiljön. Nästa batch är inte godkänd; användaren kan samla fler önskemål.
 
 ## Nästa föreslagna körning — inväntar nytt klartecken
 
-**F-001 + B-002** är en möjlig nästa körning: tydligt dags-/kvällsval och stjärnhimmelens dagsljusfilter under den simulerade horisonten. Rekommendera GPT-6 Luna High om körningen förblir avgränsad; användaren kan samla fler poster och måste godkänna innan implementation.
+Ingen körning är godkänd härnäst. Användaren vill kunna samla fler ändringar; rekommendera modell när nästa batch avgränsas och invänta uttryckligt klartecken.
 
 ### Senare delar av planen
 
-Se `BACKLOG.md` för samtliga kvarstående poster och permanent numrering: F-001 dags-/kvällsval, B-002 dagsljusfilter, F-002 dagsvy/Venus, F-003 djupare stjärnor, F-005 bilder, F-006 delningsförhandsvisningar, F-007 observationslistor och F-013 utvecklardiagnostik. UI-förfining F-008 och bredare mobilprov F-009 ligger senare. Månkalibrering F-010 och kamera/AR F-011 är fortsatt uppskjutna; AR har låg prioritet. B-003 gäller överlappande etiketter och hör till den senare UI-genomgången.
+Se `BACKLOG.md` för samtliga kvarstående poster och permanent numrering: F-002 dagsvy/Venus, F-003 djupare stjärnor, F-005 bilder, F-006 delningsförhandsvisningar, F-007 observationslistor och F-013 utvecklardiagnostik. UI-förfining F-008 och bredare mobilprov F-009 ligger senare. Månkalibrering F-010 och kamera/AR F-011 är fortsatt uppskjutna; AR har låg prioritet. B-003 gäller överlappande etiketter och hör till den senare UI-genomgången. F-001 och B-002 är klara i den aktuella körningen.
 
 ## Begränsningar och källor
 

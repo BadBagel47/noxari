@@ -19,16 +19,16 @@ Denna fil är den gemensamma listan för återstående funktioner och kända öp
 
 Användaren har **pausat B-001** och vill prioritera att färdigställa övrig funktionalitet. B-005 + F-014 + F-015 har godkänts genom ”Kör” och är implementerade; publicerad. Befintlig sensorkod ligger kvar; detta beslut innebär ingen återställning eller avstängning av publicerade funktioner.
 
-**Senaste godkända körning: F-004 + F-016.** Implementerat, verifierat och publicerat efter användarens ”Kör”; modellen var GPT-6 Luna med hög resonemangsnivå. F-012 är vägledande designprincip. B-001 är fortsatt pausad.
+**Senaste godkända körning: F-001 + B-002.** Implementering och lokal verifiering är klara efter användarens ”Kör”; publicering inväntar verifiering. GPT-6 Luna High rekommenderades enligt användarens önskemål. F-012 är vägledande designprincip. B-001 är fortsatt pausad.
 
-**Nästa föreslagna körning efter slutförd publicering: F-001 + B-002.** Dags-/kvällsval och stjärnhimmelens dagsljusfilter under den simulerade horisonten. Modell rekommenderas när nästa körning avgränsas. Invänta användarens nya klartecken.
+**Ingen nästa körning är godkänd.** Användaren kan samla fler ändringar innan nästa föreslagna steg. Rekommendera modell då; ett modellförslag i sig byter inte körningsmodell.
 
 ## Buggar
 
 | ID | Bugg | Status | Avgränsning / klart när |
 | --- | --- | --- | --- |
 | **B-001** | Riktningsdrift efter större mobilrörelser | **Pausad** | Fysisk Android/Brave har visat stor avvikelse mellan relativ riktning och kompass. Uttrycklig kompassåterankring återställer rätt riktning. Automatisk återankring är publicerad men dess fysiska långtidseffekt är inte bekräftad. Återuppta senare med kontrollerade före-/efterprov och rapporter. Se [DIRECTION_STABILITY.md](docs/DIRECTION_STABILITY.md). |
-| **B-002** | Dagsljus döljer stjärnor även under den genomskinliga marken | **Planerad** | Den tydligt märkta simulerade nedåtvyn ska kunna visa stjärnhimlen trots dag ovan horisonten. Bevara dagvyn ovan horisonten samt verkliga horisontvillkor för Guided Finder/Ikväll. Se [DAYLIGHT_DIRECTION_ANALYSIS.md](docs/DAYLIGHT_DIRECTION_ANALYSIS.md). |
+| **B-002** | Dagsljus döljer stjärnor även under den genomskinliga marken | **Klar** | I nedåtvyn visar den simulerade himlen stjärnor och mörk bakgrund när marken tonas bort, även dagtid. Över horisonten ligger dagsljusfiltret kvar; objektens fysiska horisontvillkor i Guided Finder/Ikväll ändras inte. Testad med synliga canvasstjärnor i dagsljus under horisonten. |
 | **B-003** | Täta objektetiketter kan överlappa | **Senare** | Förbättra placering/urval av etiketter på mobil och dator utan att förlora objektens beräknade riktningar eller tryckbarhet. Hanteras tillsammans med F-008. |
 | **B-004** | Himmelsvyn hackar vid panorering | **Planerad — orsaken okänd** | Mät respons med Vintergatan av/på och undersök bakgrundsritning, projektion och bildrutor. Optimera den berörda renderingsvägen om provet visar att den bidrar; bevara utseende och fungerande svep. Orsaken är ännu inte fastställd. |
 | **B-005** | Telefonföljningen pausas automatiskt när paneler öppnas | **Klar** | Behåll aktiv följning när användaren söker/bläddrar och stäng panelen. Följningen ska stanna när användaren väljer Stoppa. Granska även manuella styrhandlingar så att de följer denna regel. Dokumentera plattformsbegränsningar, exempelvis när webbläsaren döljs eller sensordata upphör. |
@@ -37,7 +37,7 @@ Användaren har **pausat B-001** och vill prioritera att färdigställa övrig f
 
 | ID | Funktion | Status | Omfattning / klart när |
 | --- | --- | --- | --- |
-| **F-001** | Dags-/kvällsval med säsongsanpassad stjärnhimmel | **Planerad** | Tydligt val **Visa stjärnhimlen i kväll** med beräknad lokal tid, synligt datum/tidsläge och enkel återgång till Nu. Hantera ljusa sommarnätter och polardag. Bevara verklig tid vid verklig inriktning; ingen tyst tidsflytt. Den exakta utformningen fastställs i den godkända körningen. |
+| **F-001** | Dags-/kvällsval med säsongsanpassad stjärnhimmel | **Klar** | **Visa stjärnhimlen ikväll** i Tid och plats väljer den beräknade tiden då solen står lägst i lokal natt, samplad med appens cirka 10-minuters nattdata. Tidsstatus märker **Kvällshimmel**; **Nu** återgår till realtid och manuell tid blir **Vald tid**. Ljusa sommarkvällar och polardag förklaras. Förhandsvisningen stängs av under telefonföljning och ändrar aldrig tiden automatiskt. |
 | **F-002** | Förbättrad dagsvy och synlighet för Venus i skymning | **Planerad** | Solen och månen har redan dagmarkörer. Förbättra dagsvyn och Venus regler/kontrast med hänsyn till höjd, solhöjd, modellerad ljusstyrka och solavstånd; skilj beräknad position från faktisk synlighet. |
 | **F-003** | Djupare stjärnkatalog | **Förslag** | Fler och svagare stjärnor med verifierad öppen källa/licens, angivna gränser och fungerande mobilprestanda. Befintliga 4 105 HYG-stjärnor och figurändpunkter är redan implementerade. |
 | **F-004** | Zoom med tvåfingerspinch | **Klar** | Pinch zoomar perspektivvyn (1×–3×) och kartan (1×–2,5×). Stjärnor, objekt, figurer, gränser, Vintergata och Guided Finder följer samma zoom. Enfingerssvep, markörval och telefonföljning bevaras; en pinch väljer inte ett objekt. Bygge, tester, mobil-webbläsarprov och Pages-publicering verifierade. |

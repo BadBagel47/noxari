@@ -5,6 +5,7 @@ import {clampViewPitch, groundOpacity} from '../src/groundView';
 import {MilkyWayPainter, milkyWaySample, type MilkyWayTexture} from '../src/milkyWay';
 import {projectHorizontal, projectPerspective} from '../src/skyProjection';
 import {finderGuidance} from '../src/finderGuidance';
+import {projectedStarVisibility} from '../src/skyVisibility';
 import {stockholm} from '../src/astronomy';
 
 function textureFromPng(): MilkyWayTexture {
@@ -30,6 +31,13 @@ const sample = (texture: MilkyWayTexture, raDegrees: number, dec: number) => {
 };
 
 describe('downward exploration without changing observing constraints', () => {
+  it('shows stars only in the revealed simulated lower sky during daylight', () => {
+    expect(projectedStarVisibility(35, 25, 1)).toBe(0);
+    expect(projectedStarVisibility(35, -25, 0)).toBe(0);
+    expect(projectedStarVisibility(35, -25, .6)).toBe(.6);
+    expect(projectedStarVisibility(-14, 25, 0)).toBe(1);
+  });
+
   it('keeps ground solid at/above the horizon and fades smoothly to transparent at -25°', () => {
     expect(groundOpacity(90)).toBe(1);
     expect(groundOpacity(0)).toBe(1);

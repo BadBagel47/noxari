@@ -1,7 +1,7 @@
 import {describe, expect, it} from 'vitest';
 import {Body} from 'astronomy-engine';
 import {objects} from '../src/data';
-import {nightContext, nightVisibility, nightWindow, objectPosition, positionAt, selectedLocalTime, stockholm} from '../src/astronomy';
+import {darkestNightSample, nightContext, nightVisibility, nightWindow, objectPosition, positionAt, selectedLocalTime, stockholm} from '../src/astronomy';
 import {peakSample} from '../src/VisibilityChart';
 
 const greenwich = {name: 'Greenwich', latitude: 51.4779, longitude: 0, timeZone: 'Europe/London'};
@@ -79,5 +79,21 @@ describe('observer-based astronomy', () => {
     expect(selectedLocalTime('2026-03-29T02:30', stockholm.timeZone)).toBeNull();
     const sydney = {name: 'Sydney', latitude: -33.8688, longitude: 151.2093, timeZone: 'Australia/Sydney'};
     expect(nightWindow(date, sydney).start.toISOString()).not.toBe(window.start.toISOString());
+  });
+
+  it('chooses a seasonally darkest preview time and reports polar-day limits', () => {
+    const summer = nightContext(new Date('2024-06-21T12:00:00Z'), stockholm);
+    const winter = nightContext(new Date('2024-12-21T12:00:00Z'), stockholm);
+    const summerDarkest = darkestNightSample(summer)!;
+    const winterDarkest = darkestNightSample(winter)!;
+    expect(summerDarkest.sunAltitude).toBeGreaterThan(winterDarkest.sunAltitude);
+    expect(summerDarkest.sunAltitude).toBeGreaterThan(-14);
+    expect(winterDarkest.sunAltitude).toBeLessThan(-14);
+    expect(darkestNightSample({...summer, samples: []})).toBeNull();
+
+    const tromso = {name: 'Tromsø', latitude: 69.6492, longitude: 18.9553, timeZone: 'Europe/Oslo'};
+    const polarDay = nightContext(new Date('2024-06-21T12:00:00Z'), tromso);
+    expect(polarDay.window.kind).toBe('polarDay');
+    expect(darkestNightSample(polarDay)!.sunAltitude).toBeGreaterThan(-.833);
   });
 });

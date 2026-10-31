@@ -121,6 +121,13 @@ export function nightContext(time: Date, location: ObservingLocation): NightCont
   return {window, samples};
 }
 
+// The night preview selects the sample with the Sun lowest for this local
+// noon-to-noon observing window, including bright summer and polar conditions.
+export function darkestNightSample(context: NightContext): NightEnvironment | null {
+  if (!context.samples.length) return null;
+  return context.samples.reduce((darkest, sample) => sample.sunAltitude < darkest.sunAltitude ? sample : darkest);
+}
+
 export function maxSunAltitude(object: SpaceObject) {
   if (object.kind === 'Moon' || (object.kind === 'Planet' && !['uranus', 'neptune'].includes(object.id))) return -1;
   return object.kind === 'Star' ? -6 : -12;
