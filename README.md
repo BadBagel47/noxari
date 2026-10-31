@@ -69,6 +69,8 @@ The complete Messier dataset adapts [OpenNGC](https://github.com/mattiaverga/Ope
 
 To check for upstream changes without modifying app data, run `npm run catalogs:check`. It reports changes for OpenNGC, the selected HYG stars, Stellarium skyculture data and listed JPL candidate orbits. New and missing source identities require review; no object is automatically added or removed. See the [catalog update procedure](data/README.md).
 
+The user operates through chat. When they ask for a catalog check, the assistant runs this command and reports the results there. Applying a reviewed change still requires explicit approval.
+
 Fixed-source coordinates use one shared J2000-to-horizontal rotation per time/location, including precession and nutation. They omit annual aberration and parallax, consistently with the star field; distances are metadata rather than astrometry inputs. There is no eight-object DefineStar slot limit. Night curves share transforms across the catalog, and view movement reprojects cached current positions instead of recomputing object ephemerides. Sirius retains HYG proper motion; planet calculations are unchanged. The initial view defaults to Stockholm until a user selects another location. Geolocation is requested only by Use my location; coordinates are stored only in this browser.
 
 Eight selected Messier objects (M31, M42, M45, M13, M57, M51, M81 and M104) include local 960-pixel images in Details. Each caption names the creators and links to the Commons file record and license. Images load only when their detail page is opened. Source files, checksums and the reproducible download command are in `data/object-images.json` and `data/README.md`.
