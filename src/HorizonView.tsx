@@ -43,7 +43,10 @@ export function HorizonView({selectedId, time, location, label, sunLabel, onSele
   const milkyWayPainter = useRef(new MilkyWayPainter());
   const reducedMotion = useReducedMotion();
   const drag = useRef<{id: number; x: number; y: number; startX: number; startY: number; moved: boolean; marker: HTMLButtonElement | null} | null>(null);
+  const touchPoints = useRef(new Map<number, {x: number; y: number}>());
+  const pinch = useRef<{distance: number; zoom: number} | null>(null);
   const suppressClick = useRef(false);
+  const [zoom, setZoom] = useState(1);
   const [size, setSize] = useState({width: 0, height: 0});
   const stars = useMemo(() => horizontalStarCatalog(time, location), [time, location]);
   const figures = useMemo(() => constellationSky(stars, figureMode), [stars, figureMode]);
@@ -62,11 +65,11 @@ export function HorizonView({selectedId, time, location, label, sunLabel, onSele
     if (object.id === finderTarget?.id) return [];
     if (!showObjectMarker(object, sun.altitude)) return [];
     if (position.altitude < 0 && groundOpacity(view.pitch) > .9) return [];
-    const point = position && projectPerspective(position, view, size.width, size.height, true, view.pitch < 0);
+    const point = position && projectPerspective(position, view, size.width, size.height, true, view.pitch < 0, zoom);
     return point ? [{object, position, point}] : [];
-  }), [objectSky, sun.altitude, view, size, finderTarget]);
+  }), [objectSky, sun.altitude, view, size, finderTarget, zoom]);
   const belowReveal = 1 - groundOpacity(view.pitch);
-  const project = (position: SkyPosition, clip = true) => projectPerspective(position, view, size.width, size.height, clip, belowReveal > 0);
+  const project = (position: SkyPosition, clip = true) => projectPerspective(position, view, size.width, size.height, clip, belowReveal > 0, zoom);
   const sunPoint = project(sun);
 
   useEffect(() => {
@@ -81,6 +84,8 @@ export function HorizonView({selectedId, time, location, label, sunLabel, onSele
 
   useEffect(() => {
     const end = (event: globalThis.PointerEvent) => {
+      touchPoints.current.delete(event.pointerId);
+      if (touchPoints.current.size < 2) pinch.current = null;
       if (drag.current?.id === event.pointerId) drag.current = null;
     };
     window.addEventListener('pointerup', end);
@@ -114,7 +119,7 @@ export function HorizonView({selectedId, time, location, label, sunLabel, onSele
       context.fillStyle = sky;
       context.fillRect(0, 0, width, height);
 
-      if (milkyWay) milkyWayPainter.current.draw(context, milkyWay, time, location, width, height, Math.max(0, Math.min(1, (-sun.altitude - 8) / 10)), view, belowReveal > 0);
+      if (milkyWay) milkyWayPainter.current.draw(context, milkyWay, time, location, width, height, Math.max(0, Math.min(1, (-sun.altitude - 8) / 10)), view, belowReveal > 0, zoom);
 
       const drawCurve = (samples: SkyPosition[]) => {
         context.beginPath();
@@ -167,11 +172,11 @@ export function HorizonView({selectedId, time, location, label, sunLabel, onSele
       context.textAlign = 'center';
       context.fillStyle = '#d5e9f4';
       for (let azimuth = 0; azimuth < 360; azimuth += 45) {
-        const point = projectPerspective({altitude: 4, azimuth}, view, width, height);
+        const point = projectPerspective({altitude: 4, azimuth}, view, width, height, true, false, zoom);
         if (point && point.y > 35 && point.y < height - 32) context.fillText(cardinal(azimuth), point.x, point.y);
       }
       // A level camera makes the geometric horizon horizontal at any heading.
-      const horizonY = height / 2 + perspectiveFocal(width, height) * Math.tan(view.pitch * Math.PI / 180);
+      const horizonY = height / 2 + perspectiveFocal(width, height, zoom) * Math.tan(view.pitch * Math.PI / 180);
       if (horizonY < height) {
         context.save();
         context.globalAlpha = groundOpacity(view.pitch);
@@ -195,17 +200,40 @@ export function HorizonView({selectedId, time, location, label, sunLabel, onSele
     };
     render();
     return () => cancelAnimationFrame(frame);
-  }, [size, view, stars, figures, boundaries, showFigures, showFigureNames, figureMode, showBoundaries, reducedMotion, sun.altitude, milkyWay, time, location]);
+  }, [size, view, zoom, stars, figures, boundaries, showFigures, showFigureNames, figureMode, showBoundaries, reducedMotion, sun.altitude, milkyWay, time, location]);
 
   const move = (heading: number, pitch: number) => onViewChange(current => ({heading: wrap(current.heading + heading), pitch: clampViewPitch(current.pitch + pitch)}));
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    if (!event.isPrimary || event.button !== 0 || drag.current) return;
     if (event.target instanceof Element && (event.target.closest('[data-sky-controls]') || (event.target.closest('button') && !event.target.closest('button.sky-object')))) return;
+    if (event.pointerType === 'touch') {
+      touchPoints.current.set(event.pointerId, {x: event.clientX, y: event.clientY});
+      if (touchPoints.current.size === 2) {
+        const points = [...touchPoints.current.values()];
+        pinch.current = {distance: Math.hypot(points[1].x - points[0].x, points[1].y - points[0].y), zoom};
+        drag.current = null;
+        suppressClick.current = true;
+        for (const id of touchPoints.current.keys()) {
+          try { event.currentTarget.setPointerCapture(id); } catch { /* pointer may already have ended */ }
+        }
+        return;
+      }
+      if (touchPoints.current.size > 2 || pinch.current) return;
+    }
+    if (!event.isPrimary || event.button !== 0 || drag.current) return;
     suppressClick.current = false;
     const marker = event.target instanceof Element ? event.target.closest<HTMLButtonElement>('button.sky-object') : null;
     drag.current = {id: event.pointerId, x: event.clientX, y: event.clientY, startX: event.clientX, startY: event.clientY, moved: false, marker};
   };
   const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === 'touch' && touchPoints.current.has(event.pointerId)) {
+      touchPoints.current.set(event.pointerId, {x: event.clientX, y: event.clientY});
+      if (pinch.current && touchPoints.current.size >= 2) {
+        const points = [...touchPoints.current.values()];
+        const distance = Math.hypot(points[1].x - points[0].x, points[1].y - points[0].y);
+        if (pinch.current.distance > 0) setZoom(Math.max(1, Math.min(3, pinch.current.zoom * distance / pinch.current.distance)));
+        return;
+      }
+    }
     if (!drag.current || drag.current.id !== event.pointerId || !size.width) return;
     if (!drag.current.moved) {
       if (Math.hypot(event.clientX - drag.current.startX, event.clientY - drag.current.startY) < 8) return;
@@ -219,17 +247,19 @@ export function HorizonView({selectedId, time, location, label, sunLabel, onSele
     const deltaX = event.clientX - drag.current.x;
     const deltaY = event.clientY - drag.current.y;
     drag.current.x = event.clientX; drag.current.y = event.clientY;
-    const focal = perspectiveFocal(size.width, size.height);
+    const focal = perspectiveFocal(size.width, size.height, zoom);
     const horizontalField = 2 * Math.atan(size.width / (2 * focal)) * 180 / Math.PI;
     const verticalField = 2 * Math.atan(size.height / (2 * focal)) * 180 / Math.PI;
     move(-deltaX * horizontalField / size.width, deltaY * verticalField / size.height);
   };
   const endPointer = (event: PointerEvent<HTMLDivElement>) => {
+    touchPoints.current.delete(event.pointerId);
+    if (touchPoints.current.size < 2) pinch.current = null;
     if (drag.current?.id === event.pointerId) drag.current = null;
   };
   const finishPointer = (event: PointerEvent<HTMLDivElement>) => {
     const gesture = drag.current;
-    if (gesture?.id === event.pointerId && !gesture.moved && gesture.marker?.isConnected && event.pointerType === 'touch') {
+    if (!pinch.current && gesture?.id === event.pointerId && !gesture.moved && gesture.marker?.isConnected && event.pointerType === 'touch') {
       // Touch browsers can omit the compatibility click immediately after a
       // pan. Activate a settled marker tap here and suppress its later click.
       suppressClick.current = true;
@@ -239,7 +269,7 @@ export function HorizonView({selectedId, time, location, label, sunLabel, onSele
   };
 
   return <div className={`sky-canvas horizon-view ${finderTarget ? 'finder-active' : ''}`} ref={root} tabIndex={0}
-    aria-label={phone.active ? (language === 'sv' ? 'Telefonföljning aktiv. Tryck Stoppa för manuell styrning.' : 'Phone following active. Press Stop for manual control.') : (language === 'sv' ? 'Svepbar himmelsvy. Dra för att vrida, använd piltangenter för att ändra riktning.' : 'Interactive sky view. Drag to turn, or use arrow keys to change direction.')}
+    aria-label={phone.active ? (language === 'sv' ? 'Telefonföljning aktiv. Nyp för att zooma. Tryck Stoppa för manuell styrning.' : 'Phone following active. Pinch to zoom. Press Stop for manual control.') : (language === 'sv' ? 'Svepbar himmelsvy. Dra för att vrida, nyp för att zooma eller använd piltangenter för att ändra riktning.' : 'Interactive sky view. Drag to turn, pinch to zoom, or use arrow keys to change direction.')}
     onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={finishPointer} onPointerCancel={endPointer}
     onLostPointerCapture={event => { if (event.target === event.currentTarget) endPointer(event); }}
     onClickCapture={event => { if (suppressClick.current && event.detail !== 0 && event.target instanceof Element && !event.target.closest('[data-sky-controls], .horizon-controls')) { event.preventDefault(); event.stopPropagation(); } }}
@@ -253,8 +283,8 @@ export function HorizonView({selectedId, time, location, label, sunLabel, onSele
     <div className="horizon-heading" aria-live="off">{language === 'sv' ? 'Mot' : 'Facing'} {cardinal(view.heading)} · {Math.round(view.heading)}° <span>{view.pitch < 0 ? '↓' : '↑'} {Math.round(Math.abs(view.pitch))}°</span>{view.pitch < 0 && <span className="below-horizon-label">{language === 'sv' ? 'Under horisonten · simulerad vy' : 'Below horizon · simulated view'}</span>}</div>
     {markers.map(({object, position, point}) => <button key={object.id} className={`sky-object ${selectedId === object.id ? 'is-selected' : ''}`} aria-pressed={selectedId === object.id} style={{left: point.x, top: point.y, opacity: position.altitude < 0 ? belowReveal * .8 : 1}} onClick={() => onSelect(object)} title={`${label(object)} · ${position.altitude.toFixed(1)}°`} aria-label={`${label(object)}, ${language === 'sv' ? 'höjd' : 'altitude'} ${position.altitude.toFixed(1)}°`}><span className="sky-point" style={{width: object.size + 4, height: object.size + 4, background: object.color, boxShadow: `0 0 16px ${object.color}`}}/><span>{label(object)}</span></button>)}
     {sunPoint && <span className="sky-object sky-sun" style={{left: sunPoint.x, top: sunPoint.y, opacity: sun.altitude < 0 ? belowReveal * .8 : 1}} role="img" aria-label={`${sunLabel}, ${language === 'sv' ? 'höjd' : 'altitude'} ${sun.altitude.toFixed(1)}°`}><span className="sky-point"/><span>{sunLabel}</span></span>}
-    {finderTarget && targetPosition && <GuidedFinder object={finderTarget} position={targetPosition} nextRise={nextRise} location={location} view={view} width={size.width} height={size.height} language={language} phone={phone} sunAltitude={sun.altitude} onClose={onStopFinder} onDetails={onFinderDetails}/>}
-    <div className="horizon-help">{language === 'sv' ? 'Dra eller svep för att se dig omkring' : 'Drag or swipe to look around'}</div>
+    {finderTarget && targetPosition && <GuidedFinder object={finderTarget} position={targetPosition} nextRise={nextRise} location={location} view={view} width={size.width} height={size.height} language={language} phone={phone} sunAltitude={sun.altitude} zoom={zoom} onClose={onStopFinder} onDetails={onFinderDetails}/>}
+    <div className="horizon-help">{language === 'sv' ? 'Dra för att se dig omkring · nyp för att zooma' : 'Drag to look around · pinch to zoom'}</div>
     <div className="horizon-controls" aria-label={language === 'sv' ? 'Styr vyn' : 'View controls'}>
       <button onClick={() => move(-30, 0)} aria-label={language === 'sv' ? 'Vrid åt vänster' : 'Turn left'}>←</button>
       <button onClick={() => move(0, 15)} aria-label={language === 'sv' ? 'Titta upp' : 'Look up'}>↑</button>

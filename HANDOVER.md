@@ -9,7 +9,7 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md`, `README.md` och `BAC
 - Kommunicera på svenska, kort och konkret.
 - Använd permanenta **F-###** för funktioner och **B-###** för buggar från och med 2026-10-31. Se `BACKLOG.md` för återstående arbete och status; ID:n återanvänds eller numreras inte om. Ange ID:n när en körning avgränsas och när arbetet redovisas.
 - Enkel användning är användarens övergripande designprincip för alla funktioner (**F-012**). Senaste önskemål finns under **F-013–F-015** och **B-004** i backloggen. Senaste prioritet **B-005** är att aktiv telefonföljning fortsätter genom sökning/paneler tills användaren trycker Stoppa. B-005 godkändes därefter tillsammans med F-014 och F-015 genom ”Kör”.
-- **Meddela rekommenderad ChatGPT-modell innan varje nytt utvecklingssteg.** Hittills har rekommendationen varit **GPT-6.1 Sol med hög resonemangsnivå**. Användaren vill kunna använda Sol; föreslå en tyngre modell bara om uppgiften motiverar det. En rekommendation betyder inte att modellen faktiskt har bytts.
+- **Meddela rekommenderad ChatGPT-modell innan varje nytt utvecklingssteg.** Användaren vill spara veckokvoten; använd **GPT-6 Luna med hög resonemangsnivå** för tydligt avgränsade gränssnitts- och interaktionssteg. Föreslå Sol med hög resonemangsnivå för komplex riktning/sensorfelsökning. En rekommendation betyder inte att modellen faktiskt har bytts.
 - **Starta inte ett nytt utvecklingssteg utan uttryckligt klartecken.** Beskriv först dess omfattning och invänta exempelvis ”Kör”. Användaren vill kunna samla flera ändringar före samma körning. En diskussion, ett positivt omdöme eller en ny planpunkt är inte i sig ett startbesked.
 - Ett ”Kör” gäller det senast föreslagna, avgränsade steget. Slutför och verifiera det steget, men påbörja inte därefter nästa etapp automatiskt.
 - Efter helskärmssteget bad användaren först att UI-förfining skulle vänta. Därefter godkändes uttryckligen ett avgränsat fempunktssteg för svep, stjärnbildsurval, animation, mobil läsbarhet och markörbakgrunder. Därefter godkändes även trepunktssteget med synlig inritning, Vintergatan och nedåtblick. Övrig UI- eller funktionsutveckling behöver fortsatt nytt godkännande.
@@ -32,9 +32,9 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md`, `README.md` och `BAC
 
 ## Aktuellt arbetsläge
 
-**Senast avslutade körning:** B-005 + F-014 + F-015, godkänt genom ”Kör”, implementerat, verifierat och publicerat. Nästa utvecklingssteg kräver nytt klartecken. Följning behålls genom sökning/paneler, valt objekt markeras och spara/dela använder ikoner. B-001 är fortsatt pausad och B-004 ingår inte i detta steg.
+**Senast avslutade körning före nuvarande steg:** B-005 + F-014 + F-015, implementerat, verifierat och publicerat. Den nya godkända körningen är **F-004 + F-016**, uttryckligen startad med ”Kör” under GPT-6 Luna High; kod och lokal verifiering är klara, publicering inväntar GitHub Actions. B-001 är fortsatt pausad och B-004 ingår inte i denna körning.
 
-- Senast verifierade och publicerade **appcommit**: `df3fd9f8e4e7f7d0c5193d95abd3b9df89b047b0`.
+- Senast verifierade och publicerade **appcommit före F-004/F-016**: `df3fd9f8e4e7f7d0c5193d95abd3b9df89b047b0`. Nuvarande kandidatcommit och Actions-resultat ska fyllas i efter push och publicering.
 - Actions: https://github.com/BadBagel47/noxari/actions/runs/41154505108 — tester, bygge och publicering lyckades.
 - **98 tester passerade**, varav 26 riktningsfall och två för rapporthistorik. Publicerade `index-ugs5DDiE.js`, `index-FDM-1iDO.css`, `milkyWay-DWEB47Uh.png` och BSD-licenstext matchade lokalt produktionsbygge via SHA-256.
 - Relativa rörelser driver fortsatt himlen. Kompassbaserade sessioner kan nu återankras automatiskt vid stor bestående avvikelse efter färsk stabil parning och stillahållning. Minst tio sekunder mellan automatiska korrigeringar. Manuell norr och käll-/referensbyten behåller uttrycklig återhämtning. B-005 behåller nu följningen genom paneler och objektval; manuella vyändringar kräver Stoppa. Rapportversion 2 bevarar felövergångar och korrigeringar. Ingen kontinuerlig kompassåtergång införs. Se de två stabilitetsavsnitten och `docs/DIRECTION_STABILITY.md`.
@@ -70,7 +70,7 @@ Komplettering om Nu/GPS kontra vald tid/annan plats inväntas fortfarande. Sidle
 - Svepbar 360°-himmelsvy med uppåt- och nedåtlutning, borttonande mark vid nedåtblick, mus/touch, knappar och tangentbord. Cirkulär himmelskarta finns som alternativ.
 - Valbar Vintergata med källbundna konturer visas i båda vyerna, anpassad till tid/plats och dämpad i dagsljus.
 - Plats, datum, tid och IANA-tidszon styr beräkningarna. Nu-läget uppdateras var 30:e sekund; manuellt datum byter till tydligt märkt Vald tid. GPS hämtar plats på användarens begäran; enhetens tidszon används och kan ändras manuellt.
-- Guided Finder ovanpå himlen med pilar, vinkelavvikelser, målring, centreringsmarkering inom 3°, manuellt reservläge och ungefärlig nästa uppgång för objekt under horisonten. Vägledningen visar vald plats och tid; ingen sensoråtkomst begärs automatiskt vid start.
+- Guided Finder ovanpå himlen med en central ring och pilhuvud längs kanten, målring, centreringsmarkering inom 3°, manuellt reservläge och ungefärlig nästa uppgång för objekt under horisonten. Vägledningen visar vald plats och tid; ingen sensoråtkomst begärs automatiskt vid start.
 - Telefonföljning med behörigheter, nordkalibrering och manuell reserv. GPS anger plats; riktningssensorerna anger vart telefonen pekar.
 - 4 105 HYG-stjärnor till magnitud 5,8 samt fem svagare ändpunkter för stjärnbildsfigurer. Första ordningens egenrörelse från J2000 ingår.
 - Linjefigurer för alla 88 stjärnbilder samt separat valbara officiella IAU-gränser från Stellariums öppna data. Gränserna visas som lila streckade linjer och är avstängda från start. Mer → Himmelsvy har separata reglage för figurer, latinska namn och gränser, i båda vyerna.
@@ -170,17 +170,20 @@ Detta beskriver versionen med uttrycklig återankring; den senare godkända auto
 - **98 tester passerar**, varav 26 riktningsfall och två för rapporthistorik. Produktionsbygge lyckas. Nya regressioner täcker automatisk 120° och logglik 56° återhämtning, fortsatt relativ följning, väntetid mellan korrigeringar, manuell/vertikal/kompassbaserad reserv, ogiltig kompasskvalitet och fördröjd rapportnedladdning med bevarad händelse. Produktionsprov passerade i 390×844, 1280×800 och 568×320: automatisk återhämtning, ingen liten kompassåtergång, återankring bakom pausad panel med hållen vy, skyddad manuell referens, uttrycklig reserv och fördröjd rapportnedladdning med bevarad felövergång. Skärmbilder granskade. Befintliga helskärms-/sensorprov passerade i fem storlekar plus reducerad höjd, inklusive behörighetsavbrott och separat timeout trots fortsatt sekundär kompass. Publicering lyckades; se verifierad appcommit och Actions i statusavsnittet.
 - Fysisk automatisk återhämtning och långsiktig precision är ännu inte bekräftade. Användarens bekräftelse gäller den tidigare uttryckliga återankringen. Inga ändringar i himlakropparnas beräkningar, tidsval eller dagsljusfilter. Se `docs/DIRECTION_STABILITY.md`.
 
-## Nästa utvecklingssteg — inväntar nytt klartecken
+## F-004 + F-016 — godkänt, implementerat, publicering inväntar verifiering
 
-Senaste samlade önskemål: **F-004 + F-016**. F-004 gäller tvåfingerspinch i perspektivvy och karta med bibehållet svep, objektval och telefonföljning. F-016 gäller en cirkulär objektlokaliserare: en stilren cirkel centralt i vyn med ett pilhuvud som löper längs kanten och visar åt vilket håll telefonen behöver riktas. Tydlig centreringsbekräftelse och sparsam information enligt F-012. Samordna vägledningen med zoom och bevara underhorisontsvillkoren. Registrerat som planerad körning; ingen ny appkod ändrad. Rekommenderad modell: GPT-6.1 Sol med hög resonemangsnivå. Invänta uttryckligt klartecken före kodändring.
+- F-004: tvåfingerspinch zoomar i både perspektivvy och karta. Gränser är 1×–3× respektive 1×–2,5×. Stjärnor, markörer, figurer, IAU-gränser och Vintergata delar samma projektion. Enfingerssvep och objektval bevaras; pinch över en markör väljer den inte. Sensorföljningens vy kan ändras medan lokal zoom ligger kvar.
+- F-016: Guided Finder har en centrerad ring med ett pilhuvud som roterar längs kanten mot målobjektet. Ringen lyser grönt inom befintliga 3°; målprojektionen följer zoom. Pil saknas vid centrerad riktning och under horisonten. Animationen respekterar reducerad rörelse.
+- Lokal `npm run build` lyckades och `npm test` passerade: 98 tester. Chromium-prov vid 390×844 bekräftade perspektivzoomens markörförskjutning utan markörval, visuell 68 px centrerring med riktad pil och inga webbläsarfel. Återstående: kontrollera push/Actions och jämför publicerade filer med `dist/`.
+- Godkänd modell för denna körning: **GPT-6 Luna med hög resonemangsnivå**, på användarens uttryckliga önskemål att spara veckokvot. B-001 fortsatt pausad; B-004 inte felsökt eller omklassificerad.
 
-**B-001 är pausad genom användarbeslut 2026-10-31.** Uttrycklig kompassåterankring är fysiskt bekräftad, medan automatiken och långsiktig precision fortfarande behöver valideras när riktningsarbetet återupptas.
+## Nästa föreslagna körning — inväntar nytt klartecken
 
-B-005 + F-014 + F-015 är publicerade. Nytt klartecken krävs för nästa steg; F-001 + B-002 är kvarstående förslag. Rekommenderad modell: GPT-6.1 Sol med hög resonemangsnivå. Användaren kan samla ytterligare poster före nästa körning.
+Efter att F-004 + F-016 publicerats är **F-001 + B-002** en möjlig nästa körning: tydligt dags-/kvällsval och stjärnhimmelens dagsljusfilter under den simulerade horisonten. Rekommendera GPT-6 Luna High om körningen förblir avgränsad; användaren kan samla fler poster och måste godkänna innan implementation.
 
 ### Senare delar av planen
 
-Se `BACKLOG.md` för samtliga kvarstående poster och permanent numrering: F-002 dagsvy/Venus, F-003 djupare stjärnor, F-004 zoom, F-005 bilder, F-006 delningsförhandsvisningar och F-007 observationslistor. UI-förfining F-008 och bredare mobilprov F-009 ligger senare. Månkalibrering F-010 och kamera/AR F-011 är fortsatt uppskjutna; AR har låg prioritet. B-003 gäller överlappande etiketter och hör till den senare UI-genomgången.
+Se `BACKLOG.md` för samtliga kvarstående poster och permanent numrering: F-001 dags-/kvällsval, B-002 dagsljusfilter, F-002 dagsvy/Venus, F-003 djupare stjärnor, F-005 bilder, F-006 delningsförhandsvisningar, F-007 observationslistor och F-013 utvecklardiagnostik. UI-förfining F-008 och bredare mobilprov F-009 ligger senare. Månkalibrering F-010 och kamera/AR F-011 är fortsatt uppskjutna; AR har låg prioritet. B-003 gäller överlappande etiketter och hör till den senare UI-genomgången.
 
 ## Begränsningar och källor
 

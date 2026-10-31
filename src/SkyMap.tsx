@@ -1,5 +1,5 @@
 import {MilkyWayPainter, type MilkyWayTexture} from './milkyWay';
-import {useEffect, useMemo, useRef, useState} from 'react';
+import {useEffect, useMemo, useRef, useState, type PointerEvent} from 'react';
 import {constellationSky, drawConstellations, type FigureMode} from './constellations';
 import {ConstellationReveal} from './constellationReveal';
 import {useReducedMotion} from './useReducedMotion';
@@ -30,14 +30,18 @@ export function SkyMap({selectedId, time, location, label, sunLabel, onSelect, s
   const milkyWayPainter = useRef(new MilkyWayPainter());
   const reducedMotion = useReducedMotion();
   const [size, setSize] = useState({width: 0, height: 0});
+  const [zoom, setZoom] = useState(1);
+  const touchPoints = useRef(new Map<number, {x: number; y: number}>());
+  const pinch = useRef<{distance: number; zoom: number} | null>(null);
+  const suppressClick = useRef(false);
   const sun = useMemo(() => positionAt(Body.Sun, time, location), [time, location]);
   const catalog = useMemo(() => horizontalStarCatalog(time, location), [time, location]);
   const figures = useMemo(() => constellationSky(catalog, figureMode), [catalog, figureMode]);
   const boundaries = useMemo(() => showBoundaries ? boundarySky(time, location) : [], [showBoundaries, time, location]);
   const stars = useMemo(() => catalog.flatMap(star => {
-    const point = projectHorizontal(star, size.width, size.height);
+    const point = projectHorizontal(star, size.width, size.height, zoom);
     return point ? [{...star, ...point}] : [];
-  }), [catalog, size]);
+  }), [catalog, size, zoom]);
   const objectSky = useMemo(() => {
     const resolve = objectPositioner(time, location);
     return objects.flatMap(object => {
@@ -49,10 +53,10 @@ export function SkyMap({selectedId, time, location, label, sunLabel, onSelect, s
     if (!size.width || !size.height) return [];
     // Markers distinguish civil twilight for planets from darker deep-sky conditions.
     if (!showObjectMarker(object, sun.altitude)) return [];
-    const point = position && projectHorizontal(position, size.width, size.height);
+    const point = position && projectHorizontal(position, size.width, size.height, zoom);
     return point ? [{object, point, altitude: position.altitude}] : [];
-  }), [objectSky, size.width, size.height, sun.altitude]);
-  const sunPoint = size.width && size.height ? projectHorizontal(sun, size.width, size.height) : null;
+  }), [objectSky, size.width, size.height, sun.altitude, zoom]);
+  const sunPoint = size.width && size.height ? projectHorizontal(sun, size.width, size.height, zoom) : null;
 
   useEffect(() => {
     if (!container.current) return;
@@ -63,6 +67,32 @@ export function SkyMap({selectedId, time, location, label, sunLabel, onSelect, s
     observer.observe(container.current);
     return () => observer.disconnect();
   }, []);
+
+  const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (!touchPoints.current.size && !pinch.current) suppressClick.current = false;
+    if (event.pointerType !== 'touch') return;
+    touchPoints.current.set(event.pointerId, {x: event.clientX, y: event.clientY});
+    if (touchPoints.current.size === 2) {
+      const points = [...touchPoints.current.values()];
+      pinch.current = {distance: Math.hypot(points[1].x - points[0].x, points[1].y - points[0].y), zoom};
+      suppressClick.current = true;
+      for (const id of touchPoints.current.keys()) {
+        try { event.currentTarget.setPointerCapture(id); } catch { /* pointer may already have ended */ }
+      }
+    }
+  };
+  const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== 'touch' || !touchPoints.current.has(event.pointerId)) return;
+    touchPoints.current.set(event.pointerId, {x: event.clientX, y: event.clientY});
+    if (!pinch.current || touchPoints.current.size < 2) return;
+    const points = [...touchPoints.current.values()];
+    const distance = Math.hypot(points[1].x - points[0].x, points[1].y - points[0].y);
+    if (pinch.current.distance > 0) setZoom(Math.max(1, Math.min(2.5, pinch.current.zoom * distance / pinch.current.distance)));
+  };
+  const finishPointer = (event: PointerEvent<HTMLDivElement>) => {
+    touchPoints.current.delete(event.pointerId);
+    if (touchPoints.current.size < 2) pinch.current = null;
+  };
 
   useEffect(() => {
     const surface = canvas.current;
@@ -90,12 +120,12 @@ export function SkyMap({selectedId, time, location, label, sunLabel, onSelect, s
       context.fillStyle = glow;
       context.fillRect(0, 0, width, height);
 
-      if (milkyWay) milkyWayPainter.current.draw(context, milkyWay, time, location, width, height, Math.max(0, Math.min(1, (-sun.altitude - 8) / 10)), null);
+      if (milkyWay) milkyWayPainter.current.draw(context, milkyWay, time, location, width, height, Math.max(0, Math.min(1, (-sun.altitude - 8) / 10)), null, false, zoom);
 
       context.strokeStyle = 'rgba(141,189,225,.28)';
       context.lineWidth = 1;
       for (const altitude of [0, 30, 60]) {
-        const radius = horizonRadius * (90 - altitude) / 90;
+        const radius = horizonRadius * (90 - altitude) / 90 * zoom;
         context.beginPath();
         context.arc(centerX, centerY, radius, 0, Math.PI * 2);
         context.stroke();
@@ -104,13 +134,13 @@ export function SkyMap({selectedId, time, location, label, sunLabel, onSelect, s
       for (const bearing of [0, Math.PI / 2, Math.PI, Math.PI * 1.5]) {
         context.beginPath();
         context.moveTo(centerX, centerY);
-        context.lineTo(centerX + horizonRadius * Math.sin(bearing), centerY - horizonRadius * Math.cos(bearing));
+        context.lineTo(centerX + horizonRadius * zoom * Math.sin(bearing), centerY - horizonRadius * zoom * Math.cos(bearing));
         context.stroke();
       }
       context.font = '13px system-ui, sans-serif';
       context.fillStyle = '#a9c8e2';
       context.textAlign = 'center';
-      const edge = horizonRadius + 13;
+      const edge = horizonRadius * zoom + 13;
       for (const [name, x, y] of [
         ['N', centerX, centerY - edge], ['E', centerX + edge, centerY + 4],
         ['S', centerX, centerY + edge + 8], ['W', centerX - edge, centerY + 4],
@@ -119,9 +149,9 @@ export function SkyMap({selectedId, time, location, label, sunLabel, onSelect, s
       context.fillStyle = '#7fa2c0';
       context.fillText('Zenith', centerX, centerY - 7);
 
-      if (showBoundaries) drawBoundaries(context, boundaries, position => projectHorizontal(position, width, height), width, height, starVisibility);
+      if (showBoundaries) drawBoundaries(context, boundaries, position => projectHorizontal(position, width, height, zoom), width, height, starVisibility);
 
-      const animating = showFigures && drawConstellations(context, figures, position => projectHorizontal(position, width, height), width, height, starVisibility, showFigureNames, {reveal: reveal.current, now: performance.now(), reducedMotion, entryInset: false});
+      const animating = showFigures && drawConstellations(context, figures, position => projectHorizontal(position, width, height, zoom), width, height, starVisibility, showFigureNames, {reveal: reveal.current, now: performance.now(), reducedMotion, entryInset: false});
       if (!showFigures) reveal.current.reset();
 
       if (starVisibility > 0) {
@@ -146,10 +176,10 @@ export function SkyMap({selectedId, time, location, label, sunLabel, onSelect, s
     };
     render();
     return () => cancelAnimationFrame(frame);
-  }, [size, stars, figures, boundaries, showFigures, showFigureNames, figureMode, showBoundaries, reducedMotion, sun.altitude, milkyWay, time, location]);
+  }, [size, zoom, stars, figures, boundaries, showFigures, showFigureNames, figureMode, showBoundaries, reducedMotion, sun.altitude, milkyWay, time, location]);
 
-  return <div className="sky-canvas sky-map" ref={container}>
-    <canvas ref={canvas} aria-label="Calculated zenith-centered sky with proper motion and optional constellation figures and IAU boundaries; horizon is the outer circle" role="img"/>
+  return <div className="sky-canvas sky-map" ref={container} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={finishPointer} onPointerCancel={finishPointer} onLostPointerCapture={finishPointer} onClickCapture={event => { if (suppressClick.current && event.detail !== 0) { event.preventDefault(); event.stopPropagation(); } }}>
+    <canvas ref={canvas} aria-label="Calculated zenith-centered sky with proper motion and optional constellation figures and IAU boundaries; horizon is the outer circle. Pinch to zoom." role="img"/>
     {markers.map(({object, point, altitude}) => <button key={object.id} className={`sky-object ${selectedId === object.id ? 'is-selected' : ''}`} aria-pressed={selectedId === object.id} style={{left: point.x, top: point.y}} onClick={() => onSelect(object)} title={`${label(object)} · ${altitude.toFixed(1)}°`} aria-label={`${label(object)}, altitude ${altitude.toFixed(1)}°`}><span className="sky-point" style={{width: object.size + 4, height: object.size + 4, background: object.color, boxShadow: `0 0 16px ${object.color}`}}/><span>{label(object)}</span></button>)}
     {sunPoint && <span className="sky-object sky-sun" style={{left: sunPoint.x, top: sunPoint.y}} role="img" aria-label={`${sunLabel}, altitude ${sun.altitude.toFixed(1)}°`}><span className="sky-point"/><span>{sunLabel}</span></span>}
   </div>;

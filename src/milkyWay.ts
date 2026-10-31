@@ -26,7 +26,7 @@ export class MilkyWayPainter {
   private key = '';
   private texture: MilkyWayTexture | null = null;
 
-  draw(context: CanvasRenderingContext2D, texture: MilkyWayTexture, time: Date, location: ObservingLocation, width: number, height: number, visibility: number, view: ViewDirection | null, belowHorizon = false) {
+  draw(context: CanvasRenderingContext2D, texture: MilkyWayTexture, time: Date, location: ObservingLocation, width: number, height: number, visibility: number, view: ViewDirection | null, belowHorizon = false, zoom = 1) {
     if (visibility <= 0 || width <= 0 || height <= 0) return;
     const key = [time.getTime(), location.latitude, location.longitude, width, height, view?.heading, view?.pitch, belowHorizon].join('|');
     if (!this.canvas || this.key !== key || this.texture !== texture) {
@@ -73,7 +73,9 @@ export class MilkyWayPainter {
     context.save();
     context.globalAlpha = visibility;
     context.imageSmoothingEnabled = true;
-    context.drawImage(this.canvas, 0, 0, width, height);
+    context.translate(width / 2, height / 2);
+    context.scale(zoom, zoom);
+    context.drawImage(this.canvas, -width / 2, -height / 2, width, height);
     context.restore();
   }
 }

@@ -11,9 +11,9 @@ const DEG = 180 / Math.PI;
 
 // Azimuthal equidistant projection centered on the zenith. The horizon is a
 // circle; north is up, east right, south down, and west left.
-export function projectHorizontal(position: SkyPosition, width: number, height: number): MapPoint | null {
+export function projectHorizontal(position: SkyPosition, width: number, height: number, zoom = 1): MapPoint | null {
   if (position.altitude < 0 || position.altitude > 90) return null;
-  const radius = (90 - position.altitude) / 90 * Math.min(width, height) * 0.44;
+  const radius = (90 - position.altitude) / 90 * Math.min(width, height) * 0.44 * zoom;
   const angle = position.azimuth * RAD;
   return {x: width / 2 + radius * Math.sin(angle), y: height / 2 - radius * Math.cos(angle)};
 }
@@ -62,11 +62,11 @@ export function projectBrightStars(time: Date, location: ObservingLocation, widt
 }
 
 export type ViewDirection = {heading: number; pitch: number};
-export const perspectiveFocal = (width: number, height: number) => Math.max(width, height) / 2;
+export const perspectiveFocal = (width: number, height: number, zoom = 1) => Math.max(width, height) / 2 * zoom;
 
 // Rectilinear eye-level view. Heading is clockwise from north, pitch is above
 // the geometric horizon. The camera has no roll; the horizon stays level.
-export function projectPerspective(position: SkyPosition, view: ViewDirection, width: number, height: number, clipToViewport = true, allowBelowHorizon = false): MapPoint | null {
+export function projectPerspective(position: SkyPosition, view: ViewDirection, width: number, height: number, clipToViewport = true, allowBelowHorizon = false, zoom = 1): MapPoint | null {
   if (width <= 0 || height <= 0 || (position.altitude < 0 && !allowBelowHorizon)) return null;
   const delta = ((position.azimuth - view.heading + 540) % 360 - 180) * RAD;
   const altitude = position.altitude * RAD;
@@ -75,7 +75,7 @@ export function projectPerspective(position: SkyPosition, view: ViewDirection, w
   if (depth <= 0) return null;
   const right = Math.cos(altitude) * Math.sin(delta);
   const up = Math.sin(altitude) * Math.cos(pitch) - Math.cos(altitude) * Math.cos(delta) * Math.sin(pitch);
-  const focal = perspectiveFocal(width, height); // Limit the longer axis to 90°.
+  const focal = perspectiveFocal(width, height, zoom); // Limit the longer axis to 90° at 1×.
   const x = width / 2 + focal * right / depth;
   const y = height / 2 - focal * up / depth;
   return !clipToViewport || (x >= 0 && x <= width && y >= 0 && y <= height) ? {x, y} : null;
