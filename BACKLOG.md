@@ -17,9 +17,9 @@ Denna fil är den gemensamma listan för återstående funktioner och kända öp
 
 ## Aktuellt beslut
 
-Användaren har **pausat B-001** och vill prioritera att färdigställa övrig funktionalitet. B-005 + F-014 + F-015 har godkänts genom ”Kör” och är implementerade; publicering pågår. Befintlig sensorkod ligger kvar; detta beslut innebär ingen återställning eller avstängning av publicerade funktioner.
+Användaren har **pausat B-001** och vill prioritera att färdigställa övrig funktionalitet. B-005 + F-014 + F-015 har godkänts genom ”Kör” och är implementerade; publicerad. Befintlig sensorkod ligger kvar; detta beslut innebär ingen återställning eller avstängning av publicerade funktioner.
 
-**Senaste godkända körning: B-005 + F-014 + F-015.** Implementerat och verifierat; publicering pågår. F-012 är vägledande designprincip. Nästa steg kräver ett nytt klartecken och modellrekommendation; det tidigare förslaget **F-001 + B-002** kan tas upp igen senare.
+**Senaste godkända körning: B-005 + F-014 + F-015.** Implementerat och verifierat; publicerad. F-012 är vägledande designprincip. Nästa steg kräver ett nytt klartecken och modellrekommendation; det tidigare förslaget **F-001 + B-002** kan tas upp igen senare.
 
 ## Buggar
 
@@ -29,7 +29,7 @@ Användaren har **pausat B-001** och vill prioritera att färdigställa övrig f
 | **B-002** | Dagsljus döljer stjärnor även under den genomskinliga marken | **Planerad** | Den tydligt märkta simulerade nedåtvyn ska kunna visa stjärnhimlen trots dag ovan horisonten. Bevara dagvyn ovan horisonten samt verkliga horisontvillkor för Guided Finder/Ikväll. Se [DAYLIGHT_DIRECTION_ANALYSIS.md](docs/DAYLIGHT_DIRECTION_ANALYSIS.md). |
 | **B-003** | Täta objektetiketter kan överlappa | **Senare** | Förbättra placering/urval av etiketter på mobil och dator utan att förlora objektens beräknade riktningar eller tryckbarhet. Hanteras tillsammans med F-008. |
 | **B-004** | Himmelsvyn hackar vid panorering | **Planerad — orsaken okänd** | Mät respons med Vintergatan av/på och undersök bakgrundsritning, projektion och bildrutor. Optimera den berörda renderingsvägen om provet visar att den bidrar; bevara utseende och fungerande svep. Orsaken är ännu inte fastställd. |
-| **B-005** | Telefonföljningen pausas automatiskt när paneler öppnas | **Klar — publicering pågår** | Behåll aktiv följning när användaren söker/bläddrar och stäng panelen. Följningen ska stanna när användaren väljer Stoppa. Granska även manuella styrhandlingar så att de följer denna regel. Dokumentera plattformsbegränsningar, exempelvis när webbläsaren döljs eller sensordata upphör. |
+| **B-005** | Telefonföljningen pausas automatiskt när paneler öppnas | **Klar** | Behåll aktiv följning när användaren söker/bläddrar och stäng panelen. Följningen ska stanna när användaren väljer Stoppa. Granska även manuella styrhandlingar så att de följer denna regel. Dokumentera plattformsbegränsningar, exempelvis när webbläsaren döljs eller sensordata upphör. |
 
 ## Funktioner och förbättringar
 
@@ -48,8 +48,8 @@ Användaren har **pausat B-001** och vill prioritera att färdigställa övrig f
 | **F-011** | Kameraöverlägg / AR | **Senare — låg prioritet** | Separat framtida steg efter övrig funktionalitet. Användarens prioritering är fortsatt himmelsvy och telefonföljning utan kamera. |
 | **F-012** | Enkel att använda som princip för alla funktioner | **Antagen designprincip** | Prioritera tydliga huvudhandlingar, förståeliga statusar och få samtidiga val genom hela appen. Väg in enkel användning i varje godkänt funktionssteg; principen godkänner inte egen UI-kod utan avgränsning. |
 | **F-013** | Samlad utvecklardiagnostik | **Planerad** | Inventera lokala analys-, test- och felsökningsverktyg och samla ingångar, instruktioner och begränsningar på ett ställe. Gäller verktyg för utvecklingen, inte nya diagnostikfunktioner inne i appen. |
-| **F-014** | Markera valt himmelsobjekt tydligt | **Klar — publicering pågår** | Efter tryck ska det valda objektet få en beständig, synlig markering så användaren ser vilket objekt kortet/detaljerna gäller. Bevara tydlig skillnad mellan tryck och svep. |
-| **F-015** | Ikoner för spara och dela | **Klar — publicering pågår** | Använd ikoner för spara och dela objekt. Övriga handlingar ska ha tydliga textetiketter i linje med önskemålet om färre symbolknappar. |
+| **F-014** | Markera valt himmelsobjekt tydligt | **Klar** | Efter tryck ska det valda objektet få en beständig, synlig markering så användaren ser vilket objekt kortet/detaljerna gäller. Bevara tydlig skillnad mellan tryck och svep. |
+| **F-015** | Ikoner för spara och dela | **Klar** | Använd ikoner för spara och dela objekt. Övriga handlingar ska ha tydliga textetiketter i linje med önskemålet om färre symbolknappar. |
 
 ## Genomförda delar
 

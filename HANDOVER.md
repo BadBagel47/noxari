@@ -32,12 +32,12 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md`, `README.md` och `BAC
 
 ## Aktuellt arbetsläge
 
-**Aktivt godkänt steg:** B-005 + F-014 + F-015, godkänt genom senaste ”Kör”. Implementerat och lokalt verifierat; publicering pågår. Följning behålls genom sökning/paneler, valt objekt markeras och spara/dela använder ikoner. B-001 är fortsatt pausad och B-004 ingår inte i detta steg.
+**Senast avslutade körning:** B-005 + F-014 + F-015, godkänt genom ”Kör”, implementerat, verifierat och publicerat. Nästa utvecklingssteg kräver nytt klartecken. Följning behålls genom sökning/paneler, valt objekt markeras och spara/dela använder ikoner. B-001 är fortsatt pausad och B-004 ingår inte i detta steg.
 
-- Senast verifierade och publicerade **appcommit**: `4785be060ea4046cda168284c97143b447820054`.
-- Actions: https://github.com/BadBagel47/noxari/actions/runs/41104029942 — tester, bygge och publicering lyckades.
-- **98 tester passerade**, varav 26 riktningsfall och två för rapporthistorik. Publicerade `index-CSv0wzCt.js`, `index-DkTYztpj.css`, `milkyWay-DWEB47Uh.png` och BSD-licenstext matchade lokalt produktionsbygge via SHA-256.
-- Relativa rörelser driver fortsatt himlen. Kompassbaserade sessioner kan nu återankras automatiskt vid stor bestående avvikelse efter färsk stabil parning och stillahållning. Minst tio sekunder mellan automatiska korrigeringar. Manuell norr och käll-/referensbyten behåller uttrycklig återhämtning. Pausade vyer förblir pausade. Rapportversion 2 bevarar felövergångar och korrigeringar. Ingen kontinuerlig kompassåtergång införs. Se de två stabilitetsavsnitten och `docs/DIRECTION_STABILITY.md`.
+- Senast verifierade och publicerade **appcommit**: `df3fd9f8e4e7f7d0c5193d95abd3b9df89b047b0`.
+- Actions: https://github.com/BadBagel47/noxari/actions/runs/41154505108 — tester, bygge och publicering lyckades.
+- **98 tester passerade**, varav 26 riktningsfall och två för rapporthistorik. Publicerade `index-ugs5DDiE.js`, `index-FDM-1iDO.css`, `milkyWay-DWEB47Uh.png` och BSD-licenstext matchade lokalt produktionsbygge via SHA-256.
+- Relativa rörelser driver fortsatt himlen. Kompassbaserade sessioner kan nu återankras automatiskt vid stor bestående avvikelse efter färsk stabil parning och stillahållning. Minst tio sekunder mellan automatiska korrigeringar. Manuell norr och käll-/referensbyten behåller uttrycklig återhämtning. B-005 behåller nu följningen genom paneler och objektval; manuella vyändringar kräver Stoppa. Rapportversion 2 bevarar felövergångar och korrigeringar. Ingen kontinuerlig kompassåtergång införs. Se de två stabilitetsavsnitten och `docs/DIRECTION_STABILITY.md`.
 - Produktionsbyggets simulerade webbläsarprov passerade i 390×844, 1280×800 och 568×320 för automatisk 120° återankring, fortsatt relativ följning utan liten kompassåtergång, återankring bakom pausad panel med hållen vy, skyddad manuell nordreferens, uttrycklig återhämtning och fördröjd rapportnedladdning med bevarat fel- och korrigeringsförlopp. Separat prov bekräftar timeout när primär rörelsedata upphör trots fortsatt kompassdata. Befintliga helskärms-/sensorflöden passerade i fem storlekar plus reducerad höjd; fördröjd behörighet kan fortsatt avbrytas.
 - Användarens tidigare fysiska Android/Brave-bekräftelse gäller grundläggande telefonföljning och återgångsrättningen. **Efter stabilitetspubliceringen rapporterar användaren att felet kvarstår och att omladdning av sidan återställer rätt riktning.** Rättningen har alltså inte löst det rapporterade fysiska problemet. En fysisk rapport och skärmbilder har nu analyserats: 400 poster över 11,83 sekunder, två färska källor, konstant appoffset −17,89° och 49,56–57,11° skillnad. Samtliga poster har redan `uncertain/disagreement`; skärmbilderna visar Check north och hållen följning. Skyddets reaktion är därmed fysiskt bekräftad, men felstarten och vilken källa som faktiskt pekar rätt saknas. Befintlig **Använd kompassreferens → Återuppta följning** utan omladdning efterfrågades och har därefter bekräftats fungera i nästa prov, se senaste kontrollen nedan. Se `docs/DIRECTION_STABILITY.md` för mätningar. Omladdning återställer både appsession och sensorprenumeration och avgör inte ensam orsaken. Ingen ny appkod ändras i denna rapportanalys.
 - Tidigare trepunktsstegets Vintergata, inritning och nedåtblick är bevarade. Deras appcommit var `039d3cb8e07653b6a9f7904c095b2eae44c8d2a6` med 79 tester. Se historiska funktionsavsnitt nedan.
@@ -174,7 +174,7 @@ Detta beskriver versionen med uttrycklig återankring; den senare godkända auto
 
 **B-001 är pausad genom användarbeslut 2026-10-31.** Uttrycklig kompassåterankring är fysiskt bekräftad, medan automatiken och långsiktig precision fortfarande behöver valideras när riktningsarbetet återupptas.
 
-B-005 + F-014 + F-015 slutförs med publicering. Därefter krävs nytt klartecken för nästa steg; F-001 + B-002 är kvarstående förslag. Rekommenderad modell: GPT-6.1 Sol med hög resonemangsnivå. Användaren kan samla ytterligare poster före nästa körning.
+B-005 + F-014 + F-015 är publicerade. Nytt klartecken krävs för nästa steg; F-001 + B-002 är kvarstående förslag. Rekommenderad modell: GPT-6.1 Sol med hög resonemangsnivå. Användaren kan samla ytterligare poster före nästa körning.
 
 ### Senare delar av planen
 
@@ -233,3 +233,5 @@ Vid överlämning: lämna över projektet inklusive Git-historik när möjligt, 
 - Beständig guldfärgad ring markerar valt objekt i perspektivvy och karta; aria-pressed anger tillståndet. Finder har fortsatt egen målring.
 - Spara/dela i objektdetaljer använder ikoner med tillgängliga namn och titel. Bokmärken visar tryckt/sparat tillstånd.
 - 98 tester och bygge passerar. Simulerade webbläsarprov i 390×844, 1280×800 och 568×320 täcker flödena ovan. Touch/Enter/Space, avbruten gest, Stoppa under väntande behörighet, dold sida och timeout trots fortsatt sekundär kompass verifierade separat. Skärmbild granskad. Ingen fysisk riktprecision påstås; B-001 är pausad.
+
+Verifierad publicering för interaktionsrundan: appcommit `df3fd9f8e4e7f7d0c5193d95abd3b9df89b047b0`, Actions https://github.com/BadBagel47/noxari/actions/runs/41154505108 lyckades. Publicerade JS/CSS, Vintergatans PNG och licens matchade lokalt bygge via SHA-256. Denna metadata sparas separat från appcommiten.
