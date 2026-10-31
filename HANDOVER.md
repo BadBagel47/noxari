@@ -32,10 +32,12 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md`, `README.md` och `BAC
 
 ## Aktuellt arbetsläge
 
-**Senaste utvecklingssteg:** **F-013 + F-007**, godkänt med ”Kör med Luna enligt rekommendation”. GPT-6 Luna High rekommenderades, men aktiv modell kan inte bytas eller verifieras från körningsmiljön. Implementeringen är lokal och verifierad; publicering inväntar push och Actions. F-013 samlar utvecklarens återkommande kontroller i `docs/DEVELOPMENT_DIAGNOSTICS.md`. F-007 delar bokmärken som `?list=…`; delade listor är skrivskyddade tills mottagaren väljer Spara alla. B-001 är fortsatt pausad; B-004 ingick inte.
+**Senaste utvecklingssteg:** **F-013 + F-007**, godkänt med ”Kör med Luna enligt rekommendation”. GPT-6 Luna High rekommenderades, men aktiv modell kan inte bytas eller verifieras från körningsmiljön. Implementerat, testat och publicerat. F-013 samlar utvecklarens återkommande kontroller i `docs/DEVELOPMENT_DIAGNOSTICS.md`. F-007 delar bokmärken som `?list=…`; delade listor är skrivskyddade tills mottagaren väljer Spara alla. B-001 är fortsatt pausad; B-004 ingick inte.
 
-- Senast verifierade **appcommit**: `f3535f02e0daa105cf97529425d3f37e2861fb9f` (`f3535f0`).
-- F-013 + F-007 har sedan dess ändrats lokalt: **103 tester passerar**, produktionsbygget lyckas och Chromium vid 390×844 verifierar listlänk, deduplicering/filtrering, oförändrade lokala bokmärken före uttrycklig import, delning och ogiltig länk. Inga webbläsarfel. Dessa ändringar är ännu inte publiceringsverifierade.
+- Senast verifierade **appcommit**: `dd0eebc1e8d888fd869d50c3f177321c31418c35` (`dd0eebc`).
+- Actions: https://github.com/BadBagel47/noxari/actions/runs/41209604998 — tester, bygge och Pages-publicering lyckades.
+- **103 tester passerade** och `npm run build` lyckades (Vites varning om JavaScript-paket över 500 kB kvarstår). Chromium vid 390×844 verifierade delningslista, filtrering/deduplicering, att bokmärken inte ändras förrän importen uttryckligen väljs, listdelning, ogiltig länk samt fortsatt `?object=m31`-delning. Inga webbläsarfel.
+- Publicerade `assets/index-CAQiMmnq.js`, `assets/index-DeSspBVK.css`, `assets/milkyWay-DWEB47Uh.png` och licenstextens SHA-256 matchar lokalt `dist/` exakt.
 - Actions: https://github.com/BadBagel47/noxari/actions/runs/41207977710 — tester, bygge och Pages-publicering lyckades.
 - **100 tester passerade** och `npm run build` lyckades (Vites varning om ett JavaScript-paket över 500 kB kvarstår). Chromium vid 390×844 verifierade kvällsförhandsvisning, återgång till Nu, bright-sky varning, dagsljusets stjärnfilter ovan horisonten och synliga stjärnor i den simulerade nedåtvyn; inga webbläsarfel.
 - Publicerade `index-C0A6Qr5B.js`, `index-DeSspBVK.css`, `milkyWay-DWEB47Uh.png` och BSD-licenstext matchar lokalt produktionsbygge via SHA-256.
@@ -193,7 +195,7 @@ Ingen körning är godkänd härnäst. Användaren vill kunna samla fler ändrin
 
 ### Senare delar av planen
 
-Se `BACKLOG.md` för samtliga kvarstående poster och permanent numrering: F-002 dagsvy för alla relevanta dagsljusobjekt, F-003 djupare stjärnor, F-005 bilder och F-006 delningsförhandsvisningar. UI-förfining F-008 och bredare mobilprov F-009 ligger senare. Månkalibrering F-010 och kamera/AR F-011 är fortsatt uppskjutna; AR har låg prioritet. B-003 gäller överlappande etiketter och hör till den senare UI-genomgången. F-001, B-002, F-007 och F-013 är genomförda; de två senaste inväntar publiceringsverifiering.
+Se `BACKLOG.md` för samtliga kvarstående poster och permanent numrering: F-002 dagsvy för alla relevanta dagsljusobjekt, F-003 djupare stjärnor, F-005 bilder och F-006 delningsförhandsvisningar. UI-förfining F-008 och bredare mobilprov F-009 ligger senare. Månkalibrering F-010 och kamera/AR F-011 är fortsatt uppskjutna; AR har låg prioritet. B-003 gäller överlappande etiketter och hör till den senare UI-genomgången. F-001, B-002, F-007 och F-013 är genomförda och publicerade.
 
 ## Begränsningar och källor
 

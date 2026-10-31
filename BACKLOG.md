@@ -19,7 +19,7 @@ Denna fil är den gemensamma listan för återstående funktioner och kända öp
 
 Användaren har **pausat B-001** och vill prioritera att färdigställa övrig funktionalitet. B-005 + F-014 + F-015 har godkänts genom ”Kör” och är implementerade; publicerad. Befintlig sensorkod ligger kvar; detta beslut innebär ingen återställning eller avstängning av publicerade funktioner.
 
-**Senaste godkända körning: F-013 + F-007.** F-013:s utvecklardiagnostik samlades i `docs/DEVELOPMENT_DIAGNOSTICS.md`. F-007 delar sparade objekt med `?list=…`; den öppnade listan är skrivskyddad tills användaren uttryckligen sparar objekten. 103 tester, produktionsbygge och Chromiumflöde passerade. GPT-6 Luna High rekommenderades, men den aktiva modellen kan inte bekräftas från körningsmiljön. B-001 är fortsatt pausad.
+**Senaste godkända körning: F-013 + F-007.** F-013:s utvecklardiagnostik samlades i `docs/DEVELOPMENT_DIAGNOSTICS.md`. F-007 delar sparade objekt med `?list=…`; den öppnade listan är skrivskyddad tills användaren uttryckligen sparar objekten. 103 tester och produktionsbygge passerade; GitHub Actions publicerade ändringen och liveassetarnas hash matchar bygget. GPT-6 Luna High rekommenderades, men den aktiva modellen kan inte bekräftas från körningsmiljön. B-001 är fortsatt pausad.
 
 **Ingen nästa körning är godkänd.** Användaren kan samla fler ändringar innan nästa föreslagna steg. Rekommendera modell då; ett modellförslag i sig byter inte körningsmodell.
 
