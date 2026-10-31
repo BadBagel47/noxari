@@ -28,3 +28,9 @@ The original Commons records identify seven images as public domain and the M31 
 | M51 | [Messier51 sRGB.jpg](https://commons.wikimedia.org/wiki/File:Messier51_sRGB.jpg) | NASA and the European Space Agency | Public domain |
 | M81 | [Messier 81 HST.jpg](https://commons.wikimedia.org/wiki/File:Messier_81_HST.jpg) | NASA, ESA and the Hubble Heritage Team | Public domain |
 | M104 | [M104 ngc4594 sombrero galaxy hi-res.jpg](https://commons.wikimedia.org/wiki/File:M104_ngc4594_sombrero_galaxy_hi-res.jpg) | NASA/ESA and the Hubble Heritage Team | Public domain |
+
+## Reviewed small-body candidate collection
+
+`src/candidateObjects.ts` is a separate, reviewed collection, independent of the ordinary Messier/solar-system catalog. Its first entry is **2026 ED138**, labeled as a dwarf-planet candidate rather than a confirmed dwarf planet. Source background and the estimated 600–1,500 km size range are documented by the [Rubin Observatory release](https://rubinobservatory.org/news/rubin-first-dwarf-planet-candidate).
+
+The orbit is pinned from JPL Small-Body Database solution #2, issued 2026-10-29 at epoch JD 2461200.5 (2026-10-31 TDB). The app propagates those osculating elements with a two-body Kepler solver, converts the heliocentric ecliptic vector to J2000 equatorial coordinates, and iterates light-time against Astronomy Engine's Earth vector. It omits small-body perturbations and observer parallax; review the orbit against updated JPL/MPC solutions before a later data refresh. The estimated size is not a direct measurement; infrared observations are needed to constrain it. The sky layer defaults to off and its preference is stored locally. Candidate records are updated manually after source review; the app does not fetch catalog changes at runtime.

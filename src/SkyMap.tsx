@@ -7,6 +7,7 @@ import {boundarySky, drawBoundaries} from './constellationBoundaries';
 import {Body} from 'astronomy-engine';
 import {objectPositioner, positionAt, showObjectMarker, type ObservingLocation} from './astronomy';
 import {objects, type SpaceObject} from './data';
+import {candidateObjects} from './candidateObjects';
 import {horizontalStarCatalog, projectHorizontal} from './skyProjection';
 import {stellarBrightness} from './skyVisibility';
 
@@ -21,10 +22,11 @@ type Props = {
   showFigureNames: boolean;
   figureMode: FigureMode;
   showBoundaries: boolean;
+  showCandidateCollection: boolean;
   milkyWay: MilkyWayTexture | null;
 };
 
-export function SkyMap({selectedId, time, location, label, sunLabel, onSelect, showFigures, showFigureNames, figureMode, showBoundaries, milkyWay}: Props) {
+export function SkyMap({selectedId, time, location, label, sunLabel, onSelect, showFigures, showFigureNames, figureMode, showBoundaries, showCandidateCollection, milkyWay}: Props) {
   const container = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const reveal = useRef(new ConstellationReveal());
@@ -45,11 +47,11 @@ export function SkyMap({selectedId, time, location, label, sunLabel, onSelect, s
   }), [catalog, size, zoom]);
   const objectSky = useMemo(() => {
     const resolve = objectPositioner(time, location);
-    return objects.flatMap(object => {
+    return [...objects, ...(showCandidateCollection ? candidateObjects : [])].flatMap(object => {
       const position = resolve(object);
       return position ? [{object, position}] : [];
     });
-  }, [time, location]);
+  }, [time, location, showCandidateCollection]);
   const markers = useMemo(() => objectSky.flatMap(({object, position}) => {
     if (!size.width || !size.height) return [];
     // Markers distinguish civil twilight for planets from darker deep-sky conditions.

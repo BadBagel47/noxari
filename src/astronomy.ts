@@ -1,4 +1,4 @@
-import {AngleFromSun, Body, Constellation, Equator, EquatorFromVector, GeoVector, Horizon, Illumination, Observer, SearchRiseSet} from 'astronomy-engine';
+import {AngleFromSun, AstroTime, Body, Constellation, Equator, EquatorFromVector, GeoVector, HelioVector, Horizon, Illumination, Observer, RotateVector, Rotation_ECL_EQJ, SearchRiseSet, Vector} from 'astronomy-engine';
 import {DateTime} from 'luxon';
 import type {SpaceObject} from './data';
 import {brightStars} from './generated/brightStars';
@@ -24,6 +24,44 @@ export function positionAt(body: Body, time: Date, location: ObservingLocation):
   return {altitude: horizontal.altitude, azimuth: horizontal.azimuth};
 }
 
+const eclipticToEquatorial = Rotation_ECL_EQJ();
+const AU_LIGHT_DAYS = 0.0057755183;
+const DEG = Math.PI / 180;
+
+export function keplerianEquatorial(object: SpaceObject, time: Date) {
+  const orbit = object.position;
+  if (!orbit || orbit.kind !== 'keplerian') return null;
+  const heliocentric = (date: Date) => {
+    const jd = new AstroTime(date).tt + 2451545;
+    const meanRaw = (orbit.meanAnomalyDegrees + orbit.meanMotionDegreesPerDay * (jd - orbit.epochJD)) * DEG;
+    const mean = ((meanRaw + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+    let eccentric = mean;
+    for (let i = 0; i < 10; i++) eccentric -= (eccentric - orbit.eccentricity * Math.sin(eccentric) - mean) / (1 - orbit.eccentricity * Math.cos(eccentric));
+    const x = orbit.semiMajorAxisAu * (Math.cos(eccentric) - orbit.eccentricity);
+    const y = orbit.semiMajorAxisAu * Math.sqrt(1 - orbit.eccentricity ** 2) * Math.sin(eccentric);
+    const inclination = orbit.inclinationDegrees * DEG;
+    const node = orbit.ascendingNodeDegrees * DEG;
+    const perihelion = orbit.argumentOfPerihelionDegrees * DEG;
+    const xPeri = Math.cos(perihelion) * x - Math.sin(perihelion) * y;
+    const yPeri = Math.sin(perihelion) * x + Math.cos(perihelion) * y;
+    const xEcliptic = Math.cos(node) * xPeri - Math.sin(node) * Math.cos(inclination) * yPeri;
+    const yEcliptic = Math.sin(node) * xPeri + Math.cos(node) * Math.cos(inclination) * yPeri;
+    const zEcliptic = Math.sin(inclination) * yPeri;
+    return RotateVector(eclipticToEquatorial, new Vector(xEcliptic, yEcliptic, zEcliptic, new AstroTime(date)));
+  };
+
+  // Iterate the object's light-time; Earth remains at the observation time.
+  const earth = HelioVector(Body.Earth, time);
+  let emissionTime = time.getTime() - 0.28 * 86_400_000;
+  let geo = new Vector(0, 0, 0, new AstroTime(time));
+  for (let i = 0; i < 3; i++) {
+    const target = heliocentric(new Date(emissionTime));
+    geo = new Vector(target.x - earth.x, target.y - earth.y, target.z - earth.z, new AstroTime(time));
+    emissionTime = time.getTime() - geo.Length() * AU_LIGHT_DAYS * 86_400_000;
+  }
+  return EquatorFromVector(geo);
+}
+
 // Share one J2000->horizontal rotation across any number of catalog centers.
 // Fixed sources omit parallax and aberration, consistently with the star field;
 // their catalog distances are metadata, not invented inputs to an ephemeris slot.
@@ -32,6 +70,11 @@ export function objectPositioner(time: Date, location: ObservingLocation) {
   return (object: SpaceObject): SkyPosition | null => {
     if (!object.position) return null;
     if (object.position.kind === 'solar') return positionAt(Body[object.position.body], time, location);
+    if (object.position.kind === 'keplerian') {
+      const equatorial = keplerianEquatorial(object, time);
+      if (!equatorial || !Number.isFinite(equatorial.ra) || !Number.isFinite(equatorial.dec)) return null;
+      return project(equatorial.ra, equatorial.dec);
+    }
     if (object.id === 'sirius') {
       const [ra, dec, , , pmRaCosDec, pmDec] = siriusStar;
       return project(ra, dec, pmRaCosDec, pmDec);

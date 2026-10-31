@@ -1,9 +1,9 @@
 import {messierObjects} from './generated/messier';
 
-export type Kind = 'Galaxy'|'Nebula'|'Star cluster'|'Planet'|'Moon'|'Star'|'Constellation'|'Double star'|'Asterism'|'Star cloud';
+export type Kind = 'Galaxy'|'Nebula'|'Star cluster'|'Planet'|'Moon'|'Star'|'Constellation'|'Double star'|'Asterism'|'Star cloud'|'Dwarf planet candidate';
 export type Gear = 'eye'|'binoculars'|'telescope';
 export type SolarBody = 'Moon'|'Mercury'|'Venus'|'Mars'|'Jupiter'|'Saturn'|'Uranus'|'Neptune';
-export type PositionSource = {kind:'fixed';raHours:number;decDegrees:number;distanceLy?:number}|{kind:'solar';body:SolarBody};
+export type PositionSource = {kind:'fixed';raHours:number;decDegrees:number;distanceLy?:number}|{kind:'solar';body:SolarBody}|{kind:'keplerian';epochJD:number;semiMajorAxisAu:number;eccentricity:number;inclinationDegrees:number;ascendingNodeDegrees:number;argumentOfPerihelionDegrees:number;meanAnomalyDegrees:number;meanMotionDegreesPerDay:number};
 export type SpaceObject = {id:string;en:string;sv:string;kind:Kind;constellation:string;distance:string;magnitude:string;gear:Gear;description:string;descriptionSv:string;position?:PositionSource;demoAltitudes?:number[];color:string;size:number;aliases?:string[];catalogNumber?:number;subtype?:string;subtypeSv?:string;distanceSv?:string;magnitudeSv?:string;magnitudeBand?:string;catalogNote?:string;catalogNoteSv?:string;references?:{label:string;url:string}[]};
 // Fixed positions are J2000/ICRS catalog centers. Metadata distances do not control their projection.
 // Only constellation cards retain example altitude curves; they have no single catalog center.

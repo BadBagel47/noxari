@@ -6,6 +6,7 @@ import {boundarySky, drawBoundaries} from './constellationBoundaries';
 import {Body} from 'astronomy-engine';
 import {nextObjectRise, objectPosition, objectPositioner, positionAt, showObjectMarker, type ObservingLocation, type SkyPosition} from './astronomy';
 import {objects, type SpaceObject} from './data';
+import {candidateObjects} from './candidateObjects';
 import {createPreparedPerspectiveProjector, horizontalStarCatalog, perspectiveFocal, prepareHorizontalStars, projectPerspective, type MapPoint, type ViewDirection} from './skyProjection';
 import {GuidedFinder} from './GuidedFinder';
 import {clampViewPitch, groundOpacity} from './groundView';
@@ -25,6 +26,7 @@ type Props = {
   showFigureNames: boolean;
   figureMode: FigureMode;
   showBoundaries: boolean;
+  showCandidateCollection: boolean;
   milkyWay: MilkyWayTexture | null;
   view: ViewDirection;
   onViewChange: Dispatch<SetStateAction<ViewDirection>>;
@@ -37,7 +39,7 @@ type Props = {
 const wrap = (degrees: number) => (degrees % 360 + 360) % 360;
 const cardinal = (heading: number) => ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(wrap(heading) / 45) % 8];
 
-export function HorizonView({selectedId, time, location, label, sunLabel, onSelect, language, view, onViewChange, showFigures, showFigureNames, figureMode, showBoundaries, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails}: Props) {
+export function HorizonView({selectedId, time, location, label, sunLabel, onSelect, language, view, onViewChange, showFigures, showFigureNames, figureMode, showBoundaries, showCandidateCollection, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails}: Props) {
   const root = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const reveal = useRef(new ConstellationReveal());
@@ -57,11 +59,11 @@ export function HorizonView({selectedId, time, location, label, sunLabel, onSele
   const nextRise = useMemo(() => finderTarget && targetPosition && targetPosition.altitude < 0 ? nextObjectRise(finderTarget, time, location) : null, [finderTarget, targetPosition, time, location]);
   const objectSky = useMemo(() => {
     const resolve = objectPositioner(time, location);
-    return objects.flatMap(object => {
+    return [...objects, ...(showCandidateCollection ? candidateObjects : [])].flatMap(object => {
       const position = resolve(object);
       return position ? [{object, position}] : [];
     });
-  }, [time, location]);
+  }, [time, location, showCandidateCollection]);
   const markers = useMemo(() => objectSky.flatMap(({object, position}) => {
     if (object.id === finderTarget?.id) return [];
     if (!showObjectMarker(object, sun.altitude)) return [];

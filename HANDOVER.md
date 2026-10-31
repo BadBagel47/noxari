@@ -32,12 +32,11 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md`, `README.md` och `BAC
 
 ## Aktuellt arbetsläge
 
-**Senaste utvecklingssteg:** **F-003 + F-005**, godkänt med ”Kör” efter rekommendationen **GPT-6 Luna High**. Aktiv modell kan inte bytas eller verifieras från körningsmiljön. Implementerat, testat och publicerat. F-003 utökar den pinnade HYG-katalogen till 8 920 stjärnor t.o.m. V=6,5 plus två svagare stjärnbildsändpunkter (8 922 totalt), med svagare ritning för de nya stjärnorna. F-005 lägger till åtta lokala, licens- och källmärkta bilder för M31, M42, M45, M13, M57, M51, M81 och M104 i objektdetaljerna. B-001 är fortsatt pausad.
+**Senaste publicerade steg:** **F-003 + F-005**, implementerat, testat och publicerat. **Aktuellt godkänd körning: F-017** (se ”Kör” efter rekommendationen GPT-6 Luna High). Aktiv modell kan inte bytas eller verifieras från exekveringsmiljön. F-017 gör en separat, bläddringsbar samling för ovanliga småkroppar med fristående av/på-lager; 2026 ED138 är första posten och märks som dvärgplanetkandidat. Lokal implementering, tester och webbläsarkontroller passerar; publicering återstår. B-001 är fortsatt pausad.
 
-- Verifierad **appcommit**: `2675e69956afed21dc6fcf23280a11025662e176` (`2675e69`).
-- Actions: https://github.com/BadBagel47/noxari/actions/runs/41224535777 — tester, bygge och Pages-publicering lyckades.
-- 107 tester passerade och `npm run build` lyckades. Chromium vid 390×844 öppnade alla åtta objektdetaljer, avkodade 960 px-bilderna och kontrollerade alt-text, kredit, källa/licens, horisontell overflow och webbläsarfel. Publicerade JS, CSS, Vintergatsbilden, licensfilen och samtliga åtta objektsbilder matchar lokalt bygge/manifest via SHA-256.
-- Fyrdubbel CPU-throttle gav i två simulerade körningar median 17 ms per bildruta för både baslinje och ändring; p90 varierade 33–50 ms och är brusigt med detta lilla urval. Ingen fysisk mobilprestandamätning är gjord. Vites varning om ett JavaScript-paket över 500 kB kvarstår.
+- Senast verifierade publicerade **appcommit**: `2675e69956afed21dc6fcf23280a11025662e176` (`2675e69`). F-017 är ännu inte publicerat.
+- F-017: 110 tester passerar och `npm run build` lyckas. En regressionskontroll mot JPL/Horizons 2026-10-31 00:00 UTC stämmer inom 0,01°; positionen uppdateras med vald tid och plats. Chromium vid 390×844 och 1280×844 verifierade katalogseparation, objektlänk, kandidatdetaljer, av/på-lager och lagrad inställning utan overflow eller sidfel. I Sydney visas markören på himmelskartan när objektet är ovan horisonten. Ingen fysisk enhetsvalidering är gjord. Vites varning om JavaScript-paket över 500 kB kvarstår.
+- Orbitalmodellen använder JPL SBDB solution #2 (2026-10-29), tvåkropps-Kepler och ljusgångstid; småkroppsstörningar och parallax från observatören utelämnas. Exakt storlek är okänd, och kandidatstatus är inte bekräftad dvärgplanetstatus. Källor och uppdateringsmetod finns i `data/README.md`.
 - Actions: https://github.com/BadBagel47/noxari/actions/runs/41209604998 — tester, bygge och Pages-publicering lyckades.
 - F-013 + F-007 verifierades med 103 tester och publicerat bygge; se Actions-länken och resurshasharna i den historiska körningsanteckningen nedan.
 - Actions: https://github.com/BadBagel47/noxari/actions/runs/41207977710 — tester, bygge och Pages-publicering lyckades.
@@ -191,13 +190,13 @@ Detta beskriver versionen med uttrycklig återankring; den senare godkända auto
 - Full `npm test`: 100 tester passerade. `npm run build` lyckades. Mobil-webbläsarprov 390×844 passerade för kvällstid, tidslägesetikett, Now-återgång, bright-sky varning och dagsljusstjärnor endast i den simulerade nedåtvyn. Polardag och säsongsskillnad täcks av tester. Actions och Pages-publicering lyckades; JS, CSS, PNG och licens matchar lokalt `dist/` via SHA-256.
 - Modellförslag var **GPT-6 Luna High**; aktiv modell kan inte bekräftas från exekveringsmiljön. Ingen nästa batch är godkänd; användaren kan samla fler önskemål.
 
-## Nästa föreslagna körning — inväntar nytt klartecken
+## Nästa föreslagna körning — F-017 pågår
 
-Ingen körning är godkänd härnäst. Användaren vill kunna samla fler ändringar; rekommendera modell när nästa batch avgränsas och invänta uttryckligt klartecken. Användaren har förtydligat att **F-002** ska omfatta alla relevanta objekt som kan synas i dagsljus, inte bara Venus. Den godkända körningen behöver avgränsa urval och regler utifrån beräknad position, solhöjd, ljusstyrka och solavstånd.
+F-017 är den enda aktuellt godkända körningen och den slutförs här. Ingen efterföljande körning är godkänd. Användaren kan samla fler ändringar; rekommendera modell när nästa batch avgränsas och invänta uttryckligt klartecken. Användaren har förtydligat att **F-002** ska omfatta alla relevanta objekt som kan synas i dagsljus, inte bara Venus. Den godkända körningen behöver avgränsa urval och regler utifrån beräknad position, solhöjd, ljusstyrka och solavstånd.
 
 ### Senare delar av planen
 
-Se `BACKLOG.md` för samtliga kvarstående poster och permanent numrering: återstår bland annat F-002 dagsvy för alla relevanta dagsljusobjekt och F-006 delningsförhandsvisningar. UI-förfining F-008 och bredare mobilprov F-009 ligger senare. Månkalibrering F-010 och kamera/AR F-011 är fortsatt uppskjutna; AR har låg prioritet. B-003 gäller överlappande etiketter och hör till den senare UI-genomgången. F-001, B-002, F-003, F-005, F-007 och F-013 är genomförda och publicerade.
+Se `BACKLOG.md` för samtliga kvarstående poster och permanent numrering: återstår bland annat F-002 dagsvy för alla relevanta dagsljusobjekt och F-006 delningsförhandsvisningar. UI-förfining F-008 och bredare mobilprov F-009 ligger senare. Månkalibrering F-010 och kamera/AR F-011 är fortsatt uppskjutna; AR har låg prioritet. B-003 gäller överlappande etiketter och hör till den senare UI-genomgången. F-001, B-002, F-003, F-005, F-007 och F-013 är genomförda och publicerade. F-017 är implementerat lokalt; publicering återstår.
 
 ## Begränsningar och källor
 
