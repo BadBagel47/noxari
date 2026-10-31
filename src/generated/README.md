@@ -1,12 +1,16 @@
 # Generated sky datasets — provenance and licenses
 
+## Reviewing source updates
+
+Run `npm run catalogs:check` from the repository root to produce a read-only report for OpenNGC, the app's selected HYG stars, Stellarium constellation/boundary data and pinned JPL candidate orbits. The report compares stable IDs and retained values; it does not write generated files. Missing upstream entries are review items, never automatic deletions. Update source revision/checksum pins only after reviewing the diff and license, then regenerate and inspect the checked-in changes. NASA/Hubble fact pages and object-photo files use their own manual source and checksum procedures in `data/README.md`.
+
 ## HYG stars
 
 `brightStars.ts` is adapted from [HYG Database v4.1](https://github.com/astronexus/HYG-Database) by Astronexus contributors. The source and adapted subset are licensed under [Creative Commons Attribution-ShareAlike 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 
 Changes: exclude the Sun, select 8,920 stars to visual magnitude 6.5 plus HIP 30665 (V=6.60) and HIP 33165 (V=6.65), which are required endpoints for the constellation figures (8,922 stars total). Round coordinates/magnitudes and retain bright names, proper motions and HIP identifiers. Stars beyond V=5.8 use a dimmer display curve. Coordinates are epoch/equinox J2000; pmRA is the Hipparcos cos(dec)-weighted component in milliarcseconds/year. Missing proper-motion components default to zero. Apparent brightness remains stylized.
 
-CSV source: `https://raw.githubusercontent.com/astronexus/HYG-Database/main/hyg/CURRENT/hygdata_v41.csv`.
+CSV source: `https://raw.githubusercontent.com/astronexus/HYG-Database/3bf37f4b2d5460e1278286320d1d62fab9b493c1/hyg/CURRENT/hygdata_v41.csv` (pinned commit `3bf37f4b2d5460e1278286320d1d62fab9b493c1`).
 
 SHA-256: `d9f69fd86bbf90a4e4d52b4c5c53eacfa6dfc0bfdef85bfd94f095e0bebe4ebd`.
 

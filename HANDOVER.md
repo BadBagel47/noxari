@@ -32,7 +32,9 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md`, `README.md` och `BAC
 
 ## Aktuellt arbetsläge
 
-**Senaste utvecklingssteg:** **F-017**, godkänt med ”Kör” efter rekommendationen **GPT-6 Luna High**. Aktiv modell kan inte bytas eller verifieras från exekveringsmiljön. Implementerat, testat och publicerat. F-017 lägger till en separat, bläddringsbar samling för ovanliga småkroppar och ett fristående av/på-lager i båda himmelsvyerna. Första posten är 2026 ED138, märkt dvärgplanetkandidat. B-001 är fortsatt pausad.
+**Senaste utvecklingssteg:** **F-018**, godkänt med ”Kör” efter rekommendationen **GPT-6 Luna High**. Aktiv modell kan inte bytas eller verifieras från exekveringsmiljön. F-018 lägger till `npm run catalogs:check`, ett skrivskyddat uppdateringsunderlag för katalogkällor. Det jämför OpenNGC-identiteter/fält, appens HYG-urval via HIP-ID, Stellarium-stjärnbilder och IAU-gränser samt banlösningar för redan listade JPL-småkroppar. Ingen katalogpost läggs till, ändras eller tas bort automatiskt. Livekontrollen 2026-10-31 fann inga skillnader. NASA/Hubble-faktasnapshot, objektbilder samt nya kandidaters upptäckt/status och fysiska data behöver fortfarande mänsklig källgranskning. `npm test`, `npm run build` och `npm run catalogs:check -- --fail-on-changes` passerade. Ingen appdata eller publicerad appfunktion ändrades; senaste publicerade appfunktion är F-017. B-001 är fortsatt pausad.
+
+- F-018 pinade även HYG v4.1 till den exakta upstream-commiten `3bf37f4b2d5460e1278286320d1d62fab9b493c1`; omgenerering verifierade 8 922 stjärnor/88 figurer och gav ingen diff i genererade data.
 
 - Verifierad **appcommit**: `ba1fa7edac7c6eeb016b87e13f28284515c59d56` (`ba1fa7e`).
 - Actions: https://github.com/BadBagel47/noxari/actions/runs/41238308217 — tester, bygge och Pages-publicering lyckades.

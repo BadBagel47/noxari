@@ -7,7 +7,8 @@ from pathlib import Path
 from urllib.request import urlopen
 import sys
 
-SOURCE = 'https://raw.githubusercontent.com/astronexus/HYG-Database/main/hyg/CURRENT/hygdata_v41.csv'
+HYG_COMMIT = '3bf37f4b2d5460e1278286320d1d62fab9b493c1'
+SOURCE = f'https://raw.githubusercontent.com/astronexus/HYG-Database/{HYG_COMMIT}/hyg/CURRENT/hygdata_v41.csv'
 SHA256 = 'd9f69fd86bbf90a4e4d52b4c5c53eacfa6dfc0bfdef85bfd94f095e0bebe4ebd'
 STELLARIUM_COMMIT = 'daace2add6a1bf886e8ee1934f51e9c69f818d18'
 FIGURES_SOURCE = f'https://raw.githubusercontent.com/Stellarium/stellarium/{STELLARIUM_COMMIT}/skycultures/modern/index.json'

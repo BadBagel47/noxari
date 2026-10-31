@@ -19,7 +19,7 @@ Denna fil är den gemensamma listan för återstående funktioner och kända öp
 
 Användaren har **pausat B-001** och vill prioritera att färdigställa övrig funktionalitet. B-005 + F-014 + F-015 har godkänts genom ”Kör” och är implementerade; publicerad. Befintlig sensorkod ligger kvar; detta beslut innebär ingen återställning eller avstängning av publicerade funktioner.
 
-**Senast avslutade körning: F-017.** Funktionen är publicerad och verifierad. GPT-6 Luna High rekommenderades, men aktiv modell kan inte bekräftas från exekveringsmiljön. F-017 har en separat bläddringsbar samling och av/på-lager i båda himmelsvyerna; 2026 ED138 är första posten och märks som dvärgplanetkandidat. 110 tester, produktionsbygge, publicerad Chromium-kontroll och Pages-publicering passerar. Nästa körning är inte godkänd. B-001 är fortsatt pausad.
+**Senaste utvecklingskörning: F-018.** GPT-6 Luna High rekommenderades, men aktiv modell kan inte bekräftas från exekveringsmiljön. F-018 lägger till en skrivskyddad uppdateringsgranskare för OpenNGC, HYG-stjärnurvalet, Stellarium-data och JPL-banor för redan listade kandidater. Den jämför nya, saknade och ändrade poster utan att skriva eller ta bort katalogdata. Livegranskning fann inga skillnader; tester och bygge passerade. Ingen nästa körning är godkänd. B-001 är fortsatt pausad. Senaste appfunktion är fortsatt publicerade F-017.
 
 ## Buggar
 
@@ -52,6 +52,7 @@ Användaren har **pausat B-001** och vill prioritera att färdigställa övrig f
 | **F-015** | Ikoner för spara och dela | **Klar** | Använd ikoner för spara och dela objekt. Övriga handlingar ska ha tydliga textetiketter i linje med önskemålet om färre symbolknappar. |
 | **F-016** | Cirkulär objektlokaliserare | **Klar** | Guided Finder visar en stilren cirkel centralt i himmelsvyn. Ett pilhuvud löper längs cirkelns kant och pekar mot målobjektets beräknade riktning. Grön ring bekräftar centrering inom 3°. Underhorisontsvillkor, telefonföljning, zoomsamstämmighet och stöd för reducerad rörelse är bevarade. B-001 är fortsatt pausad. Bygge, tester, mobil-webbläsarprov och Pages-publicering verifierade. |
 | **F-017** | Separat samling för småkroppskandidater | **Klar** | Implementerad, testad och publicerad. Egen bläddringsbar samling utanför huvudkatalogen samt fristående av/på-lager i båda himmelsvyerna. Första objektet är 2026 ED138, korrekt märkt som dvärgplanetkandidat, med preliminär JPL-bana, beräknad position för vald tid/plats, källor och tydliga osäkerheter. Katalogen uppdateras manuellt efter granskning; appen ska inte hämta externa data vid körning. |
+| **F-018** | Säker granskning av kataloguppdateringar | **Klar** | `npm run catalogs:check` jämför OpenNGC-poster, HYG-stjärnor med HIP-ID/koordinatfallback, Stellarium-stjärnbilds-/gränsdata och JPL-banor för befintliga kandidater. Skrivskyddad rapport visar tillagda, saknade och ändrade poster; inget genereras eller tas bort automatiskt. Saknade källposter kräver mänsklig granskning. Livekontroll 2026-10-31 fann inga skillnader. HYG v4.1 är nu låst till en immutabel upstream-commit; omgenerering gav identiska data. NASA/Hubble-faktasnapshot, bildlicenser och kandidaters status/upptäcktsurval är fortsatt manuella redaktionella kontroller. Ingen appdata ändrades. |
 
 ## Genomförda delar
 
