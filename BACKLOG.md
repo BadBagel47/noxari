@@ -21,6 +21,8 @@ Användaren har **pausat B-001** och vill prioritera att färdigställa övrig f
 
 **Senaste godkända körning: B-005 + F-014 + F-015.** Implementerat och verifierat; publicerad. F-012 är vägledande designprincip. Nästa steg kräver ett nytt klartecken och modellrekommendation; det tidigare förslaget **F-001 + B-002** kan tas upp igen senare.
 
+**Nästa föreslagna körning: F-004 + F-016.** Tvåfingerszoom och en cirkulär objektlokaliserare med pilhuvud längs ringens kant. Modellförslag: GPT-6.1 Sol med hög resonemangsnivå. Användaren samlar önskemål; implementation inväntar uttryckligt klartecken.
+
 ## Buggar
 
 | ID | Bugg | Status | Avgränsning / klart när |
@@ -50,6 +52,7 @@ Användaren har **pausat B-001** och vill prioritera att färdigställa övrig f
 | **F-013** | Samlad utvecklardiagnostik | **Planerad** | Inventera lokala analys-, test- och felsökningsverktyg och samla ingångar, instruktioner och begränsningar på ett ställe. Gäller verktyg för utvecklingen, inte nya diagnostikfunktioner inne i appen. |
 | **F-014** | Markera valt himmelsobjekt tydligt | **Klar** | Efter tryck ska det valda objektet få en beständig, synlig markering så användaren ser vilket objekt kortet/detaljerna gäller. Bevara tydlig skillnad mellan tryck och svep. |
 | **F-015** | Ikoner för spara och dela | **Klar** | Använd ikoner för spara och dela objekt. Övriga handlingar ska ha tydliga textetiketter i linje med önskemålet om färre symbolknappar. |
+| **F-016** | Cirkulär objektlokaliserare | **Planerad** | Ersätt den befintliga riktningspilen med en stilren cirkel centralt i himmelsvyn. Ett pilhuvud löper längs cirkelns kant och pekar mot den vridning/lutning som behövs för att hitta objektet. Ge tydlig bekräftelse när objektet är centrerat och håll kompletterande information sparsam enligt F-012. Bevara beräknad riktning, underhorisontsvillkor och telefonföljning. Samordna med F-004 så att vägledningen stämmer även vid zoom. Lätt rendering och stöd för reducerad rörelse; B-001 är fortsatt pausad. |
 
 ## Genomförda delar
 

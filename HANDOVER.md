@@ -172,7 +172,7 @@ Detta beskriver versionen med uttrycklig återankring; den senare godkända auto
 
 ## Nästa utvecklingssteg — inväntar nytt klartecken
 
-Senaste önskemål: **F-004**, zooma in/ut med tvåfingerspinch. Registrerat som planerad funktion, med bibehållet svep, objektval och telefonföljning. Föreslagen avgränsning är perspektivvy och karta med rimliga zoomgränser. Rekommenderad modell: GPT-6.1 Sol med hög resonemangsnivå. Invänta uttryckligt klartecken före kodändring.
+Senaste samlade önskemål: **F-004 + F-016**. F-004 gäller tvåfingerspinch i perspektivvy och karta med bibehållet svep, objektval och telefonföljning. F-016 gäller en cirkulär objektlokaliserare: en stilren cirkel centralt i vyn med ett pilhuvud som löper längs kanten och visar åt vilket håll telefonen behöver riktas. Tydlig centreringsbekräftelse och sparsam information enligt F-012. Samordna vägledningen med zoom och bevara underhorisontsvillkoren. Registrerat som planerad körning; ingen ny appkod ändrad. Rekommenderad modell: GPT-6.1 Sol med hög resonemangsnivå. Invänta uttryckligt klartecken före kodändring.
 
 **B-001 är pausad genom användarbeslut 2026-10-31.** Uttrycklig kompassåterankring är fysiskt bekräftad, medan automatiken och långsiktig precision fortfarande behöver valideras när riktningsarbetet återupptas.
 
