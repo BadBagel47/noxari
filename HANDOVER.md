@@ -32,12 +32,12 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md`, `README.md` och `BAC
 
 ## Aktuellt arbetsläge
 
-**Senaste publicerade steg:** **F-013 + F-007**, godkänt med ”Kör med Luna enligt rekommendation”. GPT-6 Luna High rekommenderades, men aktiv modell kan inte bytas eller verifieras från körningsmiljön. Implementerat, testat och publicerat. F-013 samlar utvecklarens återkommande kontroller i `docs/DEVELOPMENT_DIAGNOSTICS.md`. F-007 delar bokmärken som `?list=…`; delade listor är skrivskyddade tills mottagaren väljer Spara alla.
+**Senaste utvecklingssteg:** **F-003 + F-005**, godkänt med ”Kör” efter rekommendationen **GPT-6 Luna High**. Aktiv modell kan inte bytas eller verifieras från körningsmiljön. Implementerat, testat och publicerat. F-003 utökar den pinnade HYG-katalogen till 8 920 stjärnor t.o.m. V=6,5 plus två svagare stjärnbildsändpunkter (8 922 totalt), med svagare ritning för de nya stjärnorna. F-005 lägger till åtta lokala, licens- och källmärkta bilder för M31, M42, M45, M13, M57, M51, M81 och M104 i objektdetaljerna. B-001 är fortsatt pausad.
 
-**Aktuellt godkänd körning: F-003 + F-005.** Ändringarna är implementerade och lokalt verifierade; publicering återstår. F-003 utökar den pinnade HYG-katalogen till 8 920 stjärnor t.o.m. V=6,5 plus två svagare stjärnbildsändpunkter (8 922 totalt), med svagare ritning för de nya stjärnorna. F-005 lägger till åtta lokala, licens- och källmärkta bilder för M31, M42, M45, M13, M57, M51, M81 och M104 i objektdetaljerna. B-001 är fortsatt pausad.
-
-- Senast verifierade publicerade **appcommit**: `dd0eebc1e8d888fd869d50c3f177321c31418c35` (`dd0eebc`). F-003 + F-005 har ännu inte publicerats.
-- Lokal verifiering för F-003 + F-005: 107 tester passerar och `npm run build` lyckas. Chromium vid 390×844 öppnade alla åtta objektdetaljer, avkodade 960 px-bilderna och kontrollerade alt-text, kredit, källa/licens, horisontell overflow och webbläsarfel. Fyrdubbel CPU-throttle gav i två simulerade körningar median 17 ms per bildruta för både baslinje och ändring; p90 varierade 33–50 ms och är brusigt med detta lilla urval. Ingen fysisk mobilprestandamätning är gjord. Vites varning om ett JavaScript-paket över 500 kB kvarstår.
+- Verifierad **appcommit**: `2675e69956afed21dc6fcf23280a11025662e176` (`2675e69`).
+- Actions: https://github.com/BadBagel47/noxari/actions/runs/41224535777 — tester, bygge och Pages-publicering lyckades.
+- 107 tester passerade och `npm run build` lyckades. Chromium vid 390×844 öppnade alla åtta objektdetaljer, avkodade 960 px-bilderna och kontrollerade alt-text, kredit, källa/licens, horisontell overflow och webbläsarfel. Publicerade JS, CSS, Vintergatsbilden, licensfilen och samtliga åtta objektsbilder matchar lokalt bygge/manifest via SHA-256.
+- Fyrdubbel CPU-throttle gav i två simulerade körningar median 17 ms per bildruta för både baslinje och ändring; p90 varierade 33–50 ms och är brusigt med detta lilla urval. Ingen fysisk mobilprestandamätning är gjord. Vites varning om ett JavaScript-paket över 500 kB kvarstår.
 - Actions: https://github.com/BadBagel47/noxari/actions/runs/41209604998 — tester, bygge och Pages-publicering lyckades.
 - F-013 + F-007 verifierades med 103 tester och publicerat bygge; se Actions-länken och resurshasharna i den historiska körningsanteckningen nedan.
 - Actions: https://github.com/BadBagel47/noxari/actions/runs/41207977710 — tester, bygge och Pages-publicering lyckades.
@@ -197,7 +197,7 @@ Ingen körning är godkänd härnäst. Användaren vill kunna samla fler ändrin
 
 ### Senare delar av planen
 
-Se `BACKLOG.md` för samtliga kvarstående poster och permanent numrering: efter publicering av godkända F-003 + F-005 återstår bland annat F-002 dagsvy för alla relevanta dagsljusobjekt och F-006 delningsförhandsvisningar. UI-förfining F-008 och bredare mobilprov F-009 ligger senare. Månkalibrering F-010 och kamera/AR F-011 är fortsatt uppskjutna; AR har låg prioritet. B-003 gäller överlappande etiketter och hör till den senare UI-genomgången. F-001, B-002, F-007 och F-013 är genomförda och publicerade. F-003 + F-005 är implementerade lokalt; verifiering och publicering pågår.
+Se `BACKLOG.md` för samtliga kvarstående poster och permanent numrering: återstår bland annat F-002 dagsvy för alla relevanta dagsljusobjekt och F-006 delningsförhandsvisningar. UI-förfining F-008 och bredare mobilprov F-009 ligger senare. Månkalibrering F-010 och kamera/AR F-011 är fortsatt uppskjutna; AR har låg prioritet. B-003 gäller överlappande etiketter och hör till den senare UI-genomgången. F-001, B-002, F-003, F-005, F-007 och F-013 är genomförda och publicerade.
 
 ## Begränsningar och källor
 

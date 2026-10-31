@@ -107,9 +107,9 @@ The direction stability and automatic recovery fixes have 98 offline tests (26 f
 
 Remaining features and bugs now have permanent IDs in [BACKLOG.md](BACKLOG.md): `F-###` for features and `B-###` for bugs. Use those IDs when proposing or approving a batch. Completed functionality and verified deployment evidence remain in [HANDOVER.md](HANDOVER.md).
 
-The user wants every feature to be simple to use (**F-012**) and asks for a model recommendation before each development batch, with explicit approval before work starts. Latest completed batch **F-013 + F-007** is deployed. Current approved batch **F-003 + F-005** is in local verification; see `HANDOVER.md` for status and evidence.
+The user wants every feature to be simple to use (**F-012**) and asks for a model recommendation before each development batch, with explicit approval before work starts. Latest completed batch **F-003 + F-005** is deployed; see `HANDOVER.md` for verification evidence.
 
-On 2026-10-31 the user paused **B-001 (phone direction drift)** to prioritize the remaining functionality. The deployed sensor code and evidence are retained; physical validation of automatic recovery remains incomplete. **F-001 + B-002** and **F-013 + F-007** are deployed. Current approved **F-003 + F-005** expands the star catalog and adds eight credited object images. Other remaining work is listed by ID in `BACKLOG.md`; each new batch still requires a model recommendation and the user's approval.
+On 2026-10-31 the user paused **B-001 (phone direction drift)** to prioritize the remaining functionality. The deployed sensor code and evidence are retained; physical validation of automatic recovery remains incomplete. **F-001 + B-002**, **F-013 + F-007**, and **F-003 + F-005** are deployed. The latest batch expands the star catalog and adds eight credited object images. Other remaining work is listed by ID in `BACKLOG.md`; each new batch still requires a model recommendation and the user's approval.
 
 ## Tonight planning model
 
