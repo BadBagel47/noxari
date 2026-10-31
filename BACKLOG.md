@@ -19,7 +19,7 @@ Denna fil är den gemensamma listan för återstående funktioner och kända öp
 
 Användaren har **pausat B-001** och vill prioritera att färdigställa övrig funktionalitet. B-005 + F-014 + F-015 har godkänts genom ”Kör” och är implementerade; publicerad. Befintlig sensorkod ligger kvar; detta beslut innebär ingen återställning eller avstängning av publicerade funktioner.
 
-**Senaste godkända körning: F-004 + F-016.** Implementering och verifiering pågår efter användarens ”Kör”; modellen är GPT-6 Luna med hög resonemangsnivå. F-012 är vägledande designprincip. B-001 är fortsatt pausad.
+**Senaste godkända körning: F-004 + F-016.** Implementerat, verifierat och publicerat efter användarens ”Kör”; modellen var GPT-6 Luna med hög resonemangsnivå. F-012 är vägledande designprincip. B-001 är fortsatt pausad.
 
 **Nästa föreslagna körning efter slutförd publicering: F-001 + B-002.** Dags-/kvällsval och stjärnhimmelens dagsljusfilter under den simulerade horisonten. Modell rekommenderas när nästa körning avgränsas. Invänta användarens nya klartecken.
 
@@ -40,7 +40,7 @@ Användaren har **pausat B-001** och vill prioritera att färdigställa övrig f
 | **F-001** | Dags-/kvällsval med säsongsanpassad stjärnhimmel | **Planerad** | Tydligt val **Visa stjärnhimlen i kväll** med beräknad lokal tid, synligt datum/tidsläge och enkel återgång till Nu. Hantera ljusa sommarnätter och polardag. Bevara verklig tid vid verklig inriktning; ingen tyst tidsflytt. Den exakta utformningen fastställs i den godkända körningen. |
 | **F-002** | Förbättrad dagsvy och synlighet för Venus i skymning | **Planerad** | Solen och månen har redan dagmarkörer. Förbättra dagsvyn och Venus regler/kontrast med hänsyn till höjd, solhöjd, modellerad ljusstyrka och solavstånd; skilj beräknad position från faktisk synlighet. |
 | **F-003** | Djupare stjärnkatalog | **Förslag** | Fler och svagare stjärnor med verifierad öppen källa/licens, angivna gränser och fungerande mobilprestanda. Befintliga 4 105 HYG-stjärnor och figurändpunkter är redan implementerade. |
-| **F-004** | Zoom med tvåfingerspinch | **Pågår** | Pinch fungerar i perspektivvy och karta med rimliga zoomgränser. Projektioner för stjärnor, objekt, figurer, gränser, Vintergata och Guided Finder följer samma zoom; behåll enfingerssvep, markörval och telefonföljning. Fler stjärnor (F-003) är ett separat tillägg. Publicering inväntar verifiering. |
+| **F-004** | Zoom med tvåfingerspinch | **Klar** | Pinch zoomar perspektivvyn (1×–3×) och kartan (1×–2,5×). Stjärnor, objekt, figurer, gränser, Vintergata och Guided Finder följer samma zoom. Enfingerssvep, markörval och telefonföljning bevaras; en pinch väljer inte ett objekt. Bygge, tester, mobil-webbläsarprov och Pages-publicering verifierade. |
 | **F-005** | Källbundna objektbilder | **Förslag** | Utvalda astronomiska foton med verifierad licens och individuell attribution i objektdetaljer. Skilj bilder från den beräknade himmelsvyn. |
 | **F-006** | Rikare förhandsvisningar av delade objektlänkar | **Förslag** | Meningsfull titel, beskrivning och eventuell licensierad bild när en objektlänk delas. Lös leveransen utifrån den befintliga statiska Pages-publiceringen; tekniskt upplägg behöver beslutas. |
 | **F-007** | Delning av observationslistor | **Förslag** | Dela och öppna en hel lista med bevarade objekt. Befintliga lokala bokmärken och länkar till enskilda objekt fungerar redan. Exakt list-/delningsformat behöver avgränsas. |
@@ -52,7 +52,7 @@ Användaren har **pausat B-001** och vill prioritera att färdigställa övrig f
 | **F-013** | Samlad utvecklardiagnostik | **Planerad** | Inventera lokala analys-, test- och felsökningsverktyg och samla ingångar, instruktioner och begränsningar på ett ställe. Gäller verktyg för utvecklingen, inte nya diagnostikfunktioner inne i appen. |
 | **F-014** | Markera valt himmelsobjekt tydligt | **Klar** | Efter tryck ska det valda objektet få en beständig, synlig markering så användaren ser vilket objekt kortet/detaljerna gäller. Bevara tydlig skillnad mellan tryck och svep. |
 | **F-015** | Ikoner för spara och dela | **Klar** | Använd ikoner för spara och dela objekt. Övriga handlingar ska ha tydliga textetiketter i linje med önskemålet om färre symbolknappar. |
-| **F-016** | Cirkulär objektlokaliserare | **Pågår** | Guided Finder visar en stilren cirkel centralt i himmelsvyn. Ett pilhuvud löper längs cirkelns kant och pekar mot målobjektets beräknade riktning. Grön ring bekräftar centrering inom 3°. Bevara underhorisontsvillkor, telefonföljning, zoomsamstämmighet och stöd för reducerad rörelse. B-001 är fortsatt pausad. Publicering inväntar verifiering. |
+| **F-016** | Cirkulär objektlokaliserare | **Klar** | Guided Finder visar en stilren cirkel centralt i himmelsvyn. Ett pilhuvud löper längs cirkelns kant och pekar mot målobjektets beräknade riktning. Grön ring bekräftar centrering inom 3°. Underhorisontsvillkor, telefonföljning, zoomsamstämmighet och stöd för reducerad rörelse är bevarade. B-001 är fortsatt pausad. Bygge, tester, mobil-webbläsarprov och Pages-publicering verifierade. |
 
 ## Genomförda delar
 
