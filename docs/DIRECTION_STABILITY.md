@@ -1,5 +1,7 @@
 # Direction stability and recalibration
 
+**2026-10-31 status: B-001 — paused by the user.** Prioritize the remaining functionality in [BACKLOG.md](../BACKLOG.md). Keep the deployed sensor implementation and the evidence below. Physical automatic-recovery validation and long-term pointing accuracy remain incomplete; this is not a resolved-bug declaration. Resume investigation only after an explicit user decision.
+
 The user approved this bounded stability fix after reporting over 100° of yaw error after figure-eight movements while Google Maps returned a stable direction. A subsequent Android/Brave report captures an already uncertain session; startup and the onset of the original error remain unrecorded. This implementation guards the reproduced failure paths and exposes a local report for physical validation. It does not establish instrument accuracy or claim that every browser exposes an independent compass.
 
 **Physical feedback after deployment (2026-10-30):** the user reports that the error still occurs and reloading the page restores correct direction. The reported physical problem is therefore unresolved. The subsequent report and screenshots confirm Check north and a large disagreement; see the measured evidence below. Reload resets the app tracker and sensor subscription; this observation alone cannot distinguish an app-reference problem from browser sensor state. The checks below require comparable stable streams and do not detect or correct every form of drift.

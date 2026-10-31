@@ -1,12 +1,13 @@
 # Noxari — överlämning och arbetsläge
 
-Senast uppdaterad: **2026-10-30**, Europe/Stockholm.
+Senast uppdaterad: **2026-10-31**, Europe/Stockholm.
 
-Läs denna fil vid en ny chatt tillsammans med `AGENTS.md` och `README.md`. Den sammanfattar användarens beslut och aktuellt läge; projektkoden och Git-historiken behövs också. Kontrollera alltid aktuell branch, HEAD och arbetskatalogens ändringar innan arbetet fortsätter. Uppgifterna nedan är en ögonblicksbild, inte en ersättning för verifiering.
+Läs denna fil vid en ny chatt tillsammans med `AGENTS.md`, `README.md` och `BACKLOG.md`. Den sammanfattar användarens beslut och aktuellt läge; projektkoden och Git-historiken behövs också. Kontrollera alltid aktuell branch, HEAD och arbetskatalogens ändringar innan arbetet fortsätter. Uppgifterna nedan är en ögonblicksbild, inte en ersättning för verifiering.
 
 ## Arbetssätt som användaren har bestämt
 
 - Kommunicera på svenska, kort och konkret.
+- Använd permanenta **F-###** för funktioner och **B-###** för buggar från och med 2026-10-31. Se `BACKLOG.md` för återstående arbete och status; ID:n återanvänds eller numreras inte om. Ange ID:n när en körning avgränsas och när arbetet redovisas.
 - **Meddela rekommenderad ChatGPT-modell innan varje nytt utvecklingssteg.** Hittills har rekommendationen varit **GPT-6.1 Sol med hög resonemangsnivå**. Användaren vill kunna använda Sol; föreslå en tyngre modell bara om uppgiften motiverar det. En rekommendation betyder inte att modellen faktiskt har bytts.
 - **Starta inte ett nytt utvecklingssteg utan uttryckligt klartecken.** Beskriv först dess omfattning och invänta exempelvis ”Kör”. Användaren vill kunna samla flera ändringar före samma körning. En diskussion, ett positivt omdöme eller en ny planpunkt är inte i sig ett startbesked.
 - Ett ”Kör” gäller det senast föreslagna, avgränsade steget. Slutför och verifiera det steget, men påbörja inte därefter nästa etapp automatiskt.
@@ -30,7 +31,7 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md` och `README.md`. Den 
 
 ## Aktuellt arbetsläge
 
-**Det godkända steget med automatisk kompassåterankring och bevarad felhistorik är genomfört och publicerat.** Fysisk Android/Brave-bekräftelse av automatiken återstår. Ytterligare utvecklingssteg kräver nytt klartecken och modellrekommendation. Dagsljus-/nattval, nedåtvyns dagsljusrättning och månkalibrering ingick inte och är fortsatt inte startgodkända.
+**Senaste beslut 2026-10-31:** användaren pausar riktningsarbetet som **B-001** för att prioritera övrig funktionalitet. Automatisk kompassåterankring och bevarad felhistorik är publicerade; fysisk bekräftelse av automatiken och långsiktig precision återstår, och buggen är inte avslutad. Bevara befintlig sensorkod och underlag. Återuppta inte felsökning eller fysisk riktvalidering utan nytt beslut. `BACKLOG.md` är den numrerade listan för återstående arbete. Föreslagen nästa körning är **F-001 + B-002**, men ingen ny kodimplementation är startgodkänd. Fortsätt rekommendera modell och invänta klartecken före varje utvecklingssteg.
 
 - Senast verifierade och publicerade **appcommit**: `4785be060ea4046cda168284c97143b447820054`.
 - Actions: https://github.com/BadBagel47/noxari/actions/runs/41104029942 — tester, bygge och publicering lyckades.
@@ -170,15 +171,13 @@ Detta beskriver versionen med uttrycklig återankring; den senare godkända auto
 
 ## Nästa utvecklingssteg — inväntar nytt klartecken
 
-Stabilitetsrättningen är publicerad men fysisk Android/Brave-återkoppling säger att felet kvarstår; både omladdning och därefter uttrycklig kompassåterankring utan omladdning återställer rätt riktning. Två rapporter bekräftar osäkerhetsstopp vid cirka 50–57° skillnad och återställd sensorsamstämmighet efter återankring. Kontrollerad automatisk återankring är därefter godkänd och publicerad; fysisk bekräftelse av den nya automatiken inväntas. Nästa utvecklingssteg kräver nytt klartecken. Rekommenderad modell är fortsatt GPT-6.1 Sol med hög resonemangsnivå. De senare planpunkterna nedan är fortsatt planerade, inte automatiskt startgodkända. Övrig UI-förfining och nya funktioner behöver nytt klartecken.
+**B-001 är pausad genom användarbeslut 2026-10-31.** Uttrycklig kompassåterankring är fysiskt bekräftad, medan automatiken och långsiktig precision fortfarande behöver valideras när riktningsarbetet återupptas.
+
+Föreslagen nästa avgränsning: **F-001 + B-002**, kvällsförhandsvisning och dagsljusfiltret i den simulerade nedåtvyn. Rekommenderad modell: **GPT-6.1 Sol med hög resonemangsnivå**. Invänta klartecken; användaren kan lägga till fler ändringar före samma körning. Inga appändringar startas av dokumentations-/numreringsbeslutet.
 
 ### Senare delar av planen
 
-- Bredare mobilprovning, särskilt iOS, kompassprecision och porträtt/landskap.
-- Djupare stjärnkatalog och zoom. Officiella stjärnbildsgränser är genomförda.
-- Licensierade objektbilder med källangivelser.
-- Rikare delningsförhandsvisningar och hela observationslistor.
-- Kamera-overlay/AR är uttryckligen **låg prioritet och ska komma senare**. Telefonföljningen behöver ingen kamerabild.
+Se `BACKLOG.md` för samtliga kvarstående poster och permanent numrering: F-002 dagsvy/Venus, F-003 djupare stjärnor, F-004 zoom, F-005 bilder, F-006 delningsförhandsvisningar och F-007 observationslistor. UI-förfining F-008 och bredare mobilprov F-009 ligger senare. Månkalibrering F-010 och kamera/AR F-011 är fortsatt uppskjutna; AR har låg prioritet. B-003 gäller överlappande etiketter och hör till den senare UI-genomgången.
 
 ## Begränsningar och källor
 
@@ -218,11 +217,11 @@ Stabilitetsrättningen är publicerad men fysisk Android/Brave-återkoppling sä
 
 Efter varje avslutat steg, felrättning eller nytt planbeslut:
 
-1. Uppdatera datum, aktuell status, genomförda funktioner och eventuella kvarstående problem.
+1. Uppdatera datum, aktuell status, genomförda funktioner och eventuella kvarstående problem. Håll status och ID:n i `BACKLOG.md` aktuella.
 2. Ange senast verifierade appcommit och tester/publiceringsstatus när kod ändrats. Skilj appversion från senare dokumentationscommits.
 3. Flytta genomförda planpunkter till statusdelen och ange vad nästa klartecken gäller. Bevara krav som ännu inte implementerats.
 4. För in relevanta användarbekräftelser, till exempel verklig mobilprovning, utan att överdriva vad de bevisar.
 5. Länka till tekniska detaljer i projektet i stället för att duplicera stora kodblock eller hela historiken.
 6. Commitera dokumentationen tillsammans med ändringen när det är möjligt. Håll `README.md` och `AGENTS.md` förenliga med denna fil.
 
-Vid överlämning: lämna över projektet inklusive Git-historik när möjligt, denna fil, `AGENTS.md` och `README.md`. Be den nya assistenten börja med att sammanfatta arbetsläget och invänta klartecken för nästa utvecklingssteg.
+Vid överlämning: lämna över projektet inklusive Git-historik när möjligt, denna fil, `BACKLOG.md`, `AGENTS.md` och `README.md`. Be den nya assistenten börja med att sammanfatta arbetsläget och invänta klartecken för nästa utvecklingssteg.

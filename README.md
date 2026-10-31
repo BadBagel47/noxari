@@ -103,14 +103,9 @@ The direction stability and automatic recovery fixes have 98 offline tests (26 f
 
 ## Next implementation milestones
 
-After initially deferring UI refinement, the user approved the specific five-item interaction/readability pass above. That pass is implemented. The later three-item step (per-line reveal timing, sourced Milky Way and downward exploration) was also explicitly approved and implemented. Further changes still require a separate approval; the following are proposals, not implementation approvals; see HANDOVER.md for the current approval state.
+Remaining features and bugs now have permanent IDs in [BACKLOG.md](BACKLOG.md): `F-###` for features and `B-###` for bugs. Use those IDs when proposing or approving a batch. Completed functionality and verified deployment evidence remain in [HANDOVER.md](HANDOVER.md).
 
-The complete 110-object Messier catalog and official constellation boundaries are implemented. Remaining proposals:
-
-1. Extend phone validation to iOS, outdoor alignment and portrait/landscape transitions.
-2. Add a deeper star catalog and optional map zoom.
-3. Add curated licensed object photos with individual source credits.
-4. Add server-rendered Open Graph previews for shared object links and, later, complete observation-list sharing. A live-camera overlay remains lower priority.
+On 2026-10-31 the user paused **B-001 (phone direction drift)** to prioritize the remaining functionality. The deployed sensor code and evidence are retained; physical validation of automatic recovery remains incomplete. The proposed next batch is **F-001 (day/evening preview) + B-002 (daylight filtering below the simulated horizon)**, awaiting explicit approval. Remaining proposals include **F-002** improved daytime/Venus presentation, **F-003** deeper stars, **F-004** zoom, **F-005** licensed photos, **F-006** sharing previews and **F-007** observation-list sharing. Final UI refinement (**F-008**) and broader device validation (**F-009**) come later; Moon calibration (**F-010**) and camera/AR (**F-011**) remain deferred. Each development step requires a model recommendation and the user's approval.
 
 ## Tonight planning model
 
