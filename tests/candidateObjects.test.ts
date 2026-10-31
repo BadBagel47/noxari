@@ -13,6 +13,7 @@ describe('separate dwarf-planet candidate collection', () => {
     expect(matchesCatalogQuery(candidate, 'ED138')).toBe(true);
     expect(matchesCatalogQuery(candidate, '2026 ED 138')).toBe(true);
     expect(candidate.kind).toBe('Dwarf planet candidate');
+    expect(candidate.catalogNoteSv).toContain('Stockholms horisont');
     expect(candidate.references?.map(reference => reference.url)).toEqual([
       'https://rubinobservatory.org/news/rubin-first-dwarf-planet-candidate',
       'https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=2026%20ED138',
