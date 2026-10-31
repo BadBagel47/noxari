@@ -18,10 +18,11 @@ import {rankTonight, recommend} from './recommendations';
 import {SuggestionSummary, TonightPanel} from './TonightPanel';
 import {SkyPanel} from './SkyPanel';
 import {catalogIdentifier, matchesCatalogQuery} from './catalogSearch';
+import {formatSharedList, parseSharedList} from './sharedList';
 import './style.css';
 import './workspace.css';
 
-type Panel = 'search'|'tonight'|'saved'|'observation'|'view'|'settings'|'about'|'more'|'details'|'phone';
+type Panel = 'search'|'tonight'|'saved'|'shared'|'observation'|'view'|'settings'|'about'|'more'|'details'|'phone';
 type Lang = 'en'|'sv';
 const t = (lang: Lang, en: string, sv: string) => lang === 'sv' ? sv : en;
 const display = (object: SpaceObject, lang: Lang) => lang === 'sv' ? object.sv : object.en;
@@ -50,6 +51,7 @@ function App() {
     try { const value = JSON.parse(localStorage.getItem('noxari-saved') || '[]'); return Array.isArray(value) ? value : []; }
     catch { return []; }
   });
+  const [sharedList, setSharedList] = useState<string[]>([]);
   const [selected, setSelected] = useState<SpaceObject|null>(null);
   const [search, setSearch] = useState('');
   const [gear, setGear] = useState<'all'|Gear>('all');
@@ -101,7 +103,13 @@ function App() {
   useEffect(() => { localStorage.setItem('noxari-lang', lang); document.documentElement.lang = lang; }, [lang]);
   useEffect(() => { localStorage.setItem('noxari-location', JSON.stringify(location)); }, [location]);
   useEffect(() => {
-    const id = new URLSearchParams(window.location.search).get('object');
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('list')) {
+      setSharedList(parseSharedList(params.get('list') ?? '', objects.map(item => item.id)));
+      setPanel('shared');
+      return;
+    }
+    const id = params.get('object');
     const object = objects.find(item => item.id === (id ? catalogIdentifier(id) ?? id.toLowerCase() : id));
     if (object) { setSelected(object); setPanel('details'); }
   }, []);
@@ -207,6 +215,7 @@ function App() {
   };
   async function share(object: SpaceObject) {
     const url = new URL(window.location.href);
+    url.searchParams.delete('list');
     url.searchParams.set('object', object.id);
     const title = `${object.en} — Noxari`;
     try {
@@ -214,6 +223,26 @@ function App() {
       else { await navigator.clipboard.writeText(url.toString()); notify(t(lang, 'Link copied', 'Länk kopierad')); }
     } catch { notify(t(lang, 'Sharing cancelled or unavailable', 'Delning avbruten eller ej tillgänglig')); }
   }
+
+  async function shareSavedList() {
+    const ids = formatSharedList(saved, objects.map(item => item.id));
+    if (!ids) return;
+    const url = new URL(window.location.href);
+    url.searchParams.delete('object');
+    url.searchParams.set('list', ids);
+    const title = t(lang, 'Noxari observation list', 'Noxaris observationslista');
+    const text = t(lang, `A list of ${ids.split(',').length} saved sky objects.`, `En lista med ${ids.split(',').length} sparade himmelsobjekt.`);
+    try {
+      if (navigator.share) await navigator.share({title, text, url: url.toString()});
+      else if (navigator.clipboard) { await navigator.clipboard.writeText(url.toString()); notify(t(lang, 'List link copied', 'Listlänk kopierad')); }
+      else notify(t(lang, 'Sharing is unavailable in this browser.', 'Delning är inte tillgänglig i den här webbläsaren.'));
+    } catch { notify(t(lang, 'Sharing cancelled or unavailable', 'Delning avbruten eller ej tillgänglig')); }
+  }
+
+  const saveSharedList = () => {
+    setSaved(current => [...new Set([...current, ...sharedList])]);
+    notify(t(lang, 'List saved to your bookmarks', 'Listan sparad bland dina bokmärken'));
+  };
 
   const card = (object: SpaceObject, suggestion?: ReturnType<typeof recommend>) => {
     const visibility = series.get(object.id)!;
@@ -230,7 +259,7 @@ function App() {
   };
 
   const titles: Record<Panel, string> = {
-    search: t(lang, 'Search objects', 'Sök objekt'), tonight: t(lang, 'Tonight', 'Ikväll'), saved: t(lang, 'Saved objects', 'Sparade objekt'),
+    search: t(lang, 'Search objects', 'Sök objekt'), tonight: t(lang, 'Tonight', 'Ikväll'), saved: t(lang, 'Saved objects', 'Sparade objekt'), shared: t(lang, 'Shared observation list', 'Delad observationslista'),
     observation: t(lang, 'Time & location', 'Tid och plats'), view: t(lang, 'Sky display', 'Himmelsvy'), settings: t(lang, 'Settings', 'Inställningar'),
     about: t(lang, 'About & sources', 'Om och källor'), more: t(lang, 'More', 'Mer'), details: selected ? display(selected, lang) : t(lang, 'Details', 'Detaljer'), phone: t(lang, 'Phone direction', 'Telefonriktning'),
   };
@@ -274,7 +303,8 @@ function App() {
       {panel === 'details' && selected && <div className="detail-body"><p className="description">{lang === 'sv' ? selected.descriptionSv : selected.description}</p>{selected.catalogNote && <p className="notice">{lang === 'sv' ? selected.catalogNoteSv ?? selected.catalogNote : selected.catalogNote}</p>}<div className="stat-grid"><div><small>{selectedAppearance ? t(lang, 'Distance from Earth', 'Avstånd från jorden') : t(lang, 'Distance', 'Avstånd')}</small><strong>{solarDistance ?? (lang === 'sv' ? selected.distanceSv ?? selected.distance : selected.distance)}</strong></div><div><small>{selectedAppearance ? t(lang, 'Estimated magnitude', 'Uppskattad magnitud') : `${t(lang, 'Apparent magnitude', 'Skenbar magnitud')}${selected.magnitudeBand ? ` (${selected.magnitudeBand})` : ''}`}</small><strong>{selectedAppearance ? selectedAppearance.magnitude.toFixed(1) : lang === 'sv' ? selected.magnitudeSv ?? selected.magnitude : selected.magnitude}</strong></div><div><small>{t(lang, 'Constellation', 'Stjärnbild')}</small><strong>{selectedAppearance?.constellation ?? selected.constellation}</strong></div><div><small>{t(lang, 'Equipment', 'Utrustning')}</small><strong>{equipmentLabel(selected.gear, lang)}</strong></div>{selectedAppearance && <><div><small>{t(lang, 'Sun separation', 'Vinkelavstånd från solen')}</small><strong>{selectedAppearance.sunSeparation.toFixed(1)}°</strong></div><div><small>{t(lang, 'Illuminated disk', 'Belyst skiva')}</small><strong>{Math.round(selectedAppearance.illuminatedFraction * 100)}%</strong></div></>}{selectedPosition && <><div><small>{t(lang, 'Altitude at selected time', 'Höjd vid vald tid')}</small><strong>{selectedPosition.altitude.toFixed(1)}°</strong></div><div><small>{t(lang, 'Azimuth from north', 'Azimut från norr')}</small><strong>{selectedPosition.azimuth.toFixed(1)}°</strong></div></>}</div>{selectedAppearance && <p className="chart-note">{t(lang, 'Values use the selected time. Distance, phase and Sun separation are measured from Earth’s center. Magnitude is a model without atmospheric dimming. 1 AU ≈ 149.6 million km.', 'Värdena gäller vald tid. Avstånd, fas och vinkelavstånd från solen räknas från jordens centrum. Magnituden är en modell utan atmosfärens dämpning. 1 AU ≈ 149,6 miljoner km.')}</p>}{selected.references && <div className="catalog-sources"><strong>{t(lang, 'Data sources', 'Datakällor')}</strong><ul>{selected.references.map(reference => <li key={reference.url}><a href={reference.url} target="_blank" rel="noopener noreferrer">{reference.label}</a></li>)}</ul></div>}<div className="detail-chart-title"><h3>{t(lang, 'Altitude through the night', 'Höjd under natten')}</h3><small>{selected.position ? t(lang, 'CALCULATED', 'BERÄKNAD') : 'DEMO'}</small></div><VisibilityChart series={series.get(selected.id)!} large/><p className="chart-note">{selected.position ? t(lang, 'The window follows local sunset/sunrise with twilight margins; polar conditions use local noon to noon. Dark blue is astronomical darkness, lighter blue is twilight and purple is civil twilight. The dot marks the highest sampled altitude under the object’s darkness threshold, not the recommended time.', 'Tidsfönstret följer lokal solnedgång/soluppgång med skymningsmarginal; vid polarförhållanden används lokal middag till middag. Mörkblått är astronomiskt mörker, ljusare blått är skymning och lila är borgerlig skymning. Punkten markerar högsta beräknade höjd under objektets mörkergräns, inte rekommenderad tid.') : t(lang, 'Illustrative object curve only. Background twilight is calculated.', 'Endast illustrativ objektkurva. Bakgrundens skymning är beräknad.')}</p><div className="detail-actions">{finderTarget?.id === selected.id && <button onClick={centerTarget} disabled={phone.active || !selectedPosition || selectedPosition.altitude < 0}>{t(lang, 'Center manual view', 'Centrera manuell vy')}</button>}<button className="primary" disabled={!selected.position} onClick={() => startFinder(selected)}><LocateFixed size={17}/>{t(lang, 'Guided Finder', 'Guided Finder')}</button><button aria-label={saved.includes(selected.id) ? t(lang, 'Remove bookmark', 'Ta bort bokmärke') : t(lang, 'Save object', 'Spara objekt')} title={saved.includes(selected.id) ? t(lang, 'Remove bookmark', 'Ta bort bokmärke') : t(lang, 'Save object', 'Spara objekt')} aria-pressed={saved.includes(selected.id)} onClick={() => toggleSaved(selected.id)}><Bookmark size={17} fill={saved.includes(selected.id) ? 'currentColor' : 'none'}/></button><button aria-label={t(lang, 'Share object', 'Dela objekt')} title={t(lang, 'Share object', 'Dela objekt')} onClick={() => share(selected)}><Share2 size={17}/></button></div>{!selected.position && <p className="chart-note">{t(lang, 'Choose an individual object for guidance. A whole constellation has no single target position.', 'Välj ett enskilt objekt för vägledning. En hel stjärnbild har ingen entydig målposition.')}</p>}</div>}
       {panel === 'settings' && <><div className="setting-row"><div><Globe2 size={19}/><strong>{t(lang, 'Object names', 'Objektnamn')}</strong><small>{t(lang, 'Choose English or Swedish names', 'Välj engelska eller svenska namn')}</small></div><div className="segmented"><button className={lang === 'en' ? 'chosen' : ''} onClick={() => setLang('en')}>EN</button><button className={lang === 'sv' ? 'chosen' : ''} onClick={() => setLang('sv')}>SV</button></div></div><p className="settings-note">{t(lang, 'The star map uses catalog positions and calculated geometry, with stylized brightness. Constellation altitude curves remain demos. Twilight and solar-system positions use real calculations.', 'Stjärnkartan använder katalogpositioner och beräknad geometri, med stiliserad ljusstyrka. Stjärnbildernas höjdkurvor är fortfarande demo. Skymning och solsystemets positioner beräknas.')}</p></>}
       {panel === 'tonight' && <TonightPanel context={night} location={location} language={lang} gear={gear} onGearChange={setGear} ranked={ranked} renderCard={card}/>}
-      {panel === 'saved' && <>{saved.length ? <div className="cards-grid">{objects.filter(object => saved.includes(object.id)).map(object => card(object))}</div> : <div className="empty"><Bookmark size={30}/><p>{t(lang, 'Nothing saved yet', 'Inget sparat ännu')}</p><button className="primary" onClick={() => openPanel('search')}>{t(lang, 'Search objects', 'Sök objekt')}</button></div>}</>}
+      {panel === 'saved' && <>{saved.length ? <><button className="panel-action" onClick={shareSavedList}><Share2 size={17}/>{t(lang, 'Share list', 'Dela listan')}</button><div className="cards-grid">{objects.filter(object => saved.includes(object.id)).map(object => card(object))}</div></> : <div className="empty"><Bookmark size={30}/><p>{t(lang, 'Nothing saved yet', 'Inget sparat ännu')}</p><button className="primary" onClick={() => openPanel('search')}>{t(lang, 'Search objects', 'Sök objekt')}</button></div>}</>}
+      {panel === 'shared' && <>{sharedList.length ? <><p className="panel-note">{t(lang, 'This shared list is read-only. Save the objects to add them to your own Saved list.', 'Den här delade listan är skrivskyddad. Spara objekten för att lägga till dem i din egen lista.')}</p><button className="panel-action" onClick={saveSharedList}><Bookmark size={17}/>{t(lang, 'Save all to my list', 'Spara alla i min lista')}</button><div className="cards-grid">{objects.filter(object => sharedList.includes(object.id)).map(object => card(object))}</div></> : <div className="empty"><p>{t(lang, 'This shared list is empty or invalid.', 'Den delade listan är tom eller ogiltig.')}</p><button className="primary" onClick={() => openPanel('search')}>{t(lang, 'Search objects', 'Sök objekt')}</button></div>}</>}
       {panel === 'more' && <div className="more-menu">{([['saved', Bookmark], ['view', SlidersHorizontal], ['observation', Clock3], ['phone', Compass], ['settings', Settings2], ['about', Info]] as const).map(([next, Icon]) => <button key={next} onClick={() => openPanel(next)}><Icon size={20}/>{titles[next]}<ChevronRight size={17}/></button>)}{document.fullscreenEnabled && <button onClick={fullscreen}>{isFullscreen ? <Minimize size={20}/> : <Maximize size={20}/>} {isFullscreen ? t(lang, 'Exit fullscreen', 'Lämna helskärm') : t(lang, 'Fullscreen', 'Helskärm')}</button>}</div>}
       {panel === 'phone' && <PhoneControls phone={phone} language={lang} onStart={follow}/>}
       {panel === 'view' && <>

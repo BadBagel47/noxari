@@ -21,6 +21,8 @@ npm test
 npm run preview
 ```
 
+Development and test entry points, plus the limits of browser and sensor checks, are collected in [Development diagnostics](docs/DEVELOPMENT_DIAGNOSTICS.md).
+
 To test on a phone on the same Wi-Fi network, use the `Network` URL printed by Vite (your firewall may need to allow it).
 
 ## Included
@@ -33,9 +35,9 @@ To test on a phone on the same Wi-Fi network, use the `Network` URL printed by V
 - **Observation controls** — Time & location opens from the top status chip or More. The default Now mode advances every 30 seconds and refreshes on return to the page. Manually changing the date/time enters a clearly labeled Selected time mode; Now returns to the live clock. **Show stars tonight** selects the darkest sampled time in the current local night and labels it Night preview. Bright summer skies and polar day are explained; the preview never changes the time automatically and is disabled during phone following. Selected date/time and preset or manual latitude/longitude with an IANA timezone. Use my location requests a single browser geolocation fix and shows reported accuracy. It uses the device timezone, which can be changed manually; coordinates do not determine the timezone automatically. Times and night curves use the selected observation timezone, including daylight saving changes; coordinates are stored locally in the browser.
 - **Tonight** — suggested objects ranked by an explicit altitude/darkness/moonlight heuristic, with approximate best times and contiguous favorable intervals after the selected time. Equipment filters the recommendations. Targets outside the criteria have explanations; constellation demo curves are excluded. The chart window follows standard sunset/sunrise with 30-minute margins, with noon-to-noon fallbacks for polar/partial nights. Shading distinguishes astronomical, nautical and civil twilight. All cards share the same night window.
 - **Messier catalog / Explore** — all 110 Messier objects with calculated centers and night curves, search by English/Swedish name, exact M/NGC/IC identifier, subtype or constellation, category filters, saving and Guided Finder. Padded/spaced identifiers such as M001 and NGC 224 are accepted. M24 (star cloud), M40 (star pair), M73 (asterism) and disputed M102 have explicit notes. Per-object data-source links are available in Details. A zodiac constellation name reference remains separate.
-- **Saved** — bookmarked objects, persisted in localStorage.
+- **Saved** — bookmarked objects, persisted in localStorage. Share the complete list with a link; opening it shows a read-only shared list until the recipient chooses to save the objects.
 - **Object details** — descriptions, catalog information, altitude/azimuth at the selected time and an enlarged visibility chart. Solar-system objects also show geocentric distance, modeled visual magnitude, illuminated disk fraction, angular separation from the Sun and constellation for that time.
-- **Sharing** — URL query links such as `?object=m31` (works when deployed; uses Web Share API or clipboard where supported).
+- **Sharing** — URL query links such as `?object=m31` or `?list=m31,moon` (works when deployed; uses Web Share API or clipboard where supported).
 - **Guided Finder** — select a calculated object and choose Guide from its compact card, or Guided Finder in its details, to open an overlay on Look around. A fine central ring carries an arrowhead around its edge toward the target; it turns green when the calculated direction is within 3°. The target ring and guidance stay aligned while zooming. Phone-following and north calibration remain opt-in. Drag and keys are manual fallbacks; Center manual view is in the target’s Details or Sky display panel. Below-horizon targets are never marked centered and show an approximate next geometric rise when found in the next 48 hours. Whole-constellation demo cards have no unique target and cannot start guidance.
 - **Language** — EN/SV toggle; Swedish object names and selected UI copy.
 
@@ -105,9 +107,9 @@ The direction stability and automatic recovery fixes have 98 offline tests (26 f
 
 Remaining features and bugs now have permanent IDs in [BACKLOG.md](BACKLOG.md): `F-###` for features and `B-###` for bugs. Use those IDs when proposing or approving a batch. Completed functionality and verified deployment evidence remain in [HANDOVER.md](HANDOVER.md).
 
-The user wants every feature to be simple to use (**F-012**) and asks for a model recommendation before each development batch, with explicit approval before work starts. Latest approved batch **F-001 + B-002** is implemented and its deployment status is in `HANDOVER.md`. The app offers an explicit seasonal night preview and shows the simulated lower sky in daylight. No next batch is approved; the user may collect changes first.
+The user wants every feature to be simple to use (**F-012**) and asks for a model recommendation before each development batch, with explicit approval before work starts. Latest approved batch **F-013 + F-007** is implemented locally and awaits deployment verification; details and test evidence are in `HANDOVER.md`. No next batch is approved; the user may collect changes first.
 
-On 2026-10-31 the user paused **B-001 (phone direction drift)** to prioritize the remaining functionality. The deployed sensor code and evidence are retained; physical validation of automatic recovery remains incomplete. **F-001 + B-002** are now implemented: the user can select the darkest time in the local night, while stars under the transparent simulated ground remain visible by day. The preview is labeled and does not alter time automatically or while phone following is active. Other remaining work is listed by ID in `BACKLOG.md`; each new batch still requires a model recommendation and the user's approval.
+On 2026-10-31 the user paused **B-001 (phone direction drift)** to prioritize the remaining functionality. The deployed sensor code and evidence are retained; physical validation of automatic recovery remains incomplete. **F-001 + B-002** are already deployed: the user can select the darkest time in the local night, while stars under the transparent simulated ground remain visible by day. **F-013 + F-007** are the latest approved batch; the shared list and diagnostics changes await deployment verification. Other remaining work is listed by ID in `BACKLOG.md`; each new batch still requires a model recommendation and the user's approval.
 
 ## Tonight planning model
 
