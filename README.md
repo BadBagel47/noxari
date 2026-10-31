@@ -105,6 +105,8 @@ The direction stability and automatic recovery fixes have 98 offline tests (26 f
 
 Remaining features and bugs now have permanent IDs in [BACKLOG.md](BACKLOG.md): `F-###` for features and `B-###` for bugs. Use those IDs when proposing or approving a batch. Completed functionality and verified deployment evidence remain in [HANDOVER.md](HANDOVER.md).
 
+The user wants every feature to be simple to use (**F-012**). New backlog items: **F-013** organize developer diagnostics, **F-014** highlight the selected sky object, **B-004** investigate choppy panning with the Milky Way as one hypothesis, and **F-015** reserve symbol-only buttons for save/share. These proposals do not start implementation. The previously proposed next batch remains **F-001 + B-002** until the user reprioritizes it.
+
 On 2026-10-31 the user paused **B-001 (phone direction drift)** to prioritize the remaining functionality. The deployed sensor code and evidence are retained; physical validation of automatic recovery remains incomplete. The proposed next batch is **F-001 (day/evening preview) + B-002 (daylight filtering below the simulated horizon)**, awaiting explicit approval. Remaining proposals include **F-002** improved daytime/Venus presentation, **F-003** deeper stars, **F-004** zoom, **F-005** licensed photos, **F-006** sharing previews and **F-007** observation-list sharing. Final UI refinement (**F-008**) and broader device validation (**F-009**) come later; Moon calibration (**F-010**) and camera/AR (**F-011**) remain deferred. Each development step requires a model recommendation and the user's approval.
 
 ## Tonight planning model

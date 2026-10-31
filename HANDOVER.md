@@ -8,6 +8,7 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md`, `README.md` och `BAC
 
 - Kommunicera på svenska, kort och konkret.
 - Använd permanenta **F-###** för funktioner och **B-###** för buggar från och med 2026-10-31. Se `BACKLOG.md` för återstående arbete och status; ID:n återanvänds eller numreras inte om. Ange ID:n när en körning avgränsas och när arbetet redovisas.
+- Enkel användning är användarens övergripande designprincip för alla funktioner (**F-012**). Senaste önskemål finns under **F-013–F-015** och **B-004** i backloggen; ingen implementering av dessa poster har startgodkänts.
 - **Meddela rekommenderad ChatGPT-modell innan varje nytt utvecklingssteg.** Hittills har rekommendationen varit **GPT-6.1 Sol med hög resonemangsnivå**. Användaren vill kunna använda Sol; föreslå en tyngre modell bara om uppgiften motiverar det. En rekommendation betyder inte att modellen faktiskt har bytts.
 - **Starta inte ett nytt utvecklingssteg utan uttryckligt klartecken.** Beskriv först dess omfattning och invänta exempelvis ”Kör”. Användaren vill kunna samla flera ändringar före samma körning. En diskussion, ett positivt omdöme eller en ny planpunkt är inte i sig ett startbesked.
 - Ett ”Kör” gäller det senast föreslagna, avgränsade steget. Slutför och verifiera det steget, men påbörja inte därefter nästa etapp automatiskt.

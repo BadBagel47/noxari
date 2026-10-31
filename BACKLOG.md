@@ -11,6 +11,7 @@ Denna fil är den gemensamma listan för återstående funktioner och kända öp
 - ID:n är permanenta. Behåll dem när status/prioritet ändras eller arbetet blir klart. Återanvänd eller numrera aldrig om dem.
 - Lägg nya poster sist i respektive nummerserie. Använd ID:n i planering, avgränsning av körningar, ändringsbeskrivningar och överlämning.
 - Status: **Förslag**, **Planerad**, **Godkänd**, **Pågår**, **Pausad**, **Senare**, **Klar**. En planerad post är inte startgodkänd. Bekräftad funktion och kvarstående fysisk validering ska redovisas separat.
+- Enkel användning är ett övergripande designkrav för alla funktioner, inte en egen kodrelease. F-012 håller det synligt i backloggen.
 - Föreslå modell och en avgränsad körning med ID:n; invänta användarens klartecken. Användaren kan samla flera poster i samma körning.
 - En pausad post återupptas först efter ett uttryckligt beslut. Markera en bugg klar först när relevant verifiering stöder det.
 
@@ -27,6 +28,7 @@ Användaren har **pausat B-001** och vill prioritera att färdigställa övrig f
 | **B-001** | Riktningsdrift efter större mobilrörelser | **Pausad** | Fysisk Android/Brave har visat stor avvikelse mellan relativ riktning och kompass. Uttrycklig kompassåterankring återställer rätt riktning. Automatisk återankring är publicerad men dess fysiska långtidseffekt är inte bekräftad. Återuppta senare med kontrollerade före-/efterprov och rapporter. Se [DIRECTION_STABILITY.md](docs/DIRECTION_STABILITY.md). |
 | **B-002** | Dagsljus döljer stjärnor även under den genomskinliga marken | **Planerad** | Den tydligt märkta simulerade nedåtvyn ska kunna visa stjärnhimlen trots dag ovan horisonten. Bevara dagvyn ovan horisonten samt verkliga horisontvillkor för Guided Finder/Ikväll. Se [DAYLIGHT_DIRECTION_ANALYSIS.md](docs/DAYLIGHT_DIRECTION_ANALYSIS.md). |
 | **B-003** | Täta objektetiketter kan överlappa | **Senare** | Förbättra placering/urval av etiketter på mobil och dator utan att förlora objektens beräknade riktningar eller tryckbarhet. Hanteras tillsammans med F-008. |
+| **B-004** | Himmelsvyn hackar vid panorering | **Planerad — orsaken okänd** | Mät respons med Vintergatan av/på och undersök bakgrundsritning, projektion och bildrutor. Optimera den berörda renderingsvägen om provet visar att den bidrar; bevara utseende och fungerande svep. Orsaken är ännu inte fastställd. |
 
 ## Funktioner och förbättringar
 
@@ -43,6 +45,10 @@ Användaren har **pausat B-001** och vill prioritera att färdigställa övrig f
 | **F-009** | Bredare fysisk mobilvalidering | **Senare** | iOS, Android, porträtt/landskap, behörigheter och återupptagning. Riktningsprecision hör till pausade B-001 och återupptas inte automatiskt genom denna post. |
 | **F-010** | Kalibrering mot verkliga månen | **Senare** | Tidigare föreslagen manuell referens med kontrollerad Nu/plats och tydlig bekräftelse. Inte implementerad eller startgodkänd; bedöms när riktningsarbetet återupptas. |
 | **F-011** | Kameraöverlägg / AR | **Senare — låg prioritet** | Separat framtida steg efter övrig funktionalitet. Användarens prioritering är fortsatt himmelsvy och telefonföljning utan kamera. |
+| **F-012** | Enkel att använda som princip för alla funktioner | **Antagen designprincip** | Prioritera tydliga huvudhandlingar, förståeliga statusar och få samtidiga val genom hela appen. Väg in enkel användning i varje godkänt funktionssteg; principen godkänner inte egen UI-kod utan avgränsning. |
+| **F-013** | Samlad utvecklardiagnostik | **Planerad** | Inventera lokala analys-, test- och felsökningsverktyg och samla ingångar, instruktioner och begränsningar på ett ställe. Gäller verktyg för utvecklingen, inte nya diagnostikfunktioner inne i appen. |
+| **F-014** | Markera valt himmelsobjekt tydligt | **Planerad** | Efter tryck ska det valda objektet få en beständig, synlig markering så användaren ser vilket objekt kortet/detaljerna gäller. Bevara tydlig skillnad mellan tryck och svep. |
+| **F-015** | Ikoner för spara och dela | **Planerad** | Använd ikoner för spara och dela objekt. Övriga handlingar ska ha tydliga textetiketter i linje med önskemålet om färre symbolknappar. |
 
 ## Genomförda delar
 
