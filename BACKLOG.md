@@ -19,9 +19,7 @@ Denna fil är den gemensamma listan för återstående funktioner och kända öp
 
 Användaren har **pausat B-001** och vill prioritera att färdigställa övrig funktionalitet. B-005 + F-014 + F-015 har godkänts genom ”Kör” och är implementerade; publicerad. Befintlig sensorkod ligger kvar; detta beslut innebär ingen återställning eller avstängning av publicerade funktioner.
 
-**Senast avslutade körning: F-003 + F-005.** Båda är publicerade och verifierade. GPT-6 Luna High rekommenderades, men den aktiva modellen kan inte bekräftas från körningsmiljön. F-003 utökar HYG till V=6,5; F-005 lägger in åtta käll- och licensmärkta Messierbilder. 107 tester och produktionsbygge passerar; alla åtta bilder verifierades i Chromium på mobil och matchar de publicerade filernas SHA-256. Nästa körning är inte godkänd. B-001 är fortsatt pausad.
-
-**Aktuellt godkänd körning: F-017.** Användaren godkände en separat, av/på-styrd och bläddringsbar samling för granskade dvärgplanetkandidater och andra ovanliga småkroppar. 2026 ED138 är första posten. GPT-6 Luna High rekommenderades, men aktiv modell kan inte bekräftas från miljön. Lokal implementation, 110 tester, produktionsbygge och Chromium-prov är klara; publicering återstår. Ingen efterföljande körning är godkänd.
+**Senast avslutade körning: F-017.** Funktionen är publicerad och verifierad. GPT-6 Luna High rekommenderades, men aktiv modell kan inte bekräftas från exekveringsmiljön. F-017 har en separat bläddringsbar samling och av/på-lager i båda himmelsvyerna; 2026 ED138 är första posten och märks som dvärgplanetkandidat. 110 tester, produktionsbygge, publicerad Chromium-kontroll och Pages-publicering passerar. Nästa körning är inte godkänd. B-001 är fortsatt pausad.
 
 ## Buggar
 
@@ -53,7 +51,7 @@ Användaren har **pausat B-001** och vill prioritera att färdigställa övrig f
 | **F-014** | Markera valt himmelsobjekt tydligt | **Klar** | Efter tryck ska det valda objektet få en beständig, synlig markering så användaren ser vilket objekt kortet/detaljerna gäller. Bevara tydlig skillnad mellan tryck och svep. |
 | **F-015** | Ikoner för spara och dela | **Klar** | Använd ikoner för spara och dela objekt. Övriga handlingar ska ha tydliga textetiketter i linje med önskemålet om färre symbolknappar. |
 | **F-016** | Cirkulär objektlokaliserare | **Klar** | Guided Finder visar en stilren cirkel centralt i himmelsvyn. Ett pilhuvud löper längs cirkelns kant och pekar mot målobjektets beräknade riktning. Grön ring bekräftar centrering inom 3°. Underhorisontsvillkor, telefonföljning, zoomsamstämmighet och stöd för reducerad rörelse är bevarade. B-001 är fortsatt pausad. Bygge, tester, mobil-webbläsarprov och Pages-publicering verifierade. |
-| **F-017** | Separat samling för småkroppskandidater | **Pågår** | Lokalt implementerad och verifierad; publicering återstår. Egen bläddringsbar samling utanför huvudkatalogen samt fristående av/på-lager i båda himmelsvyerna. Första objektet är 2026 ED138, korrekt märkt som dvärgplanetkandidat, med preliminär JPL-bana, beräknad position för vald tid/plats, källor och tydliga osäkerheter. Katalogen uppdateras manuellt efter granskning; appen ska inte hämta externa data vid körning. |
+| **F-017** | Separat samling för småkroppskandidater | **Klar** | Implementerad, testad och publicerad. Egen bläddringsbar samling utanför huvudkatalogen samt fristående av/på-lager i båda himmelsvyerna. Första objektet är 2026 ED138, korrekt märkt som dvärgplanetkandidat, med preliminär JPL-bana, beräknad position för vald tid/plats, källor och tydliga osäkerheter. Katalogen uppdateras manuellt efter granskning; appen ska inte hämta externa data vid körning. |
 
 ## Genomförda delar
 

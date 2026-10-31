@@ -32,11 +32,12 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md`, `README.md` och `BAC
 
 ## Aktuellt arbetsläge
 
-**Senaste publicerade steg:** **F-003 + F-005**, implementerat, testat och publicerat. **Aktuellt godkänd körning: F-017** (se ”Kör” efter rekommendationen GPT-6 Luna High). Aktiv modell kan inte bytas eller verifieras från exekveringsmiljön. F-017 gör en separat, bläddringsbar samling för ovanliga småkroppar med fristående av/på-lager; 2026 ED138 är första posten och märks som dvärgplanetkandidat. Lokal implementering, tester och webbläsarkontroller passerar; publicering återstår. B-001 är fortsatt pausad.
+**Senaste utvecklingssteg:** **F-017**, godkänt med ”Kör” efter rekommendationen **GPT-6 Luna High**. Aktiv modell kan inte bytas eller verifieras från exekveringsmiljön. Implementerat, testat och publicerat. F-017 lägger till en separat, bläddringsbar samling för ovanliga småkroppar och ett fristående av/på-lager i båda himmelsvyerna. Första posten är 2026 ED138, märkt dvärgplanetkandidat. B-001 är fortsatt pausad.
 
-- Senast verifierade publicerade **appcommit**: `2675e69956afed21dc6fcf23280a11025662e176` (`2675e69`). F-017 är ännu inte publicerat.
-- F-017: 110 tester passerar och `npm run build` lyckas. En regressionskontroll mot JPL/Horizons 2026-10-31 00:00 UTC stämmer inom 0,01°; positionen uppdateras med vald tid och plats. Chromium vid 390×844 och 1280×844 verifierade katalogseparation, objektlänk, kandidatdetaljer, av/på-lager och lagrad inställning utan overflow eller sidfel. I Sydney visas markören på himmelskartan när objektet är ovan horisonten. Ingen fysisk enhetsvalidering är gjord. Vites varning om JavaScript-paket över 500 kB kvarstår.
-- Orbitalmodellen använder JPL SBDB solution #2 (2026-10-29), tvåkropps-Kepler och ljusgångstid; småkroppsstörningar och parallax från observatören utelämnas. Exakt storlek är okänd, och kandidatstatus är inte bekräftad dvärgplanetstatus. Källor och uppdateringsmetod finns i `data/README.md`.
+- Verifierad **appcommit**: `ba1fa7edac7c6eeb016b87e13f28284515c59d56` (`ba1fa7e`).
+- Actions: https://github.com/BadBagel47/noxari/actions/runs/41238308217 — tester, bygge och Pages-publicering lyckades.
+- 110 tester passerade och `npm run build` lyckades. Chromium-prov mot publicerad sajt vid 390×844 och 1280×844 verifierade separat bläddring, objektlänk, källa/osäkerhetsnotis, av/på-lager och lagrad inställning utan overflow eller sidfel. I Sydney visades kandidatmarkören när den var ovan horisonten. JavaScript, CSS, Vintergatsbilden och licensfilen matchar lokalt bygge via SHA-256.
+- JPL/Horizons-positionen 2026-10-31 00:00 UTC skiljer högst 0,01°. Banan är tvåkropps-Kepler från JPL SBDB solution #2 (2026-10-29), med ljusgångstid men utan småkroppsstörningar eller observatörsparallax. Storleken 600–1 500 km är en uppskattning, inte direkt mätning; objektet är fortfarande kandidat, inte bekräftad dvärgplanet. Nära aktuell epok ligger det under horisonten från Stockholm; detaljerna förklarar att sydligare latitud krävs. Källor och manuell uppdateringsmetod finns i `data/README.md`. Vites varning om ett JavaScript-paket över 500 kB kvarstår.
 - Actions: https://github.com/BadBagel47/noxari/actions/runs/41209604998 — tester, bygge och Pages-publicering lyckades.
 - F-013 + F-007 verifierades med 103 tester och publicerat bygge; se Actions-länken och resurshasharna i den historiska körningsanteckningen nedan.
 - Actions: https://github.com/BadBagel47/noxari/actions/runs/41207977710 — tester, bygge och Pages-publicering lyckades.
@@ -190,13 +191,13 @@ Detta beskriver versionen med uttrycklig återankring; den senare godkända auto
 - Full `npm test`: 100 tester passerade. `npm run build` lyckades. Mobil-webbläsarprov 390×844 passerade för kvällstid, tidslägesetikett, Now-återgång, bright-sky varning och dagsljusstjärnor endast i den simulerade nedåtvyn. Polardag och säsongsskillnad täcks av tester. Actions och Pages-publicering lyckades; JS, CSS, PNG och licens matchar lokalt `dist/` via SHA-256.
 - Modellförslag var **GPT-6 Luna High**; aktiv modell kan inte bekräftas från exekveringsmiljön. Ingen nästa batch är godkänd; användaren kan samla fler önskemål.
 
-## Nästa föreslagna körning — F-017 pågår
+## Nästa föreslagna körning — inväntar nytt klartecken
 
-F-017 är den enda aktuellt godkända körningen och den slutförs här. Ingen efterföljande körning är godkänd. Användaren kan samla fler ändringar; rekommendera modell när nästa batch avgränsas och invänta uttryckligt klartecken. Användaren har förtydligat att **F-002** ska omfatta alla relevanta objekt som kan synas i dagsljus, inte bara Venus. Den godkända körningen behöver avgränsa urval och regler utifrån beräknad position, solhöjd, ljusstyrka och solavstånd.
+Ingen nästa körning är godkänd. Användaren kan samla fler ändringar; föreslå modell och avgränsad batch, och invänta uttryckligt klartecken. Användaren har förtydligat att **F-002** ska omfatta alla relevanta objekt som kan synas i dagsljus, inte bara Venus. Den godkända körningen behöver avgränsa urval och regler utifrån beräknad position, solhöjd, ljusstyrka och solavstånd.
 
 ### Senare delar av planen
 
-Se `BACKLOG.md` för samtliga kvarstående poster och permanent numrering: återstår bland annat F-002 dagsvy för alla relevanta dagsljusobjekt och F-006 delningsförhandsvisningar. UI-förfining F-008 och bredare mobilprov F-009 ligger senare. Månkalibrering F-010 och kamera/AR F-011 är fortsatt uppskjutna; AR har låg prioritet. B-003 gäller överlappande etiketter och hör till den senare UI-genomgången. F-001, B-002, F-003, F-005, F-007 och F-013 är genomförda och publicerade. F-017 är implementerat lokalt; publicering återstår.
+Se `BACKLOG.md` för samtliga kvarstående poster och permanent numrering: återstår bland annat F-002 dagsvy för alla relevanta dagsljusobjekt och F-006 delningsförhandsvisningar. UI-förfining F-008 och bredare mobilprov F-009 ligger senare. Månkalibrering F-010 och kamera/AR F-011 är fortsatt uppskjutna; AR har låg prioritet. B-003 gäller överlappande etiketter och hör till den senare UI-genomgången. F-001, B-002, F-003, F-005, F-007, F-013 och F-017 är genomförda och publicerade.
 
 ## Begränsningar och källor
 
