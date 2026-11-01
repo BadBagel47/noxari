@@ -5,7 +5,7 @@ import {ConstellationReveal} from './constellationReveal';
 import {useReducedMotion} from './useReducedMotion';
 import {boundarySky, drawBoundaries} from './constellationBoundaries';
 import {Body} from 'astronomy-engine';
-import {objectPositioner, positionAt, showObjectMarker, type ObservingLocation} from './astronomy';
+import {objectPositioner, positionAt, showObjectMarker, solarAppearance, type ObservingLocation} from './astronomy';
 import {objects, type SpaceObject} from './data';
 import {candidateObjects} from './candidateObjects';
 import {horizontalStarCatalog, projectHorizontal} from './skyProjection';
@@ -16,6 +16,7 @@ type Props = {
   time: Date;
   location: ObservingLocation;
   label: (object: SpaceObject) => string;
+  language: 'en'|'sv';
   sunLabel: string;
   onSelect: (object: SpaceObject) => void;
   showFigures: boolean;
@@ -26,7 +27,7 @@ type Props = {
   milkyWay: MilkyWayTexture | null;
 };
 
-export function SkyMap({selectedId, time, location, label, sunLabel, onSelect, showFigures, showFigureNames, figureMode, showBoundaries, showCandidateCollection, milkyWay}: Props) {
+export function SkyMap({selectedId, time, location, label, language, sunLabel, onSelect, showFigures, showFigureNames, figureMode, showBoundaries, showCandidateCollection, milkyWay}: Props) {
   const container = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const reveal = useRef(new ConstellationReveal());
@@ -49,16 +50,18 @@ export function SkyMap({selectedId, time, location, label, sunLabel, onSelect, s
     const resolve = objectPositioner(time, location);
     return [...objects, ...(showCandidateCollection ? candidateObjects : [])].flatMap(object => {
       const position = resolve(object);
-      return position ? [{object, position}] : [];
+      const appearance = object.kind === 'Planet' ? solarAppearance(object, time) : null;
+      return position ? [{object, position, appearance}] : [];
     });
   }, [time, location, showCandidateCollection]);
-  const markers = useMemo(() => objectSky.flatMap(({object, position}) => {
+  const markers = useMemo(() => objectSky.flatMap(({object, position, appearance}) => {
     if (!size.width || !size.height) return [];
     // Markers distinguish civil twilight for planets from darker deep-sky conditions.
-    if (!showObjectMarker(object, sun.altitude)) return [];
+    if (!showObjectMarker(object, sun.altitude, appearance)) return [];
     const point = position && projectHorizontal(position, size.width, size.height, zoom);
     return point ? [{object, point, altitude: position.altitude}] : [];
   }), [objectSky, size.width, size.height, sun.altitude, zoom]);
+  const hasDaylightPlanetMarker = sun.altitude >= 0 && markers.some(marker => marker.object.kind === 'Planet');
   const sunPoint = size.width && size.height ? projectHorizontal(sun, size.width, size.height, zoom) : null;
 
   useEffect(() => {
@@ -183,6 +186,7 @@ export function SkyMap({selectedId, time, location, label, sunLabel, onSelect, s
 
   return <div className="sky-canvas sky-map" ref={container} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={finishPointer} onPointerCancel={finishPointer} onLostPointerCapture={finishPointer} onClickCapture={event => { if (suppressClick.current && event.detail !== 0) { event.preventDefault(); event.stopPropagation(); } }}>
     <canvas ref={canvas} aria-label="Calculated zenith-centered sky with proper motion and optional constellation figures and IAU boundaries; horizon is the outer circle. Pinch to zoom." role="img"/>
+    {hasDaylightPlanetMarker && <p className="daylight-marker-note">{language === 'sv' ? 'Beräknad dagsposition · synlighet varierar' : 'Calculated daytime position · visibility varies'}</p>}
     {markers.map(({object, point, altitude}) => <button key={object.id} className={`sky-object ${selectedId === object.id ? 'is-selected' : ''}`} aria-pressed={selectedId === object.id} style={{left: point.x, top: point.y}} onClick={() => onSelect(object)} title={`${label(object)} · ${altitude.toFixed(1)}°`} aria-label={`${label(object)}, altitude ${altitude.toFixed(1)}°`}><span className="sky-point" style={{width: object.size + 4, height: object.size + 4, background: object.color, boxShadow: `0 0 16px ${object.color}`}}/><span>{label(object)}</span></button>)}
     {sunPoint && <span className="sky-object sky-sun" style={{left: sunPoint.x, top: sunPoint.y}} role="img" aria-label={`${sunLabel}, altitude ${sun.altitude.toFixed(1)}°`}><span className="sky-point"/><span>{sunLabel}</span></span>}
   </div>;

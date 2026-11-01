@@ -1,6 +1,7 @@
 import {describe, expect, it} from 'vitest';
+import {Body} from 'astronomy-engine';
 import {objects} from '../src/data';
-import {nightVisibility, objectPosition, showObjectMarker, solarAppearance, stockholm} from '../src/astronomy';
+import {nightVisibility, objectPosition, positionAt, showObjectMarker, solarAppearance, stockholm} from '../src/astronomy';
 import reference from './fixtures/planets-horizons.json';
 
 describe('new planets against independent NASA/JPL Horizons references', () => {
@@ -57,10 +58,33 @@ describe('solar-system appearance and marker policy', () => {
   it('allows civil-twilight planets while keeping deep-sky markers hidden', () => {
     for (const id of ['mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune']) {
       expect(showObjectMarker(get(id), -3)).toBe(true);
-      expect(showObjectMarker(get(id), 0)).toBe(false);
     }
     expect(showObjectMarker(get('moon'), 10)).toBe(true);
     expect(showObjectMarker(get('m31'), -3)).toBe(false);
     expect(showObjectMarker(get('m31'), -7)).toBe(true);
+  });
+  it('shows only bright, well-separated planetary positions in daytime', () => {
+    expect(showObjectMarker(get('venus'), 25, {magnitude: -4.2, sunSeparation: 22})).toBe(true);
+    expect(showObjectMarker(get('venus'), 25, {magnitude: -2.1, sunSeparation: 22})).toBe(true);
+    expect(showObjectMarker(get('venus'), 25, {magnitude: -4.2, sunSeparation: 14.9})).toBe(false);
+    expect(showObjectMarker(get('venus'), 25, {magnitude: -1.9, sunSeparation: 22})).toBe(false);
+    expect(showObjectMarker(get('mars'), 25, {magnitude: -2.6, sunSeparation: 120})).toBe(true);
+    expect(showObjectMarker(get('jupiter'), 25, {magnitude: -2.4, sunSeparation: 120})).toBe(false);
+    const date = new Date(reference.time);
+    for (const id of ['mercury', 'saturn', 'uranus', 'neptune']) {
+      expect(showObjectMarker(get(id), 25, solarAppearance(get(id), date))).toBe(false);
+    }
+    expect(showObjectMarker(get('m31'), 25, {magnitude: -4, sunSeparation: 120})).toBe(false);
+  });
+  it('finds daylight positions for genuinely bright planets in the yearly ephemeris', () => {
+    const daytimePlanets = ['venus', 'mars', 'jupiter'].map(get);
+    let eligible = false;
+    for (let day = 0; day < 365 && !eligible; day++) {
+      const time = new Date(Date.UTC(2025, 0, 1 + day, 12));
+      const sunAltitude = positionAt(Body.Sun, time, stockholm).altitude;
+      if (sunAltitude < 0) continue;
+      eligible = daytimePlanets.some(object => showObjectMarker(object, sunAltitude, solarAppearance(object, time)));
+    }
+    expect(eligible).toBe(true);
   });
 });

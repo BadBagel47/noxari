@@ -17,6 +17,7 @@
 .sky-map .sky-sun{pointer-events:none;color:#fff4bd}
 .sky-map .sky-sun .sky-point{width:17px;height:17px;background:#ffe8a1;box-shadow:0 0 22px 5px #ffcf71}
 .sky-map-note{margin:auto 0;color:#94aec9;font-size:11px}
+.daylight-marker-note{position:absolute;z-index:4;top:12px;right:12px;max-width:min(48%,280px);padding:7px 9px;border:1px solid #657d8f;border-radius:8px;background:#071627dc;color:#f0d9a7;font-size:11px;line-height:1.35;text-align:center;pointer-events:none}
 .sky-credit{padding:8px 17px 12px;border-top:1px solid #223550;color:#829db9;font-size:10px}
 .sky-credit a{color:#a7ccec}
 @media(max-width:760px){.sky-map{height:390px}.sky-toolbar{flex-wrap:wrap}.sky-map-note{width:100%;margin:0 0 2px}.sky-map .sky-object{font-size:9px}}

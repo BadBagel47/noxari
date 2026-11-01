@@ -122,10 +122,15 @@ export function solarAppearance(object: SpaceObject, time: Date) {
     sunSeparation: state.sunSeparation, constellation: Constellation(state.equatorial.ra, state.equatorial.dec).name};
 }
 
-// Marker policy is schematic, not a claim of naked-eye visibility. Bright
-// inner planets need civil twilight; deep-sky targets wait until darker skies.
-export function showObjectMarker(object: SpaceObject, sunAltitude: number) {
+// Daylight planet markers are deliberately selective. They show calculated
+// positions only when a planet is exceptionally bright and well separated
+// from the Sun; they do not predict that it can actually be seen.
+export function showObjectMarker(object: SpaceObject, sunAltitude: number, appearance?: {magnitude: number; sunSeparation: number} | null) {
   if (object.kind === 'Moon') return true;
+  if (sunAltitude >= 0 && object.kind === 'Planet') {
+    if (!appearance || appearance.sunSeparation < 15) return false;
+    return appearance.magnitude <= (object.id === 'venus' ? -2 : -2.5);
+  }
   return sunAltitude < (object.kind === 'Planet' ? 0 : -6);
 }
 

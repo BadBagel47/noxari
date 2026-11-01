@@ -4,7 +4,7 @@ import {ConstellationReveal} from './constellationReveal';
 import {useReducedMotion} from './useReducedMotion';
 import {boundarySky, drawBoundaries} from './constellationBoundaries';
 import {Body} from 'astronomy-engine';
-import {nextObjectRise, objectPosition, objectPositioner, positionAt, showObjectMarker, type ObservingLocation, type SkyPosition} from './astronomy';
+import {nextObjectRise, objectPosition, objectPositioner, positionAt, showObjectMarker, solarAppearance, type ObservingLocation, type SkyPosition} from './astronomy';
 import {objects, type SpaceObject} from './data';
 import {candidateObjects} from './candidateObjects';
 import {createPreparedPerspectiveProjector, horizontalStarCatalog, perspectiveFocal, prepareHorizontalStars, projectPerspective, type MapPoint, type ViewDirection} from './skyProjection';
@@ -61,16 +61,18 @@ export function HorizonView({selectedId, time, location, label, sunLabel, onSele
     const resolve = objectPositioner(time, location);
     return [...objects, ...(showCandidateCollection ? candidateObjects : [])].flatMap(object => {
       const position = resolve(object);
-      return position ? [{object, position}] : [];
+      const appearance = object.kind === 'Planet' ? solarAppearance(object, time) : null;
+      return position ? [{object, position, appearance}] : [];
     });
   }, [time, location, showCandidateCollection]);
-  const markers = useMemo(() => objectSky.flatMap(({object, position}) => {
+  const markers = useMemo(() => objectSky.flatMap(({object, position, appearance}) => {
     if (object.id === finderTarget?.id) return [];
-    if (!showObjectMarker(object, sun.altitude)) return [];
+    if (!showObjectMarker(object, sun.altitude, appearance)) return [];
     if (position.altitude < 0 && groundOpacity(view.pitch) > .9) return [];
     const point = position && projectPerspective(position, view, size.width, size.height, true, view.pitch < 0, zoom);
     return point ? [{object, position, point}] : [];
   }), [objectSky, sun.altitude, view, size, finderTarget, zoom]);
+  const hasDaylightPlanetMarker = sun.altitude >= 0 && markers.some(marker => marker.object.kind === 'Planet');
   const belowReveal = 1 - groundOpacity(view.pitch);
   const project = (position: SkyPosition, clip = true) => projectPerspective(position, view, size.width, size.height, clip, belowReveal > 0, zoom);
   const sunPoint = project(sun);
@@ -300,6 +302,7 @@ export function HorizonView({selectedId, time, location, label, sunLabel, onSele
       if (change && event.target === event.currentTarget) { event.preventDefault(); move(...change); }
     }}>
     <canvas ref={canvas} aria-hidden="true"/>
+    {hasDaylightPlanetMarker && <p className="daylight-marker-note">{language === 'sv' ? 'Beräknad dagsposition · synlighet varierar' : 'Calculated daytime position · visibility varies'}</p>}
     <div className="horizon-heading" aria-live="off">{language === 'sv' ? 'Mot' : 'Facing'} {cardinal(view.heading)} · {Math.round(view.heading)}° <span>{view.pitch < 0 ? '↓' : '↑'} {Math.round(Math.abs(view.pitch))}°</span>{view.pitch < 0 && <span className="below-horizon-label">{language === 'sv' ? 'Under horisonten · simulerad vy' : 'Below horizon · simulated view'}</span>}</div>
     {markers.map(({object, position, point}) => <button key={object.id} className={`sky-object ${selectedId === object.id ? 'is-selected' : ''}`} aria-pressed={selectedId === object.id} style={{left: point.x, top: point.y, opacity: position.altitude < 0 ? belowReveal * .8 : 1}} onClick={() => onSelect(object)} title={`${label(object)} · ${position.altitude.toFixed(1)}°`} aria-label={`${label(object)}, ${language === 'sv' ? 'höjd' : 'altitude'} ${position.altitude.toFixed(1)}°`}><span className="sky-point" style={{width: object.size + 4, height: object.size + 4, background: object.color, boxShadow: `0 0 16px ${object.color}`}}/><span>{label(object)}</span></button>)}
     {sunPoint && <span className="sky-object sky-sun" style={{left: sunPoint.x, top: sunPoint.y, opacity: sun.altitude < 0 ? belowReveal * .8 : 1}} role="img" aria-label={`${sunLabel}, ${language === 'sv' ? 'höjd' : 'altitude'} ${sun.altitude.toFixed(1)}°`}><span className="sky-point"/><span>{sunLabel}</span></span>}
