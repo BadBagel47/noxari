@@ -39,7 +39,7 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md`, `README.md` och `BAC
 
 F-019 är publicerad som appcommit `17723f25d46af2d9b5270e00bcbdc636e6a3423e`. [GitHub Actions-körning 41250180468](https://github.com/BadBagel47/noxari/actions/runs/41250180468) passerade test, bygge och Pages-publicering. Den publicerade JS- och CSS-filen matchade lokalt byggda resurser med SHA-256. Lokal produktions-Chromiumkontroll verifierade sökfiltret med fem dvärgplaneter och filtret med Vesta; vid mobilbredd 390 px fanns inget sidöverflöde. Slutlig F-019-kontroll: 114 tester, bygge, `npm run catalogs:check -- --fail-on-changes` utan upstream-skillnader samt `git diff --check` passerade. Bygget ger fortsatt en Vite-varning om JavaScript-paket över 500 kB.
 
-F-002:s kod, tester och dokumentation är lokalt verifierade. Efter commit ska Actions och aktuell Pages-version kontrolleras innan steget anges som publicerat. F-002:s dagsfilter och användarbegränsningar finns i `AGENTS.md`, `BACKLOG.md` och `README.md`.
+F-002 är publicerad som appcommit `0b8a7f726f783eb960a8de8edcca1aa44c0eea4d`. [GitHub Actions-körning 41335355300](https://github.com/BadBagel47/noxari/actions/runs/41335355300) passerade test, bygge och Pages-publicering. Den publicerade JS- och CSS-filen matchade det lokala bygget via SHA-256. F-002:s dagsfilter och begränsningar finns i `AGENTS.md`, `BACKLOG.md` och `README.md`. Bygget ger fortsatt en Vite-varning om JavaScript-paket över 500 kB.
 
 - F-018 pinade även HYG v4.1 till den exakta upstream-commiten `3bf37f4b2d5460e1278286320d1d62fab9b493c1`; omgenerering verifierade 8 922 stjärnor/88 figurer och gav ingen diff i genererade data.
 
