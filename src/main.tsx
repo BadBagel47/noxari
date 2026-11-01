@@ -21,6 +21,7 @@ import {SkyPanel} from './SkyPanel';
 import {catalogIdentifier, matchesCatalogQuery} from './catalogSearch';
 import {objectImages} from './objectImages';
 import {formatSharedList, parseSharedList} from './sharedList';
+import {resolveShareLanguage} from './sharePreview';
 import './style.css';
 import './workspace.css';
 
@@ -54,7 +55,7 @@ function App() {
   const workspace = useRef<HTMLDivElement>(null);
   const appRoot = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [lang, setLang] = useState<Lang>(() => localStorage.getItem('noxari-lang') === 'sv' ? 'sv' : 'en');
+  const [lang, setLang] = useState<Lang>(() => resolveShareLanguage(new URLSearchParams(window.location.search).get('lang'), localStorage.getItem('noxari-lang')));
   const [saved, setSaved] = useState<string[]>(() => {
     try { const value = JSON.parse(localStorage.getItem('noxari-saved') || '[]'); return Array.isArray(value) ? value : []; }
     catch { return []; }
@@ -227,10 +228,8 @@ function App() {
     }, {enableHighAccuracy: true, timeout: 15000, maximumAge: 60000});
   };
   async function share(object: SpaceObject) {
-    const url = new URL(window.location.href);
-    url.searchParams.delete('list');
-    url.searchParams.set('object', object.id);
-    const title = `${object.en} — Noxari`;
+    const url = new URL(`${import.meta.env.BASE_URL}share/${lang}/${encodeURIComponent(object.id)}/`, window.location.origin);
+    const title = `${display(object, lang)} — Noxari`;
     try {
       if (navigator.share) await navigator.share({title, url: url.toString()});
       else { await navigator.clipboard.writeText(url.toString()); notify(t(lang, 'Link copied', 'Länk kopierad')); }

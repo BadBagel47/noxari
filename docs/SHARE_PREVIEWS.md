@@ -1,36 +1,32 @@
 # F-006: shared-object link previews
 
+Status: implemented. The user approved implementation after the technical analysis.
+
 ## Finding
 
-Object sharing currently keeps the app at `/?object=<id>` and sends a title with the Web Share API. The deployed URL returns the same `index.html` for every query; its HTML has one generic Noxari title and description. Object names and descriptions are filled in later by React. A social crawler that reads the initial HTML therefore cannot get per-object Open Graph metadata from the query URL.
+Object sharing previously kept the app at `/?object=<id>` and sent a title with the Web Share API. The deployed URL returns the same `index.html` for every query; its HTML has one generic Noxari title and description. Object names and descriptions are filled in later by React. Social crawlers that read the initial HTML therefore cannot get per-object Open Graph metadata from the query URL.
 
-GitHub Pages can serve ordinary static files and directories, so the app does not need a server or a metadata API. Build-time pages with unique paths can return object-specific metadata in their initial HTML.
+GitHub Pages serves ordinary static files and directories, so the app does not need a server or a metadata API. Unique static pages return object-specific metadata in their initial HTML.
 
-## Recommended implementation
+## Implemented design
 
-Generate one static landing page per shareable object and language at:
+The production build emits one page per shareable object and language:
 
 ```text
 /noxari/share/en/<object-id>/
 /noxari/share/sv/<object-id>/
 ```
 
-The generator should run after Vite writes `dist/`, load the canonical `objects` and `candidateObjects` data rather than maintain a second catalog, and write `dist/share/<language>/<id>/index.html`. A small Node script can use Vite's middleware-mode SSR loader to import the TypeScript catalog modules, then close the temporary server; this avoids parsing or duplicating catalog source. Add it as the final command in `npm run build` so Vite's normal clean build runs before the pages are written. The route ID is the stable app ID. Use the current app names and descriptions in the requested language; retain candidate status in the title/description for provisional objects. Keep metadata descriptions concise and HTML-escape all catalog values.
+`npm run build` first produces the normal Vite site, then runs `scripts/generate_share_previews.mjs`. The generator uses Vite's middleware-mode SSR loader to load canonical `objects` and `candidateObjects` from TypeScript and writes `dist/share/<language>/<id>/index.html`; it does not maintain a second catalog. The current build generated 256 localized pages for 128 objects. Stable app IDs form the routes. Names and descriptions are localized, candidate status remains in the metadata, descriptions are concise, and catalog text is HTML-escaped.
 
-Each page should have absolute, public URLs and include `title`, `description`, `canonical`, `og:type`, `og:title`, `og:description`, `og:url`, plus `twitter:card`, `twitter:title` and `twitter:description`. Set the page language to `en` or `sv`. Use `og:image`, `og:image:alt` and the matching Twitter image fields only when the object has a vetted image in `data/object-images.json`; construct image URLs under `/noxari/images/objects/`. Do not reuse an unreviewed remote image or imply that an artistic image is an unaided-eye view. The manifest has seven Public Domain photos and one CC BY-SA photo (M31). Initial previews should use the seven Public Domain files; omit M31's image unless the landing page can provide meaningful creator, source and license attribution before redirecting. Other objects can use text without an image until a general share graphic is designed.
+Each HTML page contains absolute canonical, Open Graph and Twitter metadata in the initial response, with localized language and URLs. Seven verified Public Domain object photos are included with alt text and dimensions. M31's CC BY-SA photo is intentionally omitted from preview cards because a quick redirect would make attribution hard to see. Objects without an approved image use text cards. No unreviewed remote images are used.
 
-Public-domain images may be used without a copyright attribution requirement; retain their existing source/creator credit where practical. Do not silently use the M31 CC BY-SA image in a share preview: the image card may circulate separately from Noxari's object details, and a fast redirect would make attribution hard to see. Reassess it only if the preview flow can show the required credit, source and license prominently.
+Each page has a visible **Open in Noxari** fallback link to `/noxari/?object=<id>&lang=<language>` and a short same-origin JavaScript redirect to that path. It uses no user-agent bot detection or meta-refresh. Crawlers without JavaScript can read the static metadata; browsers with JavaScript disabled can use the visible link. The app honors optional `lang=en|sv` on the deep link; older `?object=` links retain saved/default language behavior. Sharing saved lists continues to use the existing `?list=` path.
 
-Include a visible **Open in Noxari** link to the existing app deep link, `/noxari/?object=<id>`. A small client-side redirect can send ordinary browsers there after the static HTML loads; do not use user-agent bot detection or a meta-refresh redirect. Crawlers that do not run JavaScript can read the complete metadata from the static page, and browsers without JavaScript still have a working link. Preserve existing `?object=` URLs and `?list=` behavior.
+## Verification
 
-Pass the locale through to the app deep link (for example `?object=m31&lang=sv`) and let the app honor that optional `lang` parameter; old links without it must continue to use the saved/default language. The preview URL itself remains the canonical/Open Graph URL for its locale, so each shared route has stable metadata and cache identity.
-
-## Verification for the implementation step
-
-- The production build emits a preview page for every ID accepted by the share action, including reviewed candidate objects.
-- Raw HTML for representative English and Swedish objects contains escaped localized title/description, absolute Open Graph/Twitter URLs and the correct canonical preview URL. Candidate metadata never describes a candidate as confirmed.
-- Only manifest-approved local images are referenced; the image route and dimensions are valid, and any CC BY-SA image has visible attribution and license links.
-- Existing `?object=` deep links and `?list=` share/import flows continue to work. Opening a preview in a browser reaches the correct app object and language; the visible fallback works with JavaScript disabled.
-- Chromium checks the landing page on desktop and mobile. Check the generated Pages artifact and deployed route. Platform previews can be cached; validate supported social crawlers and refresh their caches where a platform offers a debugger. Browser tests cannot guarantee every third-party platform's rendering.
-
-This document records the technical recommendation only. It does not implement F-006 or authorize that implementation.
+- `npm test`: 121 tests pass, including localized route generation, candidate wording, HTML escaping, query-language handling and Public Domain image selection.
+- `npm run build`: type check/build pass and generate 256 pages for all 128 current shareable objects.
+- Raw HTML checks verified localized English/Swedish titles, metadata, candidate status, public image URLs, and the absence of an image card for M31.
+- Chromium verified the localized redirect reaches the correct object details, the legacy `?object=` deep link and `?list=` view still open, and the no-JavaScript fallback works. At 390 px, the preview page had no horizontal overflow.
+- Platform preview cards can be cached; no platform-specific crawler validator was run, and third-party platforms may render or cache metadata differently. Refresh platform caches through their debugger where available.
