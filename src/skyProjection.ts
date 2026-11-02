@@ -6,7 +6,8 @@ import {movingStarVector, yearsSinceJ2000} from './starMotion';
 export type MapPoint = {x: number; y: number};
 export type ProjectedStar = MapPoint & {magnitude: number; name?: string};
 export type HorizontalStar = SkyPosition & {magnitude: number; name?: string; hip: number | null};
-export type PreparedHorizontalStar = HorizontalStar & {sinAltitude: number; cosAltitude: number; sinAzimuth: number; cosAzimuth: number};
+export type PreparedHorizontalDirection = SkyPosition & {sinAltitude: number; cosAltitude: number; sinAzimuth: number; cosAzimuth: number};
+export type PreparedHorizontalStar = HorizontalStar & Pick<PreparedHorizontalDirection, 'sinAltitude'|'cosAltitude'|'sinAzimuth'|'cosAzimuth'>;
 const RAD = Math.PI / 180;
 const DEG = 180 / Math.PI;
 
@@ -82,22 +83,51 @@ export function projectPerspective(position: SkyPosition, view: ViewDirection, w
   return !clipToViewport || (x >= 0 && x <= width && y >= 0 && y <= height) ? {x, y} : null;
 }
 
+/** Reuse the camera trigonometry while projecting changing horizon-view geometry. */
+export function createPerspectiveProjector(view: ViewDirection, width: number, height: number, clipToViewport = true, allowBelowHorizon = false, zoom = 1, clipMargin = 0) {
+  const heading = view.heading * RAD, pitch = view.pitch * RAD;
+  const cosHeading = Math.cos(heading), sinHeading = Math.sin(heading);
+  const cosPitch = Math.cos(pitch), sinPitch = Math.sin(pitch);
+  const focal = perspectiveFocal(width, height, zoom);
+  return (position: SkyPosition, clip = clipToViewport): MapPoint | null => {
+    if (width <= 0 || height <= 0 || (position.altitude < 0 && !allowBelowHorizon)) return null;
+    const altitude = position.altitude * RAD, azimuth = position.azimuth * RAD;
+    const cosAltitude = Math.cos(altitude), sinAltitude = Math.sin(altitude);
+    const cosAzimuth = Math.cos(azimuth), sinAzimuth = Math.sin(azimuth);
+    const cosDelta = cosAzimuth * cosHeading + sinAzimuth * sinHeading;
+    const sinDelta = sinAzimuth * cosHeading - cosAzimuth * sinHeading;
+    const depth = cosAltitude * cosDelta * cosPitch + sinAltitude * sinPitch;
+    if (depth <= 0) return null;
+    const right = cosAltitude * sinDelta;
+    const up = sinAltitude * cosPitch - cosAltitude * cosDelta * sinPitch;
+    const x = width / 2 + focal * right / depth;
+    const y = height / 2 - focal * up / depth;
+    return !clip || (x >= -clipMargin && x <= width + clipMargin && y >= -clipMargin && y <= height + clipMargin) ? {x, y} : null;
+  };
+}
+
 export function prepareHorizontalStars(stars: HorizontalStar[]): PreparedHorizontalStar[] {
-  return stars.map(star => {
-    const altitude = star.altitude * RAD;
-    const azimuth = star.azimuth * RAD;
-    return {...star, sinAltitude: Math.sin(altitude), cosAltitude: Math.cos(altitude), sinAzimuth: Math.sin(azimuth), cosAzimuth: Math.cos(azimuth)};
-  });
+  return stars.map(star => ({...star, ...prepareHorizontalDirection(star)}));
+}
+
+export function prepareHorizontalDirection(position: SkyPosition): Pick<PreparedHorizontalDirection, 'sinAltitude'|'cosAltitude'|'sinAzimuth'|'cosAzimuth'> {
+  const altitude = position.altitude * RAD;
+  const azimuth = position.azimuth * RAD;
+  return {sinAltitude: Math.sin(altitude), cosAltitude: Math.cos(altitude), sinAzimuth: Math.sin(azimuth), cosAzimuth: Math.cos(azimuth)};
+}
+
+export function prepareHorizontalDirections(positions: SkyPosition[]): PreparedHorizontalDirection[] {
+  return positions.map(position => ({...position, ...prepareHorizontalDirection(position)}));
 }
 
 /** Build a fast projector for a fixed camera pose; stars supply cached horizontal trigonometry. */
-export function createPreparedPerspectiveProjector(view: ViewDirection, width: number, height: number, clipToViewport = true, allowBelowHorizon = false, zoom = 1) {
+export function createPreparedPerspectiveProjector<T extends PreparedHorizontalDirection>(view: ViewDirection, width: number, height: number, clipToViewport = true, allowBelowHorizon = false, zoom = 1, clipMargin = 0) {
   const heading = view.heading * RAD;
   const pitch = view.pitch * RAD;
   const cosHeading = Math.cos(heading), sinHeading = Math.sin(heading);
   const cosPitch = Math.cos(pitch), sinPitch = Math.sin(pitch);
   const focal = perspectiveFocal(width, height, zoom);
-  return (star: PreparedHorizontalStar): MapPoint | null => {
+  return (star: T): MapPoint | null => {
     if (width <= 0 || height <= 0 || (star.altitude < 0 && !allowBelowHorizon)) return null;
     const cosDelta = star.cosAzimuth * cosHeading + star.sinAzimuth * sinHeading;
     const sinDelta = star.sinAzimuth * cosHeading - star.cosAzimuth * sinHeading;
@@ -107,6 +137,6 @@ export function createPreparedPerspectiveProjector(view: ViewDirection, width: n
     const up = star.sinAltitude * cosPitch - star.cosAltitude * cosDelta * sinPitch;
     const x = width / 2 + focal * right / depth;
     const y = height / 2 - focal * up / depth;
-    return !clipToViewport || (x >= 0 && x <= width && y >= 0 && y <= height) ? {x, y} : null;
+    return !clipToViewport || (x >= -clipMargin && x <= width + clipMargin && y >= -clipMargin && y <= height + clipMargin) ? {x, y} : null;
   };
 }

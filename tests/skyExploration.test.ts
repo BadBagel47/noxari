@@ -86,9 +86,10 @@ describe('sourced J2000 Milky Way grid', () => {
     const context = {save: vi.fn(), restore: vi.fn(), drawImage: vi.fn(), translate: vi.fn(), scale: vi.fn()} as unknown as CanvasRenderingContext2D;
     const white: MilkyWayTexture = {width: 2, height: 2, pixels: new Uint8ClampedArray(16).fill(255)};
     const painter = new MilkyWayPainter(), time = new Date('2026-01-15T22:00:00Z');
+    const centerAlpha = () => raster!.data[((Math.floor(raster!.height / 2) * raster!.width + Math.floor(raster!.width / 2)) * 4) + 3];
     painter.draw(context, white, time, stockholm, 400, 400, 1, null);
     expect(raster!.data[3]).toBe(0);
-    expect(raster!.data[((160 * 320 + 160) * 4) + 3]).toBeGreaterThan(0);
+    expect(centerAlpha()).toBeGreaterThan(0);
     painter.draw(context, white, time, stockholm, 400, 400, .5, null);
     expect(buffer.putImageData).toHaveBeenCalledTimes(1);
     painter.draw(context, white, time, stockholm, 400, 400, 1, null, false, 2);
@@ -96,9 +97,9 @@ describe('sourced J2000 Milky Way grid', () => {
     expect(context.scale).toHaveBeenLastCalledWith(2, 2);
     expect(buffer.putImageData).toHaveBeenCalledTimes(1);
     painter.draw(context, white, time, stockholm, 400, 400, 1, {heading: 0, pitch: -60});
-    expect(raster!.data[((160 * 320 + 160) * 4) + 3]).toBe(0);
+    expect(centerAlpha()).toBe(0);
     painter.draw(context, white, time, stockholm, 400, 400, 1, {heading: 0, pitch: -60}, true);
-    expect(raster!.data[((160 * 320 + 160) * 4) + 3]).toBeGreaterThan(0);
+    expect(centerAlpha()).toBeGreaterThan(0);
     painter.draw(context, white, new Date(+time + 3600000), {...stockholm, latitude: -30}, 400, 400, 1, null);
     expect(buffer.putImageData).toHaveBeenCalledTimes(4);
     painter.draw(context, white, time, stockholm, 400, 400, 0, null);

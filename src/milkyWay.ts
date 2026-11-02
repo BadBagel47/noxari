@@ -19,8 +19,8 @@ export function milkyWaySample(texture: MilkyWayTexture, x: number, y: number, z
 }
 
 // An inverse ray lookup avoids polygon edges stretching across the camera or
-// horizon. The field is cached between animation-only repaints. At most 320
-// samples on the long axis keep the diffuse layer light on mobile devices.
+// horizon. The field is cached between animation-only repaints. At most 240
+// samples on the long axis keep orientation updates responsive on mobile.
 export class MilkyWayPainter {
   private canvas: HTMLCanvasElement | null = null;
   private key = '';
@@ -31,7 +31,7 @@ export class MilkyWayPainter {
     const key = [time.getTime(), location.latitude, location.longitude, width, height, view?.heading, view?.pitch, belowHorizon].join('|');
     if (!this.canvas || this.key !== key || this.texture !== texture) {
       this.canvas ??= document.createElement('canvas');
-      const scale = Math.max(width, height) / 320;
+      const scale = Math.max(width, height) / 240;
       const cols = Math.max(1, Math.round(width / scale)), rows = Math.max(1, Math.round(height / scale));
       this.canvas.width = cols; this.canvas.height = rows;
       const buffer = this.canvas.getContext('2d')!;

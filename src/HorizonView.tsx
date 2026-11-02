@@ -7,7 +7,7 @@ import {Body} from 'astronomy-engine';
 import {nextObjectRise, objectPosition, objectPositioner, positionAt, showObjectMarker, solarAppearance, type ObservingLocation, type SkyPosition} from './astronomy';
 import {objects, type SpaceObject} from './data';
 import {candidateObjects} from './candidateObjects';
-import {createPreparedPerspectiveProjector, horizontalStarCatalog, perspectiveFocal, prepareHorizontalStars, projectPerspective, type MapPoint, type ViewDirection} from './skyProjection';
+import {createPerspectiveProjector, createPreparedPerspectiveProjector, horizontalStarCatalog, perspectiveFocal, prepareHorizontalDirections, prepareHorizontalStars, projectPerspective, type MapPoint, type ViewDirection} from './skyProjection';
 import {GuidedFinder} from './GuidedFinder';
 import {clampViewPitch, groundOpacity} from './groundView';
 import {MilkyWayPainter, type MilkyWayTexture} from './milkyWay';
@@ -54,6 +54,7 @@ export function HorizonView({selectedId, time, location, label, sunLabel, onSele
   const stars = useMemo(() => prepareHorizontalStars(horizontalStarCatalog(time, location)), [time, location]);
   const figures = useMemo(() => constellationSky(stars, figureMode), [stars, figureMode]);
   const boundaries = useMemo(() => showBoundaries ? boundarySky(time, location) : [], [showBoundaries, time, location]);
+  const preparedBoundaries = useMemo(() => boundaries.map(arc => prepareHorizontalDirections(arc)), [boundaries]);
   const sun = useMemo(() => positionAt(Body.Sun, time, location), [time, location]);
   const targetPosition = useMemo(() => finderTarget ? objectPosition(finderTarget, time, location) : null, [finderTarget, time, location]);
   const nextRise = useMemo(() => finderTarget && targetPosition && targetPosition.altitude < 0 ? nextObjectRise(finderTarget, time, location) : null, [finderTarget, targetPosition, time, location]);
@@ -74,7 +75,7 @@ export function HorizonView({selectedId, time, location, label, sunLabel, onSele
   }), [objectSky, sun.altitude, view, size, finderTarget, zoom]);
   const hasDaylightPlanetMarker = sun.altitude >= 0 && markers.some(marker => marker.object.kind === 'Planet');
   const belowReveal = 1 - groundOpacity(view.pitch);
-  const project = (position: SkyPosition, clip = true) => projectPerspective(position, view, size.width, size.height, clip, belowReveal > 0, zoom);
+  const project = createPerspectiveProjector(view, size.width, size.height, true, belowReveal > 0, zoom);
   const sunPoint = project(sun);
 
   useEffect(() => {
@@ -120,6 +121,8 @@ export function HorizonView({selectedId, time, location, label, sunLabel, onSele
       const starVisibility = darkSkyVisibility(sun.altitude);
       const horizonY = height / 2 + perspectiveFocal(width, height, zoom) * Math.tan(view.pitch * Math.PI / 180);
       const projectStar = createPreparedPerspectiveProjector(view, width, height, true, belowReveal > 0, zoom);
+      // Limit path commands to the visible viewport plus a small overscan.
+      const projectBoundary = createPreparedPerspectiveProjector(view, width, height, true, belowReveal > 0, zoom, 48);
       const sky = context.createLinearGradient(0, 0, 0, height);
       sky.addColorStop(0, daylight ? `rgb(${Math.round(6 + 52 * daylight)},${Math.round(14 + 92 * daylight)},${Math.round(35 + 145 * daylight)})` : '#040c1b');
       sky.addColorStop(1, daylight ? `rgb(${Math.round(21 + 77 * daylight)},${Math.round(41 + 103 * daylight)},${Math.round(69 + 139 * daylight)})` : '#14304b');
@@ -159,7 +162,7 @@ export function HorizonView({selectedId, time, location, label, sunLabel, onSele
       for (const altitude of (belowReveal > 0 ? [-60, -30, 0, 15, 30, 60] : [15, 30, 60])) drawCurve(Array.from({length: 361}, (_, azimuth) => ({altitude, azimuth})));
       for (let azimuth = 0; azimuth < 360; azimuth += 30) drawCurve(Array.from({length: belowReveal > 0 ? 181 : 91}, (_, i) => ({altitude: i - (belowReveal > 0 ? 90 : 0), azimuth})));
 
-      if (showBoundaries) drawBoundaries(context, boundaries, position => project(position, false), width, height, starVisibility);
+      if (showBoundaries) drawBoundaries(context, preparedBoundaries, projectBoundary, width, height, starVisibility);
 
       const animating = showFigures && drawConstellations(context, figures, position => project(position, false), width, height, starVisibility, showFigureNames, {reveal: reveal.current, now: performance.now(), reducedMotion});
       if (!showFigures) reveal.current.reset();
@@ -222,7 +225,7 @@ export function HorizonView({selectedId, time, location, label, sunLabel, onSele
     };
     render();
     return () => cancelAnimationFrame(frame);
-  }, [size, view, zoom, stars, figures, boundaries, showFigures, showFigureNames, figureMode, showBoundaries, reducedMotion, sun.altitude, milkyWay, time, location]);
+  }, [size, view, zoom, stars, figures, boundaries, preparedBoundaries, showFigures, showFigureNames, figureMode, showBoundaries, reducedMotion, sun.altitude, milkyWay, time, location]);
 
   const move = (heading: number, pitch: number) => onViewChange(current => ({heading: wrap(current.heading + heading), pitch: clampViewPitch(current.pitch + pitch)}));
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {

@@ -97,4 +97,5 @@ describe('official IAU boundaries in B1875', () => {
     drawBoundaries(context, [positions], () => ({x: 0, y: 0}), 800, 600, 0);
     expect(context.stroke).not.toHaveBeenCalled();
   });
+
 });

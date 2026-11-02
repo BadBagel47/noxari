@@ -2,7 +2,7 @@ import {describe, expect, it} from 'vitest';
 import {brightStars} from '../src/generated/brightStars';
 import {objects} from '../src/data';
 import {objectPosition, stockholm} from '../src/astronomy';
-import {catalogStarPosition, createPreparedPerspectiveProjector, horizontalStarCatalog, prepareHorizontalStars, projectBrightStars, projectHorizontal, projectPerspective} from '../src/skyProjection';
+import {catalogStarPosition, createPerspectiveProjector, createPreparedPerspectiveProjector, horizontalStarCatalog, prepareHorizontalDirections, prepareHorizontalStars, projectBrightStars, projectHorizontal, projectPerspective} from '../src/skyProjection';
 
 describe('real all-sky projection', () => {
   it('puts zenith at center and the cardinal horizons on the circle', () => {
@@ -54,6 +54,53 @@ describe('real all-sky projection', () => {
       for (let index = 0; index < stars.length; index += 211) {
         const expected = projectPerspective(stars[index], view, 390, 844, true, allowBelow, 1.7);
         const actual = fastProject(stars[index]);
+        expect(actual === null).toBe(expected === null);
+        if (actual && expected) {
+          expect(actual.x).toBeCloseTo(expected.x, 9);
+          expect(actual.y).toBeCloseTo(expected.y, 9);
+        }
+      }
+    }
+  });
+
+  it('keeps prepared IAU boundary points numerically aligned while panning', () => {
+    const points = prepareHorizontalDirections([
+      {altitude: -12, azimuth: 2}, {altitude: 0, azimuth: 45},
+      {altitude: 36, azimuth: 180}, {altitude: 89, azimuth: 359},
+    ]);
+    for (const view of [{heading: 359, pitch: 0}, {heading: 124, pitch: 37}, {heading: 212, pitch: -28}]) {
+      const fastProject = createPreparedPerspectiveProjector(view, 390, 844, false, true, 1.7);
+      for (const point of points) {
+        const expected = projectPerspective(point, view, 390, 844, false, true, 1.7);
+        const actual = fastProject(point);
+        expect(actual === null).toBe(expected === null);
+        if (actual && expected) {
+          expect(actual.x).toBeCloseTo(expected.x, 9);
+          expect(actual.y).toBeCloseTo(expected.y, 9);
+        }
+      }
+    }
+  });
+
+  it('supports a small overscan when culling offscreen boundary samples', () => {
+    const point = prepareHorizontalDirections([{altitude: 0, azimuth: 25}])[0];
+    expect(createPreparedPerspectiveProjector({heading: 0, pitch: 0}, 390, 844)(point)).toBeNull();
+    const overscan = createPreparedPerspectiveProjector({heading: 0, pitch: 0}, 390, 844, true, false, 1, 48)(point);
+    const expected = projectPerspective(point, {heading: 0, pitch: 0}, 390, 844, false)!;
+    expect(overscan?.x).toBeCloseTo(expected.x, 9);
+    expect(overscan?.y).toBeCloseTo(expected.y, 9);
+  });
+
+  it('keeps the camera-cached projector aligned with the reference projection', () => {
+    const positions = [
+      {altitude: -44, azimuth: 0}, {altitude: 0, azimuth: 89},
+      {altitude: 27, azimuth: 182}, {altitude: 80, azimuth: 359},
+    ];
+    for (const view of [{heading: 359, pitch: 0}, {heading: 124, pitch: 37}, {heading: 212, pitch: -28}]) {
+      const fastProject = createPerspectiveProjector(view, 390, 844, true, true, 1.7);
+      for (const position of positions) {
+        const expected = projectPerspective(position, view, 390, 844, true, true, 1.7);
+        const actual = fastProject(position);
         expect(actual === null).toBe(expected === null);
         if (actual && expected) {
           expect(actual.x).toBeCloseTo(expected.x, 9);

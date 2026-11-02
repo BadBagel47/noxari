@@ -35,7 +35,7 @@ export function boundarySky(time: Date, location: ObservingLocation): SkyPositio
 
 // Projected segments are clipped to the viewport; a null sample breaks a path
 // at the geometric horizon or behind the camera instead of joining across it.
-export function drawBoundaries(context: CanvasRenderingContext2D, arcs: SkyPosition[][], project: (position: SkyPosition) => MapPoint | null, width: number, height: number, visibility: number) {
+export function drawBoundaries<T extends SkyPosition>(context: CanvasRenderingContext2D, arcs: T[][], project: (position: T) => MapPoint | null, width: number, height: number, visibility: number) {
   if (visibility <= 0) return;
   context.save();
   context.beginPath(); context.rect(0, 0, width, height); context.clip();
