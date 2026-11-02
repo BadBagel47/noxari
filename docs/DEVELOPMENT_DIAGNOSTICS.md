@@ -44,3 +44,7 @@ Physical Android/iOS sensor behavior cannot be established by synthetic browser 
 - A browser smoke test validates the tested browser and viewport only.
 - An Actions success validates the deployed workflow run. Compare the deployed version if confirming a particular build.
 - A physical device report is evidence for that session, not general accuracy across devices.
+
+## Rendering performance
+
+See [B-004 performance analysis](PERFORMANCE_ANALYSIS.md) for the current production sweep, remaining stutter, timing limitations and proposed rendering scheduler. RAF cadence, actual scene draws and input latency matter; passing interaction checks or having no >50 ms long tasks does not establish smooth animation.
