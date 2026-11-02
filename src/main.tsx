@@ -68,7 +68,7 @@ function App() {
   const [gear, setGear] = useState<'all'|Gear>('all');
   const [category, setCategory] = useState('All');
   const [catalogGroup, setCatalogGroup] = useState<'main'|'extra'>('main');
-  const [showCandidateCollection, setShowCandidateCollection] = useState(() => localStorage.getItem('noxari-show-candidates') === 'true');
+  const [showCandidateCollection, setShowCandidateCollection] = useState(true);
   const [time, setTime] = useState(() => new Date());
   const [timeMode, setTimeMode] = useState<'live' | 'fixed' | 'preview'>('live');
   const [location, setLocation] = useState<ObservingLocation>(initialLocation);
@@ -78,9 +78,9 @@ function App() {
   const [toast, setToast] = useState('');
   const [finderTarget, setFinderTarget] = useState<SpaceObject | null>(null);
   const [showFigures, setShowFigures] = useState(true);
-  const [figureMode, setFigureMode] = useState<FigureMode>('common');
+  const [figureMode, setFigureMode] = useState<FigureMode>('all');
   const [showFigureNames, setShowFigureNames] = useState(true);
-  const [showBoundaries, setShowBoundaries] = useState(false);
+  const [showBoundaries, setShowBoundaries] = useState(true);
   const [showMilkyWay, setShowMilkyWay] = useState(true);
   const milkyWay = useMilkyWay(showMilkyWay);
   const [skyMode, setSkyMode] = useState<'horizon' | 'map'>('horizon');
@@ -115,7 +115,6 @@ function App() {
   useEffect(() => { localStorage.setItem('noxari-saved', JSON.stringify(saved)); }, [saved]);
   useEffect(() => { localStorage.setItem('noxari-lang', lang); document.documentElement.lang = lang; }, [lang]);
   useEffect(() => { localStorage.setItem('noxari-location', JSON.stringify(location)); }, [location]);
-  useEffect(() => { localStorage.setItem('noxari-show-candidates', String(showCandidateCollection)); }, [showCandidateCollection]);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.has('list')) {

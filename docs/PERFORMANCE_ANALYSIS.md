@@ -64,3 +64,40 @@ A fresh baseline export of commit `1565b5d` was built in `/tmp/noxari-b004-befor
 The first seven moves are below the 8 px drag threshold; 83 draws match the remaining accepted camera updates. Extra full-scene animation draws during this sweep were removed. There were fewer slow intervals, but the slowest percentile did not improve. This does not establish smooth physical-device performance or eliminate the DPR/raster issue. Recheck on Android/Brave before deciding the next approved step.
 
 Verification: 130 offline tests and production build pass. Chromium at 390×844, 1280×800 and 568×320 checked a burst of 36 pointer moves coalescing to one draw, accumulated camera deltas, canvas Sirius/DOM Sirius-marker/HUD alignment, pinch and marker-origin dragging/tapping, idle shutdown and no page errors. Separate checks at mobile/desktop sizes covered Finder centering, keyboard offsets, ring alignment under pinch and completion of the normal entrance animation. Synthetic sensor checks covered manual north, latest-sample publication, following across search, map/return, Stop cancelling queued publication, pending permission cancellation and denial. Physical compass precision was not tested or changed.
+
+## Latest physical feedback
+
+After the shared scheduler deployment, the user reported possibly slightly worse performance or no difference, and difficulty telling. Physical improvement is unconfirmed; regression is possible but not established. Fewer synthetic draws/slow intervals did not establish lower input-to-display latency or better perceived smoothness. Before another optimization, distinguish finger drag from phone following and compare the scheduler version with the preceding version under matched conditions, including latency and frame pacing. No further implementation or rollback is approved.
+
+The user further described roughly similar stutter with finger drag and phone following, acceptable overall performance with room to improve, and substantially better perceived responsiveness in Stellarium Web. This is a same-user observation, not a controlled cross-app benchmark. The next approved performance batch should include F-020: all five sky display toggles enabled and All (88) figures selected by default, with existing stored defaults handled so repeat testing does not require manual layer setup. It does not authorize enabling sensors or GPS automatically. This follow-up was subsequently approved and implemented; see the B-004 + F-020 section below.
+
+## Approved B-004 + F-020 follow-up
+
+The user approved the follow-up after reporting similar stutter with finger drag and phone following, and requested all layers on by default for repeat testing. The horizon now uses `MotionResolution`: two meaningful camera/zoom changes close together enter DPR at most 1.5, with full DPR (up to 2) restored after 220 ms of stillness. Small jitter and one isolated jump do not enter the mode. A late frame with fresh movement does not prematurely upshift. The policy leaves lower-DPR displays at their native density. Buffer dimensions change only at the downshift/restoration, rather than on each event. One cancellable timeout invalidates the shared scheduler for the sharp redraw; it is cleared on unmount. The fully painted horizon canvas also requests `alpha:false`.
+
+This trades temporary canvas sharpness for lower raster cost; DOM object labels and controls stay native, and CSS projection/Finder alignment is unchanged. The all-sky map remains at its existing density. No lower catalog limit, hidden layers, changed sensor calibration or new renderer dependency was introduced.
+
+F-020 starts figures, names, IAU boundaries, Milky Way and the candidate layer enabled, with All (88) selected, on each page load. Disabling a layer lasts for the session. The old persisted `noxari-show-candidates` value is no longer read or written; an existing saved false cannot block the new startup default. Candidate status/separation and opt-in GPS/phone following remain explicit.
+
+### Production comparison
+
+A clean export of preceding HEAD `9fdda36` (the shared-scheduler app code) was built separately under `/tmp/noxari-motion-before` and compared with the new production build. Both were explicitly set to all five toggles and All (88), fixed 2026-01-15 22:00 UTC/Stockholm, 390×844, device DPR 2, using the same 90-input RAF sweep as above. Runs were interleaved; no other browser test ran concurrently. The final combined implementation gave:
+
+| Version | Median RAF interval | p95 interval | Intervals >25 ms / 90 | Draws |
+| --- | --- | --- | --- | --- |
+| Before, run 1 | 19 ms | 32 ms | 11 | 83 |
+| Adaptive + opaque canvas, run 1 | 16 ms | 28 ms | 6 | 83 |
+| Before, run 2 | 19 ms | 32 ms | 10 | 83 |
+| Adaptive + opaque canvas, run 2 | 16 ms | 32 ms | 7 | 83 |
+
+Draw instrumentation recorded only DPR 2 and DPR 1.5 during the moving sweeps. A preliminary adaptive-only comparison had median 16 ms vs 18–19 ms, p95 29 ms vs 31–32 ms and 6–7/90 long intervals vs 8–9/90. These small samples do not establish an independent benefit from opaque canvas; the final result is for the combined change. Median cadence improved, but high-percentile variation remains and a buffer transition can cost a frame. This is not measured presented FPS or guaranteed improvement on physical Android/Brave, nor a controlled Stellarium comparison. Do not mark B-004 physically resolved from these results.
+
+### Verification
+
+- 135 offline tests and production build pass, including sustained movement, jitter/single-jump behavior, wraparound, pinch, delayed-frame hysteresis and low-DPR handling.
+- Chromium at 390×844, 1280×800 and 568×320/DPR 2, plus mobile DPR 1.25, verified new defaults despite an old stored false, layer disabling across map/panels, reload returning all layers, no automatic sensor/GPS prompts, opaque horizon rendering and idle shutdown.
+- During a sustained swipe the primary canvas allocated one smaller and one restored buffer; low-DPR mode allocated neither. It restored full density after settling. Moving/resting snapshots were visually reviewed.
+- Numerical/browser fixtures checked that Sirius's canvas star, DOM marker and heading share the exact CSS pose during lower-density motion and after restoration (canvas-coordinate tolerance 0.001 CSS px; serialized DOM styles 0.01 px). Touch pinch/marker-origin drag/tap and Finder centering/keyboard offsets/pinch geometry passed.
+- Synthetic phone following also entered/restored motion density. Latest-pose publication, search persistence, map/return, Stop cancelling pending publication, permission cancellation and denial passed. These do not validate physical compass precision or latency.
+
+F-020 is complete. B-004 awaits the user's physical evaluation. A further development step needs a fresh recommendation and approval.

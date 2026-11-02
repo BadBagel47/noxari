@@ -1,3 +1,4 @@
+import {MotionResolution} from './motionResolution';
 import {useSkyFrameState} from './useSkyFrames';
 import type {SkyFrames} from './skyFrames';
 import {useEffect, useLayoutEffect, useMemo, useRef, useState, type Dispatch, type PointerEvent, type SetStateAction} from 'react';
@@ -47,6 +48,8 @@ export function HorizonView({frames, selectedId, time, location, label, sunLabel
   const canvas = useRef<HTMLCanvasElement>(null);
   const reveal = useRef(new ConstellationReveal());
   const milkyWayPainter = useRef(new MilkyWayPainter());
+  const resolution = useRef(new MotionResolution());
+  const restoreResolution = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reducedMotion = useReducedMotion();
   const drag = useRef<{id: number; x: number; y: number; startX: number; startY: number; moved: boolean; marker: HTMLButtonElement | null} | null>(null);
   const touchPoints = useRef(new Map<number, {x: number; y: number}>());
@@ -105,18 +108,28 @@ export function HorizonView({frames, selectedId, time, location, label, sunLabel
     };
   }, []);
 
-  useLayoutEffect(() => () => frames.clearRenderer(), [frames]);
+  useLayoutEffect(() => () => {
+    frames.clearRenderer();
+    if (restoreResolution.current !== null) clearTimeout(restoreResolution.current);
+  }, [frames]);
 
   useLayoutEffect(() => {
     const surface = canvas.current;
     if (!surface || !size.width || !size.height) { frames.clearRenderer(); return; }
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const pixelWidth = Math.round(size.width * dpr), pixelHeight = Math.round(size.height * dpr);
-    if (surface.width !== pixelWidth) surface.width = pixelWidth;
-    if (surface.height !== pixelHeight) surface.height = pixelHeight;
-    const context = surface.getContext('2d');
+    // The sky always paints an opaque background, so no canvas alpha buffer is needed.
+    const context = surface.getContext('2d', {alpha: false});
     if (!context) { frames.clearRenderer(); return; }
     const render = (now: number) => {
+      const quality = resolution.current.sample(view, zoom, window.devicePixelRatio || 1, performance.now());
+      if (restoreResolution.current !== null) clearTimeout(restoreResolution.current);
+      restoreResolution.current = quality.restoreAt === null ? null : setTimeout(() => {
+        restoreResolution.current = null;
+        frames.invalidate();
+      }, Math.max(1, quality.restoreAt - performance.now() + 1));
+      const dpr = quality.dpr;
+      const pixelWidth = Math.round(size.width * dpr), pixelHeight = Math.round(size.height * dpr);
+      if (surface.width !== pixelWidth) surface.width = pixelWidth;
+      if (surface.height !== pixelHeight) surface.height = pixelHeight;
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
       context.globalAlpha = 1;
       context.textAlign = 'left';

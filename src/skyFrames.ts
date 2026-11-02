@@ -28,6 +28,10 @@ export class SkyFrames {
 
   setRenderer(renderer: SkyFrameRenderer) {
     this.renderer = renderer;
+    this.invalidate();
+  }
+
+  invalidate() {
     this.dirty = true;
     this.request();
   }
