@@ -1,0 +1,184 @@
+{
+  "prototypeBuild": "2d4cf454a671",
+  "webgl": {
+    "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+    "renderer": "Brave",
+    "pointRange": [
+      1,
+      511
+    ]
+  },
+  "fixture": {
+    "time": "2026-01-15T22:00:00.000Z",
+    "preset": "Stockholm",
+    "stars": 8922
+  },
+  "note": "Isolerad renderingsprototyp, GPU-till-Canvas-brygga. Ingen React/sensorbed\u00f6mning, inga GPS-koordinater. GPU-kommandotid \u00e4r inte GPU-sluttid. Inga readPixels/finish i tidsm\u00e4tningen.",
+  "runs": [
+    {
+      "requested": "canvas",
+      "effective": "canvas",
+      "frames": 90,
+      "width": 411.421875,
+      "height": 772.5625,
+      "dpr": 1.5,
+      "intervals": {
+        "count": 90,
+        "median": 16.7,
+        "p95": 33.4,
+        "max": 33.6
+      },
+      "over25ms": 14,
+      "draw": {
+        "count": 90,
+        "median": 17.3,
+        "p95": 21.5,
+        "max": 25.7
+      },
+      "stages": {
+        "milky": {
+          "count": 90,
+          "median": 11.8,
+          "p95": 16,
+          "max": 17.8
+        },
+        "stars": {
+          "count": 90,
+          "median": 1.5,
+          "p95": 2.5,
+          "max": 3.2
+        },
+        "other": {
+          "count": 90,
+          "median": 3.3,
+          "p95": 4.5,
+          "max": 5.2
+        }
+      }
+    },
+    {
+      "requested": "gpu",
+      "effective": "gpu",
+      "frames": 90,
+      "width": 411.421875,
+      "height": 772.5625,
+      "dpr": 1.5,
+      "intervals": {
+        "count": 90,
+        "median": 16.7,
+        "p95": 16.8,
+        "max": 17.7
+      },
+      "over25ms": 0,
+      "draw": {
+        "count": 90,
+        "median": 9,
+        "p95": 12.9,
+        "max": 14.9
+      },
+      "stages": {
+        "milky": {
+          "count": 90,
+          "median": 2.3,
+          "p95": 6.5,
+          "max": 8.4
+        },
+        "stars": {
+          "count": 90,
+          "median": 0.4,
+          "p95": 0.6,
+          "max": 0.7
+        },
+        "other": {
+          "count": 90,
+          "median": 5.7,
+          "p95": 7.4,
+          "max": 8.5
+        }
+      }
+    },
+    {
+      "requested": "gpu",
+      "effective": "gpu",
+      "frames": 90,
+      "width": 411.421875,
+      "height": 772.5625,
+      "dpr": 1.5,
+      "intervals": {
+        "count": 90,
+        "median": 16.7,
+        "p95": 16.8,
+        "max": 17
+      },
+      "over25ms": 0,
+      "draw": {
+        "count": 90,
+        "median": 9,
+        "p95": 12.6,
+        "max": 13.5
+      },
+      "stages": {
+        "milky": {
+          "count": 90,
+          "median": 2.2,
+          "p95": 6.1,
+          "max": 7.4
+        },
+        "stars": {
+          "count": 90,
+          "median": 0.4,
+          "p95": 0.6,
+          "max": 1
+        },
+        "other": {
+          "count": 90,
+          "median": 5.7,
+          "p95": 7.4,
+          "max": 8.2
+        }
+      }
+    },
+    {
+      "requested": "canvas",
+      "effective": "canvas",
+      "frames": 90,
+      "width": 411.421875,
+      "height": 772.5625,
+      "dpr": 1.5,
+      "intervals": {
+        "count": 90,
+        "median": 16.7,
+        "p95": 33.4,
+        "max": 33.4
+      },
+      "over25ms": 17,
+      "draw": {
+        "count": 90,
+        "median": 17.8,
+        "p95": 22.1,
+        "max": 31.6
+      },
+      "stages": {
+        "milky": {
+          "count": 90,
+          "median": 12.6,
+          "p95": 16.6,
+          "max": 22
+        },
+        "stars": {
+          "count": 90,
+          "median": 1.5,
+          "p95": 2.5,
+          "max": 2.9
+        },
+        "other": {
+          "count": 90,
+          "median": 3.3,
+          "p95": 5.1,
+          "max": 6.8
+        }
+      }
+    }
+  ],
+  "provenance": "User-uploaded Android/Brave prototype report; user agent omitted. Renderer string is privacy-masked and does not identify GPU hardware."
+}

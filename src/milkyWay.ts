@@ -18,6 +18,16 @@ export function milkyWaySample(texture: MilkyWayTexture, x: number, y: number, z
     + (at(left, top + 1) * (1 - fx) + at(left + 1, top + 1) * fx) * fy;
 }
 
+/** Columns are north, west, up in J2000, matching the CPU inverse-ray painter. */
+export function milkyWayBasis(time: Date, location: ObservingLocation) {
+  const rotation = Rotation_HOR_EQJ(time, new Observer(location.latitude, location.longitude, 0));
+  const instant = new AstroTime(time);
+  return new Float32Array([[1, 0, 0], [0, 1, 0], [0, 0, 1]].flatMap(([x, y, z]) => {
+    const p = RotateVector(rotation, new Vector(x, y, z, instant));
+    return [p.x, p.y, p.z];
+  }));
+}
+
 // An inverse ray lookup avoids polygon edges stretching across the camera or
 // horizon. The field is cached between animation-only repaints. At most 240
 // samples on the long axis keep orientation updates responsive on mobile.

@@ -21,7 +21,7 @@ npm test
 npm run preview
 ```
 
-Development and test entry points, plus the limits of browser and sensor checks, are collected in [Development diagnostics](docs/DEVELOPMENT_DIAGNOSTICS.md). A separate [GPU rendering prototype](docs/GPU_PROTOTYPE.md) is available at `/noxari/labs/gpu-sky/` after a production build; it does not change the ordinary app renderer.
+Development and test entry points, plus the limits of browser and sensor checks, are collected in [Development diagnostics](docs/DEVELOPMENT_DIAGNOSTICS.md). A separate [GPU rendering prototype](docs/GPU_PROTOTYPE.md) is available at `/noxari/labs/gpu-sky/` after a production build; it compares the same shared layers now used by the ordinary horizon view. See [GPU rendering](docs/GPU_RENDERING.md) for fallback and verification limits.
 
 To test on a phone on the same Wi-Fi network, use the `Network` URL printed by Vite (your firewall may need to allow it).
 
@@ -43,6 +43,8 @@ To test on a phone on the same Wi-Fi network, use the `Network` URL printed by V
 - **Language** — EN/SV toggle; Swedish object names and selected UI copy.
 
 ## Sky interaction and readability
+
+The eye-level view uses WebGL2 for stars and the Milky Way when supported, with the existing Canvas layers as fallback. Known software renderers use Canvas automatically. The all-sky map retains Canvas. Star circles use cached Canvas coverage to preserve the existing brightness style. See [GPU rendering](docs/GPU_RENDERING.md) for context recovery, resource ownership and device-validation limits.
 
 The eye-level view shares one frame queue for camera, pinch zoom, phone-direction publication and constellation animation. It commits the matching marker/Finder overlays before drawing the canvas, coalesces rapid input and stops when idle. During repeated camera/zoom movement, the horizon canvas temporarily caps DPR at 1.5, then returns to full DPR (up to 2) after 220 ms of stillness. Controls and object labels stay at native DOM resolution. Small sensor jitter or one isolated jump does not start the lower-resolution mode. See [performance analysis](docs/PERFORMANCE_ANALYSIS.md) for measured improvements and remaining device-validation limits.
 

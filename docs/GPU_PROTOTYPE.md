@@ -1,10 +1,10 @@
 # B-004 — separate GPU rendering prototype
 
-Approved by the user's “Kör” after the recommendation **Sol High**. This bounded step profiles the existing production view and tests GPU stars/Milky Way separately. It does not authorize migrating the app renderer. B-004 remains open; B-001 direction drift remains paused. F-020 defaults are preserved.
+Approved by the user's “Kör” after the recommendation **Sol High**. This bounded step profiles the existing production view and tests GPU stars/Milky Way separately. The user subsequently approved the bounded ordinary-horizon integration with a new “Kör”; see [GPU rendering](GPU_RENDERING.md) for the implementation and current validation status. B-004 remains open; B-001 direction drift remains paused. F-020 defaults are preserved.
 
 ## Test from chat / on a phone
 
-Open https://badbagel47.github.io/noxari/labs/gpu-sky/ . The ordinary app remains at https://badbagel47.github.io/noxari/ .
+Open https://badbagel47.github.io/noxari/labs/gpu-sky/ . The ordinary app is at https://badbagel47.github.io/noxari/ and now uses the shared GPU layers when supported.
 
 1. Choose **Canvas – referens**, collapse the heading and drag/pinch. Then compare **GPU – stjärnor + Vintergata** with the same view. The two individual GPU layer modes help isolate a difference.
 2. Expand the heading and press **Jämför natthimmel**. Keep the tab foreground and the same screen size until it finishes. No GPS or motion permission is requested; this is a manual rendering test.
@@ -14,7 +14,7 @@ The default is Canvas. Missing WebGL2 or lost GPU resources use Canvas and say s
 
 ## Architecture and preserved geometry
 
-`labs/gpu-sky/` is a separately built page, not imported by `src/App.tsx` or the app renderer. `npm run build` builds it under `dist/labs/gpu-sky/` after the ordinary app/share pages. It adds no dependencies and loads no remote datasets. The original main app's JS/CSS content hashes remain unchanged.
+`labs/gpu-sky/` is a separately built page, not imported by `src/App.tsx` or the app renderer. `npm run build` builds it under `dist/labs/gpu-sky/` after the ordinary app/share pages. It adds no dependencies and loads no remote datasets. The original prototype step kept the main app JS/CSS unchanged. The subsequently approved integration moves layer code to `src/gpuSky.ts`, re-exported by the lab; the new main app JS now includes those layers. Historical measurements below refer to their stated builds.
 
 The harness reuses the pinned 8,922 HYG stars, star magnitudes, astronomy transforms, All 88 figures, boundary preparation/drawing and ground visibility helpers. Positions are calculated once for the fixed time/place, not on every camera frame. DOM object positions use the shared CPU projection. Other Canvas layers retain their draw order.
 
@@ -56,7 +56,7 @@ Headless Chromium 154 on Linux with **SwiftShader software WebGL2**, not a phone
 | GPU stars only, additional | 16.7 / 16.8 | 4 | 9.8 | 2.5 | 5.5 |
 | Canvas additional | 16.7 / 16.7 | 0 | 4.6 | 2.6 | 0.8 |
 
-**No performance win demonstrated.** The bridge is slower on this software backend. These measurements do not isolate copy cost from shader execution and cannot establish physical Android performance. They are grounds to retain Canvas and request a real-device comparison, not to claim that GPU rendering in general is worse or faster.
+**No performance win demonstrated on this software backend.** The bridge is slower in SwiftShader. These measurements do not isolate copy cost from shader execution and cannot establish physical Android performance. They are grounds to retain Canvas and request a real-device comparison, not to claim that GPU rendering in general is worse or faster.
 
 ## Correctness and verification
 
@@ -70,13 +70,30 @@ node scripts/verify_gpu_prototype.mjs
 # PLAYWRIGHT_MODULE can select its installed module path; CHROMIUM_PATH and LAB_URL are optional.
 ```
 
-Chromium readbacks, outside timing runs:
+Original prototype Chromium readbacks, outside timing runs (the verification script now exercises the refined shared code; current values are in [GPU_RENDERING.md](GPU_RENDERING.md)):
 
 - 32 synthetic star cases cover four magnitude/radius bins, heading wrap, 1×/3× zoom, ±89.9° pitch, below-horizon reveal, daytime suppression and behind-camera clipping. Visible centroids differ from the CPU projection by at most **0.027 CSS px** at DPR 2. This checks rendering geometry, not celestial accuracy against independent ephemerides.
 - Ten Milky Way image comparisons against the unmodified painter cover positive/negative pitch, near-vertical views, heading wrap and zoom. Alpha RMSE ≤**0.366/255**, maximum individual alpha difference **8/255** at the horizon/interpolation edges. Sampling/quantization are not pixel-identical.
 - Star sprite antialiasing is approximate: centered integrated opacity ratios versus Canvas at DPR 2 are **1.021, 1.026, 0.976, 1.124** for magnitudes −1, 1, 3 and 6.5. The faintest tiny sprite is about 12% stronger in this test. Magnitude ordering remains, but this coverage difference is a **migration blocker to review/refine**, especially at other DPRs. Do not describe the prototype as preserving identical photometry.
 - Real controller tests exercise context loss/restoration, unavailable WebGL2, cancellation and resize cancellation, Canvas fallback, and mobile/desktop/short-landscape layouts. Touch/pinch, keyboard panning and a four-run JSON download passed. The ordinary app’s 135 tests and complete production build passed; its JS/CSS matched the previous public assets byte for byte over verified TLS. No physical compass/GPS validation is included.
 
+## Physical Android/Brave report, 2026-11-02
+
+[Saved report](measurements/gpu-prototype-android-brave-2026-11-02.json), with user-agent omitted. Build `2d4cf454a671`, viewport 411.421875×772.5625 CSS px, fixed DPR 1.5, same night and 8,922 stars. The privacy-masked renderer is “Brave”; do not infer a GPU model or Android version from this report.
+
+| Metric | Canvas first / last | GPU first / repeat |
+| --- | ---: | ---: |
+| Synchronous draw median, ms | 17.3 / 17.8 | 9.0 / 9.0 |
+| RAF interval p95, ms | 33.4 / 33.4 | 16.8 / 16.8 |
+| Intervals >25 ms, per 90 | 14 / 17 | 0 / 0 |
+| Milky Way stage median, ms | 11.8 / 12.6 | 2.3 / 2.2 |
+| Star stage median, ms | 1.5 / 1.5 | 0.4 / 0.4 |
+| Other draw stages median, ms | 3.3 / 3.3 | 5.7 / 5.7 |
+
+The average of the two draw medians falls by 48.7%; this is not a pooled frame median or a measured FPS multiplier. Both GPU runs improve cadence and command submission in the fixed prototype workload. The “other” stage rises; neither it nor copy/synchronization cost has been independently attributed. The report contains no manual interaction latency, presented-frame data, React panel cost, sensors or Stellarium benchmark. The prototype restores the previously selected mode after comparison (Canvas by default); a completed comparison does not leave GPU selected automatically.
+
+The user initially described “perhaps slightly better” and a large gap to Stellarium, then recognized that the ordinary app renderer was unchanged. Do not treat that as confirmed manual GPU improvement or production-app validation. The phone measurements support considering integration, superseding the earlier wait-for-report decision; B-004 remains open.
+
 ## Decision / next step
 
-Keep the existing app renderer. Ask the user for the phone report and manual comparison before proposing migration. If hardware results are promising, separately approve brightness/edge-parity refinement and a renderer integration plan that preserves `SkyFrames`, overlays, fallback and scientific projection. Otherwise consider optimizing the current Milky Way CPU raster, cached grid/figure geometry, or isolating camera state from panel renders. These are possible next steps, not current approvals.
+At the time of this phone report, the ordinary app still used Canvas. The recommendation was **Sol High** for a bounded B-004 integration of GPU stars/Milky Way in the horizon view with Canvas fallback, refinement of the known brightness/edge-coverage difference, and whole-app manual-input/cadence checks. Preserve `SkyFrames`, matching marker/Finder projection, layer defaults, cleanup and recovery. Do not promise Stellarium parity from this test. A wider all-GPU renderer is a separate decision. **The user subsequently approved this bounded integration with “Kör”; it is implemented as described in [GPU_RENDERING.md](GPU_RENDERING.md).** Whole-app physical feedback is pending; any further batch requires fresh approval. B-001 stays paused.

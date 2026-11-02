@@ -40,6 +40,18 @@ const verified=await page.evaluate(()=>{
   clear(cpu);cpu.fillStyle='#e3f1ff';const brightness=magnitude<=5.8?Math.max(.18,Math.min(1,(6.1-magnitude)/5.8)):Math.max(.05,.18-(magnitude-5.8)*.13/.7);cpu.globalAlpha=.28+brightness*.72;cpu.beginPath();cpu.arc(w/2,h/2,magnitude<0?3:magnitude<2?2.2:magnitude<4?1.5:.9,0,2*Math.PI);cpu.fill();cpu.globalAlpha=1;
   energy.push({magnitude,ratio:stats(out).alpha/stats(cpu).alpha});
  }
+ const phaseEnergy=[];
+ for(const ratio of [1,1.25,1.5,2])for(const magnitude of [-1,1,3,6.5])for(const phase of [0,.25,.5,.75]){
+  const make=()=>{const c=document.createElement('canvas');c.width=c.height=96*ratio;const ctx=c.getContext('2d',{willReadFrequently:true});ctx.setTransform(ratio,0,0,ratio,0,0);return ctx};
+  const reference=make(),rendered=make(),view={heading:180,pitch:31};
+  const star=prepareHorizontalStars([{azimuth:180+phase,altitude:31+phase*.3,magnitude,hip:1}])[0];
+  gpu.setScene([star],null);gpu.drawStars(rendered,96,96,ratio,view,1,0,1);
+  const point=projectPerspective(star,view,96,96);
+  const brightness=magnitude<=5.8?Math.max(.18,Math.min(1,(6.1-magnitude)/5.8)):Math.max(.05,.18-(magnitude-5.8)*.13/.7);
+  reference.globalAlpha=.28+brightness*.72;reference.beginPath();reference.arc(point.x,point.y,magnitude<0?3:magnitude<2?2.2:magnitude<4?1.5:.9,0,2*Math.PI);reference.fill();
+  const sum=ctx=>{const p=ctx.getImageData(0,0,96*ratio,96*ratio).data;let total=0;for(let i=3;i<p.length;i+=4)total+=p[i];return total};
+  phaseEnergy.push({dpr:ratio,magnitude,phase,ratio:sum(rendered)/sum(reference)});
+ }
  gpu.setScene(skyLab.scene().stars,texture);
  const mw=[];const painter=new MilkyWayPainter();
  for(const view of [{heading:180,pitch:31},{heading:359.9,pitch:0},{heading:.1,pitch:0},{heading:30,pitch:89.9},{heading:250,pitch:-89.9}])for(const zoom of [1,3]){
@@ -49,10 +61,11 @@ const verified=await page.evaluate(()=>{
   for(let i=3;i<a.length;i+=4){const diff=Math.abs(a[i]-b[i]);s+=diff;sq+=diff*diff;max=Math.max(max,diff)}
   mw.push({view,zoom,alphaMeanError:s/(a.length/4),alphaRmse:Math.sqrt(sq/(a.length/4)),alphaMax:max});
  }
- const glError=gpu.gl.getError();gpu.dispose();return {starResults,energy,mw,glError};
+ const glError=gpu.gl.getError();gpu.dispose();return {starResults,energy,phaseEnergy,mw,glError};
 });
 assert.equal(verified.glError,0);
-for(const c of verified.starResults){assert.equal(c.visible,c.expectedVisible);if(c.error!==null)assert.ok(c.error<.4,JSON.stringify(c));}
+for(const c of verified.phaseEnergy)assert.ok(Math.abs(c.ratio-1)<.075,JSON.stringify(c));
+for(const c of verified.starResults){assert.equal(c.visible,c.expectedVisible);if(c.error!==null)assert.ok(c.error<.1,JSON.stringify(c));}
 for(const c of verified.mw)assert.ok(c.alphaRmse<2,JSON.stringify(c));
 assert.equal(errors.length,0,errors.join('\n'));
 // Exercise the real controller's fallback and resource recreation.
@@ -102,5 +115,5 @@ assert.equal(await fallback.evaluate(()=>skyLab.render().effective),'canvas');
 assert.equal(await fallback.locator('#mode option[value="gpu"]').evaluate(option=>option.disabled),true);
 assert.equal(errors.length,0,errors.join('\n'));
 if(process.env.QA_OUTPUT)writeFileSync(process.env.QA_OUTPUT,JSON.stringify(verified,null,2));
-console.log(JSON.stringify({starCases:verified.starResults.length,maxCentroidError:Math.max(...verified.starResults.map(c=>c.error||0)),energyRatios:verified.energy,milkyCases:verified.mw.length,maxAlphaRmse:Math.max(...verified.mw.map(c=>c.alphaRmse)),contextRecovery:true,fallback:true,resizeCancel:true,errors},null,2));
+console.log(JSON.stringify({starCases:verified.starResults.length,maxCentroidError:Math.max(...verified.starResults.map(c=>c.error||0)),energyRatios:verified.energy,phaseCases:verified.phaseEnergy.length,phaseRatioRange:[Math.min(...verified.phaseEnergy.map(c=>c.ratio)),Math.max(...verified.phaseEnergy.map(c=>c.ratio))],milkyCases:verified.mw.length,maxAlphaRmse:Math.max(...verified.mw.map(c=>c.alphaRmse)),contextRecovery:true,fallback:true,resizeCancel:true,errors},null,2));
 } finally { await browser.close(); }
