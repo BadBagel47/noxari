@@ -48,3 +48,5 @@ Physical Android/iOS sensor behavior cannot be established by synthetic browser 
 ## Rendering performance
 
 See [B-004 performance analysis](PERFORMANCE_ANALYSIS.md) for the current production sweep, remaining stutter, timing limitations and proposed rendering scheduler. RAF cadence, actual scene draws and input latency matter; passing interaction checks or having no >50 ms long tasks does not establish smooth animation.
+
+`tests/skyFrames.test.ts` checks shared-frame coalescing, sensor-to-camera publication within one callback, animation completion, cancellation, teardown/remount and drawing-error shutdown. The production comparison after the approved scheduler change is recorded in the analysis; physical Android/Brave cadence remains to be checked.

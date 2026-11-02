@@ -1,3 +1,4 @@
+import {useSkyFrames, useSkyFrameState} from './useSkyFrames';
 import {useMilkyWay} from './useMilkyWay';
 import {clampViewPitch} from './groundView';
 import {commonConstellationIds, type FigureMode} from './constellations';
@@ -51,6 +52,7 @@ const initialLocation = (() => {
 })();
 
 function App() {
+  const skyFrames = useSkyFrames();
   const [panel, setPanel] = useState<Panel | null>(null);
   const workspace = useRef<HTMLDivElement>(null);
   const appRoot = useRef<HTMLDivElement>(null);
@@ -82,8 +84,8 @@ function App() {
   const [showMilkyWay, setShowMilkyWay] = useState(true);
   const milkyWay = useMilkyWay(showMilkyWay);
   const [skyMode, setSkyMode] = useState<'horizon' | 'map'>('horizon');
-  const [viewDirection, setViewDirection] = useState<ViewDirection>(() => ({heading: 180, pitch: Math.atan(.6 * innerHeight / Math.max(innerWidth, innerHeight)) * 180 / Math.PI}));
-  const phone = usePhoneOrientation(skyMode === 'horizon', setViewDirection);
+  const [viewDirection, setViewDirection] = useSkyFrameState<ViewDirection>(() => ({heading: 180, pitch: Math.atan(.6 * innerHeight / Math.max(innerWidth, innerHeight)) * 180 / Math.PI}), skyFrames);
+  const phone = usePhoneOrientation(skyMode === 'horizon', setViewDirection, skyFrames);
   const [gpsPending, setGpsPending] = useState(false);
   const [gpsMessage, setGpsMessage] = useState('');
   const gpsRequest = useRef(0);
@@ -282,7 +284,7 @@ function App() {
   return <div className="app sky-app" ref={appRoot}>
     <div className="sky-workspace" ref={workspace}>
       <main className="sky-stage" aria-label={t(lang, 'Sky', 'Himlen')}>
-        {skyMode === 'horizon' ? <HorizonView selectedId={selected?.id} finderTarget={finderTarget} phone={phone} onFinderDetails={() => { if (finderTarget) { setSelected(finderTarget); openPanel('details'); } }} onStopFinder={() => { setFinderTarget(null); }} showFigures={showFigures} showFigureNames={showFigureNames} figureMode={figureMode} showBoundaries={showBoundaries} showCandidateCollection={showCandidateCollection} milkyWay={milkyWay.texture} time={time} location={location} label={object => display(object, lang)} sunLabel={t(lang, 'Sun', 'Solen')} onSelect={pickObject} language={lang} view={viewDirection} onViewChange={manualView}/> : <SkyMap selectedId={selected?.id} showFigures={showFigures} showFigureNames={showFigureNames} figureMode={figureMode} showBoundaries={showBoundaries} showCandidateCollection={showCandidateCollection} milkyWay={milkyWay.texture} time={time} location={location} label={object => display(object, lang)} language={lang} sunLabel={t(lang, 'Sun', 'Solen')} onSelect={pickObject}/>}
+        {skyMode === 'horizon' ? <HorizonView frames={skyFrames} selectedId={selected?.id} finderTarget={finderTarget} phone={phone} onFinderDetails={() => { if (finderTarget) { setSelected(finderTarget); openPanel('details'); } }} onStopFinder={() => { setFinderTarget(null); }} showFigures={showFigures} showFigureNames={showFigureNames} figureMode={figureMode} showBoundaries={showBoundaries} showCandidateCollection={showCandidateCollection} milkyWay={milkyWay.texture} time={time} location={location} label={object => display(object, lang)} sunLabel={t(lang, 'Sun', 'Solen')} onSelect={pickObject} language={lang} view={viewDirection} onViewChange={manualView}/> : <SkyMap selectedId={selected?.id} showFigures={showFigures} showFigureNames={showFigureNames} figureMode={figureMode} showBoundaries={showBoundaries} showCandidateCollection={showCandidateCollection} milkyWay={milkyWay.texture} time={time} location={location} label={object => display(object, lang)} language={lang} sunLabel={t(lang, 'Sun', 'Solen')} onSelect={pickObject}/>}
       </main>
       <header className="sky-statusbar">
         <button className={`observation-chip ${timeMode}`} onClick={() => openPanel('observation')} aria-label={t(lang, 'Time & location', 'Tid och plats')}><MapPin size={15}/><span><strong>{location.name}</strong><small>{stamp}</small></span></button>

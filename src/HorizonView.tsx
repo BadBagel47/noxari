@@ -1,4 +1,6 @@
-import {useEffect, useMemo, useRef, useState, type Dispatch, type PointerEvent, type SetStateAction} from 'react';
+import {useSkyFrameState} from './useSkyFrames';
+import type {SkyFrames} from './skyFrames';
+import {useEffect, useLayoutEffect, useMemo, useRef, useState, type Dispatch, type PointerEvent, type SetStateAction} from 'react';
 import {constellationSky, drawConstellations, type FigureMode} from './constellations';
 import {ConstellationReveal} from './constellationReveal';
 import {useReducedMotion} from './useReducedMotion';
@@ -15,6 +17,7 @@ import {darkSkyVisibility, projectedStarVisibility, stellarBrightness} from './s
 import type {usePhoneOrientation} from './usePhoneOrientation';
 
 type Props = {
+  frames: SkyFrames;
   selectedId?: string;
   time: Date;
   location: ObservingLocation;
@@ -39,7 +42,7 @@ type Props = {
 const wrap = (degrees: number) => (degrees % 360 + 360) % 360;
 const cardinal = (heading: number) => ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(wrap(heading) / 45) % 8];
 
-export function HorizonView({selectedId, time, location, label, sunLabel, onSelect, language, view, onViewChange, showFigures, showFigureNames, figureMode, showBoundaries, showCandidateCollection, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails}: Props) {
+export function HorizonView({frames, selectedId, time, location, label, sunLabel, onSelect, language, view, onViewChange, showFigures, showFigureNames, figureMode, showBoundaries, showCandidateCollection, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails}: Props) {
   const root = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const reveal = useRef(new ConstellationReveal());
@@ -49,7 +52,7 @@ export function HorizonView({selectedId, time, location, label, sunLabel, onSele
   const touchPoints = useRef(new Map<number, {x: number; y: number}>());
   const pinch = useRef<{distance: number; zoom: number} | null>(null);
   const suppressClick = useRef(false);
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoom] = useSkyFrameState(1, frames);
   const [size, setSize] = useState({width: 0, height: 0});
   const stars = useMemo(() => prepareHorizontalStars(horizontalStarCatalog(time, location)), [time, location]);
   const figures = useMemo(() => constellationSky(stars, figureMode), [stars, figureMode]);
@@ -102,17 +105,18 @@ export function HorizonView({selectedId, time, location, label, sunLabel, onSele
     };
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => () => frames.clearRenderer(), [frames]);
+
+  useLayoutEffect(() => {
     const surface = canvas.current;
-    if (!surface || !size.width || !size.height) return;
+    if (!surface || !size.width || !size.height) { frames.clearRenderer(); return; }
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const pixelWidth = Math.round(size.width * dpr), pixelHeight = Math.round(size.height * dpr);
     if (surface.width !== pixelWidth) surface.width = pixelWidth;
     if (surface.height !== pixelHeight) surface.height = pixelHeight;
     const context = surface.getContext('2d');
-    if (!context) return;
-    let frame = 0;
-    const render = () => {
+    if (!context) { frames.clearRenderer(); return; }
+    const render = (now: number) => {
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
       context.globalAlpha = 1;
       context.textAlign = 'left';
@@ -164,7 +168,7 @@ export function HorizonView({selectedId, time, location, label, sunLabel, onSele
 
       if (showBoundaries) drawBoundaries(context, preparedBoundaries, projectBoundary, width, height, starVisibility);
 
-      const animating = showFigures && drawConstellations(context, figures, position => project(position, false), width, height, starVisibility, showFigureNames, {reveal: reveal.current, now: performance.now(), reducedMotion});
+      const animating = showFigures && drawConstellations(context, figures, position => project(position, false), width, height, starVisibility, showFigureNames, {reveal: reveal.current, now, reducedMotion});
       if (!showFigures) reveal.current.reset();
 
       if (starVisibility > 0 || belowReveal > 0) {
@@ -221,11 +225,10 @@ export function HorizonView({selectedId, time, location, label, sunLabel, onSele
         }
       }
 
-      if (animating) frame = requestAnimationFrame(render);
+      return Boolean(animating);
     };
-    render();
-    return () => cancelAnimationFrame(frame);
-  }, [size, view, zoom, stars, figures, boundaries, preparedBoundaries, showFigures, showFigureNames, figureMode, showBoundaries, reducedMotion, sun.altitude, milkyWay, time, location]);
+    frames.setRenderer(render);
+  }, [frames, size, view, zoom, stars, figures, boundaries, preparedBoundaries, showFigures, showFigureNames, figureMode, showBoundaries, reducedMotion, sun.altitude, milkyWay, time, location]);
 
   const move = (heading: number, pitch: number) => onViewChange(current => ({heading: wrap(current.heading + heading), pitch: clampViewPitch(current.pitch + pitch)}));
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {

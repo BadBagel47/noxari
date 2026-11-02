@@ -1,3 +1,4 @@
+import type {SkyFrames} from './skyFrames';
 import {clampViewPitch} from './groundView';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {deviceDirection, orientationSampleTime, PhoneDirectionTracker, type DirectionDiagnostics, type OrientationReading} from './deviceDirection';
@@ -7,7 +8,8 @@ import {DirectionReportLog} from './directionReport';
 export type SensorStatus = 'off' | 'requesting' | 'waiting' | 'align' | 'tracking' | 'paused' | 'denied' | 'unavailable' | 'missing' | 'recalibrate';
 type SensorConstructor = typeof DeviceOrientationEvent & {requestPermission?: () => Promise<string>};
 
-export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDirection) => void) {
+export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDirection) => void, frames: SkyFrames) {
+  const publishKey = useRef(Symbol('phone publication'));
   const [status, setStatus] = useState<SensorStatus>('off');
   const [needsAlignment, setNeedsAlignment] = useState(false);
   const [diagnostics, setDiagnostics] = useState<DirectionDiagnostics>(() => new PhoneDirectionTracker().diagnostics());
@@ -33,12 +35,13 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
   const callback = useRef(onDirection);
   callback.current = onDirection;
   const stop = useCallback(() => {
+    frames.cancelUpdate(publishKey.current);
     generation.current++;
     running.current = false; following.current = false; requesting.current = false;
     cleanup.current(); cleanup.current = () => {};
     last.current = null;
     setNeedsAlignment(false); setStatus('off');
-  }, []);
+  }, [frames]);
   useEffect(() => {
     const hide = () => { if (document.hidden) stop(); };
     document.addEventListener('visibilitychange', hide);
@@ -80,7 +83,7 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
     if (running.current) {
       following.current = true;
       // Panel closing and resume may occur in the same user gesture.
-      requestAnimationFrame(publish);
+      frames.enqueue(publishKey.current, publish);
       return;
     }
     stop();
@@ -100,7 +103,7 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
     tracker.current = new PhoneDirectionTracker();
     report.current = new DirectionReportLog(); refreshDiagnostics(true);
     running.current = true; following.current = true;
-    let frame = 0, lastAt = performance.now();
+    let lastAt = performance.now();
     setStatus('waiting');
     const receive = (event: Event) => {
       const reading = event as DeviceOrientationEvent & OrientationReading;
@@ -123,7 +126,7 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
       }
       if (!check.reason && check.motionAgeMs !== null && check.motionAgeMs > 500 && following.current && allowed.current) setStatus('waiting');
       if ((!direction && !check.reason) || !following.current || !allowed.current) return;
-      if (!frame) frame = requestAnimationFrame(() => { frame = 0; publish(); });
+      frames.enqueue(publishKey.current, publish);
     };
     const timeout = window.setInterval(() => {
       const check = refreshDiagnostics();
@@ -136,7 +139,7 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
     cleanup.current = () => {
       window.removeEventListener('deviceorientationabsolute', receive);
       window.removeEventListener('deviceorientation', receive);
-      clearInterval(timeout); cancelAnimationFrame(frame);
+      clearInterval(timeout); frames.cancelUpdate(publishKey.current);
     };
   };
   return {status, start, stop, alignNorth, useCompass, downloadReport, diagnostics, hasReport: report.current.hasData, needsAlignment, active: ['requesting', 'waiting', 'align', 'tracking', 'recalibrate'].includes(status)};

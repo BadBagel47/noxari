@@ -1,6 +1,6 @@
 # B-004 — remaining sky-view stutter
 
-Analysis requested 2026-11-02 after the user confirmed better performance but persistent stutter. Recommended model: Sol High. This is an analysis; a second implementation batch is not approved. B-004 is reopened. B-001 remains paused.
+Analysis requested 2026-11-02 after the user confirmed better performance but persistent stutter. Recommended model: Sol High. The user subsequently approved the shared-frame implementation with “Kör”; see the follow-up below. B-004 remains open for physical follow-up. B-001 remains paused.
 
 ## Findings
 
@@ -44,4 +44,23 @@ The previous analysis used wall time around serialized Playwright mouse calls an
 2. Measure again with the same production sweep and with real manual/phone following on Android/Brave. Check camera-to-marker alignment and input latency as well as cadence. Cache prepared grid/projection data and animation-only geometry/background work where the profile supports it.
 3. If density remains limiting, test DPR 1.5 during sustained motion and restore full DPR 2 after settling, with a delay/hysteresis so canvas resizing does not itself cause stutter. Keep DOM controls/labels sharp. This trades temporary canvas sharpness for smoother motion and requires visual review; do not enable it silently as an unmeasured fallback.
 
-Recommend Sol High for the scheduler/refactor and validation. Await a new explicit approval before implementation. A larger WebGL/worker migration is not yet justified by these measurements.
+Sol High was recommended for the scheduler/refactor and validation, and the user approved that step (see below). Any adaptive-resolution or larger WebGL/worker step requires a separate approval; a larger rendering migration is not justified by these measurements yet.
+
+## Approved shared-frame implementation
+
+The user approved the first recommended step after this analysis. The horizon view now has one `SkyFrames` scheduler (`src/skyFrames.ts`), shared by camera/zoom input, accepted sensor publication and constellation animation. Repeated updates are coalesced by key; relative pointer deltas are accumulated before committing the latest pose. The scheduled callback synchronously commits staged React state, lets layout effects install the matching scene renderer, and then draws once. Thus DOM markers, heading/Finder overlays and canvas use the same committed pose. The sensor publisher uses this existing shared frame instead of adding a separate RAF before rendering; sensor fusion, reference checking and calibration thresholds are unchanged. Animation stops scheduling when complete; pending publication is cancelled on Stop/session cleanup.
+
+The canvas still uses DPR up to 2 and the existing 240 px Milky Way raster. Adaptive resolution was not part of this implementation.
+
+A fresh baseline export of commit `1565b5d` was built in `/tmp/noxari-b004-before` (no worktree or application edits) and served alongside the new production artifact. The same fixed-time 90-input sweep at 390×844, DPR 2, all five settings and all 88 figures gave:
+
+| Production version | Draws | Intervals >25 ms / 90 | p95 RAF interval |
+| --- | --- | --- | --- |
+| Before, control 1 | 102 | 19 | 32 ms |
+| Before, control 2 | 102 | 19 | 31 ms |
+| Shared scheduler, run 1 | 83 | 9 | 32 ms |
+| Shared scheduler, run 2 | 83 | 9 | 33 ms |
+
+The first seven moves are below the 8 px drag threshold; 83 draws match the remaining accepted camera updates. Extra full-scene animation draws during this sweep were removed. There were fewer slow intervals, but the slowest percentile did not improve. This does not establish smooth physical-device performance or eliminate the DPR/raster issue. Recheck on Android/Brave before deciding the next approved step.
+
+Verification: 130 offline tests and production build pass. Chromium at 390×844, 1280×800 and 568×320 checked a burst of 36 pointer moves coalescing to one draw, accumulated camera deltas, canvas Sirius/DOM Sirius-marker/HUD alignment, pinch and marker-origin dragging/tapping, idle shutdown and no page errors. Separate checks at mobile/desktop sizes covered Finder centering, keyboard offsets, ring alignment under pinch and completion of the normal entrance animation. Synthetic sensor checks covered manual north, latest-sample publication, following across search, map/return, Stop cancelling queued publication, pending permission cancellation and denial. Physical compass precision was not tested or changed.
