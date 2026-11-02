@@ -66,3 +66,8 @@ The trusted mouse sweeps contain 21 captured trusted pointer events and 19–21 
 ## Status
 
 Integration is implemented; ordinary-app physical Android/Brave feedback is pending. The previous phone prototype supports this direction but is not a performance guarantee for this build or proof of parity with Stellarium. No further development batch is authorized by this completed step.
+
+
+## Deployment evidence
+
+App commit `de4f4b2cb25e276e2c5a18cf024cd8afdd9586c3` passed 140 tests, production/lab builds and Pages via [Actions 41474970062](https://github.com/BadBagel47/noxari/actions/runs/41474970062). Verified-TLS public retrieval matched main/lab HTML and JS, main CSS, Milky Way image and BSD license against local artifacts. Main `index-BTsF-5ed.js`: SHA-256 `574b1096ad030c65f47948bf36e89b0d5057cbaa0a50af64c92c46580ea80b00` (also the measured main artifact); CSS stayed unchanged. The published main URL now exercises the integrated renderer; app sensor behavior/accuracy is not physically revalidated. A subsequent documentation commit may alter the lab asset hash because it embeds the build commit, while main JS and renderer code remain the verified app version.
