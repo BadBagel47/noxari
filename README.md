@@ -21,7 +21,7 @@ npm test
 npm run preview
 ```
 
-Development and test entry points, plus the limits of browser and sensor checks, are collected in [Development diagnostics](docs/DEVELOPMENT_DIAGNOSTICS.md).
+Development and test entry points, plus the limits of browser and sensor checks, are collected in [Development diagnostics](docs/DEVELOPMENT_DIAGNOSTICS.md). A separate [GPU rendering prototype](docs/GPU_PROTOTYPE.md) is available at `/noxari/labs/gpu-sky/` after a production build; it does not change the ordinary app renderer.
 
 To test on a phone on the same Wi-Fi network, use the `Network` URL printed by Vite (your firewall may need to allow it).
 

@@ -1,0 +1,965 @@
+{
+  "environment": "Headless Chromium 154, Linux, SwiftShader software WebGL2; not a physical phone",
+  "productionLayers": [
+    {
+      "name": "current_all",
+      "dpr": 2,
+      "cpu": 1,
+      "frameIntervals": {
+        "n": 90,
+        "p50": 16,
+        "p95": 27,
+        "max": 37
+      },
+      "framesOver25ms": 6,
+      "renderTaskMs": {
+        "n": 83,
+        "p50": 5,
+        "p95": 7,
+        "max": 8
+      },
+      "renderCount": 83,
+      "elapsedMs": 1564,
+      "directionChanged": true,
+      "errors": []
+    },
+    {
+      "name": "current_no_MW",
+      "dpr": 2,
+      "cpu": 1,
+      "frameIntervals": {
+        "n": 90,
+        "p50": 16,
+        "p95": 18,
+        "max": 30
+      },
+      "framesOver25ms": 1,
+      "renderTaskMs": {
+        "n": 83,
+        "p50": 3,
+        "p95": 4,
+        "max": 5
+      },
+      "renderCount": 83,
+      "elapsedMs": 1446,
+      "directionChanged": true,
+      "errors": []
+    },
+    {
+      "name": "current_no_figures",
+      "dpr": 2,
+      "cpu": 1,
+      "frameIntervals": {
+        "n": 90,
+        "p50": 16,
+        "p95": 29,
+        "max": 36
+      },
+      "framesOver25ms": 12,
+      "renderTaskMs": {
+        "n": 83,
+        "p50": 5,
+        "p95": 6,
+        "max": 8
+      },
+      "renderCount": 83,
+      "elapsedMs": 1621,
+      "directionChanged": true,
+      "errors": []
+    },
+    {
+      "name": "current_no_boundaries",
+      "dpr": 2,
+      "cpu": 1,
+      "frameIntervals": {
+        "n": 90,
+        "p50": 16,
+        "p95": 29,
+        "max": 40
+      },
+      "framesOver25ms": 6,
+      "renderTaskMs": {
+        "n": 83,
+        "p50": 5,
+        "p95": 7,
+        "max": 10
+      },
+      "renderCount": 83,
+      "elapsedMs": 1533,
+      "directionChanged": true,
+      "errors": []
+    },
+    {
+      "name": "current_all_repeat",
+      "dpr": 2,
+      "cpu": 1,
+      "frameIntervals": {
+        "n": 90,
+        "p50": 16,
+        "p95": 31,
+        "max": 39
+      },
+      "framesOver25ms": 8,
+      "renderTaskMs": {
+        "n": 83,
+        "p50": 5,
+        "p95": 7,
+        "max": 8
+      },
+      "renderCount": 83,
+      "elapsedMs": 1558,
+      "directionChanged": true,
+      "errors": []
+    }
+  ],
+  "prototype": {
+    "prototypeBuild": "b55cf179a3c5+dirty",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "webgl": {
+      "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "pointRange": [
+        1,
+        1023
+      ]
+    },
+    "fixture": {
+      "time": "2026-01-15T22:00:00.000Z",
+      "preset": "Stockholm",
+      "stars": 8922
+    },
+    "note": "Isolerad renderingsprototyp, GPU-till-Canvas-brygga. Ingen React/sensorbed\u00f6mning, inga GPS-koordinater. GPU-kommandotid \u00e4r inte GPU-sluttid. Inga readPixels/finish i tidsm\u00e4tningen.",
+    "runs": [
+      {
+        "requested": "canvas",
+        "effective": "canvas",
+        "frames": 90,
+        "width": 390,
+        "height": 844,
+        "dpr": 1.5,
+        "intervals": {
+          "count": 90,
+          "median": 16.7,
+          "p95": 16.7,
+          "max": 16.8
+        },
+        "over25ms": 0,
+        "draw": {
+          "count": 90,
+          "median": 4.9,
+          "p95": 6.8,
+          "max": 8.3
+        },
+        "stages": {
+          "milky": {
+            "count": 90,
+            "median": 2.6,
+            "p95": 3.9,
+            "max": 4.8
+          },
+          "stars": {
+            "count": 90,
+            "median": 0.8,
+            "p95": 1.2,
+            "max": 1.8
+          },
+          "other": {
+            "count": 90,
+            "median": 1.3,
+            "p95": 1.9,
+            "max": 2.4
+          }
+        }
+      },
+      {
+        "requested": "gpu",
+        "effective": "gpu",
+        "frames": 90,
+        "width": 390,
+        "height": 844,
+        "dpr": 1.5,
+        "intervals": {
+          "count": 90,
+          "median": 16.7,
+          "p95": 33.4,
+          "max": 33.5
+        },
+        "over25ms": 42,
+        "draw": {
+          "count": 90,
+          "median": 18.2,
+          "p95": 21.2,
+          "max": 32.5
+        },
+        "stages": {
+          "milky": {
+            "count": 90,
+            "median": 10.8,
+            "p95": 12.8,
+            "max": 24
+          },
+          "stars": {
+            "count": 90,
+            "median": 5.6,
+            "p95": 6.7,
+            "max": 7.5
+          },
+          "other": {
+            "count": 90,
+            "median": 1.4,
+            "p95": 1.8,
+            "max": 2.6
+          }
+        }
+      },
+      {
+        "requested": "gpu",
+        "effective": "gpu",
+        "frames": 90,
+        "width": 390,
+        "height": 844,
+        "dpr": 1.5,
+        "intervals": {
+          "count": 90,
+          "median": 33.3,
+          "p95": 33.4,
+          "max": 33.4
+        },
+        "over25ms": 47,
+        "draw": {
+          "count": 90,
+          "median": 18.9,
+          "p95": 22.3,
+          "max": 28
+        },
+        "stages": {
+          "milky": {
+            "count": 90,
+            "median": 11.4,
+            "p95": 13.9,
+            "max": 17.9
+          },
+          "stars": {
+            "count": 90,
+            "median": 5.8,
+            "p95": 7.4,
+            "max": 12.6
+          },
+          "other": {
+            "count": 90,
+            "median": 1.4,
+            "p95": 1.8,
+            "max": 2.3
+          }
+        }
+      },
+      {
+        "requested": "canvas",
+        "effective": "canvas",
+        "frames": 90,
+        "width": 390,
+        "height": 844,
+        "dpr": 1.5,
+        "intervals": {
+          "count": 90,
+          "median": 16.7,
+          "p95": 16.8,
+          "max": 16.8
+        },
+        "over25ms": 0,
+        "draw": {
+          "count": 90,
+          "median": 4.7,
+          "p95": 6.2,
+          "max": 8.4
+        },
+        "stages": {
+          "milky": {
+            "count": 90,
+            "median": 2.5,
+            "p95": 3.4,
+            "max": 5.5
+          },
+          "stars": {
+            "count": 90,
+            "median": 0.8,
+            "p95": 1,
+            "max": 1.8
+          },
+          "other": {
+            "count": 90,
+            "median": 1.2,
+            "p95": 1.7,
+            "max": 2.8
+          }
+        }
+      }
+    ],
+    "additional": [
+      {
+        "requested": "gpu-milky",
+        "effective": "gpu-milky",
+        "frames": 90,
+        "width": 390,
+        "height": 844,
+        "dpr": 1.5,
+        "intervals": {
+          "count": 90,
+          "median": 16.7,
+          "p95": 33.4,
+          "max": 33.4
+        },
+        "over25ms": 19,
+        "draw": {
+          "count": 90,
+          "median": 13.2,
+          "p95": 16.6,
+          "max": 19.6
+        },
+        "stages": {
+          "milky": {
+            "count": 90,
+            "median": 10.9,
+            "p95": 14.3,
+            "max": 17.3
+          },
+          "stars": {
+            "count": 90,
+            "median": 0.8,
+            "p95": 1,
+            "max": 1.4
+          },
+          "other": {
+            "count": 90,
+            "median": 1.3,
+            "p95": 1.8,
+            "max": 2.3
+          }
+        }
+      },
+      {
+        "requested": "gpu-stars",
+        "effective": "gpu-stars",
+        "frames": 90,
+        "width": 390,
+        "height": 844,
+        "dpr": 1.5,
+        "intervals": {
+          "count": 90,
+          "median": 16.7,
+          "p95": 16.8,
+          "max": 33.4
+        },
+        "over25ms": 4,
+        "draw": {
+          "count": 90,
+          "median": 9.8,
+          "p95": 11.9,
+          "max": 14
+        },
+        "stages": {
+          "milky": {
+            "count": 90,
+            "median": 2.5,
+            "p95": 3.6,
+            "max": 6.4
+          },
+          "stars": {
+            "count": 90,
+            "median": 5.5,
+            "p95": 6.6,
+            "max": 9.8
+          },
+          "other": {
+            "count": 90,
+            "median": 1.3,
+            "p95": 1.9,
+            "max": 2.1
+          }
+        }
+      },
+      {
+        "requested": "canvas",
+        "effective": "canvas",
+        "frames": 90,
+        "width": 390,
+        "height": 844,
+        "dpr": 1.5,
+        "intervals": {
+          "count": 90,
+          "median": 16.7,
+          "p95": 16.7,
+          "max": 16.8
+        },
+        "over25ms": 0,
+        "draw": {
+          "count": 90,
+          "median": 4.6,
+          "p95": 6,
+          "max": 7.6
+        },
+        "stages": {
+          "milky": {
+            "count": 90,
+            "median": 2.6,
+            "p95": 2.8,
+            "max": 3.9
+          },
+          "stars": {
+            "count": 90,
+            "median": 0.8,
+            "p95": 1.3,
+            "max": 1.4
+          },
+          "other": {
+            "count": 90,
+            "median": 1.2,
+            "p95": 1.9,
+            "max": 2.9
+          }
+        }
+      }
+    ]
+  },
+  "correctness": {
+    "starResults": [
+      {
+        "view": {
+          "heading": 180,
+          "pitch": 31
+        },
+        "azimuth": 170,
+        "altitude": 36,
+        "zoom": 1,
+        "magnitude": -1,
+        "visible": true,
+        "expectedVisible": true,
+        "error": 0.013554329319841811
+      },
+      {
+        "view": {
+          "heading": 180,
+          "pitch": 31
+        },
+        "azimuth": 170,
+        "altitude": 36,
+        "zoom": 1,
+        "magnitude": 1,
+        "visible": true,
+        "expectedVisible": true,
+        "error": 0.010481964113095177
+      },
+      {
+        "view": {
+          "heading": 180,
+          "pitch": 31
+        },
+        "azimuth": 170,
+        "altitude": 36,
+        "zoom": 1,
+        "magnitude": 3,
+        "visible": true,
+        "expectedVisible": true,
+        "error": 0.004128221136713182
+      },
+      {
+        "view": {
+          "heading": 180,
+          "pitch": 31
+        },
+        "azimuth": 170,
+        "altitude": 36,
+        "zoom": 1,
+        "magnitude": 6.5,
+        "visible": true,
+        "expectedVisible": true,
+        "error": 0.013783100246570739
+      },
+      {
+        "view": {
+          "heading": 359,
+          "pitch": 31
+        },
+        "azimuth": 1,
+        "altitude": 25,
+        "zoom": 3,
+        "magnitude": -1,
+        "visible": true,
+        "expectedVisible": true,
+        "error": 0.013171730896520215
+      },
+      {
+        "view": {
+          "heading": 359,
+          "pitch": 31
+        },
+        "azimuth": 1,
+        "altitude": 25,
+        "zoom": 3,
+        "magnitude": 1,
+        "visible": true,
+        "expectedVisible": true,
+        "error": 0.014926292831398888
+      },
+      {
+        "view": {
+          "heading": 359,
+          "pitch": 31
+        },
+        "azimuth": 1,
+        "altitude": 25,
+        "zoom": 3,
+        "magnitude": 3,
+        "visible": true,
+        "expectedVisible": true,
+        "error": 0.014579646956735146
+      },
+      {
+        "view": {
+          "heading": 359,
+          "pitch": 31
+        },
+        "azimuth": 1,
+        "altitude": 25,
+        "zoom": 3,
+        "magnitude": 6.5,
+        "visible": true,
+        "expectedVisible": true,
+        "error": 0.019308787870172216
+      },
+      {
+        "view": {
+          "heading": 1,
+          "pitch": 89.9
+        },
+        "azimuth": 270,
+        "altitude": 89,
+        "zoom": 1,
+        "magnitude": -1,
+        "visible": true,
+        "expectedVisible": true,
+        "error": 0.01762335725778601
+      },
+      {
+        "view": {
+          "heading": 1,
+          "pitch": 89.9
+        },
+        "azimuth": 270,
+        "altitude": 89,
+        "zoom": 1,
+        "magnitude": 1,
+        "visible": true,
+        "expectedVisible": true,
+        "error": 0.010692036591056858
+      },
+      {
+        "view": {
+          "heading": 1,
+          "pitch": 89.9
+        },
+        "azimuth": 270,
+        "altitude": 89,
+        "zoom": 1,
+        "magnitude": 3,
+        "visible": true,
+        "expectedVisible": true,
+        "error": 0.02149991983290433
+      },
+      {
+        "view": {
+          "heading": 1,
+          "pitch": 89.9
+        },
+        "azimuth": 270,
+        "altitude": 89,
+        "zoom": 1,
+        "magnitude": 6.5,
+        "visible": true,
+        "expectedVisible": true,
+        "error": 0.02647412027406503
+      },
+      {
+        "view": {
+          "heading": 240,
+          "pitch": -89.9
+        },
+        "azimuth": 90,
+        "altitude": -89,
+        "zoom": 3,
+        "magnitude": -1,
+        "visible": true,
+        "expectedVisible": true,
+        "error": 0.011649369867363214
+      },
+      {
+        "view": {
+          "heading": 240,
+          "pitch": -89.9
+        },
+        "azimuth": 90,
+        "altitude": -89,
+        "zoom": 3,
+        "magnitude": 1,
+        "visible": true,
+        "expectedVisible": true,
+        "error": 0.015562260121064314
+      },
+      {
+        "view": {
+          "heading": 240,
+          "pitch": -89.9
+        },
+        "azimuth": 90,
+        "altitude": -89,
+        "zoom": 3,
+        "magnitude": 3,
+        "visible": true,
+        "expectedVisible": true,
+        "error": 0.012108751552656883
+      },
+      {
+        "view": {
+          "heading": 240,
+          "pitch": -89.9
+        },
+        "azimuth": 90,
+        "altitude": -89,
+        "zoom": 3,
+        "magnitude": 6.5,
+        "visible": true,
+        "expectedVisible": true,
+        "error": 0.005062385489002794
+      },
+      {
+        "view": {
+          "heading": 0,
+          "pitch": -25
+        },
+        "azimuth": 5,
+        "altitude": -26,
+        "zoom": 1,
+        "magnitude": -1,
+        "visible": true,
+        "expectedVisible": true,
+        "error": 0.005114865880561116
+      },
+      {
+        "view": {
+          "heading": 0,
+          "pitch": -25
+        },
+        "azimuth": 5,
+        "altitude": -26,
+        "zoom": 1,
+        "magnitude": 1,
+        "visible": true,
+        "expectedVisible": true,
+        "error": 0.013005101528789715
+      },
+      {
+        "view": {
+          "heading": 0,
+          "pitch": -25
+        },
+        "azimuth": 5,
+        "altitude": -26,
+        "zoom": 1,
+        "magnitude": 3,
+        "visible": true,
+        "expectedVisible": true,
+        "error": 0.019318821811087756
+      },
+      {
+        "view": {
+          "heading": 0,
+          "pitch": -25
+        },
+        "azimuth": 5,
+        "altitude": -26,
+        "zoom": 1,
+        "magnitude": 6.5,
+        "visible": true,
+        "expectedVisible": true,
+        "error": 0.003602607534004285
+      },
+      {
+        "view": {
+          "heading": 0,
+          "pitch": -25
+        },
+        "azimuth": 5,
+        "altitude": -26,
+        "zoom": 1,
+        "magnitude": -1,
+        "visible": false,
+        "expectedVisible": false,
+        "error": null
+      },
+      {
+        "view": {
+          "heading": 0,
+          "pitch": -25
+        },
+        "azimuth": 5,
+        "altitude": -26,
+        "zoom": 1,
+        "magnitude": 1,
+        "visible": false,
+        "expectedVisible": false,
+        "error": null
+      },
+      {
+        "view": {
+          "heading": 0,
+          "pitch": -25
+        },
+        "azimuth": 5,
+        "altitude": -26,
+        "zoom": 1,
+        "magnitude": 3,
+        "visible": false,
+        "expectedVisible": false,
+        "error": null
+      },
+      {
+        "view": {
+          "heading": 0,
+          "pitch": -25
+        },
+        "azimuth": 5,
+        "altitude": -26,
+        "zoom": 1,
+        "magnitude": 6.5,
+        "visible": false,
+        "expectedVisible": false,
+        "error": null
+      },
+      {
+        "view": {
+          "heading": 180,
+          "pitch": 0
+        },
+        "azimuth": 0,
+        "altitude": 0,
+        "zoom": 1,
+        "magnitude": -1,
+        "visible": false,
+        "expectedVisible": false,
+        "error": null
+      },
+      {
+        "view": {
+          "heading": 180,
+          "pitch": 0
+        },
+        "azimuth": 0,
+        "altitude": 0,
+        "zoom": 1,
+        "magnitude": 1,
+        "visible": false,
+        "expectedVisible": false,
+        "error": null
+      },
+      {
+        "view": {
+          "heading": 180,
+          "pitch": 0
+        },
+        "azimuth": 0,
+        "altitude": 0,
+        "zoom": 1,
+        "magnitude": 3,
+        "visible": false,
+        "expectedVisible": false,
+        "error": null
+      },
+      {
+        "view": {
+          "heading": 180,
+          "pitch": 0
+        },
+        "azimuth": 0,
+        "altitude": 0,
+        "zoom": 1,
+        "magnitude": 6.5,
+        "visible": false,
+        "expectedVisible": false,
+        "error": null
+      },
+      {
+        "view": {
+          "heading": 180,
+          "pitch": 31
+        },
+        "azimuth": 180,
+        "altitude": 31,
+        "zoom": 1,
+        "magnitude": -1,
+        "visible": false,
+        "expectedVisible": false,
+        "error": null
+      },
+      {
+        "view": {
+          "heading": 180,
+          "pitch": 31
+        },
+        "azimuth": 180,
+        "altitude": 31,
+        "zoom": 1,
+        "magnitude": 1,
+        "visible": false,
+        "expectedVisible": false,
+        "error": null
+      },
+      {
+        "view": {
+          "heading": 180,
+          "pitch": 31
+        },
+        "azimuth": 180,
+        "altitude": 31,
+        "zoom": 1,
+        "magnitude": 3,
+        "visible": false,
+        "expectedVisible": false,
+        "error": null
+      },
+      {
+        "view": {
+          "heading": 180,
+          "pitch": 31
+        },
+        "azimuth": 180,
+        "altitude": 31,
+        "zoom": 1,
+        "magnitude": 6.5,
+        "visible": false,
+        "expectedVisible": false,
+        "error": null
+      }
+    ],
+    "energy": [
+      {
+        "magnitude": -1,
+        "ratio": 1.0210078069552875
+      },
+      {
+        "magnitude": 1,
+        "ratio": 1.0259149642676677
+      },
+      {
+        "magnitude": 3,
+        "ratio": 0.9764035801464606
+      },
+      {
+        "magnitude": 6.5,
+        "ratio": 1.1238348868175765
+      }
+    ],
+    "mw": [
+      {
+        "view": {
+          "heading": 180,
+          "pitch": 31
+        },
+        "zoom": 1,
+        "alphaMeanError": 0.08098417183132824,
+        "alphaRmse": 0.290439103789566,
+        "alphaMax": 4
+      },
+      {
+        "view": {
+          "heading": 180,
+          "pitch": 31
+        },
+        "zoom": 3,
+        "alphaMeanError": 0.11571803985903512,
+        "alphaRmse": 0.34159281958641985,
+        "alphaMax": 2
+      },
+      {
+        "view": {
+          "heading": 359.9,
+          "pitch": 0
+        },
+        "zoom": 1,
+        "alphaMeanError": 0.053785393121886016,
+        "alphaRmse": 0.24809702275807705,
+        "alphaMax": 8
+      },
+      {
+        "view": {
+          "heading": 359.9,
+          "pitch": 0
+        },
+        "zoom": 3,
+        "alphaMeanError": 0.05461629602624863,
+        "alphaRmse": 0.26158594888167663,
+        "alphaMax": 7
+      },
+      {
+        "view": {
+          "heading": 0.1,
+          "pitch": 0
+        },
+        "zoom": 1,
+        "alphaMeanError": 0.052781322153360066,
+        "alphaRmse": 0.24614231083981328,
+        "alphaMax": 8
+      },
+      {
+        "view": {
+          "heading": 0.1,
+          "pitch": 0
+        },
+        "zoom": 3,
+        "alphaMeanError": 0.05319525458743468,
+        "alphaRmse": 0.2561537558338347,
+        "alphaMax": 6
+      },
+      {
+        "view": {
+          "heading": 30,
+          "pitch": 89.9
+        },
+        "zoom": 1,
+        "alphaMeanError": 0.03970637379997569,
+        "alphaRmse": 0.1995502446953596,
+        "alphaMax": 2
+      },
+      {
+        "view": {
+          "heading": 30,
+          "pitch": 89.9
+        },
+        "zoom": 3,
+        "alphaMeanError": 0.0023924535180459353,
+        "alphaRmse": 0.04891271325581863,
+        "alphaMax": 1
+      },
+      {
+        "view": {
+          "heading": 250,
+          "pitch": -89.9
+        },
+        "zoom": 1,
+        "alphaMeanError": 0.13144063677239032,
+        "alphaRmse": 0.3657718397653681,
+        "alphaMax": 2
+      },
+      {
+        "view": {
+          "heading": 250,
+          "pitch": -89.9
+        },
+        "zoom": 3,
+        "alphaMeanError": 0.11437218981650261,
+        "alphaRmse": 0.3412747204287813,
+        "alphaMax": 2
+      }
+    ],
+    "glError": 0
+  }
+}

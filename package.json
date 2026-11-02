@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "build": "tsc -b && vite build && node scripts/generate_share_previews.mjs",
+    "build": "tsc -b && vite build && node scripts/generate_share_previews.mjs && npm run build:gpu-prototype",
     "test": "vitest run",
     "catalogs:check": "python3 scripts/check_catalog_updates.py",
-    "preview": "vite preview --host 0.0.0.0"
+    "preview": "vite preview --host 0.0.0.0",
+    "build:gpu-prototype": "tsc -p labs/gpu-sky/tsconfig.json && node scripts/build_gpu_prototype.mjs"
   },
   "dependencies": {
     "astronomy-engine": "^2.1.19",

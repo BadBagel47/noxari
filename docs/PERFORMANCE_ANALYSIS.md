@@ -101,3 +101,16 @@ Draw instrumentation recorded only DPR 2 and DPR 1.5 during the moving sweeps. A
 - Synthetic phone following also entered/restored motion density. Latest-pose publication, search persistence, map/return, Stop cancelling pending publication, permission cancellation and denial passed. These do not validate physical compass precision or latency.
 
 F-020 is complete. B-004 awaits the user's physical evaluation. A further development step needs a fresh recommendation and approval.
+
+## Remaining opportunities after motion density
+
+The user reports “perhaps slightly better” after B-004 + F-020 and asks for further opportunities. A read-only review confirms that the Milky Way still rebuilds a CPU pixel raster for every new pose; visible stars use individual Canvas arcs/fills; figure drawing reprojects/allocates stroke geometry and measures labels; the grid allocates sample arrays on each draw. Camera state is still owned by App, so foreground panel trees can participate in React updates. The relative importance of these costs has not been reprofiled on the adaptive production build.
+
+For a potentially larger improvement, recommend a bounded production profile and GPU prototype for the Milky Way/star field, compared against the current renderer before any broad migration is approved. Geometry caching and isolating camera updates from panel rendering remain other candidates. Preserve brightness, scientific directions, marker/Finder alignment and a compatible fallback. The user subsequently approved this bounded prototype with “Kör”, following the Sol High recommendation. See the results below. A broad migration remains unapproved.
+
+
+## Approved GPU prototype: measured result
+
+The isolated lab and current-production layer profile are complete: see [GPU prototype](GPU_PROTOTYPE.md) for architecture, reproducible method, raw results, known sprite coverage differences and the phone test link. Removing the Milky Way lowered the current app draw proxy from median 5 ms to 3 ms, with a positive but small/noisy cadence signal. On SwiftShader software WebGL2, the separate GPU-to-Canvas bridge was slower than its Canvas reference: median draw 18.2–18.9 ms vs 4.7–4.9 ms, p95 RAF 33.4 ms vs 16.7–16.8 ms. These are not phone GPU measurements or presented FPS. The root app renderer and JS/CSS remain unchanged.
+
+Keep Canvas, leave B-004 open and request a physical phone comparison/report. The faint sprite coverage difference also needs review before any migration. F-020 defaults remain enabled; B-001 stays paused. Integration or another optimization batch requires a new recommendation and explicit approval.

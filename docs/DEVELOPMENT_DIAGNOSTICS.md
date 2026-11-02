@@ -52,3 +52,8 @@ See [B-004 performance analysis](PERFORMANCE_ANALYSIS.md) for the current produc
 `tests/skyFrames.test.ts` checks shared-frame coalescing, sensor-to-camera publication within one callback, animation completion, cancellation, teardown/remount and drawing-error shutdown. The production comparison after the approved scheduler change is recorded in the analysis; physical Android/Brave cadence remains to be checked.
 
 `tests/motionResolution.test.ts` covers motion-density entry/exit, jitter and single-jump rejection, wraparound/pinch, delayed-frame hysteresis and low-DPR preservation. The production comparison and buffer-allocation/visual checks for B-004 + F-020 are in the performance analysis.
+
+
+## Separate GPU prototype (B-004)
+
+[GPU prototype method/results](GPU_PROTOTYPE.md) describes `/noxari/labs/gpu-sky/`, built separately by `npm run build:gpu-prototype` (also part of the ordinary production build). It has Canvas/GPU/layer comparisons, cancellation, Canvas fallback and a local downloadable report. It does not use phone sensors or replace the main app. Optional browser geometry/image/context/fallback checks: `scripts/verify_gpu_prototype.mjs` with environment-provided Playwright/Chromium; see that document for invocation. Headless SwiftShader results do not establish hardware FPS or the phone’s performance.
