@@ -45,6 +45,13 @@ describe('ordinary sky performance reports', () => {
       stagesMs: {background: 2, stars: 4}, inputs: {'manual-view': 2, zoom: 0, 'phone-publication': 0}});
   });
 
+  it('separates scheduled waiting, callback preparation and command work', () => {
+    const {log, at} = harness();log.start();at(21);
+    const frame = log.beginFrame({requested: 4, callback: 20, rafTimestamp: 16})!;
+    at(23);frame.committed(true);frame.beginDraw('gpu');at(27);log.endFrame(frame, true, false);log.stop('manual');
+    expect(log.snapshot().frames[0]).toMatchObject({rafWaitMs: 16, callbackAgeMs: 4, callbackToFrameStartMs: 1, callbackToDrawEndMs: 7, frameTaskMs: 6, bookkeepingMs: 0});
+  });
+
   it('excludes idle gaps and retains a long stall when a view request arrived promptly', () => {
     const {log, at, draw} = harness(), key = Symbol();log.start();
     at(1);log.input(key, 'manual-view');at(10);draw();
@@ -119,7 +126,7 @@ describe('ordinary sky performance reports', () => {
     frames.setRenderer(() => {log.current!.beginDraw(scene.backend);at(25);log.current!.phase('stars');return false;});
     log.start();at(5);frames.enqueue(Symbol(), () => frames.enqueue(Symbol(), () => {}, 'manual-view'), 'phone-publication');
     at(16);callbacks.shift()!(16);expect(callbacks).toHaveLength(0);log.stop('manual');
-    expect(log.snapshot().frames[0].inputs).toEqual({'manual-view': 0, zoom: 0, 'phone-publication': 1});
+    expect(log.snapshot().frames[0].inputs).toEqual({'manual-view': 0, zoom: 0, 'phone-publication': 1, 'scripted-view': 0});
     expect(log.snapshot().frames[0].requestToDrawEndMs).toBe(20);
   });
 });

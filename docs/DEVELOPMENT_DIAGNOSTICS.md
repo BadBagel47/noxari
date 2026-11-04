@@ -79,3 +79,7 @@ See [B-004 performance analysis](PERFORMANCE_ANALYSIS.md) for the current produc
 ## Surface policy, startup timing and drag takeover
 
 [Current bundle](SURFACE_REUSE_AND_TEST_DEFAULTS.md): `verify_test_defaults.mjs` covers F-021/F-022 and the same-frame sensor/manual race; `verify_startup_focus.mjs` covers B-007 one-second retry counts/deadline; `verify_gpu_resources.mjs` forces retained capacity for resize/fractional-coverage checks. `benchmark_motion_resources.mjs` now explicitly selects the same live fixture in both builds and counts test-only GPU dimension writes, as well as GL uploads/checks. Timings remain software/device-specific command submission, not display latency.
+
+## Controlled B-004 comparison
+
+More → Performance report → Start controlled comparison compares exact/retained surfaces in the ordinary horizon with ABBA order and fixed scripted movement. Save `noxari-surface-comparison.json` for chat. See [method, privacy and phone instructions](SURFACE_COMPARISON.md). Optional browser gate: `scripts/verify_surface_comparison.mjs`; no physical-phone improvement is inferred from cloud timings.

@@ -10,8 +10,8 @@ export function useSkyFrames() {
     commit: updates => flushSync(updates),
   }, new SkyPerformance(__NOXARI_BUILD__)));
   useLayoutEffect(() => {
-    const hidden = () => { if (document.hidden) frames.performance.stop('page-hidden'); };
-    const leave = () => frames.performance.stop('page-hidden');
+    const hidden = () => { if (document.hidden) { frames.comparison.cancel('page-hidden');frames.performance.stop('page-hidden'); } };
+    const leave = () => { frames.comparison.cancel('page-hidden');frames.performance.stop('page-hidden'); };
     document.addEventListener('visibilitychange', hidden);window.addEventListener('pagehide', leave);
     return () => { document.removeEventListener('visibilitychange', hidden);window.removeEventListener('pagehide', leave);frames.reset(); };
   }, [frames]);

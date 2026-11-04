@@ -20,7 +20,7 @@ import {PhoneControls} from './PhoneControls';
 import {rankTonight, recommend} from './recommendations';
 import {SuggestionSummary, TonightPanel} from './TonightPanel';
 import {SkyPanel} from './SkyPanel';
-import {PerformancePanel, PerformanceCapture} from './PerformancePanel';
+import {PerformancePanel, PerformanceCapture, SurfaceComparisonCapture} from './PerformancePanel';
 import {catalogIdentifier, matchesCatalogQuery} from './catalogSearch';
 import {objectImages} from './objectImages';
 import {formatSharedList, parseSharedList} from './sharedList';
@@ -55,8 +55,9 @@ const initialLocation = (() => {
 
 function App() {
   const skyFrames = useSkyFrames();
+  const [diagnosticMode, setDiagnosticMode] = useState<'ordinary' | 'comparison'>('ordinary');
   const [panel, setPanel] = useState<Panel | null>(null);
-  const startPerformance = useCallback(() => { if (skyFrames.performance.start()) setPanel(null); }, [skyFrames]);
+  const startPerformance = useCallback(() => { if (!skyFrames.comparison.active && skyFrames.performance.start()) {setDiagnosticMode('ordinary');setPanel(null);} }, [skyFrames]);
   const reviewPerformance = useCallback(() => setPanel('performance'), []);
   const workspace = useRef<HTMLDivElement>(null);
   const appRoot = useRef<HTMLDivElement>(null);
@@ -172,14 +173,21 @@ function App() {
     if (candidateObjects.some(candidate => candidate.id === object.id)) setShowCandidateCollection(true);
     requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.object-preview button')?.focus({preventScroll: true}));
   };
-  const openPanel = (next: Panel) => { setPanel(next); };
+  const startComparison = () => {
+    if (phone.active || phone.status === 'requesting' || phone.status === 'waiting' || phone.status === 'retrying' || gpsPending || (showMilkyWay && !milkyWay.texture) || skyMode !== 'horizon') return;
+    const originalView = viewDirection, originalTime = time, originalMode = timeMode;
+    if (skyFrames.comparison.start({apply: setViewDirection, restore: () => {
+      setViewDirection(originalView);setTimeMode(originalMode);setTime(originalMode === 'live' ? new Date() : originalTime);
+    }}, timeMode)) {setDiagnosticMode('comparison');setTimeMode('fixed');setPanel(null);skyFrames.invalidate();}
+  };
+  const openPanel = (next: Panel) => { skyFrames.comparison.cancel('user-interaction');setPanel(next); };
   const closePanel = () => setPanel(null);
   const manualView: React.Dispatch<React.SetStateAction<ViewDirection>> = next => { if (!phone.active) setViewDirection(next); };
   const dragView: React.Dispatch<React.SetStateAction<ViewDirection>> = next => {
     phone.takeManualControl();
     setViewDirection(next);
   };
-  const follow = () => { setSkyMode('horizon'); setPanel(null); void phone.start(); };
+  const follow = () => { skyFrames.comparison.cancel('user-interaction');setSkyMode('horizon'); setPanel(null); void phone.start(); };
   const centerTarget = () => {
     const position = finderTarget && objectPosition(finderTarget, time, location);
     if (position && position.altitude >= 0) manualView({heading: position.azimuth, pitch: Math.min(89.9, position.altitude)});
@@ -336,7 +344,7 @@ function App() {
       {panel === 'saved' && <>{saved.length ? <><button className="panel-action" onClick={shareSavedList}><Share2 size={17}/>{t(lang, 'Share list', 'Dela listan')}</button><div className="cards-grid">{allObjects.filter(object => saved.includes(object.id)).map(object => card(object))}</div></> : <div className="empty"><Bookmark size={30}/><p>{t(lang, 'Nothing saved yet', 'Inget sparat ännu')}</p><button className="primary" onClick={() => openPanel('search')}>{t(lang, 'Search objects', 'Sök objekt')}</button></div>}</>}
       {panel === 'shared' && <>{sharedList.length ? <><p className="panel-note">{t(lang, 'This shared list is read-only. Save the objects to add them to your own Saved list.', 'Den här delade listan är skrivskyddad. Spara objekten för att lägga till dem i din egen lista.')}</p><button className="panel-action" onClick={saveSharedList}><Bookmark size={17}/>{t(lang, 'Save all to my list', 'Spara alla i min lista')}</button><div className="cards-grid">{allObjects.filter(object => sharedList.includes(object.id)).map(object => card(object))}</div></> : <div className="empty"><p>{t(lang, 'This shared list is empty or invalid.', 'Den delade listan är tom eller ogiltig.')}</p><button className="primary" onClick={() => openPanel('search')}>{t(lang, 'Search objects', 'Sök objekt')}</button></div>}</>}
       {panel === 'more' && <div className="more-menu">{([['saved', Bookmark], ['view', SlidersHorizontal], ['observation', Clock3], ['phone', Compass], ['settings', Settings2], ['performance', SlidersHorizontal], ['about', Info]] as const).map(([next, Icon]) => <button key={next} onClick={() => openPanel(next)}><Icon size={20}/>{titles[next]}<ChevronRight size={17}/></button>)}{document.fullscreenEnabled && <button onClick={fullscreen}>{isFullscreen ? <Minimize size={20}/> : <Maximize size={20}/>} {isFullscreen ? t(lang, 'Exit fullscreen', 'Lämna helskärm') : t(lang, 'Fullscreen', 'Helskärm')}</button>}</div>}
-      {panel === 'performance' && <PerformancePanel log={skyFrames.performance} language={lang} horizon={skyMode === 'horizon'} onStart={startPerformance}/>}
+      {panel === 'performance' && <PerformancePanel comparison={skyFrames.comparison} comparisonReady={!phone.active && !['requesting', 'waiting', 'retrying'].includes(phone.status) && !gpsPending && (!showMilkyWay || Boolean(milkyWay.texture))} onCompare={startComparison} log={skyFrames.performance} language={lang} horizon={skyMode === 'horizon'} onStart={startPerformance}/>}
       {panel === 'phone' && <PhoneControls phone={phone} language={lang} onStart={follow}/>}
       {panel === 'view' && <>
         <div className="sky-mode" role="group" aria-label={titles.view}><button className={skyMode === 'horizon' ? 'active' : ''} aria-pressed={skyMode === 'horizon'} onClick={() => setSkyMode('horizon')}>{t(lang, 'Look around', 'Se dig omkring')}</button><button className={skyMode === 'map' ? 'active' : ''} aria-pressed={skyMode === 'map'} onClick={() => setSkyMode('map')}>{t(lang, 'Sky map', 'Himmelskarta')}</button></div>
@@ -348,7 +356,8 @@ function App() {
       {panel === 'about' && <div className="about-copy"><p>{t(lang, 'Milky Way brightness is stylized from catalog contours. Looking down fades the ground to reveal a simulated sky below the horizon; those objects are not visible through the Earth.', 'Vintergatans ljusstyrka är stiliserad från katalogkonturer. När du tittar ned tonas marken bort och en simulerad himmel under horisonten visas; dessa objekt syns inte genom jorden.')}</p><p>{t(lang, 'Noxari · a calculated sky for your selected location and time.', 'Noxari · en beräknad himmel för vald plats och tid.')}</p><p>{t(lang, 'Markers show positions, not guaranteed visibility. Brightness is stylized. Terrain, weather, atmospheric refraction and light pollution are not included.', 'Markörer visar positioner, inte garanterad synlighet. Ljusstyrkan är stiliserad. Terräng, väder, atmosfärisk refraktion och ljusföroreningar ingår inte.')}</p><p>{t(lang, 'Sun altitude', 'Solens höjd')}: {sun.altitude.toFixed(1)}°</p>
 <div className="sky-credit">{t(lang, 'Star catalog', 'Stjärnkatalog')}: <a href="https://github.com/astronexus/HYG-Database" target="_blank" rel="noopener noreferrer">HYG v4.1</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a> · {t(lang, 'Figures & boundaries', 'Figurer och gränser')}: <a href="https://github.com/Stellarium/stellarium/tree/daace2add6a1bf886e8ee1934f51e9c69f818d18/skycultures/modern" target="_blank" rel="noopener noreferrer">Stellarium team</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>. {t(lang, 'Figures are schematic guides. Optional IAU boundaries use the same licensed Stellarium data, with B1875 edges from ', 'Figurerna är schematiska hjälplinjer. Valbara IAU-gränser använder samma licensierade Stellariumdata, med B1875-segment från ')}<a href="https://pbarbier.com/constellations/edges_18.txt" target="_blank" rel="noopener noreferrer">Pierre Barbier</a>.</div><div className="sky-credit">{t(lang, 'Milky Way contours', 'Vintergatans konturer')}: José R. Vieira · <a href="https://github.com/ofrohn/d3-celestial/blob/7e720a3de062059d4c5400a379146a601d9010e0/data/mw.json" target="_blank" rel="noopener noreferrer">d3-celestial · Olaf Frohn</a> · <a href={`${import.meta.env.BASE_URL}licenses/milky-way-BSD-3-Clause.txt`} target="_blank" rel="noopener noreferrer">BSD 3-Clause</a>. {t(lang, 'Adapted to a smoothed J2000 brightness grid; visual brightness is illustrative.', 'Bearbetat till ett utjämnat J2000-rutnät; ljusstyrkan är illustrativ.')}</div><div className="sky-credit">{t(lang, 'Messier catalog', 'Messierkatalog')}: <a href="https://github.com/mattiaverga/OpenNGC" target="_blank" rel="noopener noreferrer">OpenNGC · Mattia Verga</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>. {t(lang, 'Adapted types, aliases, Swedish names and equipment guidance; M102 follows NGC 5866 with a dispute note. Approximate distance facts: ', 'Bearbetade typer, alias, svenska namn och utrustningsråd; M102 följer NGC 5866 med en förklaring om tvisten. Ungefärliga avstånd: ')}<a href="https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/" target="_blank" rel="noopener noreferrer">NASA/Hubble</a>.</div></div>}
     </SkyPanel>}
-    <PerformanceCapture visible={!panel} log={skyFrames.performance} language={lang} onReview={reviewPerformance}/>
+    <SurfaceComparisonCapture comparison={skyFrames.comparison} language={lang} onReview={reviewPerformance} visible={!panel && diagnosticMode === 'comparison'}/>
+    <PerformanceCapture visible={!panel && diagnosticMode === 'ordinary'} log={skyFrames.performance} language={lang} onReview={reviewPerformance}/>
     {toast && <div className="toast" role="status"><Check size={16}/>{toast}</div>}
   </div>;
 }

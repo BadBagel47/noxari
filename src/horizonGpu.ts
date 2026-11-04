@@ -1,3 +1,4 @@
+import type {SurfacePolicy} from './surfaceComparison';
 import {GpuSky} from './gpuSky';
 import type {MilkyWayTexture} from './milkyWay';
 import type {PreparedHorizontalStar} from './skyProjection';
@@ -16,6 +17,7 @@ export class HorizonGpu {
   private stars: PreparedHorizontalStar[] = [];
   private texture: MilkyWayTexture | null = null;
   private disposed = false;
+  private surfacePolicy: SurfacePolicy = 'auto';
   reason = '';
   driver = '';
 
@@ -27,10 +29,21 @@ export class HorizonGpu {
 
   get backend() { return this.gpu?.available ? 'gpu' : 'canvas'; }
 
+  get policy() { return this.gpu?.surfacePolicy ?? null; }
+
+  resetSurface(policy: SurfacePolicy) {
+    this.surfacePolicy = policy;
+    if (this.disposed || this.context?.isContextLost()) return false;
+    this.fail('reset');
+    this.canvas.width = this.canvas.height = 1;
+    this.create();
+    return this.backend === 'gpu';
+  }
+
   private create() {
     if (this.disposed || this.preference === 'canvas') { this.reason = 'requested-canvas'; return; }
     try {
-      this.gpu = new GpuSky(this.canvas);
+      this.gpu = new GpuSky(this.canvas, this.surfacePolicy === 'auto' ? undefined : this.surfacePolicy === 'retained');
       this.context = this.gpu.gl;
       const info = this.gpu.info();
       this.driver = info.renderer;

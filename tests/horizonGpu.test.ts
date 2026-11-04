@@ -8,10 +8,12 @@ const state = vi.hoisted(() => ({software: false, initializationFails: false, dr
 vi.mock('../src/gpuSky', () => ({GpuSky: class {
   available = true;
   lose = vi.fn();
-  gl = {getExtension: () => ({loseContext: this.lose})};
+  gl = {isContextLost: () => false, getExtension: () => ({loseContext: this.lose})};
   setScene = vi.fn();
   dispose = vi.fn(() => { this.available = false; });
-  constructor() {
+  surfacePolicy: 'exact' | 'retained';
+  constructor(_canvas: HTMLCanvasElement, retain?: boolean) {
+    this.surfacePolicy = (retain ?? !state.software) ? 'retained' : 'exact';
     if (state.initializationFails) throw new Error('unsupported');
     state.instances.push(this);
   }
@@ -82,6 +84,16 @@ describe('horizon GPU ownership and fallback', () => {
     expect(state.instances).toHaveLength(2);
     expect(invalidate).toHaveBeenCalledTimes(2);
     expect(state.instances[1].lose).toHaveBeenCalledOnce();
+  });
+
+  it('recreates bounded GPU resources for policy changes then restores automatic sizing', () => {
+    const canvas = surface(), renderer = new HorizonGpu(canvas, vi.fn(), 'gpu');renderer.setScene(stars, texture);
+    expect(renderer.policy).toBe('retained');expect(renderer.resetSurface('exact')).toBe(true);expect(renderer.policy).toBe('exact');
+    expect(state.instances[0].dispose).toHaveBeenCalledOnce();expect(state.instances[1].setScene).toHaveBeenCalledWith(stars, texture);
+    expect(renderer.resetSurface('retained')).toBe(true);expect(renderer.policy).toBe('retained');
+    state.software = true;expect(renderer.resetSurface('auto')).toBe(true);expect(renderer.policy).toBe('exact');
+    renderer.dispose();for (const gpu of state.instances) expect(gpu.dispose).toHaveBeenCalledOnce();
+    expect(state.instances.slice(0,-1).every(gpu => gpu.lose.mock.calls.length === 0)).toBe(true);
   });
 
   it('keeps the frame renderable in Canvas after a scene upload failure', () => {

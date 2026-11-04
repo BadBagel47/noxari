@@ -122,3 +122,32 @@ Recommended model: **Sol High**.
 These requested behavior changes are recorded preferences/specifications. The standing user workflow still requires a model recommendation and explicit start approval; no new app code is changed in this analysis.
 
 The user subsequently approved this whole proposal with “Kör”, including the added B-007 one-second retry preference. [Current implementation and checks](SURFACE_REUSE_AND_TEST_DEFAULTS.md) record the final software policy, prepared grid/scalar clipping, temporary night startup and same-gesture takeover. This analysis is historical proposal context; further batches are not approved.
+
+## Fourth ordinary-app capture — clean `78ffe4e80cbc`
+
+The user supplied a new performance file without subjective feedback. [Derived analysis](measurements/surface-reuse-phone-followup-2026-11-04.json) preserves source SHA-256/summaries and relevant interval associations without republishing the trace or creation timestamp.
+
+| Measure | Before surface/grid step `21637c3` | After `78ffe4e` |
+| --- | ---: | ---: |
+| Draw count / capture duration | 1,200 / 14.95 s | 1,200 / 16.29 s |
+| Command draw median / p95 / max | 4.6 / 7.3 / 58.4 ms | 4.1 / 6.0 / 9.8 ms |
+| Latest input → command end median / p95 / max | 6.4 / 8.9 / 60.7 ms | 5.8 / 8.0 / 22.5 ms |
+| Active cadence median / p95 / max | 10.6 / 17.3 / 64.5 ms | 11.5 / 22.5 / 54.9 ms |
+| Active intervals >25 ms | 5/1,199 (0.42%) | 26/1,199 (2.17%) |
+| Initial recorded DPR-switch draw | 58.4 ms | 4.3 ms |
+| Grid median / p95 | 0.9 / 1.5 ms | 0.6 / 0.9 ms |
+| Figure median / p95 | 2.2 / 3.7 ms | 1.8 / 2.9 ms |
+
+There are 1,200 GPU/no-error draws with two snapshots each, the same viewport and all-five-layer/All88 flags, night preview, 1× zoom and one initial DPR 2→1.5 switch. This capture has 972 manual requests on 971 draws, no zoom/phone publications, following=false and no cancelled requests. Different gestures and visible content remain possible; the pair is not controlled and it measures scheduled callbacks/command submission, not displayed FPS. No true-north, first-start or F-022 takeover conclusion follows from these manual-only samples.
+
+The initial density-switch draw takes **4.3 ms**, including 0.3 ms Milky Way and 0.2 ms stars. No draw exceeds 9.8 ms in this capture. This is consistent with removing the previous buffer-transition submission stall. It does not establish a cold-load benefit, permanent elimination of every driver stall, or better overall smoothness.
+
+Cadence is worse by p95 and long-interval count despite lower command times. All 26 long intervals follow recorded frame tasks of only **2.1–9.4 ms**, with preceding draws **2.1–7.5 ms**. The worst interval (54.9 ms) follows a 6.2 ms recorded task / 5.2 ms draw, leaving about 48.7 ms outside that recorded task. End-of-frame collector bookkeeping is also outside that task timestamp. Browser scheduling, input processing before enqueue, layout/paint, deferred GPU/copy/composition and measurement effects remain candidates, not proven causes. Small synchronous copy timings do not exclude asynchronous transfer/composition costs.
+
+Manual draw median/p95 is 4.3/6.2 ms (before 5.2/7.5), with figures 2.0/3.0 ms (before 2.6/3.9). Animation-only draw median/p95 is 3.5/4.6 ms and figures remain 0.5/0.8 ms. All captured draws still request continuing animation; this sustained workload does not by itself prove an idle-loop bug. The sensor-free/preview capture also avoids blaming sensor fusion or live-clock recalculation without evidence.
+
+### Recommended next B-004 step — proposed, not implemented
+
+Recommend **Sol High** for a controlled ordinary-app **retained versus exact GPU surface** comparison on the same phone, with equal scene/layers/density/input path, warm-up and paired ordering. Include the waits between frame callbacks/input delivery alongside existing command costs, within the existing bounded local diagnostics and privacy rules. The larger retained surface could affect asynchronous copying/composition even when command calls are short; this is a hypothesis that the A/B should resolve before selecting a policy or doing more speculative layer work. Existing automatic software fallback, image/geometry correctness and full resting quality must remain. Cloud software results cannot choose the phone policy.
+
+A short question about perceived smoothness has been asked; an answer is not assumed. B-004 remains open, B-007 still needs independent first-activation confirmation, B-001 remains paused and no new development batch is approved. Documentation/data only changed in this analysis.

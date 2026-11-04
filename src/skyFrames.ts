@@ -1,3 +1,4 @@
+import {SurfaceComparison} from './surfaceComparison';
 import {SkyPerformance, type PerformanceInput} from './skyPerformance';
 
 export type SkyFrameRenderer = (now: number) => boolean;
@@ -9,6 +10,9 @@ type FrameHost = {
 
 /** One frame owns input publication, the matching DOM commit, and sky drawing. */
 export class SkyFrames {
+  readonly comparison: SurfaceComparison;
+  private requestedAt: number | null = null;
+  get activePerformance() { return this.comparison.recorder ?? this.performance; }
   private pending: number | null = null;
   private running = false;
   private dirty = false;
@@ -16,7 +20,7 @@ export class SkyFrames {
   private renderer: SkyFrameRenderer | null = null;
   private updates = new Map<symbol, () => void>();
 
-  constructor(private host: FrameHost, readonly performance = new SkyPerformance()) {}
+  constructor(private host: FrameHost, readonly performance = new SkyPerformance()) { this.comparison = new SurfaceComparison(performance); }
 
   enqueue(key: symbol, update: () => void, source?: PerformanceInput) {
     if (source && !this.running) this.performance.input(key, source);
@@ -41,6 +45,7 @@ export class SkyFrames {
   }
 
   clearRenderer() {
+    this.comparison.cancel('view-unavailable');
     this.performance.stop('view-unavailable');
     this.renderer = null;
     this.dirty = this.animating = false;
@@ -48,6 +53,7 @@ export class SkyFrames {
   }
 
   reset() {
+    this.comparison.cancel('reset');
     this.performance.stop('reset');
     if (this.pending !== null) this.host.cancel(this.pending);
     this.pending = null;
@@ -57,21 +63,28 @@ export class SkyFrames {
   }
 
   private cancelIfIdle() {
-    if (!this.updates.size && !this.dirty && !this.animating && this.pending !== null) {
+    if (!this.updates.size && !this.dirty && !this.animating && !this.comparison.active && this.pending !== null) {
       this.host.cancel(this.pending);
       this.pending = null;
     }
   }
 
   private request() {
-    if (this.pending === null && !this.running) this.pending = this.host.request(this.tick);
+    if (this.pending === null && !this.running) {
+      this.requestedAt = this.comparison.active ? this.comparison.now() : this.performance.timestamp();
+      this.pending = this.host.request(this.tick);
+    }
   }
 
   private tick = (now: number) => {
+    const callback = this.comparison.active ? this.comparison.now() : this.performance.timestamp();
+    const requested = this.requestedAt;
     this.pending = null;
     this.running = true;
     this.animating = false;
-    const measurement = this.performance.beginFrame();
+    this.comparison.beforeFrame(callback ?? now);
+    const recorder = this.activePerformance;
+    const measurement = recorder.beginFrame(callback === null ? undefined : {requested, callback, rafTimestamp: now});
     const hadUpdates = this.updates.size > 0;
     let failed = true;
     try {
@@ -89,9 +102,10 @@ export class SkyFrames {
       this.animating = this.renderer?.(now) ?? false;
       failed = false;
     } finally {
-      this.performance.endFrame(measurement, this.animating, failed);
+      recorder.endFrame(measurement, this.animating || this.comparison.active, failed);
+      this.comparison.afterFrame(failed);
       this.running = false;
-      if (this.updates.size || this.dirty || this.animating) this.request();
+      if (this.updates.size || this.dirty || this.animating || this.comparison.needsFrame) this.request();
     }
   };
 }

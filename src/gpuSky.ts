@@ -172,6 +172,8 @@ export class GpuSky {
     } catch (error) { this.dispose(); throw error; }
   }
 
+  get surfacePolicy() { return this.retainSurface ? 'retained' as const : 'exact' as const; }
+
   get available() { return !this.disposed && !this.gl.isContextLost(); }
 
   info() {

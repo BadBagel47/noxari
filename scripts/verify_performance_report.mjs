@@ -26,7 +26,7 @@ async function pageFor({width=390,height=844,dpr=2,sv=false,mode='auto'}={}) {
  await page.goto(base+'?skyRenderer='+mode+(sv?'&lang=sv':''));await page.waitForFunction(()=>document.querySelector('.horizon-view')?.dataset.skyRenderer);await page.waitForTimeout(250);return page;
 }
 function validate(report) {
- assert.equal(report.kind,'sky-performance');assert.equal(report.reportVersion,1);assert.match(report.build.commit,/^[a-f0-9]{12}$/);
+ assert.equal(report.kind,'sky-performance');assert.equal(report.reportVersion,2);assert.match(report.build.commit,/^[a-f0-9]{12}$/);
  assert.equal(report.active,false);assert.ok(report.frames.length>0);assert.ok(report.frames.length<=1200);assert.ok(report.contexts.length<=64);
  assert.equal(report.summary.frames,report.frames.length);
  for(const frame of report.frames){

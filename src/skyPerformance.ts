@@ -1,6 +1,6 @@
 export const PERFORMANCE_STAGES = ['background', 'milkyWay', 'grid', 'boundaries', 'figures', 'stars', 'labels', 'ground'] as const;
 export type PerformanceStage = typeof PERFORMANCE_STAGES[number];
-export type PerformanceInput = 'manual-view' | 'zoom' | 'phone-publication';
+export type PerformanceInput = 'manual-view' | 'zoom' | 'phone-publication' | 'scripted-view';
 export type PerformanceStop = 'manual' | 'time-limit' | 'frame-limit' | 'context-limit' | 'page-hidden' | 'view-unavailable' | 'reset';
 export type PerformanceScene = {
   backend: 'gpu' | 'canvas'; reason: string; driver: string; preference: string;
@@ -18,6 +18,8 @@ const summary = (values: number[]) => {
     max: sorted.length ? sorted[sorted.length - 1] : null};
 };
 
+export type FrameSchedule = {requested: number | null; callback: number; rafTimestamp: number};
+
 export class PerformanceFrame {
   readonly started: number;
   commitMs = 0;
@@ -27,7 +29,7 @@ export class PerformanceFrame {
   copyCalls = 0;
   backendAtStart: 'gpu' | 'canvas' | null = null;
   readonly stages = Object.fromEntries(PERFORMANCE_STAGES.map(key => [key, 0])) as Record<PerformanceStage, number>;
-  constructor(readonly clock: () => number, readonly inputs: Input[]) { this.started = clock(); }
+  constructor(readonly clock: () => number, readonly inputs: Input[], readonly schedule?: FrameSchedule) { this.started = clock(); }
   committed(hasUpdates: boolean) { if (hasUpdates) this.commitMs = this.clock() - this.started; }
   beginDraw(backend: 'gpu' | 'canvas') { this.backendAtStart = backend;this.cursor = this.drawStarted = this.clock(); }
   phase(stage: PerformanceStage) { const now = this.clock();this.stages[stage] += now - this.cursor;this.cursor = now; }
@@ -37,6 +39,7 @@ type Sample = {
   atMs: number; zoom: number; context: number; animationPending: boolean; error: boolean; backendAtStart: 'gpu' | 'canvas';
   cadenceIntervalMs: number | null; requestToDrawEndMs: number | null; oldestRequestToDrawEndMs: number | null;
   latestRequestWaitMs: number | null; commitMs: number; drawMs: number; frameTaskMs: number;
+  rafWaitMs: number | null; callbackAgeMs: number | null; callbackToFrameStartMs: number | null; callbackToDrawEndMs: number | null; bookkeepingMs: number;
   stagesMs: Record<PerformanceStage, number>; gpuCopySubmissionMs: number; gpuCopyCalls: number;
   inputs: Record<PerformanceInput, number>;
 };
@@ -102,10 +105,11 @@ export class SkyPerformance {
     if (!this.active) return;
     this.cancelledRequests += this.inputs.get(key)?.count ?? 0;this.inputs.delete(key);
   }
-  beginFrame() {
+  timestamp() { return this.active ? this.clock() : null; }
+  beginFrame(schedule?: FrameSchedule) {
     if (!this.active) return null;
     if (this.clock() - this.started >= SkyPerformance.maxDurationMs) { this.stop('time-limit');return null; }
-    this.current = new PerformanceFrame(this.clock, [...this.inputs.values()]);this.inputs.clear();return this.current;
+    this.current = new PerformanceFrame(this.clock, [...this.inputs.values()], schedule);this.inputs.clear();return this.current;
   }
   endFrame(frame: PerformanceFrame | null, animation: boolean, error: boolean) {
     this.current = null;
@@ -126,7 +130,7 @@ export class SkyPerformance {
     const last = frame.inputs.length ? Math.max(...frame.inputs.map(i => i.last)) : null;
     // An idle pause is not a dropped display frame. Retain long stalls when a request arrived promptly.
     const continuous = this.previous && (this.previous.animation || (first !== null && first - this.previous.ended <= 120));
-    const sources = {'manual-view': 0, zoom: 0, 'phone-publication': 0};
+    const sources = {'manual-view': 0, zoom: 0, 'phone-publication': 0, 'scripted-view': 0};
     for (const input of frame.inputs) sources[input.source] += input.count;
     this.samples.push({atMs: round(frame.started - this.started), zoom: round(scene.zoom), context: contextIndex,
       animationPending: animation, error, backendAtStart: frame.backendAtStart,
@@ -134,25 +138,32 @@ export class SkyPerformance {
       requestToDrawEndMs: last === null ? null : round(ended - last),
       oldestRequestToDrawEndMs: first === null ? null : round(ended - first), latestRequestWaitMs: last === null ? null : round(frame.started - last),
       commitMs: round(frame.commitMs), drawMs: round(ended - frame.drawStarted), frameTaskMs: round(ended - frame.started),
+      rafWaitMs: frame.schedule?.requested == null ? null : round(frame.schedule.callback - frame.schedule.requested),
+      callbackAgeMs: frame.schedule ? round(frame.schedule.callback - frame.schedule.rafTimestamp) : null,
+      callbackToFrameStartMs: frame.schedule ? round(frame.started - frame.schedule.callback) : null,
+      callbackToDrawEndMs: frame.schedule ? round(ended - frame.schedule.callback) : null, bookkeepingMs: 0,
       stagesMs: Object.fromEntries(PERFORMANCE_STAGES.map(stage => [stage, round(frame.stages[stage])])) as Record<PerformanceStage, number>,
       gpuCopySubmissionMs: round(frame.copyMs), gpuCopyCalls: frame.copyCalls, inputs: sources});
+    this.samples[this.samples.length - 1].bookkeepingMs = round(this.clock() - ended);
     this.previous = {started: frame.started, ended, animation};
     if (this.samples.length >= SkyPerformance.maxFrames) this.stop('frame-limit');
   }
   snapshot() {
     const samples = this.samples;
-    const nullable = (key: 'cadenceIntervalMs' | 'requestToDrawEndMs' | 'oldestRequestToDrawEndMs' | 'latestRequestWaitMs') => samples.flatMap(s => s[key] === null ? [] : [s[key]!]);
-    return {application: 'Noxari', reportVersion: 1, kind: 'sky-performance', build: {...this.build}, createdAt: this.createdAt,
+    const nullable = (key: 'cadenceIntervalMs' | 'requestToDrawEndMs' | 'oldestRequestToDrawEndMs' | 'latestRequestWaitMs' | 'rafWaitMs' | 'callbackAgeMs' | 'callbackToFrameStartMs' | 'callbackToDrawEndMs') => samples.flatMap(s => s[key] === null ? [] : [s[key]!]);
+    return {application: 'Noxari', reportVersion: 2, kind: 'sky-performance', build: {...this.build}, createdAt: this.createdAt,
       active: this.active, stopReason: this.status.reason, durationMs: round((this.active ? this.clock() : this.stopped) - this.started),
       limits: {frames: SkyPerformance.maxFrames, durationMs: SkyPerformance.maxDurationMs, contexts: SkyPerformance.maxContexts},
-      definitions: {request: 'Accepted manual-view/zoom queue request or phone-publication queue request; before shared commit. Not physical input arrival; event-handler work before enqueue and sensor-fusion timing are excluded.',
+      definitions: {schedule: 'RAF request to callback entry, callback entry minus RAF timestamp, callback preparation and callback entry to synchronous command completion (before bookkeeping/controller handoff). Not displayed FPS or GPU completion. Bookkeeping measures sample collection after command end.',
+        request: 'Accepted manual-view/zoom/phone-publication queue request or controlled scripted-view request; before shared commit. Not physical input arrival; event-handler work before enqueue and sensor-fusion timing are excluded.',
         latency: 'Latest accepted request to synchronous drawing-command completion. Not GPU completion, displayed-frame latency or presented FPS.',
         commit: 'Only the shared queue flushSync commit; other React updates and browser layout/paint are not fully attributed. Short timings can be quantized to zero by the browser clock.',
         cadence: 'Consecutive scheduled horizon draws with animation pending or a request arriving within 120 ms of the previous draw end. Idle gaps excluded.',
         copies: 'Synchronous GPU-to-Canvas drawImage submission, included in Milky Way/star stage totals; not separate GPU execution time.',
         privacy: 'No GPS coordinates, location names, selected time, sky directions, object IDs, raw sensors, URL or user agent.',
         overhead: 'Opt-in clock reads and bounded in-memory collection. No extra RAF, per-frame UI refresh, readPixels, finish or GPU timing queries.'},
-      summary: {frames: samples.length, cadenceMs: summary(nullable('cadenceIntervalMs')), intervalsOver25Ms: nullable('cadenceIntervalMs').filter(n => n > 25).length,
+      summary: {rafWaitMs: summary(nullable('rafWaitMs')), callbackAgeMs: summary(nullable('callbackAgeMs')),
+        callbackToFrameStartMs: summary(nullable('callbackToFrameStartMs')), callbackToDrawEndMs: summary(nullable('callbackToDrawEndMs')), bookkeepingMs: summary(samples.map(s => s.bookkeepingMs)), frames: samples.length, cadenceMs: summary(nullable('cadenceIntervalMs')), intervalsOver25Ms: nullable('cadenceIntervalMs').filter(n => n > 25).length,
         requestToDrawEndMs: summary(nullable('requestToDrawEndMs')), oldestRequestToDrawEndMs: summary(nullable('oldestRequestToDrawEndMs')),
         latestRequestWaitMs: summary(nullable('latestRequestWaitMs')), commitMs: summary(samples.map(s => s.commitMs)), drawMs: summary(samples.map(s => s.drawMs)),
         stagesMs: Object.fromEntries(PERFORMANCE_STAGES.map(stage => [stage, summary(samples.map(s => s.stagesMs[stage]))])),

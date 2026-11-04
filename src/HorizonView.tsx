@@ -2,7 +2,7 @@ import {horizonGrid} from './skyGrid';
 import {MotionResolution} from './motionResolution';
 import {useSkyFrameState} from './useSkyFrames';
 import type {SkyFrames} from './skyFrames';
-import {useEffect, useLayoutEffect, useMemo, useRef, useState, type Dispatch, type PointerEvent, type SetStateAction} from 'react';
+import {useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type Dispatch, type PointerEvent, type SetStateAction} from 'react';
 import {ConstellationDrawingCache, constellationSky, drawConstellations, type FigureMode} from './constellations';
 import {ConstellationReveal} from './constellationReveal';
 import {useReducedMotion} from './useReducedMotion';
@@ -49,6 +49,8 @@ const wrap = (degrees: number) => (degrees % 360 + 360) % 360;
 const cardinal = (heading: number) => ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(wrap(heading) / 45) % 8];
 
 export function HorizonView({frames, selectedId, time, timeMode, location, label, sunLabel, onSelect, language, view, onViewChange, onDragViewChange, showFigures, showFigureNames, figureMode, showBoundaries, showCandidateCollection, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails}: Props) {
+  const comparisonStatus = useSyncExternalStore(frames.comparison.subscribe, frames.comparison.getSnapshot);
+  const [comparisonTrackers] = useState(() => ({current: {pass: -1, reveal: new ConstellationReveal(), cache: new ConstellationDrawingCache(), resolution: new MotionResolution()}}));
   const root = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const reveal = useRef(new ConstellationReveal());
@@ -66,7 +68,8 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
   const touchPoints = useRef(new Map<number, {x: number; y: number}>());
   const pinch = useRef<{distance: number; zoom: number} | null>(null);
   const suppressClick = useRef(false);
-  const [zoom, setZoom] = useSkyFrameState(1, frames, 'zoom');
+  const [normalZoom, setZoom] = useSkyFrameState(1, frames, 'zoom');
+  const zoom = comparisonStatus.active ? 1 : normalZoom;
   const [size, setSize] = useState({width: 0, height: 0});
   const stars = useMemo(() => prepareHorizontalStars(horizontalStarCatalog(time, location)), [time, location]);
   const milkyBasis = useMemo(() => milkyWayBasis(time, location), [time, location]);
@@ -125,8 +128,10 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
   useLayoutEffect(() => {
     const renderer = new HorizonGpu(document.createElement('canvas'), () => frames.invalidate(), skyRendererPreference(window.location.search));
     gpu.current = renderer;
+    frames.comparison.attach({reset: policy => {comparisonTrackers.current.pass = -1;return renderer.resetSurface(policy);}, policy: () => renderer.policy});
     frames.performance.scene = performanceScene;
     return () => {
+      frames.comparison.detach();
       frames.clearRenderer();
       if (restoreResolution.current !== null) clearTimeout(restoreResolution.current);
       frames.performance.detachScene(performanceScene);
@@ -142,13 +147,19 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
     const context = surface.getContext('2d', {alpha: false});
     if (!context) { frames.clearRenderer(); return; }
     const render = (now: number) => {
-      const renderer = gpu.current, measurement = frames.performance.current;
+      const renderer = gpu.current, measurement = frames.activePerformance.current;
+      const comparing = frames.comparison.active;
+      if (comparing && comparisonTrackers.current.pass !== frames.comparison.passIndex) {
+        comparisonTrackers.current = {pass: frames.comparison.passIndex, reveal: new ConstellationReveal(), cache: new ConstellationDrawingCache(), resolution: new MotionResolution()};
+      }
+      const trackers = comparisonTrackers.current;
+      if (comparing) now = frames.comparison.simulationTime;
       measurement?.beginDraw(renderer?.backend ?? 'canvas');
       renderer?.setMeasurement(measurement);
       renderer?.setScene(stars, milkyWay);
-      const quality = resolution.current.sample(view, zoom, window.devicePixelRatio || 1, performance.now());
+      const quality = (comparing ? trackers.resolution : resolution.current).sample(view, zoom, window.devicePixelRatio || 1, comparing ? now : performance.now());
       if (restoreResolution.current !== null) clearTimeout(restoreResolution.current);
-      restoreResolution.current = quality.restoreAt === null ? null : setTimeout(() => {
+      restoreResolution.current = comparing || quality.restoreAt === null ? null : setTimeout(() => {
         restoreResolution.current = null;
         frames.invalidate();
       }, Math.max(1, quality.restoreAt - performance.now() + 1));
@@ -215,7 +226,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       if (showBoundaries) drawBoundaries(context, preparedBoundaries, projectBoundary, width, height, starVisibility);
 
       measurement?.phase('boundaries');
-      const animating = showFigures && drawConstellations(context, figures, projectFigure, width, height, starVisibility, showFigureNames, {reveal: reveal.current, now, reducedMotion}, figureCache.current);
+      const animating = showFigures && drawConstellations(context, figures, projectFigure, width, height, starVisibility, showFigureNames, {reveal: comparing ? trackers.reveal : reveal.current, now, reducedMotion}, comparing ? trackers.cache : figureCache.current);
       if (!showFigures) reveal.current.reset();
       measurement?.phase('figures');
 
@@ -289,14 +300,17 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
         root.current.dataset.skyRenderer = renderer?.backend ?? 'canvas';
         root.current.dataset.skyRendererReason = renderer?.reason ?? '';
       }
+      frames.activePerformance.scene = performanceScene;
+      if (comparing) frames.comparison.validateScene(performanceScene, sceneKey + `|${finderTarget?.id ?? ''}|${selectedId ?? ''}|${language}`, window.devicePixelRatio || 1);
       frames.performance.sceneChanged();
       return Boolean(animating);
     };
     frames.setRenderer(render);
-  }, [projectFigure, frames, size, view, zoom, stars, figures, boundaries, preparedBoundaries, showFigures, showFigureNames, figureMode, showBoundaries, reducedMotion, sun.altitude, milkyWay, milkyBasis, sceneKey, time, timeMode, location, performanceScene, phone.active, showCandidateCollection]);
+  }, [projectFigure, frames, size, view, zoom, stars, figures, boundaries, preparedBoundaries, showFigures, showFigureNames, figureMode, showBoundaries, reducedMotion, sun.altitude, milkyWay, milkyBasis, sceneKey, time, timeMode, location, performanceScene, phone.active, showCandidateCollection, comparisonStatus.active, selectedId, finderTarget, language]);
 
   const move = (heading: number, pitch: number) => onViewChange(current => ({heading: wrap(current.heading + heading), pitch: clampViewPitch(current.pitch + pitch)}));
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (frames.comparison.active) {frames.comparison.cancel('user-interaction');suppressClick.current = true;event.preventDefault();return;}
     event.currentTarget.dataset.pointerSteering = 'true';
     if (event.target instanceof Element && (event.target.closest('[data-sky-controls]') || (event.target.closest('button') && !event.target.closest('button.sky-object')))) return;
     if (event.pointerType === 'touch') {
@@ -370,6 +384,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
     onClickCapture={event => { if (suppressClick.current && event.detail !== 0 && event.target instanceof Element && !event.target.closest('[data-sky-controls], .horizon-controls')) { event.preventDefault(); event.stopPropagation(); } }}
     onBlur={event => { if (event.target === event.currentTarget) delete event.currentTarget.dataset.pointerSteering; }}
     onKeyDown={event => {
+      if (frames.comparison.active) {frames.comparison.cancel('user-interaction');event.preventDefault();event.stopPropagation();return;}
       delete event.currentTarget.dataset.pointerSteering;
       if (finderTarget && event.key === 'Escape') { event.preventDefault(); onStopFinder(); return; }
       const changes: Record<string, [number, number]> = {ArrowLeft: [-10, 0], ArrowRight: [10, 0], ArrowUp: [0, 8], ArrowDown: [0, -8]};
