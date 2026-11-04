@@ -4,6 +4,8 @@ const messages: Record<SensorStatus, [string, string]> = {
   off: ['Follow the sky as you turn your phone. Hold it upright, screen facing you. Uses the selected date and time.', 'Följ himlen när du vrider telefonen. Håll den upprätt med skärmen mot dig. Använder valt datum och tid.'],
   requesting: ['Allow motion and orientation access in your browser.', 'Tillåt rörelse- och riktningsåtkomst i webbläsaren.'],
   waiting: ['Waiting for direction. Hold the phone upright and still while north is checked.', 'Väntar på riktning. Håll telefonen upprätt och stilla medan norr kontrolleras.'],
+  retrying: ['Restarting phone direction once because no usable readings arrived. Hold the phone upright.', 'Startar om telefonriktningen en gång eftersom användbara avläsningar saknas. Håll telefonen upprätt.'],
+  error: ['Could not request sensor access. Try again, or use manual control.', 'Kunde inte begära sensoråtkomst. Försök igen eller styr manuellt.'],
   align: ['Hold the phone upright and still for a stable compass reference, or point its back toward known true north and tap Align north.', 'Håll telefonen upprätt och stilla för en stabil kompassreferens, eller rikta baksidan mot känd geografisk nord och tryck Rikta mot norr.'],
   tracking: ['Following phone direction. A large sustained disagreement can restore the compass reference once you hold still. Manual north alignment is preserved. Tap Stop following to use manual controls. A compass may use magnetic north; align to true north for best agreement.', 'Följer telefonens riktning. En stor bestående skillnad kan återställa kompassreferensen när du håller stilla. Manuell nordkalibrering bevaras. Tryck Stoppa synkning för att styra manuellt. Kompassen kan visa magnetisk nord; rikta mot geografisk nord för bäst överensstämmelse.'],
   recalibrate: ['Direction is uncertain and sky following is held. Hold the phone upright and still, then use the compass reference or align to known true north. A figure-eight movement does not reset the app reference.', 'Riktningen är osäker och himmelsvyn hålls stilla. Håll telefonen upprätt och stilla, använd sedan kompassreferensen eller rikta mot känd geografisk nord. En åttarörelse återställer inte appens referens.'],
@@ -16,7 +18,7 @@ const messages: Record<SensorStatus, [string, string]> = {
 export function PhoneControls({phone, language, compact = false, onStart}: {phone: ReturnType<typeof usePhoneOrientation>; language: 'en' | 'sv'; compact?: boolean; onStart?: () => void}) {
   const sv = language === 'sv';
   const d = phone.diagnostics;
-  const ended = ['off', 'missing', 'denied', 'unavailable'].includes(phone.status);
+  const ended = ['off', 'missing', 'denied', 'unavailable', 'error'].includes(phone.status);
   const canCalibrate = ['tracking', 'align', 'paused', 'recalibrate'].includes(phone.status);
   const checks = {
     waiting: ['Waiting for readings', 'Väntar på avläsningar'],

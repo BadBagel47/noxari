@@ -59,3 +59,31 @@ Constellation drawing is also a substantial steady cost. `drawConstellations()` 
 3. Compare the same ordinary-app report metrics: DPR switch count, transition/renewed-motion peaks, command/cadence tails and manual responsiveness. Keep all layers enabled and recheck the existing geometry/gestures/sensor-publication regressions. Cloud software GPU checks can validate behavior, not the phone benefit.
 
 The exact driver mechanism and physical improvement require a controlled implementation/comparison. Do not silently lower permanent quality, replace the whole renderer, change sensor fusion or begin a constellation migration under this proposal. The user subsequently approved this batch with “Kör”; implementation and verification are recorded in [GPU rendering](GPU_RENDERING.md#approved-motionresource-follow-up-2026-11-04). No subsequent development batch is approved. If the transition fix leaves significant steady cost, constellation geometry caching is the next candidate to discuss separately.
+
+## Follow-up after implementation — clean `0246034e081a`
+
+The second user file was received after the 800 ms/two-atlas/framebuffer-check step. [Derived results](measurements/phone-performance-followup-2026-11-04.json) preserve its SHA-256 and summaries without republishing the trace, exact viewport or creation timestamp.
+
+| Ordinary-phone measure | Before `99e1b2a91e4e` | After `0246034e081a` |
+| --- | ---: | ---: |
+| Draws / capture duration | 1,200 / 20.29 s | 1,200 / 16.82 s |
+| DPR switches | 37 | 1 |
+| Command draw median / p95 | 9.7 / 20.8 ms | 5.9 / 8.7 ms |
+| Latest accepted input → command end median / p95 | 13.5 / 23.4 ms | 7.2 / 10.3 ms |
+| Active cadence median / p95 | 16.4 / 25.0 ms | 12.9 / 23.6 ms |
+| Active intervals >25 ms | 59/1,199 (4.92%) | 28/1,199 (2.34%) |
+| Draws >25 ms | 25 | 1 |
+| Largest draw / interval | 71.0 / 77.6 ms | 82.4 / 90.3 ms |
+
+GPU is selected for all 1,200 draws, with no recorded errors/fallbacks and two copies each. All five layers and All88 are enabled; the viewport matches the earlier capture, zoom remains 1× and stars/Milky Way are marked visible. There are 938 manual requests on 938 draws, no zoom/phone publications, and following is false throughout. These are different gesture recordings (earlier 750 requests across 749 draws); scene/time/visibility intensity are not proven identical. The comparison is promising measured evidence, not a controlled causal estimate or a user statement of improved feel.
+
+The first draw uses DPR 2; the second switches to 1.5 and remains there for the rest of the capture. That switch is the only draw above 25 ms: **82.4 ms** (Milky Way 52.8, stars 17.1), followed by a 90.3 ms start-to-start interval. Initial buffer/atlas work remains a candidate, not per-call evidence. The largest stall has therefore not improved. The other 27 intervals above 25 ms follow synchronous draws between 3.7 and 8.7 ms: other browser scheduling/input/compositing/deferred work can contribute outside measured draw submission. Do not attribute those intervals solely to their own or preceding figure cost.
+
+Stable-DPR manual draws, excluding the switch: 936, median/p95/max **5.8/8.7/14.6 ms** (earlier 711: 11.9/19.5/27.6). Milky Way median/p95 **0.2/0.3 ms**; figures **3.3/5.2 ms**. Figures remain the largest normal CPU layer and a later geometry-cache candidate, but no new optimization is approved. All captured draws request continuing animation; the longest no-input run is 27 draws spanning about 365 ms, below the reveal duration. Neither an idle-loop bug nor full-DPR restoration can be inferred from this trace. B-004 stays open pending subjective feedback/remaining issues; B-001 stays paused.
+
+## Newly reported interactions — clarified, awaiting implementation approval
+
+- **B-006 — sky surface gains a border during swiping.** Static source candidate: `HorizonView` focuses its tabbable root after crossing the 8 px drag threshold; `.horizon-view:focus-visible` gives a 2 px light-blue inset outline. The user has now confirmed a thin light frame, matching the focus-outline candidate rather than a missing-sky gap. This is still not a browser reproduction of the exact interaction. No browser reproduction or app fix has been performed. A future fix must preserve visible keyboard focus and arrow-key control.
+- **B-007 — phone following/compass often needs a second activation.** New startup/lifecycle issue recorded separately from paused B-001 drift. The performance capture contains no following or sensor data and cannot diagnose this. Read-only review: permission/generation cancellation, hidden-page stop, 8 s no-usable-data timeout, first stable compass reference (≥800 ms stable fresh paired data), startup status and double activation need distinguishing. None is established as the reported cause. The user clarified that opening the top-right Manual chip again and choosing Follow phone makes it work. The screenshot shows Manual, the bottom Follow action and “Phone direction is unavailable. Manual control works.” Thus following is inactive at capture. This generic banner covers denied/unavailable/missing states and does not identify which occurred; it is not evidence of an active uncertainty/calibration hold. Investigate the failed first session and subsequent fresh start, not just compass alignment. Do not loosen reference guards or resume drift investigation as part of this issue.
+
+Recommended next bounded batch: **B-006 + B-007, Sol High** — clarify/reproduce the frame and first-start path, preserve keyboard focus, permissions/Stop/visibility and existing sensor reference mathematics, then fix only supported causes. The user subsequently approved B-006/B-007 together with the recommended B-004 figure/text cache. See [implemented scope and verification](FIGURE_CACHE_AND_STARTUP.md). First-resize-stall work remains separate, and no following batch is approved.

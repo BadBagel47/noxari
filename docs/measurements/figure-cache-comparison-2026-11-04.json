@@ -1,0 +1,456 @@
+{
+  "kind": "B-004 figure-cache paired ordinary-app comparison",
+  "date": "2026-11-04",
+  "beforeSource": "0246034e081a07614e664d48b935f2e75a6012dd; clean production build",
+  "afterSource": "approved B-004/B-006/B-007 working tree before commit",
+  "method": "Existing benchmark_motion_resources.mjs in before/after/after/before order; six eight-move gestures with 400ms pauses; 390x844 DPR2, fixed observation date, all five layers and All88, forced SwiftShader GPU. No image readback during timing.",
+  "limits": [
+    "Software GPU timings do not establish physical-phone benefit.",
+    "Clock quantization produces integer-millisecond samples; a recorded median of zero is not zero CPU cost.",
+    "All four runs have two density switches, one recorded moving-atlas upload and zero warmed raster attachment/status checks.",
+    "The stable figure cache lowers its sampled median, but total cadence median remains 32ms and tails do not clearly improve.",
+    "No physical sensor inputs or user report trace is included."
+  ],
+  "runs": [
+    {
+      "variant": "before",
+      "environment": "headless Chromium / SwiftShader, forced GPU",
+      "gestures": 6,
+      "pauseMs": 400,
+      "resources": {
+        "active": false,
+        "atlasUploads": 1,
+        "attachments": 0,
+        "statusChecks": 0
+      },
+      "dprSwitches": 2,
+      "summary": {
+        "frames": 146,
+        "cadenceMs": {
+          "count": 145,
+          "median": 32,
+          "p95": 39,
+          "max": 49
+        },
+        "intervalsOver25Ms": 140,
+        "requestToDrawEndMs": {
+          "count": 42,
+          "median": 27,
+          "p95": 38,
+          "max": 49
+        },
+        "oldestRequestToDrawEndMs": {
+          "count": 42,
+          "median": 27,
+          "p95": 38,
+          "max": 49
+        },
+        "latestRequestWaitMs": {
+          "count": 42,
+          "median": 8,
+          "p95": 11,
+          "max": 16
+        },
+        "commitMs": {
+          "count": 146,
+          "median": 0,
+          "p95": 1,
+          "max": 4
+        },
+        "drawMs": {
+          "count": 146,
+          "median": 18,
+          "p95": 24,
+          "max": 41
+        },
+        "stagesMs": {
+          "background": {
+            "count": 146,
+            "median": 0,
+            "p95": 1,
+            "max": 3
+          },
+          "milkyWay": {
+            "count": 146,
+            "median": 10,
+            "p95": 14,
+            "max": 27
+          },
+          "grid": {
+            "count": 146,
+            "median": 0,
+            "p95": 1,
+            "max": 1
+          },
+          "boundaries": {
+            "count": 146,
+            "median": 0,
+            "p95": 1,
+            "max": 1
+          },
+          "figures": {
+            "count": 146,
+            "median": 1,
+            "p95": 2,
+            "max": 3
+          },
+          "stars": {
+            "count": 146,
+            "median": 6,
+            "p95": 9,
+            "max": 15
+          },
+          "labels": {
+            "count": 146,
+            "median": 0,
+            "p95": 1,
+            "max": 1
+          },
+          "ground": {
+            "count": 146,
+            "median": 0,
+            "p95": 0,
+            "max": 1
+          }
+        },
+        "gpuCopySubmissionMs": {
+          "count": 146,
+          "median": 16,
+          "p95": 22,
+          "max": 38
+        },
+        "cancelledRequests": 0
+      }
+    },
+    {
+      "variant": "after",
+      "environment": "headless Chromium / SwiftShader, forced GPU",
+      "gestures": 6,
+      "pauseMs": 400,
+      "resources": {
+        "active": false,
+        "atlasUploads": 1,
+        "attachments": 0,
+        "statusChecks": 0
+      },
+      "dprSwitches": 2,
+      "summary": {
+        "frames": 153,
+        "cadenceMs": {
+          "count": 152,
+          "median": 32,
+          "p95": 42,
+          "max": 87
+        },
+        "intervalsOver25Ms": 139,
+        "requestToDrawEndMs": {
+          "count": 42,
+          "median": 27,
+          "p95": 41,
+          "max": 48
+        },
+        "oldestRequestToDrawEndMs": {
+          "count": 42,
+          "median": 27,
+          "p95": 41,
+          "max": 48
+        },
+        "latestRequestWaitMs": {
+          "count": 42,
+          "median": 7,
+          "p95": 10,
+          "max": 15
+        },
+        "commitMs": {
+          "count": 153,
+          "median": 0,
+          "p95": 1,
+          "max": 4
+        },
+        "drawMs": {
+          "count": 153,
+          "median": 17,
+          "p95": 28,
+          "max": 78
+        },
+        "stagesMs": {
+          "background": {
+            "count": 153,
+            "median": 0,
+            "p95": 1,
+            "max": 2
+          },
+          "milkyWay": {
+            "count": 153,
+            "median": 10,
+            "p95": 16,
+            "max": 68
+          },
+          "grid": {
+            "count": 153,
+            "median": 0,
+            "p95": 1,
+            "max": 5
+          },
+          "boundaries": {
+            "count": 153,
+            "median": 0,
+            "p95": 1,
+            "max": 1
+          },
+          "figures": {
+            "count": 153,
+            "median": 0,
+            "p95": 2,
+            "max": 4
+          },
+          "stars": {
+            "count": 153,
+            "median": 6,
+            "p95": 9,
+            "max": 11
+          },
+          "labels": {
+            "count": 153,
+            "median": 0,
+            "p95": 1,
+            "max": 1
+          },
+          "ground": {
+            "count": 153,
+            "median": 0,
+            "p95": 0,
+            "max": 1
+          }
+        },
+        "gpuCopySubmissionMs": {
+          "count": 153,
+          "median": 16,
+          "p95": 22,
+          "max": 77
+        },
+        "cancelledRequests": 0
+      }
+    },
+    {
+      "variant": "after",
+      "environment": "headless Chromium / SwiftShader, forced GPU",
+      "gestures": 6,
+      "pauseMs": 400,
+      "resources": {
+        "active": false,
+        "atlasUploads": 1,
+        "attachments": 0,
+        "statusChecks": 0
+      },
+      "dprSwitches": 2,
+      "summary": {
+        "frames": 152,
+        "cadenceMs": {
+          "count": 151,
+          "median": 32,
+          "p95": 38,
+          "max": 63
+        },
+        "intervalsOver25Ms": 141,
+        "requestToDrawEndMs": {
+          "count": 42,
+          "median": 27,
+          "p95": 39,
+          "max": 76
+        },
+        "oldestRequestToDrawEndMs": {
+          "count": 42,
+          "median": 27,
+          "p95": 39,
+          "max": 76
+        },
+        "latestRequestWaitMs": {
+          "count": 42,
+          "median": 8,
+          "p95": 11,
+          "max": 27
+        },
+        "commitMs": {
+          "count": 152,
+          "median": 0,
+          "p95": 1,
+          "max": 7
+        },
+        "drawMs": {
+          "count": 152,
+          "median": 17,
+          "p95": 26,
+          "max": 48
+        },
+        "stagesMs": {
+          "background": {
+            "count": 152,
+            "median": 0,
+            "p95": 1,
+            "max": 2
+          },
+          "milkyWay": {
+            "count": 152,
+            "median": 10,
+            "p95": 16,
+            "max": 40
+          },
+          "grid": {
+            "count": 152,
+            "median": 0,
+            "p95": 1,
+            "max": 1
+          },
+          "boundaries": {
+            "count": 152,
+            "median": 0,
+            "p95": 1,
+            "max": 1
+          },
+          "figures": {
+            "count": 152,
+            "median": 0,
+            "p95": 1,
+            "max": 3
+          },
+          "stars": {
+            "count": 152,
+            "median": 6,
+            "p95": 8,
+            "max": 15
+          },
+          "labels": {
+            "count": 152,
+            "median": 0,
+            "p95": 1,
+            "max": 1
+          },
+          "ground": {
+            "count": 152,
+            "median": 0,
+            "p95": 0,
+            "max": 1
+          }
+        },
+        "gpuCopySubmissionMs": {
+          "count": 152,
+          "median": 16,
+          "p95": 23,
+          "max": 46
+        },
+        "cancelledRequests": 0
+      }
+    },
+    {
+      "variant": "before",
+      "environment": "headless Chromium / SwiftShader, forced GPU",
+      "gestures": 6,
+      "pauseMs": 400,
+      "resources": {
+        "active": false,
+        "atlasUploads": 1,
+        "attachments": 0,
+        "statusChecks": 0
+      },
+      "dprSwitches": 2,
+      "summary": {
+        "frames": 147,
+        "cadenceMs": {
+          "count": 146,
+          "median": 32,
+          "p95": 37,
+          "max": 49
+        },
+        "intervalsOver25Ms": 142,
+        "requestToDrawEndMs": {
+          "count": 42,
+          "median": 28,
+          "p95": 40,
+          "max": 47
+        },
+        "oldestRequestToDrawEndMs": {
+          "count": 42,
+          "median": 28,
+          "p95": 40,
+          "max": 47
+        },
+        "latestRequestWaitMs": {
+          "count": 42,
+          "median": 7,
+          "p95": 11,
+          "max": 15
+        },
+        "commitMs": {
+          "count": 147,
+          "median": 0,
+          "p95": 1,
+          "max": 6
+        },
+        "drawMs": {
+          "count": 147,
+          "median": 18,
+          "p95": 27,
+          "max": 39
+        },
+        "stagesMs": {
+          "background": {
+            "count": 147,
+            "median": 0,
+            "p95": 1,
+            "max": 2
+          },
+          "milkyWay": {
+            "count": 147,
+            "median": 10,
+            "p95": 18,
+            "max": 26
+          },
+          "grid": {
+            "count": 147,
+            "median": 0,
+            "p95": 1,
+            "max": 2
+          },
+          "boundaries": {
+            "count": 147,
+            "median": 0,
+            "p95": 1,
+            "max": 1
+          },
+          "figures": {
+            "count": 147,
+            "median": 1,
+            "p95": 2,
+            "max": 7
+          },
+          "stars": {
+            "count": 147,
+            "median": 6,
+            "p95": 9,
+            "max": 13
+          },
+          "labels": {
+            "count": 147,
+            "median": 0,
+            "p95": 1,
+            "max": 1
+          },
+          "ground": {
+            "count": 147,
+            "median": 0,
+            "p95": 0,
+            "max": 1
+          }
+        },
+        "gpuCopySubmissionMs": {
+          "count": 147,
+          "median": 16,
+          "p95": 25,
+          "max": 31
+        },
+        "cancelledRequests": 0
+      }
+    }
+  ]
+}

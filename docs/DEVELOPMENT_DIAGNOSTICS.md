@@ -71,3 +71,7 @@ See [B-004 performance analysis](PERFORMANCE_ANALYSIS.md) for the current produc
 ## Motion-resolution / GPU-resource checks (B-004)
 
 `scripts/verify_gpu_resources.mjs` verifies real WebGL warmed atlas reuse/image identity, two-texture eviction, framebuffer validation after resize and disposal. `scripts/benchmark_motion_resources.mjs` compares two production previews in paired order using six gestures and 400 ms pauses, ordinary local report summaries, DPR changes and test-only GL counters. Supply `APP_URL`, `BASELINE_URL`, optional `PERF_OUTPUT` and environment-provided Playwright. See [GPU rendering](GPU_RENDERING.md#approved-motionresource-follow-up-2026-11-04) for results and limits. Production diagnostics remain together under More; no new user controls were added.
+
+## Figure cache and first activation (B-004 / B-006 / B-007)
+
+[Implementation and limits](FIGURE_CACHE_AND_STARTUP.md) cover the per-view figure/text cache, pointer/keyboard focus and one bounded silent-start listener retry. Optional environment-provided Playwright scripts: `scripts/verify_startup_focus.mjs` for simulated startup/cancellation/report and real pointer focus; `scripts/verify_figure_cache.mjs` with `APP_URL` and `BASELINE_URL` for ordinary Canvas image comparison. Existing paired `benchmark_motion_resources.mjs` records the eight layer phases, including figures, without pixel readbacks during timing. Direction reports remain under the structured Phone direction diagnostics; failed startup now offers export even with no readings. Performance reports remain unchanged.

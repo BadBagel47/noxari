@@ -5,10 +5,13 @@ import {deviceDirection, orientationSampleTime, PhoneDirectionTracker, type Dire
 import type {ViewDirection} from './skyProjection';
 import {DirectionReportLog} from './directionReport';
 
-export type SensorStatus = 'off' | 'requesting' | 'waiting' | 'align' | 'tracking' | 'paused' | 'denied' | 'unavailable' | 'missing' | 'recalibrate';
+export type SensorStatus = 'off' | 'requesting' | 'waiting' | 'retrying' | 'error' | 'align' | 'tracking' | 'paused' | 'denied' | 'unavailable' | 'missing' | 'recalibrate';
+type Startup = {phase: 'idle' | 'requesting' | 'listening' | 'retrying' | 'receiving' | 'denied' | 'permission-error' | 'unavailable' | 'missing' | 'stopped'; listenerRestarts: number; receivedEvents: number; usableDirections: number};
+const newStartup = (): Startup => ({phase: 'idle', listenerRestarts: 0, receivedEvents: 0, usableDirections: 0});
 type SensorConstructor = typeof DeviceOrientationEvent & {requestPermission?: () => Promise<string>};
 
 export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDirection) => void, frames: SkyFrames) {
+  const startup = useRef<Startup>(newStartup());
   const publishKey = useRef(Symbol('phone publication'));
   const [status, setStatus] = useState<SensorStatus>('off');
   const [needsAlignment, setNeedsAlignment] = useState(false);
@@ -40,6 +43,7 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
     running.current = false; following.current = false; requesting.current = false;
     cleanup.current(); cleanup.current = () => {};
     last.current = null;
+    if (startup.current.phase !== 'idle') startup.current.phase = 'stopped';
     setNeedsAlignment(false); setStatus('off');
   }, [frames]);
   useEffect(() => {
@@ -74,12 +78,13 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
   const downloadReport = () => {
     const data = {application: 'Noxari', reportVersion: 2, createdAt: new Date().toISOString(), sessionActive: running.current,
       following: following.current, viewEnabled: allowed.current,
-      diagnostics: tracker.current.diagnostics(), ...report.current.snapshot()};
+      startup: {...startup.current}, diagnostics: tracker.current.diagnostics(), ...report.current.snapshot()};
     const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'}));
     const link = document.createElement('a'); link.href = url; link.download = 'noxari-direction.json'; link.click();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
   const start = async () => {
+    if (requesting.current) return;
     if (running.current) {
       following.current = true;
       // Panel closing and resume may occur in the same user gesture.
@@ -88,24 +93,27 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
     }
     stop();
     const token = generation.current;
-    if (!window.isSecureContext || typeof DeviceOrientationEvent === 'undefined') { setStatus('unavailable'); return; }
+    startup.current = newStartup();
+    if (!window.isSecureContext || typeof DeviceOrientationEvent === 'undefined') { startup.current.phase = 'unavailable'; setStatus('unavailable'); return; }
     requesting.current = true;
-    setStatus('requesting');
+    startup.current.phase = 'requesting'; setStatus('requesting');
     try {
       const permission = (DeviceOrientationEvent as SensorConstructor).requestPermission;
       if (permission && await permission.call(DeviceOrientationEvent) !== 'granted') {
-        if (token === generation.current) { requesting.current = false; setStatus('denied'); }
+        if (token === generation.current) { requesting.current = false; startup.current.phase = 'denied'; setStatus('denied'); }
         return;
       }
-    } catch { if (token === generation.current) { requesting.current = false; setStatus('denied'); } return; }
+    } catch { if (token === generation.current) { requesting.current = false; startup.current.phase = 'permission-error'; setStatus('error'); } return; }
     if (token !== generation.current) return;
     requesting.current = false;
     tracker.current = new PhoneDirectionTracker();
     report.current = new DirectionReportLog(); refreshDiagnostics(true);
     running.current = true; following.current = true;
     let lastAt = performance.now();
-    setStatus('waiting');
+    startup.current.phase = 'listening'; setStatus('waiting');
     const receive = (event: Event) => {
+      if (token !== generation.current || !running.current) return;
+      startup.current.receivedEvents++;
       const reading = event as DeviceOrientationEvent & OrientationReading;
       const now = performance.now();
       const input: OrientationReading = {alpha: reading.alpha, beta: reading.beta, gamma: reading.gamma,
@@ -121,26 +129,40 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
         viewEnabled: allowed.current}, transitions.length > 0);
       // Recovery changes the reference, not whether the user chose to follow.
       if (check.reason) { setNeedsAlignment(true); setStatus('recalibrate'); }
-      if (direction) { last.current = direction; lastAt = now; setNeedsAlignment(!direction.absolute);
+      if (direction) { startup.current.usableDirections++; startup.current.phase = 'receiving'; last.current = direction; lastAt = now; setNeedsAlignment(!direction.absolute);
         if (!allowed.current && !check.reason) setStatus(direction.absolute ? 'tracking' : 'align');
       }
       if (!check.reason && check.motionAgeMs !== null && check.motionAgeMs > 500 && following.current && allowed.current) setStatus('waiting');
       if ((!direction && !check.reason) || !following.current || !allowed.current) return;
       frames.enqueue(publishKey.current, publish, 'phone-publication');
     };
+    const attach = () => {
+      window.addEventListener('deviceorientationabsolute', receive);
+      window.addEventListener('deviceorientation', receive);
+    };
+    const detach = () => {
+      window.removeEventListener('deviceorientationabsolute', receive);
+      window.removeEventListener('deviceorientation', receive);
+    };
     const timeout = window.setInterval(() => {
       const check = refreshDiagnostics();
       if (check.reason) { setNeedsAlignment(true); setStatus('recalibrate'); }
       else if (check.motionAgeMs !== null && check.motionAgeMs > 500 && following.current && allowed.current) setStatus('waiting');
-      if (performance.now() - lastAt > 8000) { stop(); setStatus('missing'); }
+      const silentFor = performance.now() - lastAt;
+      if (silentFor > 8000) { stop(); startup.current.phase = 'missing'; setStatus('missing'); }
+      else if (silentFor >= 3000 && startup.current.usableDirections === 0 && startup.current.listenerRestarts === 0) {
+        // Recover once if a cold subscription has not delivered usable data.
+        // Retry once within the original startup deadline, without permissions,
+        // tracker/reference reset, another user gesture or another frame queue.
+        detach(); startup.current.listenerRestarts++; startup.current.phase = 'retrying';
+        setStatus('retrying'); attach();
+      }
     }, 1000);
-    window.addEventListener('deviceorientationabsolute', receive);
-    window.addEventListener('deviceorientation', receive);
+    attach();
     cleanup.current = () => {
-      window.removeEventListener('deviceorientationabsolute', receive);
-      window.removeEventListener('deviceorientation', receive);
+      detach();
       clearInterval(timeout); frames.cancelUpdate(publishKey.current);
     };
   };
-  return {status, start, stop, alignNorth, useCompass, downloadReport, diagnostics, hasReport: report.current.hasData, needsAlignment, active: ['requesting', 'waiting', 'align', 'tracking', 'recalibrate'].includes(status)};
+  return {status, start, stop, alignNorth, useCompass, downloadReport, diagnostics, hasReport: report.current.hasData || startup.current.phase !== 'idle', needsAlignment, active: ['requesting', 'waiting', 'retrying', 'align', 'tracking', 'recalibrate'].includes(status)};
 }

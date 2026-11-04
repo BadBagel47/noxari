@@ -1,0 +1,259 @@
+{
+  "type": "Derived ordinary-app phone follow-up; original trace not republished",
+  "sourceSha256": "48734497107f7108f904b8b1ad5354167352a6ad21e81291746cda77fb40300b",
+  "build": {
+    "commit": "0246034e081a",
+    "dirty": false
+  },
+  "frames": 1200,
+  "durationMs": 16820.2,
+  "stopReason": "frame-limit",
+  "gpuPathFrames": 1200,
+  "errors": 0,
+  "sources": {
+    "manual-view": 938,
+    "zoom": 0,
+    "phone-publication": 0
+  },
+  "summary": {
+    "frames": 1200,
+    "cadenceMs": {
+      "count": 1199,
+      "median": 12.9,
+      "p95": 23.6,
+      "max": 90.3
+    },
+    "intervalsOver25Ms": 28,
+    "requestToDrawEndMs": {
+      "count": 938,
+      "median": 7.2,
+      "p95": 10.3,
+      "max": 85.4
+    },
+    "oldestRequestToDrawEndMs": {
+      "count": 938,
+      "median": 7.2,
+      "p95": 10.3,
+      "max": 85.4
+    },
+    "latestRequestWaitMs": {
+      "count": 938,
+      "median": 0.1,
+      "p95": 0.2,
+      "max": 5
+    },
+    "commitMs": {
+      "count": 1200,
+      "median": 1,
+      "p95": 1.5,
+      "max": 3.1
+    },
+    "drawMs": {
+      "count": 1200,
+      "median": 5.9,
+      "p95": 8.7,
+      "max": 82.4
+    },
+    "stagesMs": {
+      "background": {
+        "count": 1200,
+        "median": 0.1,
+        "p95": 0.2,
+        "max": 1.1
+      },
+      "milkyWay": {
+        "count": 1200,
+        "median": 0.2,
+        "p95": 0.3,
+        "max": 52.8
+      },
+      "grid": {
+        "count": 1200,
+        "median": 0.9,
+        "p95": 1.5,
+        "max": 7.8
+      },
+      "boundaries": {
+        "count": 1200,
+        "median": 0.8,
+        "p95": 1.3,
+        "max": 4
+      },
+      "figures": {
+        "count": 1200,
+        "median": 3.3,
+        "p95": 5.1,
+        "max": 8.1
+      },
+      "stars": {
+        "count": 1200,
+        "median": 0.3,
+        "p95": 0.5,
+        "max": 17.1
+      },
+      "labels": {
+        "count": 1200,
+        "median": 0.2,
+        "p95": 0.3,
+        "max": 2.2
+      },
+      "ground": {
+        "count": 1200,
+        "median": 0,
+        "p95": 0.1,
+        "max": 0.2
+      }
+    },
+    "gpuCopySubmissionMs": {
+      "count": 1200,
+      "median": 0.3,
+      "p95": 0.6,
+      "max": 3.1
+    },
+    "cancelledRequests": 0
+  },
+  "dprSwitchCount": 1,
+  "dprFrameCounts": {
+    "2": 1,
+    "1.5": 1199
+  },
+  "steadyManualDpr1_5": {
+    "drawMs": {
+      "count": 936,
+      "median": 5.8,
+      "p95": 8.7,
+      "max": 14.6
+    },
+    "milkyWayMs": {
+      "count": 936,
+      "median": 0.2,
+      "p95": 0.3,
+      "max": 1
+    },
+    "figuresMs": {
+      "count": 936,
+      "median": 3.3,
+      "p95": 5.2,
+      "max": 6.9
+    }
+  },
+  "slowDrawsOver25ms": [
+    {
+      "index": 1,
+      "drawMs": 82.4,
+      "milkyWayMs": 52.8,
+      "starsMs": 17.1,
+      "atDprSwitch": true
+    }
+  ],
+  "baselineBuild": {
+    "commit": "99e1b2a91e4e",
+    "dirty": false
+  },
+  "baselineSummary": {
+    "frames": 1200,
+    "cadenceMs": {
+      "count": 1199,
+      "median": 16.4,
+      "p95": 25,
+      "max": 77.6
+    },
+    "intervalsOver25Ms": 59,
+    "requestToDrawEndMs": {
+      "count": 749,
+      "median": 13.5,
+      "p95": 23.4,
+      "max": 73.5
+    },
+    "oldestRequestToDrawEndMs": {
+      "count": 749,
+      "median": 13.5,
+      "p95": 23.4,
+      "max": 73.9
+    },
+    "latestRequestWaitMs": {
+      "count": 749,
+      "median": 0.1,
+      "p95": 0.3,
+      "max": 0.7
+    },
+    "commitMs": {
+      "count": 1200,
+      "median": 0.9,
+      "p95": 1.5,
+      "max": 4
+    },
+    "drawMs": {
+      "count": 1200,
+      "median": 9.7,
+      "p95": 20.8,
+      "max": 71
+    },
+    "stagesMs": {
+      "background": {
+        "count": 1200,
+        "median": 0.1,
+        "p95": 0.2,
+        "max": 0.5
+      },
+      "milkyWay": {
+        "count": 1200,
+        "median": 3.2,
+        "p95": 12,
+        "max": 50.5
+      },
+      "grid": {
+        "count": 1200,
+        "median": 0.9,
+        "p95": 1.5,
+        "max": 5.7
+      },
+      "boundaries": {
+        "count": 1200,
+        "median": 0.9,
+        "p95": 1.5,
+        "max": 3.6
+      },
+      "figures": {
+        "count": 1200,
+        "median": 3.6,
+        "p95": 5.4,
+        "max": 11.2
+      },
+      "stars": {
+        "count": 1200,
+        "median": 0.5,
+        "p95": 1.1,
+        "max": 15.4
+      },
+      "labels": {
+        "count": 1200,
+        "median": 0.2,
+        "p95": 0.4,
+        "max": 2.1
+      },
+      "ground": {
+        "count": 1200,
+        "median": 0,
+        "p95": 0.1,
+        "max": 0.2
+      }
+    },
+    "gpuCopySubmissionMs": {
+      "count": 1200,
+      "median": 0.6,
+      "p95": 1.1,
+      "max": 1.8
+    },
+    "cancelledRequests": 0
+  },
+  "baselineDprSwitchCount": 37,
+  "caveats": [
+    "Manual input only, following=false: no compass startup or raw-sensor evidence.",
+    "All five layers/All88/stars+MilkyWay enabled and same viewport; gesture samples differ (938 vs 750 manual requests), as can scene/time/visibility intensity. Not a controlled A/B.",
+    "No full-resolution restoration occurs before the frame limit; 800ms idle restoration was browser-tested earlier, not established by this capture.",
+    "Command submission and scheduled cadence are not GPU completion or display FPS.",
+    "Remaining first switch is the only draw >25ms (82.4ms); other long cadence intervals follow short draws, so synchronous drawing alone does not explain them.",
+    "No user statement of subjective smoothness improvement accompanied the attachment. B-004 stays open."
+  ]
+}

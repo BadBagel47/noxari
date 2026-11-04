@@ -1,6 +1,6 @@
 import type {SkyPosition} from './astronomy';
 import {constellationFigures} from './generated/constellations';
-import type {HorizontalStar, MapPoint} from './skyProjection';
+import {prepareHorizontalDirections, type HorizontalStar, type MapPoint, type PreparedHorizontalDirection} from './skyProjection';
 import {clipFigureSegment, type ConstellationReveal} from './constellationReveal';
 
 export type FigureMode = 'common' | 'all';
@@ -44,41 +44,99 @@ export function constellationSky(stars: HorizontalStar[], mode: FigureMode = 'al
   });
 }
 
-export function drawConstellations(context: CanvasRenderingContext2D, figures: ReturnType<typeof constellationSky>, project: (position: SkyPosition) => MapPoint | null, width: number, height: number, visibility: number, showNames: boolean, animation?: {reveal: ConstellationReveal; now: number; reducedMotion: boolean; entryInset?: boolean}) {
-  if (visibility <= 0) { animation?.reveal.reset(); return false; }
-  const insetX = animation?.entryInset === false ? 0 : Math.min(56, width * .12);
-  const insetY = animation?.entryInset === false ? 0 : Math.min(80, height * .12);
-  const projected = figures.flatMap(figure => figure.arcs.map((arc, index) => {
-    const segments: [MapPoint, MapPoint][] = [];
-    let previous: MapPoint | null = null;
-    for (const sample of arc) {
-      const point = project(sample);
-      if (point && previous) {
-        const clipped = clipFigureSegment(previous, point, width, height);
-        if (clipped && Math.hypot(clipped[1].x - clipped[0].x, clipped[1].y - clipped[0].y) > .1) segments.push(clipped);
-      }
-      previous = point;
+type Figures = ReturnType<typeof constellationSky>;
+type FigureProjector = (position: PreparedHorizontalDirection) => MapPoint | null;
+
+/** One scene and one projected view per mounted sky; animation owns no geometry. */
+export class ConstellationDrawingCache {
+  private source: Figures | null = null;
+  private prepared: {id: string; name: string; center: PreparedHorizontalDirection; arcs: PreparedHorizontalDirection[][]}[] = [];
+  private projected: ReturnType<ConstellationDrawingCache['project']> | null = null;
+  private projector: FigureProjector | null = null;
+  private width = 0;
+  private height = 0;
+  private entryInset = true;
+  private widths = new WeakMap<CanvasRenderingContext2D, Map<string, number>>();
+
+  geometry(figures: Figures, project: FigureProjector, width: number, height: number, entryInset: boolean) {
+    if (figures !== this.source) {
+      this.source = figures;
+      this.prepared = figures.map(figure => ({id: figure.id, name: figure.name,
+        center: prepareHorizontalDirections([figure.center])[0], arcs: figure.arcs.map(prepareHorizontalDirections)}));
+      this.projected = null;
     }
-    const eligible = segments.some(([a, b]) => clipFigureSegment(
-      {x: a.x - insetX, y: a.y - insetY}, {x: b.x - insetX, y: b.y - insetY}, width - 2 * insetX, height - 2 * insetY));
-    return {figure, id: `${figure.id}:${index}`, segments, eligible};
-  }));
-  const state = animation?.reveal.update(
-    projected.filter(item => item.segments.length).map(item => item.id), animation.now, animation.reducedMotion,
-    projected.filter(item => item.eligible).map(item => item.id));
+    if (!this.projected || project !== this.projector || width !== this.width || height !== this.height || entryInset !== this.entryInset) {
+      this.projector = project; this.width = width; this.height = height; this.entryInset = entryInset;
+      this.projected = this.project(project, width, height, entryInset);
+    }
+    return this.projected;
+  }
+
+  private project(project: FigureProjector, width: number, height: number, entryInset: boolean) {
+    const insetX = entryInset ? Math.min(56, width * .12) : 0;
+    const insetY = entryInset ? Math.min(80, height * .12) : 0;
+    const strokes: {figureId: string; id: string; segments: {a: MapPoint; b: MapPoint; length: number}[]; length: number}[] = [];
+    const visible: string[] = [], eligible: string[] = [];
+    const labels = this.prepared.map(figure => {
+      figure.arcs.forEach((arc, index) => {
+        const segments: {a: MapPoint; b: MapPoint; length: number}[] = [];
+        let previous: MapPoint | null = null, total = 0, enters = false;
+        for (const sample of arc) {
+          const point = project(sample);
+          if (point && previous) {
+            const clipped = clipFigureSegment(previous, point, width, height);
+            if (clipped) {
+              const [a, b] = clipped, length = Math.hypot(b.x - a.x, b.y - a.y);
+              if (length > .1) {
+                segments.push({a, b, length}); total += length;
+                enters ||= Boolean(clipFigureSegment({x: a.x - insetX, y: a.y - insetY}, {x: b.x - insetX, y: b.y - insetY}, width - 2 * insetX, height - 2 * insetY));
+              }
+            }
+          }
+          previous = point;
+        }
+        if (segments.length) {
+          const id = `${figure.id}:${index}`;
+          strokes.push({figureId: figure.id, id, segments, length: total}); visible.push(id);
+          if (enters) eligible.push(id);
+        }
+      });
+      return {id: figure.id, name: figure.name, point: project(figure.center)};
+    });
+    return {strokes, visible, eligible, labels};
+  }
+
+  textWidth(context: CanvasRenderingContext2D, text: string) {
+    let entries = this.widths.get(context);
+    if (!entries) { entries = new Map(); this.widths.set(context, entries); }
+    const key = `${context.font}|${text}`;
+    let width = entries.get(key);
+    if (width === undefined) {
+      width = context.measureText(text).width;
+      // Figure names use a single system font; keep even unusual callers bounded.
+      if (entries.size >= 128) entries.clear();
+      entries.set(key, width);
+    }
+    return width;
+  }
+}
+
+export function drawConstellations(context: CanvasRenderingContext2D, figures: Figures, project: FigureProjector, width: number, height: number, visibility: number, showNames: boolean, animation?: {reveal: ConstellationReveal; now: number; reducedMotion: boolean; entryInset?: boolean}, cache = new ConstellationDrawingCache()) {
+  if (visibility <= 0) { animation?.reveal.reset(); return false; }
+  const geometry = cache.geometry(figures, project, width, height, animation?.entryInset !== false);
+  const state = animation?.reveal.update(geometry.visible, animation.now, animation.reducedMotion, geometry.eligible);
   const figureProgress = new Map<string, number>();
   context.save();
   context.beginPath(); context.rect(0, 0, width, height); context.clip();
   context.strokeStyle = '#7cabe1'; context.lineWidth = 1;
-  for (const {figure, id, segments} of projected) {
+  for (const {figureId, id, segments, length} of geometry.strokes) {
     const progress = state ? state.progress.get(id) ?? 0 : 1;
-    figureProgress.set(figure.id, Math.max(figureProgress.get(figure.id) ?? 0, progress));
+    figureProgress.set(figureId, Math.max(figureProgress.get(figureId) ?? 0, progress));
     context.globalAlpha = visibility * .6 * progress;
-    let remaining = segments.reduce((sum, [a, b]) => sum + Math.hypot(b.x - a.x, b.y - a.y), 0) * progress;
+    let remaining = length * progress;
     context.beginPath();
-    for (const [a, b] of segments) {
+    for (const {a, b, length} of segments) {
       if (remaining <= 0) break;
-      const length = Math.hypot(b.x - a.x, b.y - a.y);
       const fraction = length ? Math.min(1, remaining / length) : 1;
       context.moveTo(a.x, a.y);
       context.lineTo(a.x + (b.x - a.x) * fraction, a.y + (b.y - a.y) * fraction);
@@ -90,16 +148,14 @@ export function drawConstellations(context: CanvasRenderingContext2D, figures: R
     const placed: {x: number; y: number; width: number}[] = [];
     context.font = 'italic 15px system-ui, sans-serif'; context.textAlign = 'center';
     context.fillStyle = '#a9c6ec';
-    for (const figure of figures) {
-      const progress = figureProgress.get(figure.id) ?? 0;
-      if (progress < .3) continue;
+    for (const {id, name, point} of geometry.labels) {
+      const progress = figureProgress.get(id) ?? 0;
+      if (progress < .3 || !point) continue;
       context.globalAlpha = visibility * .95 * progress;
-      const point = project(figure.center);
-      if (!point) continue;
-      const labelWidth = context.measureText(figure.name).width;
+      const labelWidth = cache.textWidth(context, name);
       if (point.x < labelWidth / 2 + 6 || point.x > width - labelWidth / 2 - 6 || point.y < 60 || point.y > height - 60) continue;
       if (placed.some(other => Math.abs(other.y - point.y) < 22 && Math.abs(other.x - point.x) < (labelWidth + other.width) / 2 + 12)) continue;
-      context.fillText(figure.name, point.x, point.y);
+      context.fillText(name, point.x, point.y);
       placed.push({...point, width: labelWidth});
     }
   }

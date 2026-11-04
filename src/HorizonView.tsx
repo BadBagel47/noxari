@@ -2,7 +2,7 @@ import {MotionResolution} from './motionResolution';
 import {useSkyFrameState} from './useSkyFrames';
 import type {SkyFrames} from './skyFrames';
 import {useEffect, useLayoutEffect, useMemo, useRef, useState, type Dispatch, type PointerEvent, type SetStateAction} from 'react';
-import {constellationSky, drawConstellations, type FigureMode} from './constellations';
+import {ConstellationDrawingCache, constellationSky, drawConstellations, type FigureMode} from './constellations';
 import {ConstellationReveal} from './constellationReveal';
 import {useReducedMotion} from './useReducedMotion';
 import {boundarySky, drawBoundaries} from './constellationBoundaries';
@@ -50,6 +50,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
   const root = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const reveal = useRef(new ConstellationReveal());
+  const figureCache = useRef(new ConstellationDrawingCache());
   const milkyWayPainter = useRef(new MilkyWayPainter());
   const gpu = useRef<HorizonGpu | null>(null);
   const [performanceScene] = useState<PerformanceScene>(() => ({backend: 'canvas', reason: 'not-drawn', driver: '',
@@ -92,6 +93,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
   const hasDaylightPlanetMarker = sun.altitude >= 0 && markers.some(marker => marker.object.kind === 'Planet');
   const belowReveal = 1 - groundOpacity(view.pitch);
   const project = createPerspectiveProjector(view, size.width, size.height, true, belowReveal > 0, zoom);
+  const projectFigure = useMemo(() => createPreparedPerspectiveProjector(view, size.width, size.height, false, belowReveal > 0, zoom), [view.heading, view.pitch, size.width, size.height, belowReveal > 0, zoom]);
   const sunPoint = project(sun);
 
   useEffect(() => {
@@ -212,7 +214,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       if (showBoundaries) drawBoundaries(context, preparedBoundaries, projectBoundary, width, height, starVisibility);
 
       measurement?.phase('boundaries');
-      const animating = showFigures && drawConstellations(context, figures, position => project(position, false), width, height, starVisibility, showFigureNames, {reveal: reveal.current, now, reducedMotion});
+      const animating = showFigures && drawConstellations(context, figures, projectFigure, width, height, starVisibility, showFigureNames, {reveal: reveal.current, now, reducedMotion}, figureCache.current);
       if (!showFigures) reveal.current.reset();
       measurement?.phase('figures');
 
@@ -290,10 +292,11 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       return Boolean(animating);
     };
     frames.setRenderer(render);
-  }, [frames, size, view, zoom, stars, figures, boundaries, preparedBoundaries, showFigures, showFigureNames, figureMode, showBoundaries, reducedMotion, sun.altitude, milkyWay, milkyBasis, sceneKey, time, timeMode, location, performanceScene, phone.active, showCandidateCollection]);
+  }, [projectFigure, frames, size, view, zoom, stars, figures, boundaries, preparedBoundaries, showFigures, showFigureNames, figureMode, showBoundaries, reducedMotion, sun.altitude, milkyWay, milkyBasis, sceneKey, time, timeMode, location, performanceScene, phone.active, showCandidateCollection]);
 
   const move = (heading: number, pitch: number) => onViewChange(current => ({heading: wrap(current.heading + heading), pitch: clampViewPitch(current.pitch + pitch)}));
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    event.currentTarget.dataset.pointerSteering = 'true';
     if (event.target instanceof Element && (event.target.closest('[data-sky-controls]') || (event.target.closest('button') && !event.target.closest('button.sky-object')))) return;
     if (event.pointerType === 'touch') {
       touchPoints.current.set(event.pointerId, {x: event.clientX, y: event.clientY});
@@ -332,7 +335,8 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       // Defer capture until a drag is established so stationary marker taps
       // still activate the original button (including native keyboard clicks).
       event.currentTarget.setPointerCapture(event.pointerId);
-      event.currentTarget.focus({preventScroll: true});
+      // A pointer drag needs no focus transfer. Keyboard users reach this
+      // tabbable root normally and keep its visible focus/arrow controls.
     }
     const deltaX = event.clientX - drag.current.x;
     const deltaY = event.clientY - drag.current.y;
@@ -363,7 +367,9 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
     onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={finishPointer} onPointerCancel={endPointer}
     onLostPointerCapture={event => { if (event.target === event.currentTarget) endPointer(event); }}
     onClickCapture={event => { if (suppressClick.current && event.detail !== 0 && event.target instanceof Element && !event.target.closest('[data-sky-controls], .horizon-controls')) { event.preventDefault(); event.stopPropagation(); } }}
+    onBlur={event => { if (event.target === event.currentTarget) delete event.currentTarget.dataset.pointerSteering; }}
     onKeyDown={event => {
+      delete event.currentTarget.dataset.pointerSteering;
       if (finderTarget && event.key === 'Escape') { event.preventDefault(); onStopFinder(); return; }
       const changes: Record<string, [number, number]> = {ArrowLeft: [-10, 0], ArrowRight: [10, 0], ArrowUp: [0, 8], ArrowDown: [0, -8]};
       const change = changes[event.key];

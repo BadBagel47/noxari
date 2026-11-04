@@ -143,3 +143,7 @@ See [phone report findings](PHONE_PERFORMANCE_ANALYSIS.md). Clean build `99e1b2a
 ## Approved motion/resource implementation (2026-11-04)
 
 The user approved the bounded follow-up after the first ordinary-app phone analysis. Motion-resolution settling is now 800 ms, two DPR atlas textures stay resident, and Milky Way attachment/status checks only run after changed raster storage. The [GPU rendering follow-up](GPU_RENDERING.md#approved-motionresource-follow-up-2026-11-04) records implementation, 155 passing tests, browser checks and a paired six-gesture comparison: 12→2 DPR switches and 12→1 atlas uploads after the initial full-DPR warmup. Software-GPU draw median falls 26→17 ms while cadence remains around 33 ms; no phone gain is established until a new report. B-004 remains open and B-001 paused. No subsequent optimization is approved.
+
+## Approved figure/text cache bundle
+
+After the improved second phone report, the user approved per-view figure direction/geometry and font/name metric reuse alongside B-006 pointer-focus and B-007 startup handling. See [implementation, 158 tests, pixel equality and paired timing limits](FIGURE_CACHE_AND_STARTUP.md). Geometry invalidates for scene/pose/zoom/size/entry rules while reveal progress remains separate. The software comparison lowers figure work and slightly lowers draw median, but cadence/p95 do not show a clear gain. The initial 82.4ms phone switch stall is not addressed in this batch, B-001 remains paused and further development is not approved.

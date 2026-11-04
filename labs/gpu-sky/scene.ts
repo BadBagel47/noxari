@@ -3,7 +3,7 @@ import {objects} from '../../src/data';
 import {candidateObjects} from '../../src/candidateObjects';
 import {objectPositioner, positionAt, showObjectMarker, solarAppearance, stockholm, type ObservingLocation, type SkyPosition} from '../../src/astronomy';
 import {horizontalStarCatalog, prepareHorizontalDirections, prepareHorizontalStars, createPerspectiveProjector, createPreparedPerspectiveProjector, perspectiveFocal, type MapPoint, type ViewDirection} from '../../src/skyProjection';
-import {constellationSky, drawConstellations} from '../../src/constellations';
+import {ConstellationDrawingCache, constellationSky, drawConstellations} from '../../src/constellations';
 import {boundarySky, drawBoundaries} from '../../src/constellationBoundaries';
 import {ConstellationReveal} from '../../src/constellationReveal';
 import {groundOpacity} from '../../src/groundView';
@@ -26,6 +26,8 @@ export class LabScene {
   basis: Float32Array;
   key: string;
   reveal = new ConstellationReveal();
+  private figureCache = new ConstellationDrawingCache();
+  private figureProjection: {key: string; project: ReturnType<typeof createPreparedPerspectiveProjector>} | null = null;
   private milkyPainter = new MilkyWayPainter();
 
   constructor(readonly time: Date, readonly location: ObservingLocation, readonly texture: MilkyWayTexture) {
@@ -100,7 +102,9 @@ export class LabScene {
     for (const altitude of (belowReveal > 0 ? [-60, -30, 0, 15, 30, 60] : [15, 30, 60])) drawCurve(Array.from({length: 361}, (_, azimuth) => ({altitude, azimuth})));
     for (let azimuth = 0; azimuth < 360; azimuth += 30) drawCurve(Array.from({length: belowReveal > 0 ? 181 : 91}, (_, i) => ({altitude: i - (belowReveal > 0 ? 90 : 0), azimuth})));
     drawBoundaries(context, this.boundaries, projectBoundary, width, height, starVisibility);
-    const animating = drawConstellations(context, this.figures, p => project(p, false), width, height, starVisibility, true, {reveal: this.reveal, now, reducedMotion});
+    const projectionKey = [width, height, view.heading, view.pitch, zoom, belowReveal > 0].join('|');
+    if (this.figureProjection?.key !== projectionKey) this.figureProjection = {key: projectionKey, project: createPreparedPerspectiveProjector(view, width, height, false, belowReveal > 0, zoom)};
+    const animating = drawConstellations(context, this.figures, this.figureProjection.project, width, height, starVisibility, true, {reveal: this.reveal, now, reducedMotion}, this.figureCache);
     const starStart = performance.now();
     if (starVisibility > 0 || belowReveal > 0) {
       if (gpuStars) gpu!.drawStars(context, width, height, dpr, view, starVisibility, belowReveal, zoom);
