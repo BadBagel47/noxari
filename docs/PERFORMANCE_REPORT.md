@@ -83,3 +83,8 @@ The bounded sample shows the same draw median and overlapping/noisy p95, with a 
 Build stamping now changes the ordinary app asset hash on each commit (including documentation-only commits). The report identifies the actual embedded build and dirty-source status. A URL `?v=` remains only cache variation, not version evidence or a release pin.
 
  Actual phone performance and the remaining B-004 cause await the user's ordinary-app report; no additional optimization is authorized by this diagnostics step.
+
+
+## Deployment evidence
+
+App commit `36f082d1cc99c637afe877b527014ffb174efe62` passed 153 tests, production/lab builds and Pages via [Actions 41757983282](https://github.com/BadBagel47/noxari/actions/runs/41757983282). Verified-TLS retrieval matched ordinary/lab HTML and JS and main CSS to clean local artifacts. Main JS `index-CUoIMRhq.js`: SHA-256 `f01a18082d3fb355be898fc5d1a2b39e836576d1a4cc71aeb7924ed4bfbf26a8`; CSS: `0329d56c2d02468d31dc4d217f695c030e554a79472a7b77adf3273ec3f6d343`. A clean-build production-browser download verified `build: {commit: "36f082d1cc99", dirty: false}`; pre-commit browser fixtures covered dirty metadata. Later documentation commits change embedded build identifiers/main asset hashes without changing capture or renderer logic. Actual phone data is still pending.
