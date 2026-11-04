@@ -54,3 +54,7 @@ Further optimization and direction drift need a separate proposal/approval. B-00
 The benchmark clock yields integer-millisecond samples: the recorded zero figure median is below clock resolution, **not** zero work. Figure work falls in this controlled workload and median drawing is slightly lower, but cadence remains around 32 ms and tail costs do not clearly improve. The first after run also has a 78 ms draw, dominated by a 68 ms Milky Way phase; this batch does not claim to fix first-resize/GPU stalls or all browser scheduling. No physical-phone improvement is established. A new ordinary-app phone report and user feedback are the next checks, not an automatically approved optimization.
 
 The 12 ordinary Canvas image comparisons (two viewports × six states) have **zero changed channels**, including the default all-figure sky, Common selection, names disabled, below-horizon view, pinch and map. This is a bounded browser sample; the numerical tests additionally cover wrap and near-zenith geometry.
+
+## Publication
+
+App commit `7f08e27f1c926533681fde30374fb9c4b4a701a2`: [successful tests/build/Pages workflow](https://github.com/BadBagel47/noxari/actions/runs/41833682902). Verified-TLS main/lab HTML, both referenced JavaScript bundles and main CSS equal the clean local build. A local ordinary-app report export confirms `build.commit: 7f08e27f1c92`, `dirty: false`. Subsequent documentation/build-ID commits can change hashes without functional changes. Physical first-start and smoothness confirmation remain pending; no next batch is approved.
