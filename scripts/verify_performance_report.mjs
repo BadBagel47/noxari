@@ -43,7 +43,7 @@ try {
   const p=await pageFor(test),w=words(test.sv);assert.equal(await p.locator('.performance-capture').count(),0);
   await start(p,test.sv);const x=test.width*.4,y=test.height*.42;
   await p.mouse.move(x,y);await p.mouse.down();for(let i=1;i<=25;i++)await p.mouse.move(x+i*3,y+(i%3));await p.mouse.up();
-  await p.waitForTimeout(350);const draws=await p.evaluate(()=>window.__draws);await p.waitForTimeout(200);assert.equal(await p.evaluate(()=>window.__draws),draws,'diagnostics must remain idle');
+  await p.waitForTimeout(950);const draws=await p.evaluate(()=>window.__draws);await p.waitForTimeout(200);assert.equal(await p.evaluate(()=>window.__draws),draws,'diagnostics must remain idle after resolution settles');
   const report=await save(p,test.sv);validate(report);assert.equal(report.stopReason,'manual');assert.ok(report.frames.some(f=>f.inputs['manual-view']>0));
   if(test.mode==='gpu'){assert.ok(report.contexts.every(c=>c.backend==='gpu'));assert.ok(report.frames.some(f=>f.gpuCopyCalls===2));assert.ok(report.summary.gpuCopySubmissionMs.count>0);}
   assert.deepEqual(await p.evaluate(()=>[window.__permissionCalls,window.__gpsCalls]),[0,0]);

@@ -119,7 +119,7 @@ export class GpuSky {
   private programs: WebGLProgram[] = [];
   private shaders: WebGLShader[] = [];
   private buffers: WebGLBuffer[] = [];
-  private textures: WebGLTexture[] = [];
+  private textures = new Set<WebGLTexture>();
   private arrays: WebGLVertexArrayObject[] = [];
   private framebuffer: WebGLFramebuffer | null = null;
   private mwProgram!: WebGLProgram;
@@ -130,9 +130,7 @@ export class GpuSky {
   private starsBuffer!: WebGLBuffer;
   private sourceTexture!: WebGLTexture;
   private rasterTexture!: WebGLTexture;
-  private atlasTexture!: WebGLTexture;
-  private atlasDpr = 0;
-  private atlases = new Map<number, ImageData>();
+  private atlases = new Map<number, WebGLTexture>();
   private rasterWidth = 0;
   private rasterHeight = 0;
   private starCount = 0;
@@ -159,7 +157,7 @@ export class GpuSky {
       for (const [index, size, offset] of [[0, 3, 0], [1, 1, 12], [2, 1, 16]]) {
         gl.enableVertexAttribArray(index);gl.vertexAttribPointer(index, size, gl.FLOAT, false, 20, offset);
       }
-      this.sourceTexture = this.texture(true);this.rasterTexture = this.texture(false);this.atlasTexture = this.texture(false);
+      this.sourceTexture = this.texture(true);this.rasterTexture = this.texture(false);
       this.framebuffer = gl.createFramebuffer();
       if (!this.framebuffer) throw new Error('GPU-raster kunde inte skapas.');
       gl.disable(gl.DEPTH_TEST);gl.disable(gl.DITHER);
@@ -230,14 +228,16 @@ export class GpuSky {
     const cols = Math.max(1, Math.round(width / scale)), rows = Math.max(1, Math.round(height / scale));
     const key = [sceneKey, width, height, view.heading, view.pitch, below].join('|');
     if (this.rasterKey !== key) {
+      gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
       gl.bindTexture(gl.TEXTURE_2D, this.rasterTexture);
       if (cols !== this.rasterWidth || rows !== this.rasterHeight) {
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, cols, rows, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+        // The attachment survives camera/DPR changes and drawing-buffer resizes.
+        // Check completeness when its storage changes, not on every new pose.
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.rasterTexture, 0);
+        if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) throw new Error('GPU-framebuffer ofullständig.');
         this.rasterWidth = cols; this.rasterHeight = rows;
       }
-      gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
-      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.rasterTexture, 0);
-      if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) throw new Error('GPU-framebuffer ofullständig.');
       gl.viewport(0, 0, cols, rows);gl.disable(gl.BLEND);
       gl.useProgram(this.mwProgram);gl.bindVertexArray(this.quad);
       gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D, this.sourceTexture);
@@ -259,23 +259,12 @@ export class GpuSky {
 
   drawStars(context: CanvasRenderingContext2D, width: number, height: number, dpr: number, view: ViewDirection, starVisibility: number, belowReveal: number, zoom: number) {
     this.surface(width, height, dpr);
-    if (this.atlasDpr !== dpr) {
-      let image = this.atlases.get(dpr);
-      if (!image) {
-        image = starCoverageAtlas(dpr);
-        if (this.atlases.size === 2) this.atlases.delete(this.atlases.keys().next().value!);
-        this.atlases.set(dpr, image);
-      }
-      this.gl.bindTexture(this.gl.TEXTURE_2D, this.atlasTexture);
-      this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, image.width, image.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image.data);
-      if (this.gl.getError() !== this.gl.NO_ERROR) throw new Error('GPU-stjärnbilderna kunde inte laddas.');
-      this.atlasDpr = dpr;
-    }
+    const atlas = this.starAtlas(dpr);
     const gl = this.gl;
     gl.enable(gl.BLEND);gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.useProgram(this.starsProgram);gl.bindVertexArray(this.starsVao);
     this.pose(this.starsProgram, view);
-    gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D, this.atlasTexture);
+    gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D, atlas);
     gl.uniform1i(this.uniform(this.starsProgram, 'starAtlas'), 0);
     gl.uniform2f(this.uniform(this.starsProgram, 'pixelViewport'), this.canvas.width, this.canvas.height);
     gl.uniform2f(this.uniform(this.starsProgram, 'viewport'), width, height);
@@ -285,6 +274,27 @@ export class GpuSky {
     gl.uniform1i(this.uniform(this.starsProgram, 'below'), Number(belowReveal > 0));
     gl.drawArrays(gl.POINTS, 0, this.starCount);
     this.copy(context, this.canvas.width / dpr, this.canvas.height / dpr);
+  }
+
+  private starAtlas(dpr: number) {
+    let atlas = this.atlases.get(dpr);
+    if (atlas) {
+      // Keep the two most recently used densities (normally full and moving).
+      this.atlases.delete(dpr);this.atlases.set(dpr, atlas);
+      return atlas;
+    }
+    const gl = this.gl;
+    if (this.atlases.size === 2) {
+      const [oldDpr, oldAtlas] = this.atlases.entries().next().value!;
+      this.atlases.delete(oldDpr);this.textures.delete(oldAtlas);gl.deleteTexture(oldAtlas);
+    }
+    atlas = this.texture(false);
+    const image = starCoverageAtlas(dpr);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, image.width, image.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, image.data);
+    if (gl.getError() !== gl.NO_ERROR) throw new Error('GPU-stjärnbilderna kunde inte laddas.');
+    // The CPU image is transient; both density textures remain resident on GPU.
+    this.atlases.set(dpr, atlas);
+    return atlas;
   }
 
   private copy(context: CanvasRenderingContext2D, width: number, height: number) {
@@ -300,7 +310,7 @@ export class GpuSky {
 
   private texture(repeat: boolean) {
     const gl = this.gl, texture = gl.createTexture();if (!texture) throw new Error('GPU-textur saknas.');
-    this.textures.push(texture);gl.bindTexture(gl.TEXTURE_2D, texture);
+    this.textures.add(texture);gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, repeat ? gl.REPEAT : gl.CLAMP_TO_EDGE);

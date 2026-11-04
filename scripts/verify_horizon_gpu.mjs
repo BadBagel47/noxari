@@ -35,7 +35,8 @@ try {for(const viewport of [{width:390,height:844},{width:1280,height:800},{widt
  if(during){const actual=await page.locator('.sky-object').filter({hasText:'Sirius'}).evaluate(e=>({x:parseFloat(e.style.left),y:parseFloat(e.style.top)}));assert(Math.hypot(actual.x-during.x,actual.y-during.y)<.01,'moving marker matches exact pose');}
  const movingPose=await page.evaluate(()=>window.__gpuPose);assert(Math.abs(movingPose.heading-view.heading)<.0001);
 
- await page.mouse.up();await page.waitForTimeout(320);assert.equal(await page.locator('.horizon-view canvas').evaluate(c=>c.width),viewport.width*dpr);
+ await page.mouse.up();await page.waitForTimeout(400);assert.equal(await page.locator('.horizon-view canvas').evaluate(c=>c.width),Math.round(viewport.width*Math.min(dpr,1.5)),'short pause retains motion resolution');
+ await page.waitForTimeout(550);assert.equal(await page.locator('.horizon-view canvas').evaluate(c=>c.width),viewport.width*dpr);
  const idle=await page.evaluate(()=>window.__draws);await page.waitForTimeout(180);assert.equal(await page.evaluate(()=>window.__draws),idle,'idle RAF must stop');
  // Two-pointer pinch changes projection, releases cleanly and selects no marker.
  await page.evaluate(()=>{const el=document.querySelector('.horizon-view');const emit=(type,id,x)=>el.dispatchEvent(new PointerEvent(type,{bubbles:true,pointerId:id,pointerType:'touch',isPrimary:id===11,buttons:1,button:0,clientX:x,clientY:200}));emit('pointerdown',11,120);emit('pointerdown',12,220);emit('pointermove',12,270);emit('pointerup',12,270);emit('pointerup',11,120)});await page.waitForTimeout(80);assert.equal(await page.locator('.object-preview').count(),0);
@@ -51,7 +52,7 @@ try {for(const viewport of [{width:390,height:844},{width:1280,height:800},{widt
  await page.getByRole('button',{name:'More',exact:true}).click();await page.getByRole('button',{name:'Sky display',exact:true}).click();await page.getByRole('button',{name:'Sky map',exact:true}).click();await emit(310);await page.getByRole('button',{name:'Look around',exact:true}).click();await page.getByRole('button',{name:'Close panel'}).click();await page.waitForTimeout(70);assert.match(await page.locator('.horizon-heading').innerText(),/50°/);
  await page.evaluate(()=>{window.dispatchEvent(new DeviceOrientationEvent('deviceorientation',{alpha:300,beta:90,gamma:0,absolute:false}));[...document.querySelectorAll('.quick-tools button')].find(b=>b.textContent==='Stop').click()});await page.waitForTimeout(70);assert.match(await page.locator('.horizon-heading').innerText(),/50°/);assert(await page.getByRole('button',{name:'Follow',exact:true}).isVisible());assert.deepEqual(errors,[]);console.log('PASS synthetic sensors: latest sample, manual north, search persistence, map resume, Stop cancels pending publication');await page.close();
  // Resource recovery and bounded fallback on the real production component.
- for(const scenario of ['auto','canvas','gpu','unavailable','shader-error','draw-error']){
+ for(const scenario of ['auto','canvas','gpu','unavailable','shader-error','draw-error','atlas-error','raster-error']){
   const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];
   page.on('pageerror',e=>errors.push(e.message));await page.clock.setFixedTime(date);await page.emulateMedia({reducedMotion:'reduce'});
   await page.addInitScript(scenario=>{
@@ -59,6 +60,8 @@ try {for(const viewport of [{width:390,height:844},{width:1280,height:800},{widt
    HTMLCanvasElement.prototype.getContext=function(type,...args){if(type==='webgl2'&&scenario==='unavailable')return null;const result=get.call(this,type,...args);if(type==='webgl2'&&result&&!window.__contexts.includes(result))window.__contexts.push(result);return result};
    const gl=WebGL2RenderingContext.prototype,buffer=gl.bufferData;gl.bufferData=function(...args){window.__uploads++;return buffer.apply(this,args)};
    if(scenario==='shader-error')gl.getShaderParameter=()=>false;
+   if(scenario==='atlas-error'){const upload=gl.texImage2D;gl.texImage2D=function(...args){if(args[3]===256&&args[4]===1024)throw new Error('injected atlas upload failure');return upload.apply(this,args)}};
+   if(scenario==='raster-error')gl.checkFramebufferStatus=()=>0;
    if(scenario==='draw-error'){const draw=gl.drawArrays;gl.drawArrays=function(...args){if(args[0]===this.POINTS)throw new Error('injected draw failure');return draw.apply(this,args)}};
   },scenario);
   const preference=scenario==='auto'?'':scenario==='canvas'?'canvas':'gpu';

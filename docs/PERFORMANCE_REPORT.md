@@ -82,7 +82,7 @@ The bounded sample shows the same draw median and overlapping/noisy p95, with a 
 
 Build stamping now changes the ordinary app asset hash on each commit (including documentation-only commits). The report identifies the actual embedded build and dirty-source status. A URL `?v=` remains only cache variation, not version evidence or a release pin.
 
- Actual phone performance and the remaining B-004 cause await the user's ordinary-app report; no additional optimization is authorized by this diagnostics step.
+The first ordinary-app phone report was subsequently received and analyzed: see [phone findings](PHONE_PERFORMANCE_ANALYSIS.md). It confirms GPU selection and a strong association between slow draws and resolution transitions/renewed full-resolution motion; the exact driver cause and next optimization remain unapproved.
 
 
 ## Deployment evidence

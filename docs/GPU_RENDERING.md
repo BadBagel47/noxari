@@ -14,7 +14,7 @@ Object/selection/Finder overlays still use the shared CPU projection and are com
 
 The prototype's radial-distance sprite produced a brighter tiny star (about +12% integrated opacity in its centered DPR-2 fixture). Stars now use a cached **Canvas circle coverage atlas**: four existing radius bins, 16×16 subpixel phases, 16-pixel tiles. A single `POINTS` draw selects each star's tile, retaining its existing magnitude-dependent opacity. Even integer point sizes and a one-device-pixel-to-one-device-pixel snapshot avoid point-size rounding and whole-surface resampling. Coverage is snapped to the nearest 1/16 device pixel; this is not pixel-identical rendering or a new physical photometry model.
 
-Each atlas is 256×1024 RGBA (1 MiB). At most two DPR images are cached per renderer, plus one uploaded atlas texture; camera movement does not regenerate them. Entry/exit of movement density reuses those images. Textures, VBOs, programs/shaders, framebuffer, atlas cache and owned context are released on map switch/unmount. Partial shader initialization also cleans its resources.
+Each atlas is 256×1024 RGBA (1 MiB). At most two DPR atlas textures are resident per renderer (2 MiB total); coverage images are transient CPU upload data. Repeated entry/exit of movement density binds the warmed textures without regenerating coverage or reuploading it. A third DPR evicts/deletes the least recently used texture, removing it from ownership tracking. Previously two CPU images and one GPU texture were retained, and every DPR switch reuploaded the selected image. Textures, VBOs, programs/shaders, framebuffer, atlas cache and owned context are released on map switch/unmount. Partial shader initialization also cleans its resources.
 
 Browser readback checks on Chromium/SwiftShader:
 
@@ -47,6 +47,7 @@ npm run build
 npm run preview -- --port 4194
 # Separate terminal; PLAYWRIGHT_MODULE/CHROMIUM_PATH select supplied installations if necessary:
 node scripts/verify_gpu_prototype.mjs
+node scripts/verify_gpu_resources.mjs
 node scripts/verify_horizon_gpu.mjs
 node scripts/benchmark_horizon_input.mjs
 ```
@@ -75,3 +76,36 @@ Collect a bounded local downloadable report from the ordinary app on the phone: 
 ## Deployment evidence
 
 App commit `de4f4b2cb25e276e2c5a18cf024cd8afdd9586c3` passed 140 tests, production/lab builds and Pages via [Actions 41474970062](https://github.com/BadBagel47/noxari/actions/runs/41474970062). Verified-TLS public retrieval matched main/lab HTML and JS, main CSS, Milky Way image and BSD license against local artifacts. Main `index-BTsF-5ed.js`: SHA-256 `574b1096ad030c65f47948bf36e89b0d5057cbaa0a50af64c92c46580ea80b00` (also the measured main artifact); CSS stayed unchanged. The published main URL now exercises the integrated renderer; app sensor behavior/accuracy is not physically revalidated. A subsequent documentation commit may alter the lab asset hash because it embeds the build commit, while main JS and renderer code remain the verified app version.
+
+
+## Ordinary-app phone follow-up
+
+[Phone analysis](PHONE_PERFORMANCE_ANALYSIS.md) confirms GPU throughout the manual run and identifies a strong transition/renewed-motion stall association (37 DPR switches, 24/25 draws >25 ms at a switch or full-resolution manual draw). The user subsequently approved the bounded resolution/resource batch, implemented below. The report does not isolate GPU synchronization or assess phone-following/compass accuracy. B-004 remains open.
+
+## Approved motion/resource follow-up (2026-11-04)
+
+After the [first ordinary-app phone analysis](PHONE_PERFORMANCE_ANALYSIS.md), the user approved the proposed bounded step with “Kör” following **Sol High** recommendation:
+
+- `MotionResolution` holds moving DPR through **800 ms** of stillness instead of 220 ms. This covers the measured short pauses (up to about 484 ms). It still requires repeated visible movement, ignores sub-threshold jitter, preserves isolated-jump behavior and low-DPR screens, and restores full DPR up to 2. CSS projection, DOM overlays and permanent resting quality are unchanged. No extra RAF or timer is introduced.
+- Both usual star-coverage densities remain as GPU textures. The two-entry LRU bounds memory; CPU atlas images are transient. Warm density changes require no atlas upload. Eviction and normal/error/context teardown release the owned textures.
+- The Milky Way framebuffer remains attached and validated across pose/DPR changes. It is attached/checked when raster storage dimensions change. Context recovery creates a new renderer and performs fresh checks. The shader, source, raster cap, zoom and ordering of both snapshots are unchanged.
+
+`tests/motionResolution.test.ts` covers repeated short pauses, restored detail after a real stop, jitter that must not defer restoration, isolated jumps, delayed movement, wrap/pinch and low-DPR behavior. The full suite has **155 passing tests**; the complete production/main/lab build passes (existing >500 kB warning remains).
+
+`scripts/verify_gpu_resources.mjs` uses real WebGL: eight repeated warmed density alternations preserve exactly the first combined image at each density, require only two atlas uploads total and one framebuffer attachment/status check; a third density evicts without retaining more than two atlas textures. A changed aspect/raster size triggers a new attachment/check. Disposal deletes every tracked new texture. Existing coverage checks retain 32 geometry cases, 64 DPR/phase/magnitude cases and ten Milky Way comparisons. Whole-app checks retain camera/GPU/DOM alignment, short-pause density, full restoration, idle shutdown, pinch/tap, simulated following, context loss/recovery, map release and failure fallback. These are synthetic correctness checks, not physical compass validation.
+
+For paired short-pause recording use `scripts/benchmark_motion_resources.mjs` with `APP_URL`, `BASELINE_URL`, optional `PERF_OUTPUT`, and environment-provided Playwright. It runs six equal eight-move gestures separated by 400 ms in before/after/after/before order, all five layers and All88, fixed observation time, DPR 2, explicit GPU. It records the ordinary report summary, DPR switches and test-only GL counters. It does not add runtime instrumentation to production. See the measurements below for results; software-GPU timings cannot predict physical-phone gains.
+
+[Paired software-GPU data](measurements/motion-resource-comparison-2026-11-04.json):
+
+| Recorded value per six-gesture run | Before (two runs) | After (two runs) |
+| --- | ---: | ---: |
+| DPR switches | 12 / 12 | 2 / 2 |
+| Atlas uploads during capture | 12 / 12 | 1 / 1 |
+| Raster attachments / status checks | 42 / 42 each | 0 / 0 each |
+| Command draw median, ms | 26 / 26 | 17 / 17 |
+| Command draw p95, ms | 34 / 35 | 25 / 22 |
+| Active cadence p95, ms | 48 / 48 | 33 / 34 |
+| Latest request → command end p95, ms | 37 / 39 | 33 / 34 |
+
+The initial full-DPR atlas/raster was warmed before recording; after needs one initial moving-DPR upload. A cold renderer still uploads the first two densities when first used. All four runs accepted manual input on 42 draws. The software path remains around a 33 ms median cadence and almost every interval exceeds 25 ms before **and** after; lower submission costs do not establish 60 FPS or physical responsiveness. The longer moving-DPR interval also reduces pixel workload between brief pauses. A phone report with the same layers, gestures and pauses is needed before closing B-004; no Stellarium parity is established. B-001 stays paused, F-020 defaults remain enabled, and no next development batch is approved.

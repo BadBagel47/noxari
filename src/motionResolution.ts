@@ -14,7 +14,9 @@ export class MotionResolution {
       const headingDelta = Math.abs((view.heading - this.previous.view.heading + 540) % 360 - 180);
       const moved = headingDelta > .05 || Math.abs(view.pitch - this.previous.view.pitch) > .05 || Math.abs(zoom - this.previous.zoom) > .001;
       if (moved) {
-        if ((this.lastMoveAt !== null && now - this.lastMoveAt <= 120) || this.inMotion) this.movingUntil = now + 220;
+        // Keep the same buffers across brief pauses within a gesture. Restoring
+        // after 220 ms repeatedly resized them during ordinary stop/start pans.
+        if ((this.lastMoveAt !== null && now - this.lastMoveAt <= 120) || this.inMotion) this.movingUntil = now + 800;
         this.lastMoveAt = now;
       }
     }
