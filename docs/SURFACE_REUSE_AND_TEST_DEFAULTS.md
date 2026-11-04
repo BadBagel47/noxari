@@ -60,3 +60,7 @@ Physical first activation, drag feel and rendering performance remain user check
 | Latest input → command end median / p95, ms | 27/37, 27/38 | 27/37, 27/39 |
 
 All runs accept manual requests on 42 draws and use two active-DPR changes, one moving-atlas upload and zero warmed raster checks. The after captures contain fewer draws as gesture/animation pacing differs, so raw long-interval counts are not an equal-duration FPS comparison. The software regression is avoided by exact sizing; the final modest median difference is not proof of a hardware or physical-input gain. In the forced retained-capacity correctness check, warming takes two initial width/height writes and eight density alternations add **zero**, while a genuine CSS aspect resize adds two. Integer/fractional retained snapshots exactly match fresh-density renderers. A new phone report is needed to establish the hardware path's effect on the 58 ms startup stall and steady panning.
+
+## Publication
+
+App commit `08b522d5aa374faea580375abe034c1d951e2a45`: [successful 162 tests/build/Pages run](https://github.com/BadBagel47/noxari/actions/runs/41847592223). Verified-TLS main/lab HTML, referenced JS and main CSS equal the clean local build. A local report export confirms `build.commit: 08b522d5aa37`, `dirty: false`. Later documentation commits can change hashes/build identity without functional changes. Physical phone comparison remains pending; no next batch is approved.
