@@ -1,0 +1,182 @@
+{
+  "review": "F-009 first bounded browser/functional review",
+  "appSourceCommit": "5d0dab70391a4319f6491743265f96d533021c3d",
+  "applicationSourceModified": false,
+  "localBuild": "same application sources; existing documentation changes set dirty build flag",
+  "unitTestsPassed": 175,
+  "mainAndLabBuild": "passed",
+  "browser": "Chromium on Linux; mobile/desktop viewport emulation, not physical-device evidence",
+  "flowCasesPassed": 17,
+  "cases": [
+    {
+      "name": "search, categories, candidates, selection, panel focus",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "passed": true,
+      "evidence": "session browser run; bookmark group rechecked after correcting test selector Saved → Saved objects"
+    },
+    {
+      "name": "bookmark reload and object/list share round trip",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "passed": true,
+      "evidence": "session browser run; bookmark group rechecked after correcting test selector Saved → Saved objects"
+    },
+    {
+      "name": "Finder manual center, stop and below-horizon guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "passed": true,
+      "evidence": "session browser run; bookmark group rechecked after correcting test selector Saved → Saved objects"
+    },
+    {
+      "name": "real CDP pinch in horizon and map without object selection",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "passed": true,
+      "evidence": "session browser run; bookmark group rechecked after correcting test selector Saved → Saved objects"
+    },
+    {
+      "name": "search, categories, candidates, selection, panel focus",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "passed": true,
+      "evidence": "session browser run; bookmark group rechecked after correcting test selector Saved → Saved objects"
+    },
+    {
+      "name": "bookmark reload and object/list share round trip",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "passed": true,
+      "evidence": "session browser run; bookmark group rechecked after correcting test selector Saved → Saved objects"
+    },
+    {
+      "name": "Finder manual center, stop and below-horizon guard",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "passed": true,
+      "evidence": "session browser run; bookmark group rechecked after correcting test selector Saved → Saved objects"
+    },
+    {
+      "name": "real CDP pinch in horizon and map without object selection",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "passed": true,
+      "evidence": "session browser run; bookmark group rechecked after correcting test selector Saved → Saved objects"
+    },
+    {
+      "name": "search, categories, candidates, selection, panel focus",
+      "viewport": {
+        "width": 568,
+        "height": 320
+      },
+      "passed": true,
+      "evidence": "session browser run; bookmark group rechecked after correcting test selector Saved → Saved objects"
+    },
+    {
+      "name": "bookmark reload and object/list share round trip",
+      "viewport": {
+        "width": 568,
+        "height": 320
+      },
+      "passed": true,
+      "evidence": "session browser run; bookmark group rechecked after correcting test selector Saved → Saved objects"
+    },
+    {
+      "name": "Finder manual center, stop and below-horizon guard",
+      "viewport": {
+        "width": 568,
+        "height": 320
+      },
+      "passed": true,
+      "evidence": "session browser run; bookmark group rechecked after correcting test selector Saved → Saved objects"
+    },
+    {
+      "name": "real CDP pinch in horizon and map without object selection",
+      "viewport": {
+        "width": 568,
+        "height": 320
+      },
+      "passed": true,
+      "evidence": "session browser run; bookmark group rechecked after correcting test selector Saved → Saved objects"
+    },
+    {
+      "name": "timezones, fixed/Now/preview, coordinate validation and persistence",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "passed": true
+    },
+    {
+      "name": "GPS opt in, denial/timeout/success and stale-result cancellation",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "passed": true
+    },
+    {
+      "name": "Swedish settings persistence and localized sharing",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "passed": true
+    },
+    {
+      "name": "sensor permission denied with manual fallback",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "passed": true
+    },
+    {
+      "name": "sensor permission request rejected with manual fallback",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "passed": true
+    }
+  ],
+  "additionalExistingScript": {
+    "path": "scripts/verify_test_defaults.mjs",
+    "result": "passed",
+    "scope": "preview startup, no automatic permission, simulated following across panels/pinch, real touch/manual takeover, queued input and pending-permission cancellation"
+  },
+  "unhandledPageErrors": 0,
+  "findings": [
+    {
+      "id": "B-008",
+      "severity": "minor",
+      "reproduction": "Choose Custom coordinates in the location selector with Stockholm active; selection returns to Stockholm.",
+      "workaround": "Edit the already visible coordinate/timezone fields and Apply; persistence passed.",
+      "status": "planned, not fixed"
+    }
+  ],
+  "limits": [
+    "Native sharing and clipboard are stubbed; no message/link is actually sent.",
+    "GPS and sensor input are simulated; native permissions/actual acquisition/true-north accuracy are not verified.",
+    "Physical Android/Brave, iOS/Safari and background/rotation follow-up remain.",
+    "No performance benchmarks or paused B-001 investigation performed."
+  ],
+  "rendererScope": "Flow script uses explicit Canvas diagnostic mode; existing follow script exercises shared GPU path with simulated Brave driver label. Neither establishes physical GPU behavior."
+}

@@ -33,7 +33,7 @@ Useful data-generation scripts are under `scripts/`; their inputs, pins, license
 
 ## Browser and device checks
 
-The repository currently has no committed Playwright suite or browser automation dependency. Previous responsive Chromium checks were session-run smoke tests, not a repeatable project command. If one is needed again, create a temporary script outside the repository and clearly distinguish its result from Vitest and physical-device validation. Check the critical workspace sizes at 390×844 (mobile), 1280×800 (desktop) and 568×320 (short landscape), plus any dimensions directly relevant to the change.
+Optional committed browser scripts under `scripts/verify_*.mjs` use environment-provided Playwright/Chromium; the application has no browser automation dependency or mandatory Playwright test command. Early responsive checks were temporary session scripts. Distinguish these browser results from Vitest and physical-device validation. Check the critical workspace sizes at 390×844 (mobile), 1280×800 (desktop) and 568×320 (short landscape), plus any dimensions directly relevant to the change.
 
 Physical Android/iOS sensor behavior cannot be established by synthetic browser events. Follow the controlled procedure in [`DIRECTION_STABILITY.md`](DIRECTION_STABILITY.md) for direction work. The direction report is downloaded locally only when requested; it contains bounded sensor histories and no GPS coordinates. Review its contents before sharing it.
 
@@ -83,3 +83,7 @@ See [B-004 performance analysis](PERFORMANCE_ANALYSIS.md) for the current produc
 ## Controlled B-004 comparison
 
 More → Performance report → Start controlled comparison compares exact/retained surfaces in the ordinary horizon with ABBA order and fixed scripted movement. Save `noxari-surface-comparison.json` for chat. See [method, privacy and phone instructions](SURFACE_COMPARISON.md). Optional browser gate: `scripts/verify_surface_comparison.mjs`; no physical-phone improvement is inferred from cloud timings.
+
+## F-009 functional review
+
+[Results and five-step physical phone follow-up](FUNCTIONAL_REVIEW.md) cover the first bounded review. Optional `scripts/verify_functional_flows.mjs` checks search/selection, Finder, real CDP pinch in both views, saved-object persistence and stubbed object/list sharing, time/location/GPS and Swedish settings across mobile/desktop/landscape viewports. Supply `APP_URL`, `PLAYWRIGHT_MODULE`, optionally `CHROMIUM_PATH`, `ONLY` and `QA_OUTPUT`. Real native sharing/permissions/sensor accuracy remain physical checks. B-008 records the unresponsive Custom coordinates dropdown choice; no app fix was made in this review.

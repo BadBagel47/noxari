@@ -1,0 +1,1086 @@
+{
+  "type": "Derived controlled phone surface comparison; original trace and timestamps not republished",
+  "sourceSha256": "ec6e5a257b501714569c2182c86da166c0df4b9853904319eea1d40c374fd7cb",
+  "build": {
+    "commit": "5d0dab70391a",
+    "dirty": false
+  },
+  "valid": true,
+  "reason": "complete",
+  "durationMs": 21800,
+  "method": {
+    "path": "surface-sweep-v1",
+    "input": "scripted-view",
+    "order": [
+      "exact",
+      "retained",
+      "retained",
+      "exact"
+    ],
+    "warmupFrames": 84,
+    "measuredFrames": 240,
+    "simulationStepMs": 16.666666666666668,
+    "maxDurationMs": 60000,
+    "sourceTimeMode": "preview"
+  },
+  "configuration": {
+    "width": 411.421875,
+    "height": 772.5625,
+    "nativeDpr": 2.625,
+    "zoom": 1,
+    "layerMask": 31,
+    "figureMode": "all",
+    "starCount": 8922,
+    "reducedMotion": false,
+    "timeMode": "fixed"
+  },
+  "validation": {
+    "completePasses": 4,
+    "measuredFramesPerPass": 240,
+    "totalMeasuredFrames": 960,
+    "matchingFrameContextSequences": true,
+    "gpuDrawErrors": 0,
+    "ordinaryOrPhoneRequests": 0,
+    "scriptedRequests": 960,
+    "summaryPercentilesRecomputed": true
+  },
+  "passes": [
+    {
+      "pass": 1,
+      "policy": "exact",
+      "complete": true,
+      "frames": 240,
+      "durationMs": 3988.3,
+      "summary": {
+        "rafWaitMs": {
+          "count": 240,
+          "median": 11.5,
+          "p95": 13.2,
+          "max": 14.6
+        },
+        "callbackAgeMs": {
+          "count": 240,
+          "median": 0.9,
+          "p95": 1.6,
+          "max": 7.4
+        },
+        "callbackToFrameStartMs": {
+          "count": 240,
+          "median": 0.1,
+          "p95": 0.2,
+          "max": 0.6
+        },
+        "callbackToDrawEndMs": {
+          "count": 240,
+          "median": 5.3,
+          "p95": 7.7,
+          "max": 20.9
+        },
+        "bookkeepingMs": {
+          "count": 240,
+          "median": 0,
+          "p95": 0.1,
+          "max": 0.3
+        },
+        "frames": 240,
+        "cadenceMs": {
+          "count": 239,
+          "median": 16.7,
+          "p95": 17.4,
+          "max": 23.3
+        },
+        "intervalsOver25Ms": 0,
+        "requestToDrawEndMs": {
+          "count": 240,
+          "median": 5.2,
+          "p95": 7.7,
+          "max": 20.9
+        },
+        "oldestRequestToDrawEndMs": {
+          "count": 240,
+          "median": 5.2,
+          "p95": 7.7,
+          "max": 20.9
+        },
+        "latestRequestWaitMs": {
+          "count": 240,
+          "median": 0.1,
+          "p95": 0.1,
+          "max": 0.2
+        },
+        "commitMs": {
+          "count": 240,
+          "median": 1.3,
+          "p95": 1.6,
+          "max": 2.1
+        },
+        "drawMs": {
+          "count": 240,
+          "median": 3.9,
+          "p95": 6.2,
+          "max": 19.3
+        },
+        "stagesMs": {
+          "background": {
+            "count": 240,
+            "median": 0.1,
+            "p95": 0.2,
+            "max": 0.5
+          },
+          "milkyWay": {
+            "count": 240,
+            "median": 0.2,
+            "p95": 0.4,
+            "max": 11.8
+          },
+          "grid": {
+            "count": 240,
+            "median": 0.5,
+            "p95": 0.9,
+            "max": 2.1
+          },
+          "boundaries": {
+            "count": 240,
+            "median": 1,
+            "p95": 1.5,
+            "max": 2.9
+          },
+          "figures": {
+            "count": 240,
+            "median": 0.8,
+            "p95": 2.7,
+            "max": 8.5
+          },
+          "stars": {
+            "count": 240,
+            "median": 0.4,
+            "p95": 0.7,
+            "max": 1.1
+          },
+          "labels": {
+            "count": 240,
+            "median": 0.3,
+            "p95": 0.4,
+            "max": 1.4
+          },
+          "ground": {
+            "count": 240,
+            "median": 0,
+            "p95": 0.1,
+            "max": 0.2
+          }
+        },
+        "gpuCopySubmissionMs": {
+          "count": 240,
+          "median": 0.4,
+          "p95": 0.8,
+          "max": 1.2
+        },
+        "cancelledRequests": 0
+      },
+      "densityTransitions": [
+        {
+          "frame": 2,
+          "dpr": 1.5,
+          "drawMs": 19.3,
+          "milkyWayMs": 11.8,
+          "nextCadenceMs": 23.3
+        },
+        {
+          "frame": 107,
+          "dpr": 2,
+          "drawMs": 13.7,
+          "milkyWayMs": 9.5,
+          "nextCadenceMs": 16.6
+        },
+        {
+          "frame": 122,
+          "dpr": 1.5,
+          "drawMs": 16.2,
+          "milkyWayMs": 9.7,
+          "nextCadenceMs": 18.9
+        },
+        {
+          "frame": 227,
+          "dpr": 2,
+          "drawMs": 15.3,
+          "milkyWayMs": 11.1,
+          "nextCadenceMs": 18.5
+        }
+      ]
+    },
+    {
+      "pass": 2,
+      "policy": "retained",
+      "complete": true,
+      "frames": 240,
+      "durationMs": 3989.2,
+      "summary": {
+        "rafWaitMs": {
+          "count": 240,
+          "median": 11.4,
+          "p95": 13.3,
+          "max": 20.3
+        },
+        "callbackAgeMs": {
+          "count": 240,
+          "median": 0.9,
+          "p95": 1.6,
+          "max": 9.2
+        },
+        "callbackToFrameStartMs": {
+          "count": 240,
+          "median": 0.1,
+          "p95": 0.2,
+          "max": 0.3
+        },
+        "callbackToDrawEndMs": {
+          "count": 240,
+          "median": 5.1,
+          "p95": 7.5,
+          "max": 8.9
+        },
+        "bookkeepingMs": {
+          "count": 240,
+          "median": 0,
+          "p95": 0.1,
+          "max": 0.2
+        },
+        "frames": 240,
+        "cadenceMs": {
+          "count": 239,
+          "median": 16.7,
+          "p95": 17.2,
+          "max": 25.3
+        },
+        "intervalsOver25Ms": 1,
+        "requestToDrawEndMs": {
+          "count": 240,
+          "median": 5.1,
+          "p95": 7.5,
+          "max": 8.9
+        },
+        "oldestRequestToDrawEndMs": {
+          "count": 240,
+          "median": 5.1,
+          "p95": 7.5,
+          "max": 8.9
+        },
+        "latestRequestWaitMs": {
+          "count": 240,
+          "median": 0.1,
+          "p95": 0.2,
+          "max": 0.2
+        },
+        "commitMs": {
+          "count": 240,
+          "median": 1.2,
+          "p95": 1.7,
+          "max": 1.9
+        },
+        "drawMs": {
+          "count": 240,
+          "median": 3.8,
+          "p95": 6.1,
+          "max": 7.3
+        },
+        "stagesMs": {
+          "background": {
+            "count": 240,
+            "median": 0.1,
+            "p95": 0.2,
+            "max": 0.4
+          },
+          "milkyWay": {
+            "count": 240,
+            "median": 0.2,
+            "p95": 0.4,
+            "max": 0.4
+          },
+          "grid": {
+            "count": 240,
+            "median": 0.5,
+            "p95": 0.9,
+            "max": 1.1
+          },
+          "boundaries": {
+            "count": 240,
+            "median": 1,
+            "p95": 1.4,
+            "max": 2.5
+          },
+          "figures": {
+            "count": 240,
+            "median": 0.8,
+            "p95": 2.8,
+            "max": 3.2
+          },
+          "stars": {
+            "count": 240,
+            "median": 0.4,
+            "p95": 0.7,
+            "max": 1.1
+          },
+          "labels": {
+            "count": 240,
+            "median": 0.3,
+            "p95": 0.4,
+            "max": 0.5
+          },
+          "ground": {
+            "count": 240,
+            "median": 0,
+            "p95": 0.1,
+            "max": 0.2
+          }
+        },
+        "gpuCopySubmissionMs": {
+          "count": 240,
+          "median": 0.4,
+          "p95": 0.8,
+          "max": 1
+        },
+        "cancelledRequests": 0
+      },
+      "densityTransitions": [
+        {
+          "frame": 2,
+          "dpr": 1.5,
+          "drawMs": 4.8,
+          "milkyWayMs": 0.3,
+          "nextCadenceMs": 16.7
+        },
+        {
+          "frame": 107,
+          "dpr": 2,
+          "drawMs": 4.8,
+          "milkyWayMs": 0.2,
+          "nextCadenceMs": 16.7
+        },
+        {
+          "frame": 122,
+          "dpr": 1.5,
+          "drawMs": 6.9,
+          "milkyWayMs": 0.3,
+          "nextCadenceMs": 16.5
+        },
+        {
+          "frame": 227,
+          "dpr": 2,
+          "drawMs": 3.4,
+          "milkyWayMs": 0.1,
+          "nextCadenceMs": 17.4
+        }
+      ]
+    },
+    {
+      "pass": 3,
+      "policy": "retained",
+      "complete": true,
+      "frames": 240,
+      "durationMs": 3989,
+      "summary": {
+        "rafWaitMs": {
+          "count": 240,
+          "median": 11.3,
+          "p95": 13,
+          "max": 13.7
+        },
+        "callbackAgeMs": {
+          "count": 240,
+          "median": 1,
+          "p95": 1.5,
+          "max": 2.5
+        },
+        "callbackToFrameStartMs": {
+          "count": 240,
+          "median": 0.1,
+          "p95": 0.2,
+          "max": 0.3
+        },
+        "callbackToDrawEndMs": {
+          "count": 240,
+          "median": 5.3,
+          "p95": 7.4,
+          "max": 10.7
+        },
+        "bookkeepingMs": {
+          "count": 240,
+          "median": 0,
+          "p95": 0.1,
+          "max": 0.2
+        },
+        "frames": 240,
+        "cadenceMs": {
+          "count": 239,
+          "median": 16.7,
+          "p95": 17.3,
+          "max": 18.7
+        },
+        "intervalsOver25Ms": 0,
+        "requestToDrawEndMs": {
+          "count": 240,
+          "median": 5.3,
+          "p95": 7.4,
+          "max": 10.7
+        },
+        "oldestRequestToDrawEndMs": {
+          "count": 240,
+          "median": 5.3,
+          "p95": 7.4,
+          "max": 10.7
+        },
+        "latestRequestWaitMs": {
+          "count": 240,
+          "median": 0.1,
+          "p95": 0.1,
+          "max": 0.2
+        },
+        "commitMs": {
+          "count": 240,
+          "median": 1.2,
+          "p95": 1.6,
+          "max": 2.1
+        },
+        "drawMs": {
+          "count": 240,
+          "median": 4,
+          "p95": 5.9,
+          "max": 9.1
+        },
+        "stagesMs": {
+          "background": {
+            "count": 240,
+            "median": 0.1,
+            "p95": 0.2,
+            "max": 0.6
+          },
+          "milkyWay": {
+            "count": 240,
+            "median": 0.2,
+            "p95": 0.3,
+            "max": 0.4
+          },
+          "grid": {
+            "count": 240,
+            "median": 0.5,
+            "p95": 0.9,
+            "max": 1.1
+          },
+          "boundaries": {
+            "count": 240,
+            "median": 1,
+            "p95": 1.4,
+            "max": 1.6
+          },
+          "figures": {
+            "count": 240,
+            "median": 0.7,
+            "p95": 2.6,
+            "max": 4.2
+          },
+          "stars": {
+            "count": 240,
+            "median": 0.4,
+            "p95": 0.7,
+            "max": 1.3
+          },
+          "labels": {
+            "count": 240,
+            "median": 0.3,
+            "p95": 0.4,
+            "max": 0.6
+          },
+          "ground": {
+            "count": 240,
+            "median": 0,
+            "p95": 0.1,
+            "max": 0.1
+          }
+        },
+        "gpuCopySubmissionMs": {
+          "count": 240,
+          "median": 0.5,
+          "p95": 0.7,
+          "max": 1.4
+        },
+        "cancelledRequests": 0
+      },
+      "densityTransitions": [
+        {
+          "frame": 2,
+          "dpr": 1.5,
+          "drawMs": 5.1,
+          "milkyWayMs": 0.3,
+          "nextCadenceMs": 16.3
+        },
+        {
+          "frame": 107,
+          "dpr": 2,
+          "drawMs": 5.3,
+          "milkyWayMs": 0.3,
+          "nextCadenceMs": 17.2
+        },
+        {
+          "frame": 122,
+          "dpr": 1.5,
+          "drawMs": 9.1,
+          "milkyWayMs": 0.2,
+          "nextCadenceMs": 16.9
+        },
+        {
+          "frame": 227,
+          "dpr": 2,
+          "drawMs": 3.9,
+          "milkyWayMs": 0.3,
+          "nextCadenceMs": 16.6
+        }
+      ]
+    },
+    {
+      "pass": 4,
+      "policy": "exact",
+      "complete": true,
+      "frames": 240,
+      "durationMs": 3989.3,
+      "summary": {
+        "rafWaitMs": {
+          "count": 240,
+          "median": 11.6,
+          "p95": 13.2,
+          "max": 14.7
+        },
+        "callbackAgeMs": {
+          "count": 240,
+          "median": 0.9,
+          "p95": 1.8,
+          "max": 7.4
+        },
+        "callbackToFrameStartMs": {
+          "count": 240,
+          "median": 0.1,
+          "p95": 0.2,
+          "max": 0.4
+        },
+        "callbackToDrawEndMs": {
+          "count": 240,
+          "median": 5,
+          "p95": 7.3,
+          "max": 21.2
+        },
+        "bookkeepingMs": {
+          "count": 240,
+          "median": 0,
+          "p95": 0.1,
+          "max": 0.2
+        },
+        "frames": 240,
+        "cadenceMs": {
+          "count": 239,
+          "median": 16.7,
+          "p95": 17.6,
+          "max": 22.8
+        },
+        "intervalsOver25Ms": 0,
+        "requestToDrawEndMs": {
+          "count": 240,
+          "median": 5,
+          "p95": 7.3,
+          "max": 21.1
+        },
+        "oldestRequestToDrawEndMs": {
+          "count": 240,
+          "median": 5,
+          "p95": 7.3,
+          "max": 21.1
+        },
+        "latestRequestWaitMs": {
+          "count": 240,
+          "median": 0.1,
+          "p95": 0.1,
+          "max": 0.2
+        },
+        "commitMs": {
+          "count": 240,
+          "median": 1.2,
+          "p95": 1.6,
+          "max": 2.2
+        },
+        "drawMs": {
+          "count": 240,
+          "median": 3.7,
+          "p95": 5.8,
+          "max": 19.4
+        },
+        "stagesMs": {
+          "background": {
+            "count": 240,
+            "median": 0.1,
+            "p95": 0.2,
+            "max": 0.5
+          },
+          "milkyWay": {
+            "count": 240,
+            "median": 0.2,
+            "p95": 0.4,
+            "max": 14.2
+          },
+          "grid": {
+            "count": 240,
+            "median": 0.5,
+            "p95": 0.8,
+            "max": 0.9
+          },
+          "boundaries": {
+            "count": 240,
+            "median": 1,
+            "p95": 1.4,
+            "max": 1.9
+          },
+          "figures": {
+            "count": 240,
+            "median": 0.7,
+            "p95": 2.5,
+            "max": 5.7
+          },
+          "stars": {
+            "count": 240,
+            "median": 0.4,
+            "p95": 0.7,
+            "max": 1.7
+          },
+          "labels": {
+            "count": 240,
+            "median": 0.3,
+            "p95": 0.4,
+            "max": 0.5
+          },
+          "ground": {
+            "count": 240,
+            "median": 0,
+            "p95": 0.1,
+            "max": 0.2
+          }
+        },
+        "gpuCopySubmissionMs": {
+          "count": 240,
+          "median": 0.4,
+          "p95": 0.8,
+          "max": 1.8
+        },
+        "cancelledRequests": 0
+      },
+      "densityTransitions": [
+        {
+          "frame": 2,
+          "dpr": 1.5,
+          "drawMs": 19.4,
+          "milkyWayMs": 14.2,
+          "nextCadenceMs": 22.8
+        },
+        {
+          "frame": 107,
+          "dpr": 2,
+          "drawMs": 11.6,
+          "milkyWayMs": 7.3,
+          "nextCadenceMs": 16.8
+        },
+        {
+          "frame": 122,
+          "dpr": 1.5,
+          "drawMs": 17,
+          "milkyWayMs": 10.7,
+          "nextCadenceMs": 19.9
+        },
+        {
+          "frame": 227,
+          "dpr": 2,
+          "drawMs": 15.2,
+          "milkyWayMs": 10,
+          "nextCadenceMs": 18.7
+        }
+      ]
+    }
+  ],
+  "pooled": {
+    "exact": {
+      "metrics": {
+        "cadenceIntervalMs": {
+          "n": 478,
+          "median": 16.7,
+          "p95": 17.4,
+          "max": 23.3,
+          "mean": 16.6749
+        },
+        "rafWaitMs": {
+          "n": 480,
+          "median": 11.5,
+          "p95": 13.2,
+          "max": 14.7,
+          "mean": 11.1794
+        },
+        "callbackAgeMs": {
+          "n": 480,
+          "median": 0.9,
+          "p95": 1.6,
+          "max": 7.4,
+          "mean": 1.0427
+        },
+        "callbackToFrameStartMs": {
+          "n": 480,
+          "median": 0.1,
+          "p95": 0.2,
+          "max": 0.6,
+          "mean": 0.0729
+        },
+        "callbackToDrawEndMs": {
+          "n": 480,
+          "median": 5.1,
+          "p95": 7.7,
+          "max": 21.2,
+          "mean": 5.4573
+        },
+        "bookkeepingMs": {
+          "n": 480,
+          "median": 0,
+          "p95": 0.1,
+          "max": 0.3,
+          "mean": 0.0344
+        },
+        "drawMs": {
+          "n": 480,
+          "median": 3.8,
+          "p95": 6,
+          "max": 19.4,
+          "mean": 4.129
+        },
+        "frameTaskMs": {
+          "n": 480,
+          "median": 5.1,
+          "p95": 7.6,
+          "max": 21.1,
+          "mean": 5.3844
+        },
+        "commitMs": {
+          "n": 480,
+          "median": 1.2,
+          "p95": 1.6,
+          "max": 2.2,
+          "mean": 1.2454
+        },
+        "gpuCopySubmissionMs": {
+          "n": 480,
+          "median": 0.4,
+          "p95": 0.8,
+          "max": 1.8,
+          "mean": 0.4637
+        }
+      },
+      "intervalsOver25Ms": 0,
+      "densitySwitchDrawMs": {
+        "n": 8,
+        "median": 16.2,
+        "p95": 19.4,
+        "max": 19.4,
+        "mean": 15.9625
+      },
+      "nonSwitchDrawMs": {
+        "n": 472,
+        "median": 3.8,
+        "p95": 5.9,
+        "max": 11.4,
+        "mean": 3.9284
+      },
+      "stagesMs": {
+        "background": {
+          "n": 480,
+          "median": 0.1,
+          "p95": 0.2,
+          "max": 0.5,
+          "mean": 0.0902
+        },
+        "milkyWay": {
+          "n": 480,
+          "median": 0.2,
+          "p95": 0.4,
+          "max": 14.2,
+          "mean": 0.3994
+        },
+        "grid": {
+          "n": 480,
+          "median": 0.5,
+          "p95": 0.9,
+          "max": 2.1,
+          "mean": 0.5681
+        },
+        "boundaries": {
+          "n": 480,
+          "median": 1,
+          "p95": 1.4,
+          "max": 2.9,
+          "mean": 1.0579
+        },
+        "figures": {
+          "n": 480,
+          "median": 0.8,
+          "p95": 2.6,
+          "max": 8.5,
+          "mean": 1.2188
+        },
+        "stars": {
+          "n": 480,
+          "median": 0.4,
+          "p95": 0.7,
+          "max": 1.7,
+          "mean": 0.4138
+        },
+        "labels": {
+          "n": 480,
+          "median": 0.3,
+          "p95": 0.4,
+          "max": 1.4,
+          "mean": 0.2888
+        },
+        "ground": {
+          "n": 480,
+          "median": 0,
+          "p95": 0.1,
+          "max": 0.2,
+          "mean": 0.031
+        }
+      },
+      "moving": {
+        "drawMs": {
+          "n": 238,
+          "median": 4.4,
+          "p95": 6.7,
+          "max": 19.4,
+          "mean": 4.8811
+        },
+        "commitMs": {
+          "n": 238,
+          "median": 1.3,
+          "p95": 1.6,
+          "max": 2.1,
+          "mean": 1.2706
+        },
+        "stagesMs": {
+          "figures": {
+            "n": 238,
+            "median": 1.9,
+            "p95": 2.8,
+            "max": 8.5,
+            "mean": 2.0294
+          },
+          "boundaries": {
+            "n": 238,
+            "median": 0.9,
+            "p95": 1.4,
+            "max": 1.7,
+            "mean": 0.9794
+          },
+          "grid": {
+            "n": 238,
+            "median": 0.5,
+            "p95": 0.8,
+            "max": 2.1,
+            "mean": 0.5294
+          }
+        }
+      }
+    },
+    "retained": {
+      "metrics": {
+        "cadenceIntervalMs": {
+          "n": 478,
+          "median": 16.7,
+          "p95": 17.3,
+          "max": 25.3,
+          "mean": 16.6736
+        },
+        "rafWaitMs": {
+          "n": 480,
+          "median": 11.4,
+          "p95": 13.2,
+          "max": 20.3,
+          "mean": 11.2785
+        },
+        "callbackAgeMs": {
+          "n": 480,
+          "median": 1,
+          "p95": 1.5,
+          "max": 9.2,
+          "mean": 1.0198
+        },
+        "callbackToFrameStartMs": {
+          "n": 480,
+          "median": 0.1,
+          "p95": 0.2,
+          "max": 0.3,
+          "mean": 0.0706
+        },
+        "callbackToDrawEndMs": {
+          "n": 480,
+          "median": 5.2,
+          "p95": 7.4,
+          "max": 10.7,
+          "mean": 5.3537
+        },
+        "bookkeepingMs": {
+          "n": 480,
+          "median": 0,
+          "p95": 0.1,
+          "max": 0.2,
+          "mean": 0.0365
+        },
+        "drawMs": {
+          "n": 480,
+          "median": 3.9,
+          "p95": 6,
+          "max": 9.1,
+          "mean": 4.0242
+        },
+        "frameTaskMs": {
+          "n": 480,
+          "median": 5.2,
+          "p95": 7.3,
+          "max": 10.6,
+          "mean": 5.2831
+        },
+        "commitMs": {
+          "n": 480,
+          "median": 1.2,
+          "p95": 1.6,
+          "max": 2.1,
+          "mean": 1.249
+        },
+        "gpuCopySubmissionMs": {
+          "n": 480,
+          "median": 0.4,
+          "p95": 0.8,
+          "max": 1.4,
+          "mean": 0.4696
+        }
+      },
+      "intervalsOver25Ms": 1,
+      "densitySwitchDrawMs": {
+        "n": 8,
+        "median": 5.1,
+        "p95": 9.1,
+        "max": 9.1,
+        "mean": 5.4125
+      },
+      "nonSwitchDrawMs": {
+        "n": 472,
+        "median": 3.9,
+        "p95": 6,
+        "max": 7.3,
+        "mean": 4.0006
+      },
+      "stagesMs": {
+        "background": {
+          "n": 480,
+          "median": 0.1,
+          "p95": 0.2,
+          "max": 0.6,
+          "mean": 0.1013
+        },
+        "milkyWay": {
+          "n": 480,
+          "median": 0.2,
+          "p95": 0.3,
+          "max": 0.4,
+          "mean": 0.2365
+        },
+        "grid": {
+          "n": 480,
+          "median": 0.5,
+          "p95": 0.9,
+          "max": 1.1,
+          "mean": 0.5756
+        },
+        "boundaries": {
+          "n": 480,
+          "median": 1,
+          "p95": 1.4,
+          "max": 2.5,
+          "mean": 1.0717
+        },
+        "figures": {
+          "n": 480,
+          "median": 0.7,
+          "p95": 2.7,
+          "max": 4.2,
+          "mean": 1.2519
+        },
+        "stars": {
+          "n": 480,
+          "median": 0.4,
+          "p95": 0.7,
+          "max": 1.3,
+          "mean": 0.4071
+        },
+        "labels": {
+          "n": 480,
+          "median": 0.3,
+          "p95": 0.4,
+          "max": 0.6,
+          "mean": 0.2919
+        },
+        "ground": {
+          "n": 480,
+          "median": 0,
+          "p95": 0.1,
+          "max": 0.2,
+          "mean": 0.03
+        }
+      },
+      "moving": {
+        "drawMs": {
+          "n": 238,
+          "median": 4.6,
+          "p95": 6.3,
+          "max": 9.1,
+          "mean": 4.779
+        },
+        "commitMs": {
+          "n": 238,
+          "median": 1.3,
+          "p95": 1.7,
+          "max": 2.1,
+          "mean": 1.2765
+        },
+        "stagesMs": {
+          "figures": {
+            "n": 238,
+            "median": 2,
+            "p95": 2.9,
+            "max": 4.2,
+            "mean": 2.0798
+          },
+          "boundaries": {
+            "n": 238,
+            "median": 0.9,
+            "p95": 1.4,
+            "max": 1.8,
+            "mean": 1.0063
+          },
+          "grid": {
+            "n": 238,
+            "median": 0.5,
+            "p95": 0.8,
+            "max": 1.1,
+            "mean": 0.5408
+          }
+        }
+      }
+    }
+  },
+  "interpretation": [
+    "Retain the existing automatic hardware surface policy: exact repeats DPR-switch drawing stalls, retained avoids the corresponding Milky Way submission spikes.",
+    "Ordinary drawing medians and scheduled cadence are similar; the experiment does not show an overall perceived smoothness improvement or measure presented FPS.",
+    "RAF waiting here mostly fits the approximately 60 Hz callback cadence; do not equate expected wait with wasted work or physical-input latency.",
+    "CPU figure geometry/drawing, React camera commits and marker layout are further candidates, not established causes of the remaining real-gesture stutter.",
+    "No new implementation or deployment is approved; B-004 open, B-007 not assessed, B-001 paused."
+  ]
+}

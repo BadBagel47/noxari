@@ -151,3 +151,34 @@ Manual draw median/p95 is 4.3/6.2 ms (before 5.2/7.5), with figures 2.0/3.0 ms (
 Recommend **Sol High** for a controlled ordinary-app **retained versus exact GPU surface** comparison on the same phone, with equal scene/layers/density/input path, warm-up and paired ordering. Include the waits between frame callbacks/input delivery alongside existing command costs, within the existing bounded local diagnostics and privacy rules. The larger retained surface could affect asynchronous copying/composition even when command calls are short; this is a hypothesis that the A/B should resolve before selecting a policy or doing more speculative layer work. Existing automatic software fallback, image/geometry correctness and full resting quality must remain. Cloud software results cannot choose the phone policy.
 
 A short question about perceived smoothness has been asked; an answer is not assumed. B-004 remains open, B-007 still needs independent first-activation confirmation, B-001 remains paused and no new development batch is approved. Documentation/data only changed in this analysis.
+
+## Controlled phone ABBA comparison — clean `5d0dab70391a`
+
+The user supplied the ordinary-app surface comparison. [Derived data](measurements/controlled-surface-phone-2026-11-04.json) records the source hash, recomputed metrics and density-transition associations without republishing the 1.1 MB trace or creation timestamps. All four passes completed, 240 measured frames each (960 total), no drawing errors/fallbacks or manual/phone/zoom requests. Each has exactly 240 scripted requests. Frame-by-frame configuration sequences match: GPU/Brave, all five layers/All88, 8,922 stars, 1×, full DPR2/moving1.5, same above/below-horizon flags. Native DPR is 2.625, CSS viewport approximately 411×773. Source mode preview is frozen to fixed during the test. Total test 21.8 s, each measured pass about 3.989 s. Saved summary percentiles agree with recomputation from frames.
+
+| Measure | Exact (passes 1 and 4 pooled) | Retained (passes 2 and 3 pooled) |
+| --- | ---: | ---: |
+| Command draw median / p95 / max | 3.8 / 6.0 / 19.4 ms | 3.9 / 6.0 / 9.1 ms |
+| Scheduled cadence median / p95 / max | 16.7 / 17.4 / 23.3 ms | 16.7 / 17.3 / 25.3 ms |
+| Cadence intervals >25 ms | 0/478 | 1/478 |
+| Callback entry → command end median / p95 / max | 5.1 / 7.7 / 21.2 ms | 5.2 / 7.4 / 10.7 ms |
+| Shared React commit median / p95 | 1.2 / 1.6 ms | 1.2 / 1.6 ms |
+| RAF request → entry median / p95 | 11.5 / 13.2 ms | 11.4 / 13.2 ms |
+| Callback age median / p95 | 0.9 / 1.6 ms | 1.0 / 1.5 ms |
+| Collector bookkeeping median / p95 / max | 0 / 0.1 / 0.3 ms | 0 / 0.1 / 0.2 ms |
+
+The exact strategy repeats a draw spike at **every recorded density transition** (frame indices 2, 107, 122, 227 in each pass): draw **11.6–19.4 ms**, Milky Way phase **7.3–14.2 ms**. At those same eight indices retained draws are **3.4–9.1 ms**, Milky Way **0.1–0.3 ms**. Transition draw median is 16.2 versus 5.1 ms. Outside transitions, draw median/p95 3.8/5.9 versus 3.9/6.0 ms. This repeated ABBA association supports **keeping the existing retained hardware policy**; exact is not a solution to the remaining stutter. It does not isolate driver reallocation from synchronization or other internal GPU/browser work. Cloud software remains a separate policy case.
+
+Both policies have almost the same scheduled cadence and only one interval above 25 ms in all 956 eligible intervals. That lone 25.3 ms interval occurs in retained pass 2 at index 161, with callback age 9.2 ms after a previous callback-to-command task of 5.0 ms; retained pass 3 does not reproduce it. Normal RAF wait near 11 ms fits waiting for the next roughly 16.7 ms callback after a roughly 5 ms task; **it is not evidence of 11 ms wasted work**. Recorder sample bookkeeping is small in this run. These CPU callback metrics do not measure GPU completion, presentation, input delivery or perceived smoothness.
+
+The automated test differs from real swiping and from the earlier uncontrolled report's callback cadence. It cannot establish that ordinary swipe stutter is resolved, that touch delivery is faulty, or that the phone display runs at a measured refresh rate. Automatic motion also continues to enqueue an identical pose during holds, so hold commit cost is not ordinary idle work. No subjective comparison has been supplied yet; the user has been asked whether automatic motion felt smoother, similarly jerky or unclear. A reply is not assumed.
+
+### Candidate next B-004 implementation — await “Kör”, Sol High
+
+During movement the retained passes have draw median/p95 **4.6/6.3 ms**; figure geometry/drawing **2.0/2.9 ms**, boundaries **0.9/1.4 ms**, grid **0.5/0.8 ms**, shared React commit **1.3/1.7 ms**. Static source review confirms high-frequency camera state lives in `App`, updates use its shared `flushSync`, and marker positions use changing `left`/`top`. Thus app-level React work and browser marker layout/painting are concrete next candidates. The report does not directly attribute browser layout/paint or prove either causes physical stutter. Cached night/catalog calculations should not be described as recomputed on every motion; they are memoized.
+
+Propose a bounded camera/marker update step: isolate high-frequency sky direction/zoom publication from the rest of App/chrome, move visible marker position updates to transforms where image/hit-test checks permit, preserve the single shared frame commit and matching DOM/canvas/Finder pose. Preserve pinch, taps, drag takeover, ongoing following across panels, full idle sharpness, all layers and existing buffer policy. Do not change sensor mathematics or add an independent RAF, permanent quality reduction, all-GPU migration or another diagnostic feature. Verify with the fixed-path baseline, image/interaction checks and an ordinary phone swipe report. Benefit remains to be measured; not a promised large FPS gain. The answer about automatic versus manual motion can refine this priority before implementation. **No new development is approved. B-004 open, B-007 separate, B-001 paused.**
+
+### Subsequent user priority decision, 2026-11-04
+
+Defer further optimization to finish functionality. B-004 stays unresolved but paused; the camera/marker proposal above is not approved for implementation. Retain this evidence and the current renderer, check future approved features for regressions, and revisit the broader performance pass once main functionality stabilizes or performance blocks a feature. No app code or deployment changes accompany this planning decision.
