@@ -2,7 +2,17 @@
 
 ## B-004 — aktuell godkänd körning 2026-11-04
 
-Användaren gav **”Kör”** efter rekommendationen **Sol High** för kontrollerad exakt/återanvänd GPU-buffertjämförelse i vanliga appen. Implementerad ABBA med 84 uppvärmnings- och 240 mätrutor per pass, samma scen/bana och simulerade rörelse-/animeringstider i den befintliga gemensamma bildruteloopen. Separat lokal jämförelserapport, verkliga callback-/väntetider och rapportbokföring; ingen ny automatisk renderpolicy. Vy/zoom/tidsläge återställs, avbrott ger ogiltigt delprov. Se `docs/SURFACE_COMPARISON.md`. 175 tester och komplett huvud-/labb-bygge passerar. Produktionsbrowserprovet genomför fyra gånger 240 mätningar, verifierar buffertstorlek/beskärning, återställning, tomgång och EN/SV-export samt avbrott vid beröring/storleksbyte/dold sida/GPU-fel/Stoppa. Befintlig prestandarapport klarar manuellt/telefon/karta/Canvas/GPU/bortfall/timeout. Ingen mobilvinst påstås; publicering pågår. **B-004 öppen för mobilprovet, B-007 fysisk startkontroll kvar, B-001 pausad. Inget efterföljande utvecklingssteg godkänt.**
+Användaren gav **”Kör”** efter rekommendationen **Sol High** för kontrollerad exakt/återanvänd GPU-buffertjämförelse i vanliga appen. Implementerad ABBA med 84 uppvärmnings- och 240 mätrutor per pass, samma scen/bana och simulerade rörelse-/animeringstider i den befintliga gemensamma bildruteloopen. Separat lokal jämförelserapport, verkliga callback-/väntetider och rapportbokföring; ingen ny automatisk renderpolicy. Vy/zoom/tidsläge återställs, avbrott ger ogiltigt delprov. Se `docs/SURFACE_COMPARISON.md`. 175 tester och komplett huvud-/labb-bygge passerar. Produktionsbrowserprovet genomför fyra gånger 240 mätningar, verifierar buffertstorlek/beskärning, återställning, tomgång och EN/SV-export samt avbrott vid beröring/storleksbyte/dold sida/GPU-fel/Stoppa. Befintlig prestandarapport klarar manuellt/telefon/karta/Canvas/GPU/bortfall/timeout. Ingen mobilvinst påstås. Appcommit `b60f7743bead2b3773916321e65e8a644494a1bd` är publicerad; [Actions 41900759728](https://github.com/BadBagel47/noxari/actions/runs/41900759728) passerade 175 tester, bygge och Pages. Huvud-/labb-HTML, JS och CSS matchar rent lokalt bygge via SHA-256 över verifierad TLS; lokal rapportexport bekräftar `b60f7743bead`, `dirty:false`. **B-004 öppen för mobilprovet, B-007 fysisk startkontroll kvar, B-001 pausad. Inget efterföljande utvecklingssteg godkänt.**
+
+### Publicering av B-004-jämförelsen
+
+- Testlänk för appcommiten: https://badbagel47.github.io/noxari/?v=b60f774
+- `index-1eG2M1JK.js`: `cb3a70d2ced746693837f8b0cc3568a767eccc7f0f62dc035ef56a655a6ca2ac`
+- `index-D_oSbDyh.css`: `e7635aa007768b84076442a44d689fa126d8c84bc35e5d1bdfdfcc100cb3ea7f`
+- Labb `index-BpRdeFq6.js`: `7b91f2effbd969a9839675e01519cb24fbfffdd3258dfc7dcd345d0c637ae3fe`
+- Senare dokumentationscommit kan ändra bygg-ID och JS-hash eftersom Git-identiteten bäddas in. Appkoden ovan är senast ändrad.
+- Nästa användaråtgärd: stoppa Follow, välj **More → Performance report → Start controlled comparison**, låt de fyra körningarna bli klara utan beröring, välj **View report → Save comparison report**, bifoga `noxari-surface-comparison.json` i chatten. Avbrutet prov sparas med orsak och `valid:false`.
+- Rapporten ska analyseras innan vidare optimering väljs. Ingen ny körning eller modellväxling är godkänd.
 
 Senast uppdaterad: **2026-11-04**, Europe/Stockholm.
 
