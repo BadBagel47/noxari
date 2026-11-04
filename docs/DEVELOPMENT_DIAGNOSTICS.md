@@ -62,3 +62,8 @@ See [B-004 performance analysis](PERFORMANCE_ANALYSIS.md) for the current produc
 ## Ordinary horizon GPU layers (B-004)
 
 [GPU rendering](GPU_RENDERING.md) documents the approved ordinary-horizon integration, automatic/explicit Canvas fallback, context recovery, shader/coverage checks and full-app input timing. Optional Playwright entry points are `scripts/verify_horizon_gpu.mjs` and `scripts/benchmark_horizon_input.mjs` alongside `scripts/verify_gpu_prototype.mjs`; they use an environment-supplied browser package, not a new application dependency. Whole-app checks use actual shader uniforms/instances and DOM overlays. Timing is input handling to command submission, not physical display latency or presented FPS. The standalone lab now shares the refined layer code; old phone reports retain their original build identity.
+
+
+## Ordinary-app performance recording (B-004)
+
+**More → Performance report / Mer → Prestandarapport** is a local opt-in capture tool. Start, pan for 10–15 seconds (or use already-active phone following), stop and download `noxari-performance.json` for chat review. [Method/schema and limits](PERFORMANCE_REPORT.md) describe actual build/backend identification, accepted-request timing, shared commit and eight phases with nested snapshot timing, idle filtering, bounded memory/timer and privacy allowlists. It does not measure presented FPS, GPU completion or physical compass accuracy. Optional checks: `scripts/verify_performance_report.mjs`, `tests/skyPerformance.test.ts`, and `scripts/benchmark_performance_report.mjs` for paired collector off/on cost, using environment-provided Playwright. The older standalone GPU lab remains separate from ordinary-app recording.

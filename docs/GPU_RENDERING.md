@@ -65,8 +65,12 @@ The trusted mouse sweeps contain 21 captured trusted pointer events and 19–21 
 
 ## Status
 
-Integration is implemented; ordinary-app physical Android/Brave feedback is pending. The previous phone prototype supports this direction but is not a performance guarantee for this build or proof of parity with Stellarium. No further development batch is authorized by this completed step.
+Integration is implemented. The user subsequently reported that ordinary-app smoothness is difficult to distinguish, with at most a small improvement. This does not confirm a substantial physical improvement or establish a regression; B-004 remains open. The active backend on the new ordinary-app test has not been reported. The previous phone prototype supports this direction but is not a performance guarantee for this build or proof of parity with Stellarium. No further development batch is authorized by this completed step.
 
+
+## Subsequently approved diagnostic step
+
+Collect a bounded local downloadable report from the ordinary app on the phone: build, active GPU/Canvas and fallback reason, active-frame cadence, input handling to drawing-command completion, shared-queue/React commit and layer submission times. Cover actual manual drag and phone-following publication without altering sensor fusion or resuming B-001. Preserve one SkyFrames queue, cleanup and idle behavior; no GPS coordinates are needed. The two GPU→Canvas snapshots, remaining Canvas figures/boundaries/labels and App camera commits are possible costs visible in the code, not proven physical-device causes. Synchronous timings must not be labeled GPU completion or presented-frame latency. The user subsequently approved this measurement-design review and instrumentation with “Kör” (Sol High recommendation). It is implemented as described in [PERFORMANCE_REPORT.md](PERFORMANCE_REPORT.md). Await a real ordinary-app report before proposing any further renderer change; no additional optimization is approved.
 
 ## Deployment evidence
 

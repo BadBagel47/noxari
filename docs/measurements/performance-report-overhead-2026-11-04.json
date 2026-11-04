@@ -1,0 +1,311 @@
+{
+  "environment": "Headless Chromium on Linux, SwiftShader software WebGL2; automatic mode chose Canvas. No physical phone overhead measurement.",
+  "sourceWorkingTree": "0709f8468267 + dirty diagnostic implementation",
+  "mainAsset": "/noxari/assets/index-CcIj3nIS.js",
+  "mainAssetSha256": "b3963a1f2c10e26a8831201c2649850e4752cb38b11a2d488671a43e120e3541",
+  "method": "Same external probe, 390\u00d7844 CSS/DPR 2, Stockholm fixture 2026-01-15 22:00 UTC, all layers/88 figures, recording off/on/on/off. Other browser tasks completed before the paired runs. Internal capture window can include animation/settle frames outside the external 90-interval/83-draw segment.",
+  "runs": [
+    {
+      "recording": false,
+      "cadence": {
+        "count": 90,
+        "median": 16,
+        "p95": 30,
+        "max": 37
+      },
+      "over25ms": 8,
+      "drawTask": {
+        "count": 83,
+        "median": 5,
+        "p95": 7,
+        "max": 8
+      },
+      "handledInputToTaskEnd": {
+        "count": 83,
+        "median": 7,
+        "p95": 22,
+        "max": 24
+      },
+      "backend": "canvas",
+      "internal": null
+    },
+    {
+      "recording": true,
+      "cadence": {
+        "count": 90,
+        "median": 17,
+        "p95": 26,
+        "max": 42
+      },
+      "over25ms": 5,
+      "drawTask": {
+        "count": 83,
+        "median": 5,
+        "p95": 8,
+        "max": 11
+      },
+      "handledInputToTaskEnd": {
+        "count": 83,
+        "median": 8,
+        "p95": 19,
+        "max": 28
+      },
+      "backend": "canvas",
+      "internal": {
+        "build": {
+          "commit": "0709f8468267",
+          "dirty": true
+        },
+        "summary": {
+          "frames": 88,
+          "cadenceMs": {
+            "count": 87,
+            "median": 16,
+            "p95": 31,
+            "max": 33
+          },
+          "intervalsOver25Ms": 6,
+          "requestToDrawEndMs": {
+            "count": 83,
+            "median": 8,
+            "p95": 19,
+            "max": 26
+          },
+          "oldestRequestToDrawEndMs": {
+            "count": 83,
+            "median": 8,
+            "p95": 19,
+            "max": 26
+          },
+          "latestRequestWaitMs": {
+            "count": 83,
+            "median": 1,
+            "p95": 10,
+            "max": 15
+          },
+          "commitMs": {
+            "count": 88,
+            "median": 1,
+            "p95": 1,
+            "max": 2
+          },
+          "drawMs": {
+            "count": 88,
+            "median": 5,
+            "p95": 8,
+            "max": 11
+          },
+          "stagesMs": {
+            "background": {
+              "count": 88,
+              "median": 0,
+              "p95": 1,
+              "max": 2
+            },
+            "milkyWay": {
+              "count": 88,
+              "median": 3,
+              "p95": 4,
+              "max": 4
+            },
+            "grid": {
+              "count": 88,
+              "median": 0,
+              "p95": 1,
+              "max": 1
+            },
+            "boundaries": {
+              "count": 88,
+              "median": 0,
+              "p95": 1,
+              "max": 1
+            },
+            "figures": {
+              "count": 88,
+              "median": 1,
+              "p95": 2,
+              "max": 3
+            },
+            "stars": {
+              "count": 88,
+              "median": 1,
+              "p95": 2,
+              "max": 3
+            },
+            "labels": {
+              "count": 88,
+              "median": 0,
+              "p95": 1,
+              "max": 1
+            },
+            "ground": {
+              "count": 88,
+              "median": 0,
+              "p95": 0,
+              "max": 0
+            }
+          },
+          "gpuCopySubmissionMs": {
+            "count": 88,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cancelledRequests": 0
+        },
+        "contextCount": 2
+      }
+    },
+    {
+      "recording": true,
+      "cadence": {
+        "count": 90,
+        "median": 17,
+        "p95": 30,
+        "max": 40
+      },
+      "over25ms": 6,
+      "drawTask": {
+        "count": 83,
+        "median": 5,
+        "p95": 6,
+        "max": 9
+      },
+      "handledInputToTaskEnd": {
+        "count": 83,
+        "median": 7,
+        "p95": 22,
+        "max": 27
+      },
+      "backend": "canvas",
+      "internal": {
+        "build": {
+          "commit": "0709f8468267",
+          "dirty": true
+        },
+        "summary": {
+          "frames": 87,
+          "cadenceMs": {
+            "count": 86,
+            "median": 16,
+            "p95": 31,
+            "max": 33
+          },
+          "intervalsOver25Ms": 6,
+          "requestToDrawEndMs": {
+            "count": 83,
+            "median": 7,
+            "p95": 22,
+            "max": 26
+          },
+          "oldestRequestToDrawEndMs": {
+            "count": 83,
+            "median": 7,
+            "p95": 22,
+            "max": 26
+          },
+          "latestRequestWaitMs": {
+            "count": 83,
+            "median": 1,
+            "p95": 15,
+            "max": 16
+          },
+          "commitMs": {
+            "count": 87,
+            "median": 1,
+            "p95": 1,
+            "max": 2
+          },
+          "drawMs": {
+            "count": 87,
+            "median": 5,
+            "p95": 6,
+            "max": 8
+          },
+          "stagesMs": {
+            "background": {
+              "count": 87,
+              "median": 0,
+              "p95": 0,
+              "max": 2
+            },
+            "milkyWay": {
+              "count": 87,
+              "median": 3,
+              "p95": 3,
+              "max": 4
+            },
+            "grid": {
+              "count": 87,
+              "median": 0,
+              "p95": 1,
+              "max": 1
+            },
+            "boundaries": {
+              "count": 87,
+              "median": 0,
+              "p95": 1,
+              "max": 1
+            },
+            "figures": {
+              "count": 87,
+              "median": 1,
+              "p95": 2,
+              "max": 2
+            },
+            "stars": {
+              "count": 87,
+              "median": 1,
+              "p95": 1,
+              "max": 3
+            },
+            "labels": {
+              "count": 87,
+              "median": 0,
+              "p95": 0,
+              "max": 1
+            },
+            "ground": {
+              "count": 87,
+              "median": 0,
+              "p95": 0,
+              "max": 1
+            }
+          },
+          "gpuCopySubmissionMs": {
+            "count": 87,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cancelledRequests": 0
+        },
+        "contextCount": 2
+      }
+    },
+    {
+      "recording": false,
+      "cadence": {
+        "count": 90,
+        "median": 16,
+        "p95": 28,
+        "max": 37
+      },
+      "over25ms": 5,
+      "drawTask": {
+        "count": 83,
+        "median": 5,
+        "p95": 8,
+        "max": 9
+      },
+      "handledInputToTaskEnd": {
+        "count": 83,
+        "median": 6,
+        "p95": 21,
+        "max": 25
+      },
+      "backend": "canvas",
+      "internal": null
+    }
+  ]
+}

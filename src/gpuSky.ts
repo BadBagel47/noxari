@@ -1,6 +1,7 @@
 import type {MilkyWayTexture} from './milkyWay';
 import type {PreparedHorizontalStar, ViewDirection} from './skyProjection';
 import {stellarBrightness} from './skyVisibility';
+import type {PerformanceFrame} from './skyPerformance';
 
 const quadVertex = `#version 300 es
 precision highp float;
@@ -113,6 +114,7 @@ export function packStars(stars: PreparedHorizontalStar[]) {
 
 /** Shared horizon layers. Snapshot into 2D at their existing positions in the draw order. */
 export class GpuSky {
+  measurement: PerformanceFrame | null = null;
   readonly gl: WebGL2RenderingContext;
   private programs: WebGLProgram[] = [];
   private shaders: WebGLShader[] = [];
@@ -252,7 +254,7 @@ export class GpuSky {
     gl.uniform1f(this.uniform(this.copyProgram, 'zoom'), zoom);
     gl.uniform1f(this.uniform(this.copyProgram, 'visibility'), visibility);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
-    context.drawImage(this.canvas, 0, 0, width, height);
+    this.copy(context, width, height);
   }
 
   drawStars(context: CanvasRenderingContext2D, width: number, height: number, dpr: number, view: ViewDirection, starVisibility: number, belowReveal: number, zoom: number) {
@@ -282,7 +284,13 @@ export class GpuSky {
     gl.uniform2f(this.uniform(this.starsProgram, 'visibility'), starVisibility, belowReveal);
     gl.uniform1i(this.uniform(this.starsProgram, 'below'), Number(belowReveal > 0));
     gl.drawArrays(gl.POINTS, 0, this.starCount);
-    context.drawImage(this.canvas, 0, 0, this.canvas.width / dpr, this.canvas.height / dpr);
+    this.copy(context, this.canvas.width / dpr, this.canvas.height / dpr);
+  }
+
+  private copy(context: CanvasRenderingContext2D, width: number, height: number) {
+    const frame = this.measurement, started = frame?.clock();
+    context.drawImage(this.canvas, 0, 0, width, height);
+    if (frame && started !== undefined) { frame.copyMs += frame.clock() - started;frame.copyCalls++; }
   }
 
   private array() {

@@ -1,6 +1,7 @@
 import {GpuSky} from './gpuSky';
 import type {MilkyWayTexture} from './milkyWay';
 import type {PreparedHorizontalStar} from './skyProjection';
+import type {PerformanceFrame} from './skyPerformance';
 
 export type SkyRendererPreference = 'auto' | 'canvas' | 'gpu';
 export function skyRendererPreference(search: string): SkyRendererPreference {
@@ -16,6 +17,7 @@ export class HorizonGpu {
   private texture: MilkyWayTexture | null = null;
   private disposed = false;
   reason = '';
+  driver = '';
 
   constructor(private canvas: HTMLCanvasElement, private invalidate: () => void, private preference: SkyRendererPreference) {
     canvas.addEventListener('webglcontextlost', this.lost);
@@ -31,6 +33,7 @@ export class HorizonGpu {
       this.gpu = new GpuSky(this.canvas);
       this.context = this.gpu.gl;
       const info = this.gpu.info();
+      this.driver = info.renderer;
       if (this.preference === 'auto' && /swiftshader|llvmpipe|software rasterizer/i.test(info.renderer)) {
         this.fail('software-renderer');
       } else if (info.pointRange[1] < 14) {
@@ -69,6 +72,10 @@ export class HorizonGpu {
       try { this.gpu.setScene(stars, texture); }
       catch { this.fail('scene-upload'); }
     }
+  }
+
+  setMeasurement(frame: PerformanceFrame | null) {
+    if (this.gpu) this.gpu.measurement = frame;
   }
 
   drawMilkyWay(...args: Parameters<GpuSky['drawMilkyWay']>) {

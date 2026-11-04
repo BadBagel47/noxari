@@ -83,7 +83,7 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
     if (running.current) {
       following.current = true;
       // Panel closing and resume may occur in the same user gesture.
-      frames.enqueue(publishKey.current, publish);
+      frames.enqueue(publishKey.current, publish, 'phone-publication');
       return;
     }
     stop();
@@ -126,7 +126,7 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
       }
       if (!check.reason && check.motionAgeMs !== null && check.motionAgeMs > 500 && following.current && allowed.current) setStatus('waiting');
       if ((!direction && !check.reason) || !following.current || !allowed.current) return;
-      frames.enqueue(publishKey.current, publish);
+      frames.enqueue(publishKey.current, publish, 'phone-publication');
     };
     const timeout = window.setInterval(() => {
       const check = refreshDiagnostics();

@@ -15,6 +15,7 @@ import {GuidedFinder} from './GuidedFinder';
 import {clampViewPitch, groundOpacity} from './groundView';
 import {MilkyWayPainter, milkyWayBasis, type MilkyWayTexture} from './milkyWay';
 import {HorizonGpu, skyRendererPreference} from './horizonGpu';
+import type {PerformanceScene} from './skyPerformance';
 import {darkSkyVisibility, projectedStarVisibility, stellarBrightness} from './skyVisibility';
 import type {usePhoneOrientation} from './usePhoneOrientation';
 
@@ -22,6 +23,7 @@ type Props = {
   frames: SkyFrames;
   selectedId?: string;
   time: Date;
+  timeMode: 'live' | 'fixed' | 'preview';
   location: ObservingLocation;
   label: (object: SpaceObject) => string;
   sunLabel: string;
@@ -44,12 +46,16 @@ type Props = {
 const wrap = (degrees: number) => (degrees % 360 + 360) % 360;
 const cardinal = (heading: number) => ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(wrap(heading) / 45) % 8];
 
-export function HorizonView({frames, selectedId, time, location, label, sunLabel, onSelect, language, view, onViewChange, showFigures, showFigureNames, figureMode, showBoundaries, showCandidateCollection, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails}: Props) {
+export function HorizonView({frames, selectedId, time, timeMode, location, label, sunLabel, onSelect, language, view, onViewChange, showFigures, showFigureNames, figureMode, showBoundaries, showCandidateCollection, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails}: Props) {
   const root = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const reveal = useRef(new ConstellationReveal());
   const milkyWayPainter = useRef(new MilkyWayPainter());
   const gpu = useRef<HorizonGpu | null>(null);
+  const [performanceScene] = useState<PerformanceScene>(() => ({backend: 'canvas', reason: 'not-drawn', driver: '',
+    preference: skyRendererPreference(window.location.search), width: 0, height: 0, dpr: 1, zoom: 1, starCount: 0,
+    starsVisible: false, milkyWayVisible: false, belowHorizon: false,
+    layerMask: 0, figureMode: 'all', following: false, reducedMotion: false, timeMode: 'live'}));
   const resolution = useRef(new MotionResolution());
   const restoreResolution = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reducedMotion = useReducedMotion();
@@ -57,7 +63,7 @@ export function HorizonView({frames, selectedId, time, location, label, sunLabel
   const touchPoints = useRef(new Map<number, {x: number; y: number}>());
   const pinch = useRef<{distance: number; zoom: number} | null>(null);
   const suppressClick = useRef(false);
-  const [zoom, setZoom] = useSkyFrameState(1, frames);
+  const [zoom, setZoom] = useSkyFrameState(1, frames, 'zoom');
   const [size, setSize] = useState({width: 0, height: 0});
   const stars = useMemo(() => prepareHorizontalStars(horizontalStarCatalog(time, location)), [time, location]);
   const milkyBasis = useMemo(() => milkyWayBasis(time, location), [time, location]);
@@ -115,13 +121,15 @@ export function HorizonView({frames, selectedId, time, location, label, sunLabel
   useLayoutEffect(() => {
     const renderer = new HorizonGpu(document.createElement('canvas'), () => frames.invalidate(), skyRendererPreference(window.location.search));
     gpu.current = renderer;
+    frames.performance.scene = performanceScene;
     return () => {
       frames.clearRenderer();
       if (restoreResolution.current !== null) clearTimeout(restoreResolution.current);
+      frames.performance.detachScene(performanceScene);
       renderer.dispose();
       gpu.current = null;
     };
-  }, [frames]);
+  }, [frames, performanceScene]);
 
   useLayoutEffect(() => {
     const surface = canvas.current;
@@ -130,7 +138,9 @@ export function HorizonView({frames, selectedId, time, location, label, sunLabel
     const context = surface.getContext('2d', {alpha: false});
     if (!context) { frames.clearRenderer(); return; }
     const render = (now: number) => {
-      const renderer = gpu.current;
+      const renderer = gpu.current, measurement = frames.performance.current;
+      measurement?.beginDraw(renderer?.backend ?? 'canvas');
+      renderer?.setMeasurement(measurement);
       renderer?.setScene(stars, milkyWay);
       const quality = resolution.current.sample(view, zoom, window.devicePixelRatio || 1, performance.now());
       if (restoreResolution.current !== null) clearTimeout(restoreResolution.current);
@@ -171,6 +181,7 @@ export function HorizonView({frames, selectedId, time, location, label, sunLabel
         context.restore();
       }
 
+      measurement?.phase('background');
       if (milkyWay) {
         const visibility = Math.max(0, Math.min(1, (-sun.altitude - 8) / 10));
         if (!renderer?.drawMilkyWay(context, width, height, dpr, view, visibility, belowReveal > 0, zoom, milkyBasis, sceneKey)) {
@@ -178,6 +189,7 @@ export function HorizonView({frames, selectedId, time, location, label, sunLabel
         }
       }
 
+      measurement?.phase('milkyWay');
       const drawCurve = (samples: SkyPosition[]) => {
         context.beginPath();
         let previous: MapPoint | null = null;
@@ -196,10 +208,13 @@ export function HorizonView({frames, selectedId, time, location, label, sunLabel
       for (const altitude of (belowReveal > 0 ? [-60, -30, 0, 15, 30, 60] : [15, 30, 60])) drawCurve(Array.from({length: 361}, (_, azimuth) => ({altitude, azimuth})));
       for (let azimuth = 0; azimuth < 360; azimuth += 30) drawCurve(Array.from({length: belowReveal > 0 ? 181 : 91}, (_, i) => ({altitude: i - (belowReveal > 0 ? 90 : 0), azimuth})));
 
+      measurement?.phase('grid');
       if (showBoundaries) drawBoundaries(context, preparedBoundaries, projectBoundary, width, height, starVisibility);
 
+      measurement?.phase('boundaries');
       const animating = showFigures && drawConstellations(context, figures, position => project(position, false), width, height, starVisibility, showFigureNames, {reveal: reveal.current, now, reducedMotion});
       if (!showFigures) reveal.current.reset();
+      measurement?.phase('figures');
 
       if (starVisibility > 0 || belowReveal > 0) {
         if (!renderer?.drawStars(context, width, height, dpr, view, starVisibility, belowReveal, zoom)) {
@@ -218,15 +233,16 @@ export function HorizonView({frames, selectedId, time, location, label, sunLabel
           }
           context.globalAlpha = 1;
         }
-        if (starVisibility > .5 || belowReveal > .5) {
-          context.fillStyle = '#b9d4e8';
-          context.font = '13px system-ui, sans-serif';
-          for (const star of stars) {
-            if (!star.name || star.name === 'Sirius') continue;
-            if (projectedStarVisibility(sun.altitude, star.altitude, belowReveal) <= .5) continue;
-            const point = projectStar(star);
-            if (point && point.x < width - 85 && point.y > 20) context.fillText(star.name, point.x + 6, point.y - 6);
-          }
+      }
+      measurement?.phase('stars');
+      if (starVisibility > .5 || belowReveal > .5) {
+        context.fillStyle = '#b9d4e8';
+        context.font = '13px system-ui, sans-serif';
+        for (const star of stars) {
+          if (!star.name || star.name === 'Sirius') continue;
+          if (projectedStarVisibility(sun.altitude, star.altitude, belowReveal) <= .5) continue;
+          const point = projectStar(star);
+          if (point && point.x < width - 85 && point.y > 20) context.fillText(star.name, point.x + 6, point.y - 6);
         }
       }
 
@@ -237,6 +253,7 @@ export function HorizonView({frames, selectedId, time, location, label, sunLabel
         const point = projectPerspective({altitude: 4, azimuth}, view, width, height, true, false, zoom);
         if (point && point.y > 35 && point.y < height - 32) context.fillText(cardinal(azimuth), point.x, point.y);
       }
+      measurement?.phase('labels');
       // A level camera makes the geometric horizon horizontal at any heading.
       if (horizonY < height) {
         context.save();
@@ -257,14 +274,23 @@ export function HorizonView({frames, selectedId, time, location, label, sunLabel
         }
       }
 
+      measurement?.phase('ground');
+      performanceScene.backend = renderer?.backend ?? 'canvas';performanceScene.reason = renderer?.reason ?? '';
+      performanceScene.driver = renderer?.driver ?? '';performanceScene.width = width;performanceScene.height = height;
+      performanceScene.dpr = dpr;performanceScene.zoom = zoom;performanceScene.starCount = stars.length;
+      performanceScene.layerMask = Number(showFigures) | Number(showFigureNames) << 1 | Number(showBoundaries) << 2 | Number(Boolean(milkyWay)) << 3 | Number(showCandidateCollection) << 4;
+      performanceScene.figureMode = figureMode;performanceScene.following = phone.active;performanceScene.reducedMotion = reducedMotion;
+      performanceScene.timeMode = timeMode;performanceScene.starsVisible = starVisibility > 0 || belowReveal > 0;
+      performanceScene.milkyWayVisible = Boolean(milkyWay) && sun.altitude < -8;performanceScene.belowHorizon = belowReveal > 0;
       if (root.current) {
         root.current.dataset.skyRenderer = renderer?.backend ?? 'canvas';
         root.current.dataset.skyRendererReason = renderer?.reason ?? '';
       }
+      frames.performance.sceneChanged();
       return Boolean(animating);
     };
     frames.setRenderer(render);
-  }, [frames, size, view, zoom, stars, figures, boundaries, preparedBoundaries, showFigures, showFigureNames, figureMode, showBoundaries, reducedMotion, sun.altitude, milkyWay, milkyBasis, sceneKey, time, location]);
+  }, [frames, size, view, zoom, stars, figures, boundaries, preparedBoundaries, showFigures, showFigureNames, figureMode, showBoundaries, reducedMotion, sun.altitude, milkyWay, milkyBasis, sceneKey, time, timeMode, location, performanceScene, phone.active, showCandidateCollection]);
 
   const move = (heading: number, pitch: number) => onViewChange(current => ({heading: wrap(current.heading + heading), pitch: clampViewPitch(current.pitch + pitch)}));
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
