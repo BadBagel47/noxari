@@ -1,3 +1,4 @@
+import {horizonGrid} from './skyGrid';
 import {MotionResolution} from './motionResolution';
 import {useSkyFrameState} from './useSkyFrames';
 import type {SkyFrames} from './skyFrames';
@@ -7,10 +8,10 @@ import {ConstellationReveal} from './constellationReveal';
 import {useReducedMotion} from './useReducedMotion';
 import {boundarySky, drawBoundaries} from './constellationBoundaries';
 import {Body} from 'astronomy-engine';
-import {nextObjectRise, objectPosition, objectPositioner, positionAt, showObjectMarker, solarAppearance, type ObservingLocation, type SkyPosition} from './astronomy';
+import {nextObjectRise, objectPosition, objectPositioner, positionAt, showObjectMarker, solarAppearance, type ObservingLocation} from './astronomy';
 import {objects, type SpaceObject} from './data';
 import {candidateObjects} from './candidateObjects';
-import {createPerspectiveProjector, createPreparedPerspectiveProjector, horizontalStarCatalog, perspectiveFocal, prepareHorizontalDirections, prepareHorizontalStars, projectPerspective, type MapPoint, type ViewDirection} from './skyProjection';
+import {createPerspectiveProjector, createPreparedPerspectiveProjector, horizontalStarCatalog, perspectiveFocal, prepareHorizontalDirections, prepareHorizontalStars, projectPerspective, type MapPoint, type PreparedHorizontalDirection, type ViewDirection} from './skyProjection';
 import {GuidedFinder} from './GuidedFinder';
 import {clampViewPitch, groundOpacity} from './groundView';
 import {MilkyWayPainter, milkyWayBasis, type MilkyWayTexture} from './milkyWay';
@@ -37,6 +38,7 @@ type Props = {
   milkyWay: MilkyWayTexture | null;
   view: ViewDirection;
   onViewChange: Dispatch<SetStateAction<ViewDirection>>;
+  onDragViewChange: Dispatch<SetStateAction<ViewDirection>>;
   finderTarget: SpaceObject | null;
   phone: ReturnType<typeof usePhoneOrientation>;
   onStopFinder: () => void;
@@ -46,7 +48,7 @@ type Props = {
 const wrap = (degrees: number) => (degrees % 360 + 360) % 360;
 const cardinal = (heading: number) => ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(wrap(heading) / 45) % 8];
 
-export function HorizonView({frames, selectedId, time, timeMode, location, label, sunLabel, onSelect, language, view, onViewChange, showFigures, showFigureNames, figureMode, showBoundaries, showCandidateCollection, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails}: Props) {
+export function HorizonView({frames, selectedId, time, timeMode, location, label, sunLabel, onSelect, language, view, onViewChange, onDragViewChange, showFigures, showFigureNames, figureMode, showBoundaries, showCandidateCollection, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails}: Props) {
   const root = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const reveal = useRef(new ConstellationReveal());
@@ -192,11 +194,11 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       }
 
       measurement?.phase('milkyWay');
-      const drawCurve = (samples: SkyPosition[]) => {
+      const drawCurve = (samples: PreparedHorizontalDirection[]) => {
         context.beginPath();
         let previous: MapPoint | null = null;
         for (const position of samples) {
-          const point = project(position);
+          const point = projectStar(position);
           if (point) {
             if (previous && Math.hypot(point.x - previous.x, point.y - previous.y) < width / 8) context.lineTo(point.x, point.y);
             else context.moveTo(point.x, point.y);
@@ -207,8 +209,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       };
       context.strokeStyle = 'rgba(171,209,233,.17)';
       context.lineWidth = 1;
-      for (const altitude of (belowReveal > 0 ? [-60, -30, 0, 15, 30, 60] : [15, 30, 60])) drawCurve(Array.from({length: 361}, (_, azimuth) => ({altitude, azimuth})));
-      for (let azimuth = 0; azimuth < 360; azimuth += 30) drawCurve(Array.from({length: belowReveal > 0 ? 181 : 91}, (_, i) => ({altitude: i - (belowReveal > 0 ? 90 : 0), azimuth})));
+      for (const curve of horizonGrid(belowReveal > 0)) drawCurve(curve);
 
       measurement?.phase('grid');
       if (showBoundaries) drawBoundaries(context, preparedBoundaries, projectBoundary, width, height, starVisibility);
@@ -344,7 +345,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
     const focal = perspectiveFocal(size.width, size.height, zoom);
     const horizontalField = 2 * Math.atan(size.width / (2 * focal)) * 180 / Math.PI;
     const verticalField = 2 * Math.atan(size.height / (2 * focal)) * 180 / Math.PI;
-    move(-deltaX * horizontalField / size.width, deltaY * verticalField / size.height);
+    onDragViewChange(current => ({heading: wrap(current.heading - deltaX * horizontalField / size.width), pitch: clampViewPitch(current.pitch + deltaY * verticalField / size.height)}));
   };
   const endPointer = (event: PointerEvent<HTMLDivElement>) => {
     touchPoints.current.delete(event.pointerId);
@@ -363,7 +364,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
   };
 
   return <div className={`sky-canvas horizon-view ${finderTarget ? 'finder-active' : ''}`} ref={root} tabIndex={0}
-    aria-label={phone.active ? (language === 'sv' ? 'Telefonföljning aktiv. Nyp för att zooma. Tryck Stoppa för manuell styrning.' : 'Phone following active. Pinch to zoom. Press Stop for manual control.') : (language === 'sv' ? 'Svepbar himmelsvy. Dra för att vrida, nyp för att zooma eller använd piltangenter för att ändra riktning.' : 'Interactive sky view. Drag to turn, pinch to zoom, or use arrow keys to change direction.')}
+    aria-label={phone.active ? (language === 'sv' ? 'Telefonföljning aktiv. Svep för att stoppa följningen och styra manuellt, nyp för att zooma.' : 'Phone following active. Drag to stop following and steer manually; pinch to zoom.') : (language === 'sv' ? 'Svepbar himmelsvy. Dra för att vrida, nyp för att zooma eller använd piltangenter för att ändra riktning.' : 'Interactive sky view. Drag to turn, pinch to zoom, or use arrow keys to change direction.')}
     onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={finishPointer} onPointerCancel={endPointer}
     onLostPointerCapture={event => { if (event.target === event.currentTarget) endPointer(event); }}
     onClickCapture={event => { if (suppressClick.current && event.detail !== 0 && event.target instanceof Element && !event.target.closest('[data-sky-controls], .horizon-controls')) { event.preventDefault(); event.stopPropagation(); } }}

@@ -31,15 +31,17 @@ async function report(page){
  const event=page.waitForEvent('download');await page.getByRole('button',{name:'Download direction report',exact:true}).click();let json='';for await(const b of await(await event).createReadStream())json+=b;return JSON.parse(json);
 }
 try {
- const cold=await setup();await follow(cold,true);await cold.clock.runFor(3100);
- assert.equal(await cold.evaluate(()=>window.__starts),2,'one cold-start resubscription');assert.equal(await cold.evaluate(()=>window.__permissions),1);
- assert.equal(await cold.locator('.direction-chip').innerText(),'Waiting');assert.match(await cold.locator('.phone-notice').innerText(),/Restarting/);
+ const cold=await setup();await follow(cold,true);await cold.clock.runFor(1100);
+ assert.equal(await cold.evaluate(()=>window.__starts),2,'one-second cold-start resubscription');assert.equal(await cold.evaluate(()=>window.__permissions),1);
+ assert.equal(await cold.locator('.direction-chip').innerText(),'Waiting');assert.match(await cold.locator('.phone-notice').innerText(),/Restarting|Retrying/);
  await stable(cold);assert.equal(await cold.locator('.direction-chip').innerText(),'Following');
  const r=await report(cold);assert.equal(r.startup.listenerRestarts,1);assert.equal(r.startup.phase,'receiving');assert.ok(r.startup.usableDirections>0);assert.equal(r.reportVersion,2);
  await cold.close();console.log('PASS simulated silent first subscription recovers in same opt-in session; one permission request; startup report');
- const absent=await setup();await follow(absent);await absent.clock.runFor(9500);
- assert.equal(await absent.evaluate(()=>window.__starts),2);assert.equal(await absent.evaluate(()=>window.__live.size),0);assert.match(await absent.locator('.phone-notice').innerText(),/No usable phone direction/);
- const missing=await report(absent);assert.equal(missing.startup.phase,'missing');assert.equal(missing.startup.usableDirections,0);await absent.close();console.log('PASS original no-data deadline, bounded retry and zero-data failure report');
+ const absent=await setup();await follow(absent);
+ for(let second=1;second<=7;second++){await absent.clock.runFor(1000);assert.equal(await absent.evaluate(()=>window.__starts),second+1,'one retry on each second');}
+ await absent.clock.runFor(1000);assert.equal(await absent.locator('.direction-chip').innerText(),'Manual');
+ assert.equal(await absent.evaluate(()=>window.__starts),8);assert.equal(await absent.evaluate(()=>window.__live.size),0);assert.match(await absent.locator('.phone-notice').innerText(),/No usable phone direction/);
+ const missing=await report(absent);assert.equal(missing.startup.phase,'missing');assert.equal(missing.startup.usableDirections,0);assert.equal(missing.startup.listenerRestarts,7);await absent.close();console.log('PASS original no-data deadline, bounded retry and zero-data failure report');
  const normal=await setup();await follow(normal);await stable(normal);assert.equal(await normal.locator('.direction-chip').innerText(),'Following');
  await normal.clock.runFor(9500);assert.equal(await normal.evaluate(()=>window.__starts),1,'no startup retry after usable primary data');assert.equal(await normal.evaluate(()=>window.__live.size),0);await normal.close();console.log('PASS normal first start and original primary-data-loss shutdown');
  for(const action of ['stop','hidden','pending-stop','pending-hidden']){

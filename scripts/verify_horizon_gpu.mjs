@@ -16,7 +16,7 @@ try {for(const viewport of [{width:390,height:844},{width:1280,height:800},{widt
  gl.uniform4f=function(l,ch,sh,cp,sp){if(names.get(l)==='pose')window.__pose={heading:(Math.atan2(sh,ch)*180/Math.PI+360)%360,pitch:Math.atan2(sp,cp)*180/Math.PI};return uniform.call(this,l,ch,sh,cp,sp)};
  gl.drawArrays=function(...args){if(args[0]===this.POINTS){window.__gpuPose=window.__pose;window.__gpuCount=args[2]}return draw.apply(this,args)};
  });
- await page.goto((process.env.APP_URL || 'http://127.0.0.1:4194/noxari/')+'?skyRenderer=gpu');await page.waitForTimeout(400);
+ await page.goto((process.env.APP_URL || 'http://127.0.0.1:4194/noxari/')+'?skyRenderer=gpu');await page.getByRole('button',{name:'Time & location',exact:true}).click();await page.getByRole('button',{name:'Now',exact:true}).click();await page.getByRole('button',{name:'Close panel'}).click();await page.waitForTimeout(400);
  const box=await page.locator('.horizon-view').boundingBox(),x=box.width*.4,y=box.height*.4;
  await page.mouse.move(x,y);await page.mouse.down();
  await page.evaluate(({x,y})=>{window.__draws=0;const root=document.querySelector('.horizon-view');for(let i=1;i<=36;i++)root.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,pointerId:1,pointerType:'mouse',isPrimary:true,buttons:1,button:0,clientX:x+i*2,clientY:y}));},{x,y});

@@ -87,3 +87,38 @@ Stable-DPR manual draws, excluding the switch: 936, median/p95/max **5.8/8.7/14.
 - **B-007 — phone following/compass often needs a second activation.** New startup/lifecycle issue recorded separately from paused B-001 drift. The performance capture contains no following or sensor data and cannot diagnose this. Read-only review: permission/generation cancellation, hidden-page stop, 8 s no-usable-data timeout, first stable compass reference (≥800 ms stable fresh paired data), startup status and double activation need distinguishing. None is established as the reported cause. The user clarified that opening the top-right Manual chip again and choosing Follow phone makes it work. The screenshot shows Manual, the bottom Follow action and “Phone direction is unavailable. Manual control works.” Thus following is inactive at capture. This generic banner covers denied/unavailable/missing states and does not identify which occurred; it is not evidence of an active uncertainty/calibration hold. Investigate the failed first session and subsequent fresh start, not just compass alignment. Do not loosen reference guards or resume drift investigation as part of this issue.
 
 Recommended next bounded batch: **B-006 + B-007, Sol High** — clarify/reproduce the frame and first-start path, preserve keyboard focus, permissions/Stop/visibility and existing sensor reference mathematics, then fix only supported causes. The user subsequently approved B-006/B-007 together with the recommended B-004 figure/text cache. See [implemented scope and verification](FIGURE_CACHE_AND_STARTUP.md). First-resize-stall work remains separate, and no following batch is approved.
+
+## Third ordinary-app phone capture — clean `21637c3e2472`
+
+[Derived summaries](measurements/figure-cache-phone-followup-2026-11-04.json) summarize the performance and separate direction attachments without republishing the traces, angles, exact viewport or creation timestamps. User feedback explicitly says more optimization is needed; B-004 remains open despite better measured submission/cadence values.
+
+| Measure | Before figure cache `0246034` | After figure cache `21637c3` |
+| --- | ---: | ---: |
+| Draw count / capture duration | 1,200 / 16.82 s | 1,200 / 14.95 s |
+| Draw median / p95 | 5.9 / 8.7 ms | 4.6 / 7.3 ms |
+| Latest input → command end median / p95 | 7.2 / 10.3 ms | 6.4 / 8.9 ms |
+| Active cadence median / p95 | 12.9 / 23.6 ms | 10.6 / 17.3 ms |
+| Active intervals >25 ms | 28/1,199 | 5/1,199 |
+| Figure phase median / p95 | 3.3 / 5.1 ms | 2.2 / 3.7 ms |
+| Largest draw / interval | 82.4 / 90.3 ms | 58.4 / 64.5 ms |
+
+All 1,200 draws selected GPU with no recorded errors, all five layers/All88, 1× zoom and one initial DPR 2→1.5 transition. There are 869 manual requests on 869 draws, no zoom or phone publications, and following=false. The recording is **night preview**, whereas the preceding capture was Live; same viewport/layer flags do not prove identical sky brightness or input speed. These are observed differences, not a controlled causal estimate or presented FPS.
+
+Manual draws median/p95 are 5.2/7.5 ms; their figure phase is 2.6/3.9 ms. The 331 animation-only draws have draw median/p95 3.6/4.9 ms and figure median/p95 0.5/0.8 ms, consistent with the intended same-pose cache. Grid median/p95 is 0.9/1.5 ms and boundaries 0.8/1.3 ms. These normal costs remain candidates for reducing work during pans.
+
+The only draw above 25 ms is the initial DPR switch, **58.4 ms**, including **48.9 ms** Milky Way and 0.6 ms stars; the following interval is 64.5 ms. The other four long intervals (25.3–30.1 ms) follow short 3.1–7.0 ms draws. Source review confirms GPU canvas width/height are still changed at DPR transitions, and Milky Way owns the first surface call; this supports testing allocation reuse but does not isolate driver/GPU causation. Small copy submission times cannot rule out deferred transfer/synchronization cost.
+
+The separate version-2 direction report has an active following session, startup phase `receiving`, **zero listener restarts**, 400 retained samples, one initial compass transition and no incidents/current uncertainty. This establishes usable data and a compass-origin reference in that session, not true-north accuracy or success on the first user activation. A successful second manual session would also have zero automatic restarts. The performance capture itself has no sensor publications. B-007 remains open for first-activation confirmation; B-001 drift is not reopened.
+
+### Proposed next bundle — await explicit “Kör”
+
+Recommended model: **Sol High**.
+
+- **B-004:** test bounded reuse of the GPU drawing surface across density changes (active viewport/cropped 1:1 snapshot instead of repeated backing-store resizing), keeping real viewport resize/context cleanup/fallback and star coverage correct. Prepare grid directions once and reduce temporary allocations in line clipping during pans. These are candidates to validate against image/geometry checks and the ordinary device report, not promised gains. No broad all-GPU rewrite or permanent quality reduction is implied.
+- **B-007 (added user preference):** retry the initially silent/unusable orientation subscription at one-second intervals (1 through 7 seconds) until usable data arrives, with a total 8-second deadline and a clear no-data/diagnostics state thereafter. Stop/hidden page/error or first usable direction cancels retries; never repeat permission requests or reset north references. Relative data without a compass reference follows the existing hold-still/alignment path rather than repeatedly restarting it. Published behavior is still one listener restart at 3 seconds; this requested replacement awaits “Kör”.
+- **F-021:** automatically choose the existing darkest-local-night preview on page startup as a **temporary testing default**, clearly labeled, using the chosen location and existing seasonal/polar rules. Preserve accessible Now and fixed observation links/settings; no automatic GPS/sensors. This user instruction supersedes the earlier no-auto-preview choice for the testing default. Polar day cannot be made physically dark by choosing a time; retain the existing explanation.
+- **F-022:** a genuine one-finger drag takes over from phone following at the existing 8 px movement threshold, cancels pending sensor publication and applies the same gesture immediately from the current view. Taps and ordinary panel/search openings keep following. Pinch remains zoom and should not stop following merely because it has two pointers. Preserve marker-origin drag/tap suppression and do not let a queued phone pose overwrite the first manual delta. Current App.manualView rejects changes while phone.active, so the handoff must avoid stale React status in the same event. This supersedes the earlier explicit-Stop-only policy for drag takeover.
+
+These requested behavior changes are recorded preferences/specifications. The standing user workflow still requires a model recommendation and explicit start approval; no new app code is changed in this analysis.
+
+The user subsequently approved this whole proposal with “Kör”, including the added B-007 one-second retry preference. [Current implementation and checks](SURFACE_REUSE_AND_TEST_DEFAULTS.md) record the final software policy, prepared grid/scalar clipping, temporary night startup and same-gesture takeover. This analysis is historical proposal context; further batches are not approved.

@@ -131,6 +131,12 @@ export class GpuSky {
   private sourceTexture!: WebGLTexture;
   private rasterTexture!: WebGLTexture;
   private atlases = new Map<number, WebGLTexture>();
+  private retainSurface = true;
+  private surfaceWidth = 0;
+  private surfaceHeight = 0;
+  private surfaceDpr = 0;
+  private pixelWidth = 1;
+  private pixelHeight = 1;
   private rasterWidth = 0;
   private rasterHeight = 0;
   private starCount = 0;
@@ -140,11 +146,12 @@ export class GpuSky {
   private disposed = false;
   private uniforms = new Map<WebGLProgram, Map<string, WebGLUniformLocation>>();
 
-  constructor(readonly canvas: HTMLCanvasElement) {
+  constructor(readonly canvas: HTMLCanvasElement, retainSurface?: boolean) {
     const gl = canvas.getContext('webgl2', {alpha: true, premultipliedAlpha: true, antialias: false, preserveDrawingBuffer: false});
     if (!gl) throw new Error('WebGL 2 är inte tillgängligt.');
     this.gl = gl;
     try {
+      this.retainSurface = retainSurface ?? !/swiftshader|llvmpipe|software rasterizer/i.test(this.info().renderer);
       this.mwProgram = this.program(quadVertex, milkyFragment);
       this.copyProgram = this.program(quadVertex, copyFragment);
       this.starsProgram = this.program(starVertex, starFragment);
@@ -214,11 +221,22 @@ export class GpuSky {
 
   private surface(width: number, height: number, dpr: number) {
     const w = Math.max(1, Math.round(width * dpr)), h = Math.max(1, Math.round(height * dpr));
-    if (this.canvas.width !== w) this.canvas.width = w;
-    if (this.canvas.height !== h) this.canvas.height = h;
-    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
-    this.gl.viewport(0, 0, w, h);
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+    // Keep one backing store at the highest requested density for this CSS
+    // viewport. Motion/rest transitions only change its active lower-left area.
+    if (!this.retainSurface || width !== this.surfaceWidth || height !== this.surfaceHeight) this.surfaceDpr = dpr;
+    else this.surfaceDpr = Math.max(this.surfaceDpr, dpr);
+    this.surfaceWidth = width; this.surfaceHeight = height;
+    const capacityWidth = Math.max(1, Math.round(width * this.surfaceDpr));
+    const capacityHeight = Math.max(1, Math.round(height * this.surfaceDpr));
+    if (this.canvas.width !== capacityWidth) this.canvas.width = capacityWidth;
+    if (this.canvas.height !== capacityHeight) this.canvas.height = capacityHeight;
+    this.pixelWidth = w; this.pixelHeight = h;
+    const gl = this.gl;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, w, h);
+    gl.enable(gl.SCISSOR_TEST); gl.scissor(0, 0, w, h);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.disable(gl.SCISSOR_TEST);
   }
 
   drawMilkyWay(context: CanvasRenderingContext2D, width: number, height: number, dpr: number, view: ViewDirection, visibility: number, below: boolean, zoom: number, basis: Float32Array, sceneKey: string) {
@@ -254,7 +272,7 @@ export class GpuSky {
     gl.uniform1f(this.uniform(this.copyProgram, 'zoom'), zoom);
     gl.uniform1f(this.uniform(this.copyProgram, 'visibility'), visibility);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
-    this.copy(context, width, height);
+    this.copy(context, this.pixelWidth / dpr, this.pixelHeight / dpr);
   }
 
   drawStars(context: CanvasRenderingContext2D, width: number, height: number, dpr: number, view: ViewDirection, starVisibility: number, belowReveal: number, zoom: number) {
@@ -266,14 +284,14 @@ export class GpuSky {
     this.pose(this.starsProgram, view);
     gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D, atlas);
     gl.uniform1i(this.uniform(this.starsProgram, 'starAtlas'), 0);
-    gl.uniform2f(this.uniform(this.starsProgram, 'pixelViewport'), this.canvas.width, this.canvas.height);
+    gl.uniform2f(this.uniform(this.starsProgram, 'pixelViewport'), this.pixelWidth, this.pixelHeight);
     gl.uniform2f(this.uniform(this.starsProgram, 'viewport'), width, height);
     gl.uniform1f(this.uniform(this.starsProgram, 'focal'), Math.max(width, height) / 2 * zoom);
     gl.uniform1f(this.uniform(this.starsProgram, 'dpr'), dpr);
     gl.uniform2f(this.uniform(this.starsProgram, 'visibility'), starVisibility, belowReveal);
     gl.uniform1i(this.uniform(this.starsProgram, 'below'), Number(belowReveal > 0));
     gl.drawArrays(gl.POINTS, 0, this.starCount);
-    this.copy(context, this.canvas.width / dpr, this.canvas.height / dpr);
+    this.copy(context, this.pixelWidth / dpr, this.pixelHeight / dpr);
   }
 
   private starAtlas(dpr: number) {
@@ -299,7 +317,8 @@ export class GpuSky {
 
   private copy(context: CanvasRenderingContext2D, width: number, height: number) {
     const frame = this.measurement, started = frame?.clock();
-    context.drawImage(this.canvas, 0, 0, width, height);
+    // WebGL's active viewport is bottom-left; Canvas crop coordinates are top-left.
+    context.drawImage(this.canvas, 0, this.canvas.height - this.pixelHeight, this.pixelWidth, this.pixelHeight, 0, 0, width, height);
     if (frame && started !== undefined) { frame.copyMs += frame.clock() - started;frame.copyCalls++; }
   }
 

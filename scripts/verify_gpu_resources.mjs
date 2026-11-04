@@ -9,8 +9,8 @@ try {
  await page.waitForFunction(()=>window.skyLab);
  const result = await page.evaluate(()=>{
   const {GpuSky,texture} = skyLab.testing;
-  const gpu = new GpuSky(document.createElement('canvas')), gl=gpu.gl;
-  const counts={atlasUploads:0,attachments:0,statusChecks:0,maxTextures:0};
+  const gpu = new GpuSky(document.createElement('canvas'),true), gl=gpu.gl;
+  const counts={atlasUploads:0,attachments:0,statusChecks:0,maxTextures:0,resizes:0};
   const tracked=new Set(),created=new Set(),deleted=new Set();
   const original={};
   for(const name of ['texImage2D','framebufferTexture2D','checkFramebufferStatus','createTexture','deleteTexture']){
@@ -25,6 +25,10 @@ try {
     return value;
    };
   }
+  for(const name of ['width','height']){
+   const descriptor=Object.getOwnPropertyDescriptor(HTMLCanvasElement.prototype,name);
+   Object.defineProperty(gpu.canvas,name,{get(){return descriptor.get.call(this)},set(value){counts.resizes++;descriptor.set.call(this,value)}});
+  }
   gpu.setScene(skyLab.scene().stars,texture);
   const canvas=document.createElement('canvas'),out=canvas.getContext('2d',{willReadFrequently:true});
   const paint=(dpr,heading=180,width=96,height=128)=>{
@@ -35,6 +39,13 @@ try {
    return Array.from(out.getImageData(0,0,canvas.width,canvas.height).data);
   };
   const firstFull=paint(2),firstMotion=paint(1.5);
+  const capacity=[gpu.canvas.width,gpu.canvas.height];
+  const reference=new GpuSky(document.createElement('canvas'),true);reference.setScene(skyLab.scene().stars,texture);
+  const check=document.createElement('canvas');check.width=144;check.height=192;const ctx=check.getContext('2d',{willReadFrequently:true});ctx.setTransform(1.5,0,0,1.5,0,0);
+  reference.drawMilkyWay(ctx,96,128,1.5,{heading:180,pitch:31},1,false,1,skyLab.scene().basis,skyLab.scene().key);
+  reference.drawStars(ctx,96,128,1.5,{heading:180,pitch:31},1,0,1);
+  const fresh=ctx.getImageData(0,0,144,192).data;
+  const retainedMatchesFresh=firstMotion.every((value,i)=>value===fresh[i]);reference.dispose();
   const warm={...counts};
   let equal=true;
   for(let i=0;i<8;i++){
@@ -49,11 +60,25 @@ try {
   const afterThird={...counts};
   paint(2,180,128,96); // A genuine aspect/raster-size change needs a new FBO check.
   const resized={...counts};
+  let fractionalMaxDifference=0;
+  for(const ratio of [1.25,1.5]){
+   paint(2,60,96.25,128.5);const retained=paint(ratio,210,96.25,128.5);
+   const freshGpu=new GpuSky(document.createElement('canvas'),true);freshGpu.setScene(skyLab.scene().stars,texture);
+   const c=document.createElement('canvas');c.width=Math.round(96.25*ratio);c.height=Math.round(128.5*ratio);const ctx=c.getContext('2d',{willReadFrequently:true});ctx.setTransform(ratio,0,0,ratio,0,0);
+   freshGpu.drawMilkyWay(ctx,96.25,128.5,ratio,{heading:210,pitch:31},1,false,1,skyLab.scene().basis,skyLab.scene().key);
+   freshGpu.drawStars(ctx,96.25,128.5,ratio,{heading:210,pitch:31},1,0,1);
+   const freshPixels=ctx.getImageData(0,0,c.width,c.height).data;
+   for(let i=0;i<retained.length;i++)fractionalMaxDifference=Math.max(fractionalMaxDifference,Math.abs(retained[i]-freshPixels[i]));
+   freshGpu.dispose();
+  }
   const glError=gl.getError();
   gpu.dispose();
   const allNewTexturesDeleted=[...created].every(t=>deleted.has(t));
-  return {warm,reused,afterThird,resized,equal,glError,liveAfterDispose:tracked.size,allNewTexturesDeleted};
+  return {warm,reused,afterThird,resized,equal,capacity,retainedMatchesFresh,fractionalMaxDifference,glError,liveAfterDispose:tracked.size,allNewTexturesDeleted};
  });
+ assert.deepEqual(result.capacity,[192,256]);assert.equal(result.retainedMatchesFresh,true,'retained-buffer crop matches a fresh exact-density renderer');
+ assert.equal(result.warm.resizes,2);assert.equal(result.reused.resizes,2,'DPR alternation does not resize the backing store');assert.equal(result.afterThird.resizes,2);assert.equal(result.resized.resizes,4,'real CSS resize replaces capacity');
+ assert.equal(result.fractionalMaxDifference,0,'fractional CSS size and low densities preserve fresh-renderer coverage');
  assert.equal(result.glError,0);assert.equal(result.equal,true,'cached DPR coverage must match the first draw exactly');
  assert.equal(result.warm.atlasUploads,2);assert.equal(result.reused.atlasUploads,2,'DPR alternation must not upload warmed atlases');
  assert.equal(result.warm.attachments,1);assert.equal(result.reused.attachments,1,'pose and DPR changes retain raster attachment');

@@ -11,7 +11,7 @@ try {
  for(const viewport of [{width:390,height:844},{width:1280,height:800}]){
   const pages=[];
   for(const url of [process.env.BASELINE_URL,base]){
-   const p=await browser.newPage({viewport,deviceScaleFactor:2,hasTouch:true,reducedMotion:'reduce'});p.on('pageerror',e=>errors.push(e.message));await p.clock.setFixedTime(new Date('2026-01-15T22:00:00Z'));await p.goto(url+'?skyRenderer=canvas');pages.push(p);
+   const p=await browser.newPage({viewport,deviceScaleFactor:2,hasTouch:true,reducedMotion:'reduce'});p.on('pageerror',e=>errors.push(e.message));await p.clock.setFixedTime(new Date('2026-01-15T22:00:00Z'));await p.goto(url+'?skyRenderer=canvas');await p.getByRole('button',{name:'Time & location',exact:true}).click();await p.getByRole('button',{name:'Now',exact:true}).click();await p.getByRole('button',{name:'Close panel'}).click();pages.push(p);
   }
   for(const mode of ['horizon','common','names-off','below','pinch','map']){
    for(const p of pages){

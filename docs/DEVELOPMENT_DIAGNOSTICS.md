@@ -75,3 +75,7 @@ See [B-004 performance analysis](PERFORMANCE_ANALYSIS.md) for the current produc
 ## Figure cache and first activation (B-004 / B-006 / B-007)
 
 [Implementation and limits](FIGURE_CACHE_AND_STARTUP.md) cover the per-view figure/text cache, pointer/keyboard focus and one bounded silent-start listener retry. Optional environment-provided Playwright scripts: `scripts/verify_startup_focus.mjs` for simulated startup/cancellation/report and real pointer focus; `scripts/verify_figure_cache.mjs` with `APP_URL` and `BASELINE_URL` for ordinary Canvas image comparison. Existing paired `benchmark_motion_resources.mjs` records the eight layer phases, including figures, without pixel readbacks during timing. Direction reports remain under the structured Phone direction diagnostics; failed startup now offers export even with no readings. Performance reports remain unchanged.
+
+## Surface policy, startup timing and drag takeover
+
+[Current bundle](SURFACE_REUSE_AND_TEST_DEFAULTS.md): `verify_test_defaults.mjs` covers F-021/F-022 and the same-frame sensor/manual race; `verify_startup_focus.mjs` covers B-007 one-second retry counts/deadline; `verify_gpu_resources.mjs` forces retained capacity for resize/fractional-coverage checks. `benchmark_motion_resources.mjs` now explicitly selects the same live fixture in both builds and counts test-only GPU dimension writes, as well as GL uploads/checks. Timings remain software/device-specific command submission, not display latency.

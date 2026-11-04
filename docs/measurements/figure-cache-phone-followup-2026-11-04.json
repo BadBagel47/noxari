@@ -1,0 +1,189 @@
+{
+  "type": "Derived figure-cache phone follow-up; original reports not republished",
+  "performanceSourceSha256": "e430f1413b3cd9ede0da8a5913f4bc58f191b1c0627f4a9d36b5f75dbb3e27c6",
+  "directionSourceSha256": "d8d74562e56878e9ed50289b4a13b9ee49813fada07dfd30776f629cc20c90f9",
+  "build": {
+    "commit": "21637c3e2472",
+    "dirty": false
+  },
+  "frames": 1200,
+  "durationMs": 14948.5,
+  "stopReason": "frame-limit",
+  "summary": {
+    "frames": 1200,
+    "cadenceMs": {
+      "count": 1199,
+      "median": 10.6,
+      "p95": 17.3,
+      "max": 64.5
+    },
+    "intervalsOver25Ms": 5,
+    "requestToDrawEndMs": {
+      "count": 869,
+      "median": 6.4,
+      "p95": 8.9,
+      "max": 60.7
+    },
+    "oldestRequestToDrawEndMs": {
+      "count": 869,
+      "median": 6.4,
+      "p95": 8.9,
+      "max": 60.7
+    },
+    "latestRequestWaitMs": {
+      "count": 869,
+      "median": 0.1,
+      "p95": 0.2,
+      "max": 7.6
+    },
+    "commitMs": {
+      "count": 1200,
+      "median": 0.9,
+      "p95": 1.4,
+      "max": 3
+    },
+    "drawMs": {
+      "count": 1200,
+      "median": 4.6,
+      "p95": 7.3,
+      "max": 58.4
+    },
+    "stagesMs": {
+      "background": {
+        "count": 1200,
+        "median": 0.1,
+        "p95": 0.2,
+        "max": 0.5
+      },
+      "milkyWay": {
+        "count": 1200,
+        "median": 0.2,
+        "p95": 0.3,
+        "max": 48.9
+      },
+      "grid": {
+        "count": 1200,
+        "median": 0.9,
+        "p95": 1.5,
+        "max": 3.3
+      },
+      "boundaries": {
+        "count": 1200,
+        "median": 0.8,
+        "p95": 1.3,
+        "max": 4
+      },
+      "figures": {
+        "count": 1200,
+        "median": 2.2,
+        "p95": 3.7,
+        "max": 6.3
+      },
+      "stars": {
+        "count": 1200,
+        "median": 0.3,
+        "p95": 0.5,
+        "max": 1.4
+      },
+      "labels": {
+        "count": 1200,
+        "median": 0.2,
+        "p95": 0.4,
+        "max": 1.1
+      },
+      "ground": {
+        "count": 1200,
+        "median": 0,
+        "p95": 0.1,
+        "max": 0.2
+      }
+    },
+    "gpuCopySubmissionMs": {
+      "count": 1200,
+      "median": 0.3,
+      "p95": 0.6,
+      "max": 1.7
+    },
+    "cancelledRequests": 0
+  },
+  "gpuFrames": 1200,
+  "errors": 0,
+  "timeModes": [
+    "preview"
+  ],
+  "dprSwitchCount": 1,
+  "inputs": {
+    "manual-view": 869,
+    "zoom": 0,
+    "phone-publication": 0
+  },
+  "groups": {
+    "manual": {
+      "drawMs": {
+        "count": 869,
+        "median": 5.2,
+        "p95": 7.5,
+        "max": 58.4
+      },
+      "figuresMs": {
+        "count": 869,
+        "median": 2.6,
+        "p95": 3.9,
+        "max": 6.3
+      }
+    },
+    "animationOnly": {
+      "drawMs": {
+        "count": 331,
+        "median": 3.6,
+        "p95": 4.9,
+        "max": 6
+      },
+      "figuresMs": {
+        "count": 331,
+        "median": 0.5,
+        "p95": 0.8,
+        "max": 1.1
+      }
+    }
+  },
+  "slowDraws": [
+    {
+      "index": 1,
+      "drawMs": 58.4,
+      "milkyWayMs": 48.9,
+      "starsMs": 0.6,
+      "dprSwitch": true
+    }
+  ],
+  "direction": {
+    "reportVersion": 2,
+    "sessionActive": true,
+    "following": true,
+    "viewEnabled": true,
+    "startup": {
+      "phase": "receiving",
+      "listenerRestarts": 0,
+      "receivedEvents": 1386,
+      "usableDirections": 693
+    },
+    "sampleCount": 400,
+    "transitionKinds": {
+      "initial-compass": 1
+    },
+    "incidentCount": 0,
+    "motionSource": "relative",
+    "reference": "compass",
+    "check": "consistent",
+    "reason": null,
+    "autoCorrections": 0
+  },
+  "caveats": [
+    "Performance capture is manual input only; direction report is a separate active session and has no build field. Do not infer matching session/time from both attachments.",
+    "Current capture is preview while previous 0246034 capture was live; same layer flags/viewport do not establish identical scene, brightness, gesture speed or physical workload.",
+    "A live direction session with listenerRestarts=0 does not distinguish first user activation from a later successful manual restart. No physical startup recovery or true-north accuracy is established.",
+    "First DPR switch still has one 58.4ms draw dominated by the Milky Way phase; native allocation/driver attribution is not measured.",
+    "Other four long cadence intervals follow short command draws; command duration/cadence are not GPU completion or displayed FPS.",
+    "B-001 drift remains paused; no new app implementation is authorized by these report analyses."
+  ]
+}

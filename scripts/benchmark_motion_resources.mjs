@@ -11,7 +11,13 @@ try {
   await page.clock.setFixedTime(new Date('2026-01-15T22:00:00Z'));
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(()=>{
-   window.__resources={active:false,atlasUploads:0,attachments:0,statusChecks:0};
+   window.__resources={active:false,atlasUploads:0,attachments:0,statusChecks:0,gpuSurfaceWrites:0};
+   const gpuCanvases=new WeakSet(),get=HTMLCanvasElement.prototype.getContext;
+   HTMLCanvasElement.prototype.getContext=function(type,...args){const result=get.call(this,type,...args);if(type==='webgl2'&&result)gpuCanvases.add(this);return result};
+   for(const name of ['width','height']){
+    const descriptor=Object.getOwnPropertyDescriptor(HTMLCanvasElement.prototype,name);
+    Object.defineProperty(HTMLCanvasElement.prototype,name,{...descriptor,set(value){if(window.__resources.active&&gpuCanvases.has(this))window.__resources.gpuSurfaceWrites++;descriptor.set.call(this,value)}});
+   }
    const gl=WebGL2RenderingContext.prototype;
    for(const name of ['texImage2D','framebufferTexture2D','checkFramebufferStatus']){
     const original=gl[name];gl[name]=function(...a){
@@ -23,7 +29,7 @@ try {
   });
   const base=variant==='before'?process.env.BASELINE_URL:process.env.APP_URL;
   assert.ok(base,'Set BASELINE_URL and APP_URL to the production previews');
-  await page.goto(base+'?skyRenderer=gpu');await page.waitForTimeout(1300);
+  await page.goto(base+'?skyRenderer=gpu');await page.getByRole('button',{name:'Time & location',exact:true}).click();await page.getByRole('button',{name:'Now',exact:true}).click();await page.getByRole('button',{name:'Close panel'}).click();await page.waitForTimeout(1300);
   await page.getByRole('button',{name:'More',exact:true}).click();await page.getByRole('button',{name:'Performance report',exact:true}).click();
   await page.getByRole('button',{name:'Start recording',exact:true}).click();
   await page.evaluate(()=>{window.__resources.active=true;});

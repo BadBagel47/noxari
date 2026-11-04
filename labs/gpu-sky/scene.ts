@@ -1,8 +1,9 @@
+import {horizonGrid} from '../../src/skyGrid';
 import {AstroTime, Body, Observer, RotateVector, Rotation_HOR_EQJ, Vector} from 'astronomy-engine';
 import {objects} from '../../src/data';
 import {candidateObjects} from '../../src/candidateObjects';
-import {objectPositioner, positionAt, showObjectMarker, solarAppearance, stockholm, type ObservingLocation, type SkyPosition} from '../../src/astronomy';
-import {horizontalStarCatalog, prepareHorizontalDirections, prepareHorizontalStars, createPerspectiveProjector, createPreparedPerspectiveProjector, perspectiveFocal, type MapPoint, type ViewDirection} from '../../src/skyProjection';
+import {objectPositioner, positionAt, showObjectMarker, solarAppearance, stockholm, type ObservingLocation} from '../../src/astronomy';
+import {horizontalStarCatalog, prepareHorizontalDirections, prepareHorizontalStars, createPerspectiveProjector, createPreparedPerspectiveProjector, perspectiveFocal, type MapPoint, type PreparedHorizontalDirection, type ViewDirection} from '../../src/skyProjection';
 import {ConstellationDrawingCache, constellationSky, drawConstellations} from '../../src/constellations';
 import {boundarySky, drawBoundaries} from '../../src/constellationBoundaries';
 import {ConstellationReveal} from '../../src/constellationReveal';
@@ -66,7 +67,6 @@ export class LabScene {
     const gpuMilky = gpuReady && (requested === 'gpu' || requested === 'gpu-milky');
     const gpuStars = gpuReady && (requested === 'gpu' || requested === 'gpu-stars');
     const belowReveal = 1 - groundOpacity(view.pitch);
-    const project = createPerspectiveProjector(view, width, height, true, belowReveal > 0, zoom);
     const projectStar = createPreparedPerspectiveProjector(view, width, height, true, belowReveal > 0, zoom);
     const projectBoundary = createPreparedPerspectiveProjector(view, width, height, true, belowReveal > 0, zoom, 48);
     const daylight = Math.max(0, Math.min(1, (this.sun.altitude + 18) / 24));
@@ -86,10 +86,10 @@ export class LabScene {
     if (gpuMilky) gpu!.drawMilkyWay(context, width, height, dpr, view, mwVisibility, belowReveal > 0, zoom, this.basis, this.key);
     else this.milkyPainter.draw(context, this.texture, this.time, this.location, width, height, mwVisibility, view, belowReveal > 0, zoom);
     const milky = performance.now() - mwStart;
-    const drawCurve = (samples: SkyPosition[]) => {
+    const drawCurve = (samples: PreparedHorizontalDirection[]) => {
       context.beginPath();let previous: MapPoint | null = null;
       for (const position of samples) {
-        const point = project(position);
+        const point = projectStar(position);
         if (point) {
           if (previous && Math.hypot(point.x - previous.x, point.y - previous.y) < width / 8) context.lineTo(point.x, point.y);
           else context.moveTo(point.x, point.y);
@@ -99,8 +99,7 @@ export class LabScene {
       context.stroke();
     };
     context.strokeStyle = 'rgba(171,209,233,.17)';context.lineWidth = 1;
-    for (const altitude of (belowReveal > 0 ? [-60, -30, 0, 15, 30, 60] : [15, 30, 60])) drawCurve(Array.from({length: 361}, (_, azimuth) => ({altitude, azimuth})));
-    for (let azimuth = 0; azimuth < 360; azimuth += 30) drawCurve(Array.from({length: belowReveal > 0 ? 181 : 91}, (_, i) => ({altitude: i - (belowReveal > 0 ? 90 : 0), azimuth})));
+    for (const curve of horizonGrid(belowReveal > 0)) drawCurve(curve);
     drawBoundaries(context, this.boundaries, projectBoundary, width, height, starVisibility);
     const projectionKey = [width, height, view.heading, view.pitch, zoom, belowReveal > 0].join('|');
     if (this.figureProjection?.key !== projectionKey) this.figureProjection = {key: projectionKey, project: createPreparedPerspectiveProjector(view, width, height, false, belowReveal > 0, zoom)};

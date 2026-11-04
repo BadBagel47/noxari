@@ -58,3 +58,7 @@ The 12 ordinary Canvas image comparisons (two viewports × six states) have **ze
 ## Publication
 
 App commit `7f08e27f1c926533681fde30374fb9c4b4a701a2`: [successful tests/build/Pages workflow](https://github.com/BadBagel47/noxari/actions/runs/41833682902). Verified-TLS main/lab HTML, both referenced JavaScript bundles and main CSS equal the clean local build. A local ordinary-app report export confirms `build.commit: 7f08e27f1c92`, `dirty: false`. Subsequent documentation/build-ID commits can change hashes without functional changes. Physical first-start and smoothness confirmation remain pending; no next batch is approved.
+
+## Subsequent approved startup/rendering update
+
+The user then approved one-second initial retries up to the eight-second deadline, temporary night-preview startup and drag takeover, together with GPU surface/grid/clipping work. The single three-second retry and Stop-first drag policy above describe the earlier build. See [current implementation and verification](SURFACE_REUSE_AND_TEST_DEFAULTS.md); no B-001 drift work is reopened.

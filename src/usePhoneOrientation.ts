@@ -46,6 +46,10 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
     if (startup.current.phase !== 'idle') startup.current.phase = 'stopped';
     setNeedsAlignment(false); setStatus('off');
   }, [frames]);
+  const takeManualControl = useCallback(() => {
+    // Consult synchronous intent, not the React status from a preceding render.
+    if (running.current || requesting.current) stop();
+  }, [stop]);
   useEffect(() => {
     const hide = () => { if (document.hidden) stop(); };
     document.addEventListener('visibilitychange', hide);
@@ -149,11 +153,11 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
       if (check.reason) { setNeedsAlignment(true); setStatus('recalibrate'); }
       else if (check.motionAgeMs !== null && check.motionAgeMs > 500 && following.current && allowed.current) setStatus('waiting');
       const silentFor = performance.now() - lastAt;
-      if (silentFor > 8000) { stop(); startup.current.phase = 'missing'; setStatus('missing'); }
-      else if (silentFor >= 3000 && startup.current.usableDirections === 0 && startup.current.listenerRestarts === 0) {
-        // Recover once if a cold subscription has not delivered usable data.
-        // Retry once within the original startup deadline, without permissions,
-        // tracker/reference reset, another user gesture or another frame queue.
+      if (silentFor >= 8000) { stop(); startup.current.phase = 'missing'; setStatus('missing'); }
+      else if (startup.current.usableDirections === 0 && startup.current.listenerRestarts < 7) {
+        // Retry the initially silent subscription on this existing one-second
+        // tick, at most seven times before the eight-second deadline. Never
+        // reset a reference or request permission again.
         detach(); startup.current.listenerRestarts++; startup.current.phase = 'retrying';
         setStatus('retrying'); attach();
       }
@@ -164,5 +168,5 @@ export function usePhoneOrientation(enabled: boolean, onDirection: (view: ViewDi
       clearInterval(timeout); frames.cancelUpdate(publishKey.current);
     };
   };
-  return {status, start, stop, alignNorth, useCompass, downloadReport, diagnostics, hasReport: report.current.hasData || startup.current.phase !== 'idle', needsAlignment, active: ['requesting', 'waiting', 'retrying', 'align', 'tracking', 'recalibrate'].includes(status)};
+  return {status, start, stop, takeManualControl, alignNorth, useCompass, downloadReport, diagnostics, hasReport: report.current.hasData || startup.current.phase !== 'idle', needsAlignment, active: ['requesting', 'waiting', 'retrying', 'align', 'tracking', 'recalibrate'].includes(status)};
 }

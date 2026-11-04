@@ -1,3 +1,4 @@
+import {initialObservation} from './observationStart';
 import {useSkyFrames, useSkyFrameState} from './useSkyFrames';
 import {useMilkyWay} from './useMilkyWay';
 import {clampViewPitch} from './groundView';
@@ -72,13 +73,21 @@ function App() {
   const [category, setCategory] = useState('All');
   const [catalogGroup, setCatalogGroup] = useState<'main'|'extra'>('main');
   const [showCandidateCollection, setShowCandidateCollection] = useState(true);
-  const [time, setTime] = useState(() => new Date());
-  const [timeMode, setTimeMode] = useState<'live' | 'fixed' | 'preview'>('live');
+  const [startupObservation] = useState(() => initialObservation(new Date(), initialLocation));
+  const [time, setTime] = useState(startupObservation.time);
+  const [timeMode, setTimeMode] = useState<'live' | 'fixed' | 'preview'>(startupObservation.mode);
   const [location, setLocation] = useState<ObservingLocation>(initialLocation);
   const [latitudeInput, setLatitudeInput] = useState(String(initialLocation.latitude));
   const [longitudeInput, setLongitudeInput] = useState(String(initialLocation.longitude));
   const [timeZoneInput, setTimeZoneInput] = useState(initialLocation.timeZone);
-  const [toast, setToast] = useState('');
+  const [toast, setToast] = useState(() => startupObservation.warning === 'polarDay'
+    ? t(lang, 'Polar day: no dark sky is calculated tonight. Showing the darkest time.', 'Midnattssol: ingen mörk stjärnhimmel beräknas i natt. Visar tiden då solen står som lägst.')
+    : startupObservation.warning === 'bright' ? t(lang, 'No fully dark sky tonight. Showing the time when the Sun is lowest.', 'Ingen helt mörk stjärnhimmel i natt. Visar tiden då solen står som lägst.') : '');
+  useEffect(() => {
+    if (!startupObservation.warning) return;
+    const timer = window.setTimeout(() => setToast(current => current === toast ? '' : current), 5000);
+    return () => clearTimeout(timer);
+  }, [startupObservation]);
   const [finderTarget, setFinderTarget] = useState<SpaceObject | null>(null);
   const [showFigures, setShowFigures] = useState(true);
   const [figureMode, setFigureMode] = useState<FigureMode>('all');
@@ -132,7 +141,8 @@ function App() {
 
   const windowDescriptor = useMemo(() => nightWindow(time, location), [time, location]);
   const nightKey = `${windowDescriptor.start.getTime()}/${windowDescriptor.end.getTime()}`;
-  const night = useMemo(() => nightContext(time, location), [nightKey, location]);
+  const night = useMemo(() => location === initialLocation && windowDescriptor.start.getTime() === startupObservation.night.window.start.getTime()
+    && windowDescriptor.end.getTime() === startupObservation.night.window.end.getTime() ? startupObservation.night : nightContext(time, location), [nightKey, location, startupObservation]);
   const series = useMemo(() => nightCatalog(allObjects, night.window.start, location, night), [location, night]);
   const ranked = useMemo(() => rankTonight(objects, series, gear, time), [series, gear, time]);
   const sun = useMemo(() => positionAt(Body.Sun, time, location), [time, location]);
@@ -165,6 +175,10 @@ function App() {
   const openPanel = (next: Panel) => { setPanel(next); };
   const closePanel = () => setPanel(null);
   const manualView: React.Dispatch<React.SetStateAction<ViewDirection>> = next => { if (!phone.active) setViewDirection(next); };
+  const dragView: React.Dispatch<React.SetStateAction<ViewDirection>> = next => {
+    phone.takeManualControl();
+    setViewDirection(next);
+  };
   const follow = () => { setSkyMode('horizon'); setPanel(null); void phone.start(); };
   const centerTarget = () => {
     const position = finderTarget && objectPosition(finderTarget, time, location);
@@ -286,7 +300,7 @@ function App() {
   return <div className="app sky-app" ref={appRoot}>
     <div className="sky-workspace" ref={workspace}>
       <main className="sky-stage" aria-label={t(lang, 'Sky', 'Himlen')}>
-        {skyMode === 'horizon' ? <HorizonView frames={skyFrames} selectedId={selected?.id} finderTarget={finderTarget} phone={phone} onFinderDetails={() => { if (finderTarget) { setSelected(finderTarget); openPanel('details'); } }} onStopFinder={() => { setFinderTarget(null); }} showFigures={showFigures} showFigureNames={showFigureNames} figureMode={figureMode} showBoundaries={showBoundaries} showCandidateCollection={showCandidateCollection} milkyWay={milkyWay.texture} time={time} timeMode={timeMode} location={location} label={object => display(object, lang)} sunLabel={t(lang, 'Sun', 'Solen')} onSelect={pickObject} language={lang} view={viewDirection} onViewChange={manualView}/> : <SkyMap selectedId={selected?.id} showFigures={showFigures} showFigureNames={showFigureNames} figureMode={figureMode} showBoundaries={showBoundaries} showCandidateCollection={showCandidateCollection} milkyWay={milkyWay.texture} time={time} location={location} label={object => display(object, lang)} language={lang} sunLabel={t(lang, 'Sun', 'Solen')} onSelect={pickObject}/>}
+        {skyMode === 'horizon' ? <HorizonView frames={skyFrames} selectedId={selected?.id} finderTarget={finderTarget} phone={phone} onFinderDetails={() => { if (finderTarget) { setSelected(finderTarget); openPanel('details'); } }} onStopFinder={() => { setFinderTarget(null); }} showFigures={showFigures} showFigureNames={showFigureNames} figureMode={figureMode} showBoundaries={showBoundaries} showCandidateCollection={showCandidateCollection} milkyWay={milkyWay.texture} time={time} timeMode={timeMode} location={location} label={object => display(object, lang)} sunLabel={t(lang, 'Sun', 'Solen')} onSelect={pickObject} language={lang} view={viewDirection} onViewChange={manualView} onDragViewChange={dragView}/> : <SkyMap selectedId={selected?.id} showFigures={showFigures} showFigureNames={showFigureNames} figureMode={figureMode} showBoundaries={showBoundaries} showCandidateCollection={showCandidateCollection} milkyWay={milkyWay.texture} time={time} location={location} label={object => display(object, lang)} language={lang} sunLabel={t(lang, 'Sun', 'Solen')} onSelect={pickObject}/>}
       </main>
       <header className="sky-statusbar">
         <button className={`observation-chip ${timeMode}`} onClick={() => openPanel('observation')} aria-label={t(lang, 'Time & location', 'Tid och plats')}><MapPin size={15}/><span><strong>{location.name}</strong><small>{stamp}</small></span></button>
