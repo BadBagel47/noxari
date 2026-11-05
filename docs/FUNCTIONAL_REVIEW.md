@@ -75,3 +75,10 @@ Användaren såg blandad svenska/engelska på datorn; mobilens engelska läge se
 
 
 Publiceringsuppföljning för B-008/B-009: appcommit `3ec70a11df55610a4222f78da756cfa30789f898`; GitHub Actions [41938378784](https://github.com/BadBagel47/noxari/actions/runs/41938378784) passerade tester, bygge och Pages. Publicerade huvud-/labb-assets matchade rent lokalt bygge över verifierad TLS. Se `HANDOVER.md` för sammanfattning och länk.
+
+
+## F-008 + B-003 visual label review, 2026-11-05
+
+Visual review on the default night scene found edge clipping and labels obscured by the status/quick-action overlays. `layoutObjectLabels` now tries nearby positions that fit the sky viewport and avoid other label rectangles, other object markers, and measured UI overlay rectangles. Selection, Sun/Moon/planet labels receive higher priority; if all positions conflict, only the text is hidden. Each marker remains at its exact projected coordinate with its 44 px button hit target and accessible name.
+
+Chromium geometry check in both Look around and Sky map at 390×844, 1280×800 and 568×320 found zero overlapping, clipped or overlay-obscured visible labels. A shifted visible label remains clickable. `npm test` reports 179 passing tests; build and the 15 existing functional browser flows pass. These checks use simulated time/viewport and do not establish physical-device behavior.

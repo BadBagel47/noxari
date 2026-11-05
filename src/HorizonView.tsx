@@ -19,6 +19,7 @@ import {HorizonGpu, skyRendererPreference} from './horizonGpu';
 import type {PerformanceScene} from './skyPerformance';
 import {darkSkyVisibility, projectedStarVisibility, stellarBrightness} from './skyVisibility';
 import type {usePhoneOrientation} from './usePhoneOrientation';
+import {layoutObjectLabels, skyOverlayExclusions} from './objectLabels';
 
 type Props = {
   frames: SkyFrames;
@@ -100,6 +101,11 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
   const project = createPerspectiveProjector(view, size.width, size.height, true, belowReveal > 0, zoom);
   const projectFigure = useMemo(() => createPreparedPerspectiveProjector(view, size.width, size.height, false, belowReveal > 0, zoom), [view.heading, view.pitch, size.width, size.height, belowReveal > 0, zoom]);
   const sunPoint = project(sun);
+  const labelExclusions = useMemo(() => skyOverlayExclusions(root.current), [size.width, size.height, selectedId, finderTarget, phone.status, language]);
+  const labelPlacements = useMemo(() => layoutObjectLabels([
+    ...markers.map(({object, point}) => ({id: object.id, text: label(object), x: point.x, y: point.y, priority: object.id === selectedId ? 1000 : object.kind === 'Moon' ? 800 : object.kind === 'Planet' ? 700 : 300})),
+    ...(sunPoint ? [{id: 'sun', text: sunLabel, x: sunPoint.x, y: sunPoint.y, priority: 900}] : []),
+  ], size.width, size.height, labelExclusions), [markers, size.width, size.height, label, selectedId, sunPoint, sunLabel, labelExclusions]);
 
   useEffect(() => {
     if (!root.current) return;
@@ -394,8 +400,8 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
     <canvas ref={canvas} aria-hidden="true"/>
     {hasDaylightPlanetMarker && <p className="daylight-marker-note">{language === 'sv' ? 'Beräknad dagsposition · synlighet varierar' : 'Calculated daytime position · visibility varies'}</p>}
     <div className="horizon-heading" aria-live="off">{language === 'sv' ? 'Mot' : 'Facing'} {cardinal(view.heading, language)} · {Math.round(view.heading)}° <span>{view.pitch < 0 ? '↓' : '↑'} {Math.round(Math.abs(view.pitch))}°</span>{view.pitch < 0 && <span className="below-horizon-label">{language === 'sv' ? 'Under horisonten · simulerad vy' : 'Below horizon · simulated view'}</span>}</div>
-    {markers.map(({object, position, point}) => <button key={object.id} className={`sky-object ${selectedId === object.id ? 'is-selected' : ''}`} aria-pressed={selectedId === object.id} style={{left: point.x, top: point.y, opacity: position.altitude < 0 ? belowReveal * .8 : 1}} onClick={() => onSelect(object)} title={`${label(object)} · ${position.altitude.toLocaleString(language === 'sv' ? 'sv-SE' : 'en-GB', {minimumFractionDigits: 1, maximumFractionDigits: 1})}°`} aria-label={`${label(object)}, ${language === 'sv' ? 'höjd' : 'altitude'} ${position.altitude.toLocaleString(language === 'sv' ? 'sv-SE' : 'en-GB', {minimumFractionDigits: 1, maximumFractionDigits: 1})}°`}><span className="sky-point" style={{width: object.size + 4, height: object.size + 4, background: object.color, boxShadow: `0 0 16px ${object.color}`}}/><span>{label(object)}</span></button>)}
-    {sunPoint && <span className="sky-object sky-sun" style={{left: sunPoint.x, top: sunPoint.y, opacity: sun.altitude < 0 ? belowReveal * .8 : 1}} role="img" aria-label={`${sunLabel}, ${language === 'sv' ? 'höjd' : 'altitude'} ${sun.altitude.toLocaleString(language === 'sv' ? 'sv-SE' : 'en-GB', {minimumFractionDigits: 1, maximumFractionDigits: 1})}°`}><span className="sky-point"/><span>{sunLabel}</span></span>}
+    {markers.map(({object, position, point}) => {const placement = labelPlacements.get(object.id)!;return <button key={object.id} className={`sky-object ${selectedId === object.id ? 'is-selected' : ''}`} aria-pressed={selectedId === object.id} style={{left: point.x, top: point.y, opacity: position.altitude < 0 ? belowReveal * .8 : 1}} onClick={() => onSelect(object)} title={`${label(object)} · ${position.altitude.toLocaleString(language === 'sv' ? 'sv-SE' : 'en-GB', {minimumFractionDigits: 1, maximumFractionDigits: 1})}°`} aria-label={`${label(object)}, ${language === 'sv' ? 'höjd' : 'altitude'} ${position.altitude.toLocaleString(language === 'sv' ? 'sv-SE' : 'en-GB', {minimumFractionDigits: 1, maximumFractionDigits: 1})}°`}><span className="sky-point" style={{width: object.size + 4, height: object.size + 4, background: object.color, boxShadow: `0 0 16px ${object.color}`}}/><span className="sky-object-label" aria-hidden="true" hidden={!placement.visible} style={{left: `calc(50% + ${placement.dx}px)`, top: `calc(50% + ${placement.dy}px)`}}>{label(object)}</span></button>;})}
+    {sunPoint && <span className="sky-object sky-sun" style={{left: sunPoint.x, top: sunPoint.y, opacity: sun.altitude < 0 ? belowReveal * .8 : 1}} role="img" aria-label={`${sunLabel}, ${language === 'sv' ? 'höjd' : 'altitude'} ${sun.altitude.toLocaleString(language === 'sv' ? 'sv-SE' : 'en-GB', {minimumFractionDigits: 1, maximumFractionDigits: 1})}°`}><span className="sky-point"/><span className="sky-object-label" aria-hidden="true" hidden={!labelPlacements.get('sun')?.visible} style={{left: `calc(50% + ${labelPlacements.get('sun')?.dx ?? 0}px)`, top: `calc(50% + ${labelPlacements.get('sun')?.dy ?? 32}px)`}}>{sunLabel}</span></span>}
     {finderTarget && targetPosition && <GuidedFinder object={finderTarget} position={targetPosition} nextRise={nextRise} location={location} view={view} width={size.width} height={size.height} language={language} phone={phone} sunAltitude={sun.altitude} zoom={zoom} onClose={onStopFinder} onDetails={onFinderDetails}/>}
     <div className="horizon-help">{language === 'sv' ? 'Dra för att se dig omkring · nyp för att zooma' : 'Drag to look around · pinch to zoom'}</div>
     <div className="horizon-controls" aria-label={language === 'sv' ? 'Styr vyn' : 'View controls'}>

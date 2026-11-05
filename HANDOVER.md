@@ -1,3 +1,12 @@
+## Senast genomförda körning — F-008 + B-003 (2026-11-05)
+
+Användaren godkände körningen efter modellrekommendationen **Luna 6 High**. F-008:s visuella genomgång identifierade och åtgärdade att objektnamn kunde skäras av mot himmelsytans kanter eller döljas av status-/snabbknappar. B-003 får nu gemensam kollisionsfri etikettplacering i horisontvyn och zenitkartan: etiketter flyttas runt markörerna, skyddas från andra etiketter och klickbara gränssnittsområden. Det valda objektet, solen, månen och planeterna får prioritet. Endast etiketttext döljs när den inte kan placeras; markör och dess 44 px tryckyta ligger kvar på beräknad position, och väljning via etikett fungerar. Ingen etikettlayout/UI-omdesign utöver detta.
+
+**Verifiering:** `npm test` passerar med **179 tester**. `npm run build` passerar TypeScript, huvudappen och GPU-labbet. `scripts/verify_functional_flows.mjs` passerar **15/15** flöden i 390×844, 1280×800 och 568×320. Separat visuell geometri-/lagerkontroll i båda vyerna på dessa tre storlekar fann inga överlappande, klippta eller av status-/snabbknappar skymda etiketter; på mobil är en flyttad etikett fortfarande tryckbar. Browserkontrollerna använder Chromium/simulerad natt, inte fysiska telefoner.
+
+F-008 och B-003 är genomförda. B-007 förblir öppen och observeras; B-001/B-004 fortsatt pausade. F-009:s fysiska validering återstår. Nästa utvecklingssteg utanför denna körning kräver modellrekommendation och nytt ”Kör”.
+
+
 ## Senast genomförda körning — B-008 + B-009 (2026-11-05)
 
 Rekommenderad modell **Luna 6 High**; användaren godkände med ”Kör”. B-008 är rättad: platsväljaren kan nu sättas till Egna koordinater utan att den gällande platsen ändras direkt. Koordinater/tidszon tillämpas först när användaren trycker Använd och valideringen passerar. Ogiltig inmatning lämnar tidigare plats aktiv. Stadförval och GPS uppdaterar val/fält, och platslagringen är oförändrad.
