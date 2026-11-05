@@ -1,3 +1,12 @@
+# Noxari — funktioner och buggar
+
+## Senaste genomförda körning — F-008 + B-003, 2026-11-05
+
+Rekommenderad modell **Luna 6 High**; användaren godkände med ”Kör”. Den visuella UI-genomgången hittade etiketter som kunde gå utanför skärmkanten eller hamna bakom status-/snabbknappar. Gemensam etikettplacering finns nu i båda vyerna: texten flyttas runt markören, undviker andra etiketter, markörer och gränssnittsområden. Valda objekt, solen, månen och planeter prioriteras. Etiketter döljs endast om de inte får plats; objektens position, 44 px tryckyta och val via text behålls.
+
+`npm test`: **179 passerar**. `npm run build`: TypeScript, huvudapp och GPU-labb passerar. Browserflöden: **15/15** vid 390×844, 1280×800 och 568×320. Separat mätning av DOM-etiketter i horisont- och kartvy vid samma storlekar: inga överlapp, skärmklipp eller etiketter skymda av appens egna överlägg. Appcommit `fdb45a1b7ef659e7b657df126b2f93eb5b4332d5`, Actions 42126486736 och verifierad TLS-hashjämförelse huvud/labb passerar. Publicerad app: https://badbagel47.github.io/noxari/?v=fdb45a1. Kontrollerna använder Chromium; ingen fysisk mobilkontroll.
+
+
 ## Senast genomförda körning — B-008 + B-009, 2026-11-05
 
 Användaren godkände paketet med ”Kör” efter rekommendationen **Luna 6 High**. **B-008:** valet Egna koordinater öppnar nu redigeringsläget utan att ändra den aktiva platsen; giltiga koordinater/tidszon börjar gälla först när användaren trycker Använd. Ogiltiga värden lämnar den gamla observationsplatsen kvar. Förval och GPS fortsätter att uppdatera listval/fält, och platsen sparas lokalt som tidigare. **B-009:** samtliga katalogobjekttyper har svenska kategorinamn; språkvalet beskriver nu hela appens gränssnitt. Saknade svenska tillgänglighetsnamn och himmelsetiketter har kompletterats, inklusive sökknapp, platsfält, zenit-/väderstreckstext och Guided Finder. Appens beräknade tal följer valt språk. Egennamn, vetenskapliga namn, licenser, källor, katalog-ID och webbläsarens inbyggda datumkontroll lämnas oförändrade.
