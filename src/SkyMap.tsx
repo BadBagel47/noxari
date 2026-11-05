@@ -149,13 +149,14 @@ export function SkyMap({selectedId, time, location, label, language, sunLabel, o
       context.fillStyle = '#a9c8e2';
       context.textAlign = 'center';
       const edge = horizonRadius * zoom + 13;
+      const directions = language === 'sv' ? ['N', 'Ö', 'S', 'V'] as const : ['N', 'E', 'S', 'W'] as const;
       for (const [name, x, y] of [
-        ['N', centerX, centerY - edge], ['E', centerX + edge, centerY + 4],
-        ['S', centerX, centerY + edge + 8], ['W', centerX - edge, centerY + 4],
+        [directions[0], centerX, centerY - edge], [directions[1], centerX + edge, centerY + 4],
+        [directions[2], centerX, centerY + edge + 8], [directions[3], centerX - edge, centerY + 4],
       ] as const) context.fillText(name, x, y);
       context.font = '12px system-ui, sans-serif';
       context.fillStyle = '#7fa2c0';
-      context.fillText('Zenith', centerX, centerY - 7);
+      context.fillText(language === 'sv' ? 'Zenit' : 'Zenith', centerX, centerY - 7);
 
       if (showBoundaries) drawBoundaries(context, boundaries, position => projectHorizontal(position, width, height, zoom), width, height, starVisibility);
 
@@ -187,9 +188,9 @@ export function SkyMap({selectedId, time, location, label, language, sunLabel, o
   }, [projectFigure, size, zoom, stars, figures, boundaries, showFigures, showFigureNames, figureMode, showBoundaries, reducedMotion, sun.altitude, milkyWay, time, location]);
 
   return <div className="sky-canvas sky-map" ref={container} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={finishPointer} onPointerCancel={finishPointer} onLostPointerCapture={finishPointer} onClickCapture={event => { if (suppressClick.current && event.detail !== 0) { event.preventDefault(); event.stopPropagation(); } }}>
-    <canvas ref={canvas} aria-label="Calculated zenith-centered sky with proper motion and optional constellation figures and IAU boundaries; horizon is the outer circle. Pinch to zoom." role="img"/>
+    <canvas ref={canvas} aria-label={language === 'sv' ? 'Beräknad zenitcentrerad himmel med egenrörelse och valbara stjärnbildsfigurer och IAU-gränser; horisonten är den yttre cirkeln. Nyp för att zooma.' : 'Calculated zenith-centered sky with proper motion and optional constellation figures and IAU boundaries; horizon is the outer circle. Pinch to zoom.'} role="img"/>
     {hasDaylightPlanetMarker && <p className="daylight-marker-note">{language === 'sv' ? 'Beräknad dagsposition · synlighet varierar' : 'Calculated daytime position · visibility varies'}</p>}
-    {markers.map(({object, point, altitude}) => <button key={object.id} className={`sky-object ${selectedId === object.id ? 'is-selected' : ''}`} aria-pressed={selectedId === object.id} style={{left: point.x, top: point.y}} onClick={() => onSelect(object)} title={`${label(object)} · ${altitude.toFixed(1)}°`} aria-label={`${label(object)}, altitude ${altitude.toFixed(1)}°`}><span className="sky-point" style={{width: object.size + 4, height: object.size + 4, background: object.color, boxShadow: `0 0 16px ${object.color}`}}/><span>{label(object)}</span></button>)}
-    {sunPoint && <span className="sky-object sky-sun" style={{left: sunPoint.x, top: sunPoint.y}} role="img" aria-label={`${sunLabel}, altitude ${sun.altitude.toFixed(1)}°`}><span className="sky-point"/><span>{sunLabel}</span></span>}
+    {markers.map(({object, point, altitude}) => <button key={object.id} className={`sky-object ${selectedId === object.id ? 'is-selected' : ''}`} aria-pressed={selectedId === object.id} style={{left: point.x, top: point.y}} onClick={() => onSelect(object)} title={`${label(object)} · ${altitude.toLocaleString(language === 'sv' ? 'sv-SE' : 'en-GB', {minimumFractionDigits: 1, maximumFractionDigits: 1})}°`} aria-label={`${label(object)}, ${language === 'sv' ? 'höjd' : 'altitude'} ${altitude.toLocaleString(language === 'sv' ? 'sv-SE' : 'en-GB', {minimumFractionDigits: 1, maximumFractionDigits: 1})}°`}><span className="sky-point" style={{width: object.size + 4, height: object.size + 4, background: object.color, boxShadow: `0 0 16px ${object.color}`}}/><span>{label(object)}</span></button>)}
+    {sunPoint && <span className="sky-object sky-sun" style={{left: sunPoint.x, top: sunPoint.y}} role="img" aria-label={`${sunLabel}, ${language === 'sv' ? 'höjd' : 'altitude'} ${sun.altitude.toLocaleString(language === 'sv' ? 'sv-SE' : 'en-GB', {minimumFractionDigits: 1, maximumFractionDigits: 1})}°`}><span className="sky-point"/><span>{sunLabel}</span></span>}
   </div>;
 }

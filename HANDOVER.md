@@ -1,4 +1,13 @@
-# Noxari — överlämning och arbetsläge
+## Senast genomförda körning — B-008 + B-009 (2026-11-05)
+
+Rekommenderad modell **Luna 6 High**; användaren godkände med ”Kör”. B-008 är rättad: platsväljaren kan nu sättas till Egna koordinater utan att den gällande platsen ändras direkt. Koordinater/tidszon tillämpas först när användaren trycker Använd och valideringen passerar. Ogiltig inmatning lämnar tidigare plats aktiv. Stadförval och GPS uppdaterar val/fält, och platslagringen är oförändrad.
+
+B-009 är rättad: objekttyperna har svenska kategorinamn, tillgänglighetsnamn och himmelstext har lokaliserats, Guided Finder heter Objektguide i svenska gränssnittet och inställningen heter Gränssnittsspråk. Beräknade appvärden använder valt språkformat. Engelska gränssnittet och sparat språk/delningslänkar bevaras; stjärnbilders vetenskapliga namn, egennamn, katalog-ID, källor och licensnamn lämnas som korrekta internationella namn. Webbläsarens native datum/tidskontroll följer fortsatt webbläsarens/operativsystemets språk.
+
+**Verifiering:** `npm run build` passerar (TypeScript + huvudapp + GPU-labb). `scripts/verify_functional_flows.mjs`: 15/15 browserfall passerar på 390×844, 1280×800 och 568×320. Separat riktat B-008/B-009-prov passerar på mobil 390×844 och desktop 1280×800: custom-val ändrar inte aktiv plats före Använd, giltiga koordinater tillämpas och sparas över omladdning; svenska kategorier/gränssnittstext och växling tillbaka till engelska fungerar. Chromium använder simulerade datum/GPS/delning; inga riktiga telefoner eller sensorer verifierades. Huvud-/labb-buildens publicering verifieras nedan när GitHub Actions har slutförts.
+
+B-007 förblir öppen och observeras enligt användarens önskemål. B-001 riktningsdrift och B-004 prestanda är fortsatt pausade. F-009:s fysiska prov återstår. Nästa utvecklingssteg utanför detta B-008/B-009-paket kräver modellrekommendation och nytt ”Kör”.
+
 
 ## F-009 — godkänd funktionsgenomgång klar, mobilprov återstår (2026-11-04)
 
@@ -35,7 +44,7 @@ Användaren gav **”Kör”** efter rekommendationen **Sol High** för kontroll
 - Nästa användaråtgärd: stoppa Follow, välj **More → Performance report → Start controlled comparison**, låt de fyra körningarna bli klara utan beröring, välj **View report → Save comparison report**, bifoga `noxari-surface-comparison.json` i chatten. Avbrutet prov sparas med orsak och `valid:false`.
 - Rapporten ska analyseras innan vidare optimering väljs. Ingen ny körning eller modellväxling är godkänd.
 
-Senast uppdaterad: **2026-11-04**, Europe/Stockholm.
+Senast uppdaterad: **2026-11-05**, Europe/Stockholm.
 
 Läs denna fil vid en ny chatt tillsammans med `AGENTS.md`, `README.md` och `BACKLOG.md`. Den sammanfattar användarens beslut och aktuellt läge; projektkoden och Git-historiken behövs också. Kontrollera alltid aktuell branch, HEAD och arbetskatalogens ändringar innan arbetet fortsätter. Uppgifterna nedan är en ögonblicksbild, inte en ersättning för verifiering.
 

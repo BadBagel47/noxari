@@ -62,3 +62,13 @@ node scripts/verify_functional_flows.mjs
 ```
 
 `ONLY=bookmark` respektive `ONLY=GPS` avgränsar de två omkörda grupperna. `QA_OUTPUT` väljer JSON-fil; standard är `/tmp/noxari-f009-results.json`. Befintliga syntetiska följningsprov: samma miljövariabler med `node scripts/verify_test_defaults.mjs`. Datum/plats/sensorer/GPS/delning i browserproven är fixtures/stubbar. Skriptet gör inga riktiga delningar.
+
+## Inkommen mobilåterkoppling, 2026-11-05
+
+Punkt 5: användaren såg ett fel på första Follow-starten, uppmanades att försöka igen, och andra försöket fungerade. Feltext/väntetid saknas; klassificera som kvarstående B-007, inte fastställd behörighets- eller no-data-orsak och inte bekräftat fel i panel/pinch/svep/landskap. Övriga moment antas inte godkända. Vid nästa misslyckande: skärmbild och befintlig riktningsrapport före ett nytt Follow-försök (More → Phone direction → Last direction check → Download direction report). Ny start ändrar startdiagnostiken och en lyckad start nollställer sensorloggen; rapport från andra försöket beskriver därför inte säkert det första. Ingen ny appändring eller utvecklingskörning är godkänd av återkopplingen.
+
+Fortsatt återkoppling 2026-11-05: följningen verkar fungera en stund när den väl kommit igång. Användaren vill observera mer och arbeta med något annat under tiden. B-007 är fortsatt öppen; ingen säker långtids-/precision-/förstastartsbekräftelse. B-008 rättades i den godkända körningen 2026-11-05; välj Egna koordinater, redigera och tryck Använd för att tillämpa giltiga värden. Se senaste B-008/B-009-resultatet i HANDOVER.md.
+
+## Språkåterkoppling 2026-11-05 — B-009
+
+Användaren såg blandad svenska/engelska på datorn; mobilens engelska läge ser korrekt ut. Kodgranskning bekräftar ofullständig översättning av de flesta objekttyperna, Guided Finder-knapptext och vissa hårdkodade tillgänglighetsnamn. Befintligt F-009-svenskprov verifierar språkval/persistens och ett lokaliserat delningsflöde, inte att varje text är översatt. B-009 registreras separat; SV/EN i både mobil och desktop behöver ingå i rättningens verifiering. B-009 rättades i den godkända körningen 2026-11-05. Riktade Chromium-kontroller för språk/kategorier och B-008 passerar i 390×844 och 1280×800; se HANDOVER.md. Ingen fysisk telefonkontroll ingick.

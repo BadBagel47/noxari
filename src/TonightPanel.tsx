@@ -17,12 +17,12 @@ export function SuggestionSummary({suggestion, language, timeZone}: {suggestion:
   const time = clockTime(best.sample.time, timeZone);
   const range = suggestion.start!.getTime() === suggestion.end!.getTime() ? time : `${clockTime(suggestion.start!, timeZone)}–${clockTime(suggestion.end!, timeZone)}`;
   return <div className="suggestion-summary">
-    <strong>{sv ? 'Föreslagen tid' : 'Suggested time'} ≈ {time} · {Math.round(best.sample.altitude)}°</strong>
+    <strong>{sv ? 'Föreslagen tid' : 'Suggested time'} ≈ {time} · {Math.round(best.sample.altitude).toLocaleString(sv ? 'sv-SE' : 'en-GB')}°</strong>
     <span>{sv ? 'Bra intervall' : 'Favorable range'} ≈ {range}</span>
-    <span>{sv ? 'Solens höjd' : 'Sun altitude'} {best.sample.sunAltitude.toFixed(0)}°
+    <span>{sv ? 'Solens höjd' : 'Sun altitude'} {best.sample.sunAltitude.toLocaleString(sv ? 'sv-SE' : 'en-GB', {maximumFractionDigits: 0})}°
       {isDiffuse(suggestion.object) && (best.sample.moonAltitude <= 0
         ? (sv ? ' · Månen under horisonten' : ' · Moon below horizon')
-        : ` · ${sv ? 'Månen' : 'Moon'} ${Math.round(best.sample.moonIllumination * 100)}% · ${Math.round(moonSeparation(best.sample))}° ${sv ? 'från objektet' : 'from target'}`)}</span>
+        : ` · ${sv ? 'Månen' : 'Moon'} ${Math.round(best.sample.moonIllumination * 100).toLocaleString(sv ? 'sv-SE' : 'en-GB')}% · ${Math.round(moonSeparation(best.sample)).toLocaleString(sv ? 'sv-SE' : 'en-GB')}° ${sv ? 'från objektet' : 'from target'}`)}</span>
     {best.moonPenalty > .15 && <span className="moon-impact">{sv ? 'Månljus sänker prioriteten' : 'Moonlight lowers priority'}</span>}
   </div>;
 }
