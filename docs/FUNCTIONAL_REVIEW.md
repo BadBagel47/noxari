@@ -72,3 +72,6 @@ Fortsatt återkoppling 2026-11-05: följningen verkar fungera en stund när den 
 ## Språkåterkoppling 2026-11-05 — B-009
 
 Användaren såg blandad svenska/engelska på datorn; mobilens engelska läge ser korrekt ut. Kodgranskning bekräftar ofullständig översättning av de flesta objekttyperna, Guided Finder-knapptext och vissa hårdkodade tillgänglighetsnamn. Befintligt F-009-svenskprov verifierar språkval/persistens och ett lokaliserat delningsflöde, inte att varje text är översatt. B-009 registreras separat; SV/EN i både mobil och desktop behöver ingå i rättningens verifiering. B-009 rättades i den godkända körningen 2026-11-05. Riktade Chromium-kontroller för språk/kategorier och B-008 passerar i 390×844 och 1280×800; se HANDOVER.md. Ingen fysisk telefonkontroll ingick.
+
+
+Publiceringsuppföljning för B-008/B-009: appcommit `3ec70a11df55610a4222f78da756cfa30789f898`; GitHub Actions [41938378784](https://github.com/BadBagel47/noxari/actions/runs/41938378784) passerade tester, bygge och Pages. Publicerade huvud-/labb-assets matchade rent lokalt bygge över verifierad TLS. Se `HANDOVER.md` för sammanfattning och länk.
