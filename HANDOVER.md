@@ -4,6 +4,8 @@ Användaren godkände rättningen med ”Kör” efter rekommendationen **Sol Hi
 
 **Verifiering:** 184 tester passerar, inklusive regressionen där 0,4 px tidigare gav 64 px hopp, kontinuerligt svep/vändning/återinträde, gränsoscillation, nykomlingars prioritet och begränsat minne. Komplett TypeScript-/huvud-/labbbygge passerar. `scripts/verify_label_stability.mjs` passerar sex Chromium-fall (390×844, 1280×800, 568×320 × EN/SV) med verkliga drag-/CDP-pinchgester: inga platsbyten för redan placerade namn, ingen upprepad synlighetsväxling vid subpixeloscillation (uppmätt 0 i alla sex), inga aktiva etikettöverlapp/klipp under de provade banorna, oförskjutna markörcentrum och fungerande etikettval. CSS-toning/reduced-motion verifierade separat. Befintligt funktionstest passerar 15/15 flöden. Rapport: `docs/measurements/label-stability.json`. Detta är browser-/fixturebevis; användarens fysiska svepupplevelse återstår.
 
+Appkod `54f97dc8ed281204caba602cfbf9440c07d169cb` är publicerad; [Actions 42295572029](https://github.com/BadBagel47/noxari/actions/runs/42295572029) passerade 184 tester, huvud-/labbbygge och Pages. Publicerad huvud-/labb-HTML/JS/CSS matchade rent lokalt bygge över verifierad TLS. App: https://badbagel47.github.io/noxari/?v=54f97dc. Senare dokumentationscommit ändrar byggreferensen men inte etikettkoden.
+
 B-003 är implementerad och inväntar mobilåterkoppling; F-008:s dynamiska browseruppföljning är genomförd. B-001/B-004 fortsatt pausade och B-007 observeras. Ingen följande utvecklingskörning är godkänd.
 
 ## Senaste återkoppling — B-003 återöppnad, etiketter hoppar under svep
