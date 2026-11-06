@@ -87,3 +87,6 @@ More → Performance report → Start controlled comparison compares exact/retai
 ## F-009 functional review
 
 [Results and five-step physical phone follow-up](FUNCTIONAL_REVIEW.md) cover the first bounded review. Optional `scripts/verify_functional_flows.mjs` checks search/selection, Finder, real CDP pinch in both views, saved-object persistence and stubbed object/list sharing, time/location/GPS and Swedish settings across mobile/desktop/landscape viewports. Supply `APP_URL`, `PLAYWRIGHT_MODULE`, optionally `CHROMIUM_PATH`, `ONLY` and `QA_OUTPUT`. Real native sharing/permissions/sensor accuracy remain physical checks. B-008 records the unresponsive Custom coordinates dropdown choice; no app fix was made in this review.
+
+
+B-003 temporal label regression: `scripts/verify_label_stability.mjs` uses the same external `PLAYWRIGHT_MODULE` / `APP_URL` / `CHROMIUM_PATH` setup as the functional flow script. Default URL is port 58982; `QA_OUTPUT` defaults to `/tmp/noxari-label-stability.json`. It checks real mouse drag/reversal/subpixel oscillation and CDP map pinch in six EN/SV viewport combinations, slot continuity, visibility toggles, active-label rectangles, marker anchoring and label selection. No sensor/GPS requests. Saved synthetic results: `docs/measurements/label-stability.json`.

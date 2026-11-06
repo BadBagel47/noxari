@@ -96,8 +96,9 @@ html,body,#root{width:100%;height:100%;overflow:hidden}
 .sky-app .finder-target-ring span{font-size:13px;border-radius:12px;padding:3px 7px}
 .sky-workspace button.sky-object,.sky-workspace .sky-sun{display:block;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;gap:0;overflow:visible;background:transparent;border:0;outline:none;box-shadow:none;-webkit-tap-highlight-color:transparent}
 .sky-workspace .sky-object>.sky-point{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
-.sky-workspace .sky-object>.sky-object-label{position:absolute;transform:translate(-50%,-50%);width:max-content;max-width:155px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#e0ecf8;text-shadow:0 1px 4px #000,0 0 8px #000;line-height:1.3;text-align:center}
-.sky-workspace .sky-object>.sky-object-label[hidden]{display:none}
+.sky-workspace .sky-object>.sky-object-label{position:absolute;transform:translate(-50%,-50%);width:max-content;max-width:155px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#e0ecf8;text-shadow:0 1px 4px #000,0 0 8px #000;line-height:1.3;text-align:center;font-size:13px;opacity:1;transition:opacity 120ms ease}
+.sky-workspace .sky-object>.sky-object-label[data-visible="false"]{opacity:0;pointer-events:none}
+@media(prefers-reduced-motion:reduce){.sky-workspace .sky-object>.sky-object-label{transition:none}}
 .sky-workspace button.sky-object:active .sky-point,.sky-workspace button.sky-object:focus-visible .sky-point{outline:2px solid #c9e8ff;outline-offset:5px}
 @media(hover:hover){.sky-workspace button.sky-object:hover .sky-point{outline:1px solid #c9e8ff;outline-offset:5px}}
 @media(min-width:761px),(orientation:landscape) and (min-width:568px){.quick-tools button{width:68px}}

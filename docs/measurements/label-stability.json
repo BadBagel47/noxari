@@ -1,0 +1,72 @@
+{
+  "results": [
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "language": "en",
+      "pass": true,
+      "horizonTracked": 10,
+      "mapTracked": 29,
+      "maxMicroVisibilityChanges": 0
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "language": "sv",
+      "pass": true,
+      "horizonTracked": 10,
+      "mapTracked": 30,
+      "maxMicroVisibilityChanges": 0
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "language": "en",
+      "pass": true,
+      "horizonTracked": 6,
+      "mapTracked": 44,
+      "maxMicroVisibilityChanges": 0
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "language": "sv",
+      "pass": true,
+      "horizonTracked": 6,
+      "mapTracked": 44,
+      "maxMicroVisibilityChanges": 0
+    },
+    {
+      "viewport": {
+        "width": 568,
+        "height": 320
+      },
+      "language": "en",
+      "pass": true,
+      "horizonTracked": 5,
+      "mapTracked": 21,
+      "maxMicroVisibilityChanges": 0
+    },
+    {
+      "viewport": {
+        "width": 568,
+        "height": 320
+      },
+      "language": "sv",
+      "pass": true,
+      "horizonTracked": 5,
+      "mapTracked": 22,
+      "maxMicroVisibilityChanges": 0
+    }
+  ],
+  "errors": [],
+  "limits": "Chromium Canvas, fixed synthetic night, scripted gestures; no physical-device accuracy or smoothness claim."
+}

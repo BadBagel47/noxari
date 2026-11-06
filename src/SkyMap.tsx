@@ -10,7 +10,8 @@ import {objects, type SpaceObject} from './data';
 import {candidateObjects} from './candidateObjects';
 import {horizontalStarCatalog, projectHorizontal} from './skyProjection';
 import {stellarBrightness} from './skyVisibility';
-import {layoutObjectLabels, skyOverlayExclusions} from './objectLabels';
+import {skyOverlayExclusions} from './objectLabels';
+import {useObjectLabels} from './useObjectLabels';
 
 type Props = {
   selectedId?: string;
@@ -67,10 +68,10 @@ export function SkyMap({selectedId, time, location, label, language, sunLabel, o
   const hasDaylightPlanetMarker = sun.altitude >= 0 && markers.some(marker => marker.object.kind === 'Planet');
   const sunPoint = size.width && size.height ? projectHorizontal(sun, size.width, size.height, zoom) : null;
   const labelExclusions = useMemo(() => skyOverlayExclusions(container.current), [size.width, size.height, selectedId, language]);
-  const labelPlacements = useMemo(() => layoutObjectLabels([
+  const labelPlacements = useObjectLabels([
     ...markers.map(({object, point}) => ({id: object.id, text: label(object), x: point.x, y: point.y, priority: object.id === selectedId ? 1000 : object.kind === 'Moon' ? 800 : object.kind === 'Planet' ? 700 : 300})),
     ...(sunPoint ? [{id: 'sun', text: sunLabel, x: sunPoint.x, y: sunPoint.y, priority: 900}] : []),
-  ], size.width, size.height, labelExclusions), [markers, size.width, size.height, label, selectedId, sunPoint, sunLabel, labelExclusions]);
+  ], size.width, size.height, labelExclusions, language);
 
   useEffect(() => {
     if (!container.current) return;
@@ -196,7 +197,7 @@ export function SkyMap({selectedId, time, location, label, language, sunLabel, o
   return <div className="sky-canvas sky-map" ref={container} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={finishPointer} onPointerCancel={finishPointer} onLostPointerCapture={finishPointer} onClickCapture={event => { if (suppressClick.current && event.detail !== 0) { event.preventDefault(); event.stopPropagation(); } }}>
     <canvas ref={canvas} aria-label={language === 'sv' ? 'Beräknad zenitcentrerad himmel med egenrörelse och valbara stjärnbildsfigurer och IAU-gränser; horisonten är den yttre cirkeln. Nyp för att zooma.' : 'Calculated zenith-centered sky with proper motion and optional constellation figures and IAU boundaries; horizon is the outer circle. Pinch to zoom.'} role="img"/>
     {hasDaylightPlanetMarker && <p className="daylight-marker-note">{language === 'sv' ? 'Beräknad dagsposition · synlighet varierar' : 'Calculated daytime position · visibility varies'}</p>}
-    {markers.map(({object, point, altitude}) => {const placement = labelPlacements.get(object.id)!;return <button key={object.id} className={`sky-object ${selectedId === object.id ? 'is-selected' : ''}`} aria-pressed={selectedId === object.id} style={{left: point.x, top: point.y}} onClick={() => onSelect(object)} title={`${label(object)} · ${altitude.toLocaleString(language === 'sv' ? 'sv-SE' : 'en-GB', {minimumFractionDigits: 1, maximumFractionDigits: 1})}°`} aria-label={`${label(object)}, ${language === 'sv' ? 'höjd' : 'altitude'} ${altitude.toLocaleString(language === 'sv' ? 'sv-SE' : 'en-GB', {minimumFractionDigits: 1, maximumFractionDigits: 1})}°`}><span className="sky-point" style={{width: object.size + 4, height: object.size + 4, background: object.color, boxShadow: `0 0 16px ${object.color}`}}/><span className="sky-object-label" aria-hidden="true" hidden={!placement.visible} style={{left: `calc(50% + ${placement.dx}px)`, top: `calc(50% + ${placement.dy}px)`}}>{label(object)}</span></button>;})}
-    {sunPoint && <span className="sky-object sky-sun" style={{left: sunPoint.x, top: sunPoint.y}} role="img" aria-label={`${sunLabel}, ${language === 'sv' ? 'höjd' : 'altitude'} ${sun.altitude.toLocaleString(language === 'sv' ? 'sv-SE' : 'en-GB', {minimumFractionDigits: 1, maximumFractionDigits: 1})}°`}><span className="sky-point"/><span className="sky-object-label" aria-hidden="true" hidden={!labelPlacements.get('sun')?.visible} style={{left: `calc(50% + ${labelPlacements.get('sun')?.dx ?? 0}px)`, top: `calc(50% + ${labelPlacements.get('sun')?.dy ?? 32}px)`}}>{sunLabel}</span></span>}
+    {markers.map(({object, point, altitude}) => {const placement = labelPlacements.get(object.id)!;return <button key={object.id} className={`sky-object ${selectedId === object.id ? 'is-selected' : ''}`} aria-pressed={selectedId === object.id} style={{left: point.x, top: point.y}} onClick={() => onSelect(object)} title={`${label(object)} · ${altitude.toLocaleString(language === 'sv' ? 'sv-SE' : 'en-GB', {minimumFractionDigits: 1, maximumFractionDigits: 1})}°`} aria-label={`${label(object)}, ${language === 'sv' ? 'höjd' : 'altitude'} ${altitude.toLocaleString(language === 'sv' ? 'sv-SE' : 'en-GB', {minimumFractionDigits: 1, maximumFractionDigits: 1})}°`}><span className="sky-point" style={{width: object.size + 4, height: object.size + 4, background: object.color, boxShadow: `0 0 16px ${object.color}`}}/><span className="sky-object-label" aria-hidden="true" data-visible={placement.visible} style={{left: `calc(50% + ${placement.dx}px)`, top: `calc(50% + ${placement.dy}px)`}}>{label(object)}</span></button>;})}
+    {sunPoint && <span className="sky-object sky-sun" style={{left: sunPoint.x, top: sunPoint.y}} role="img" aria-label={`${sunLabel}, ${language === 'sv' ? 'höjd' : 'altitude'} ${sun.altitude.toLocaleString(language === 'sv' ? 'sv-SE' : 'en-GB', {minimumFractionDigits: 1, maximumFractionDigits: 1})}°`}><span className="sky-point"/><span className="sky-object-label" aria-hidden="true" data-visible={labelPlacements.get('sun')?.visible ?? false} style={{left: `calc(50% + ${labelPlacements.get('sun')?.dx ?? 0}px)`, top: `calc(50% + ${labelPlacements.get('sun')?.dy ?? 32}px)`}}>{sunLabel}</span></span>}
   </div>;
 }
