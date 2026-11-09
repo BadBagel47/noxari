@@ -5,7 +5,8 @@ import {createServer} from 'vite';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
-const siteOrigin = 'https://badbagel47.github.io';
+const siteOrigin = process.env.NOXARI_SITE_ORIGIN || 'https://badbagel47.github.io';
+const basePath = process.env.NOXARI_BASE_PATH || '/noxari/';
 
 function jpegDimensions(bytes) {
   if (bytes[0] !== 0xff || bytes[1] !== 0xd8) throw new Error('Share image is not a JPEG');
@@ -51,7 +52,7 @@ try {
 
   const records = buildSharePreviewRecords(objects, candidateObjects, images);
   for (const record of records) {
-    const html = createSharePreviewHtml(record, siteOrigin);
+    const html = createSharePreviewHtml(record, siteOrigin, basePath);
     const output = path.join(dist, 'share', record.language, record.object.id, 'index.html');
     await mkdir(path.dirname(output), {recursive: true});
     await writeFile(output, html);

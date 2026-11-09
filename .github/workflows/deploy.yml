@@ -30,6 +30,9 @@ jobs:
       - name: Test astronomy calculations
         run: npm test
       - name: Build site
+        env:
+          NOXARI_BASE_PATH: ${{ vars.NOXARI_BASE_PATH || '/noxari/' }}
+          NOXARI_SITE_ORIGIN: ${{ vars.NOXARI_SITE_ORIGIN || 'https://badbagel47.github.io' }}
         run: npm run build
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

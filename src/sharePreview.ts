@@ -49,12 +49,17 @@ export function resolveShareLanguage(queryLanguage: string|null, savedLanguage: 
   return savedLanguage === 'sv' ? 'sv' : 'en';
 }
 
-export function sharePreviewPath(language: ShareLanguage, id: string) {
-  return `/noxari/share/${language}/${validId(id)}/`;
+const normalizeBasePath = (basePath: string) => {
+  if (!basePath.startsWith('/') || !basePath.endsWith('/')) throw new Error(`Invalid site base path: ${basePath}`);
+  return basePath;
+};
+
+export function sharePreviewPath(language: ShareLanguage, id: string, basePath = '/noxari/') {
+  return `${normalizeBasePath(basePath)}share/${language}/${validId(id)}/`;
 }
 
-export function shareAppPath(language: ShareLanguage, id: string) {
-  return `/noxari/?object=${encodeURIComponent(validId(id))}&lang=${language}`;
+export function shareAppPath(language: ShareLanguage, id: string, basePath = '/noxari/') {
+  return `${normalizeBasePath(basePath)}?object=${encodeURIComponent(validId(id))}&lang=${language}`;
 }
 
 export function buildSharePreviewRecords<T extends ShareableObject>(objects: T[], candidates: T[], images: Map<string, SharePreviewImage>) {
@@ -65,16 +70,17 @@ export function buildSharePreviewRecords<T extends ShareableObject>(objects: T[]
   })));
 }
 
-export function createSharePreviewHtml(record: SharePreviewRecord, siteOrigin: string) {
+export function createSharePreviewHtml(record: SharePreviewRecord, siteOrigin: string, basePath = '/noxari/') {
   const {object, language, image} = record;
+  const siteBasePath = normalizeBasePath(basePath);
   const name = language === 'sv' ? object.sv : object.en;
   const description = conciseDescription(language === 'sv' ? object.descriptionSv : object.description);
   const title = `${name} — Noxari`;
-  const canonical = new URL(sharePreviewPath(language, object.id), siteOrigin).toString();
-  const appPath = shareAppPath(language, object.id);
+  const canonical = new URL(sharePreviewPath(language, object.id, siteBasePath), siteOrigin).toString();
+  const appPath = shareAppPath(language, object.id, siteBasePath);
   const appUrl = new URL(appPath, siteOrigin).toString();
   const langLocale = language === 'sv' ? 'sv_SE' : 'en_US';
-  const imageUrl = image ? new URL(`/noxari/images/objects/${image.file}`, siteOrigin).toString() : null;
+  const imageUrl = image ? new URL(`${siteBasePath}images/objects/${image.file}`, siteOrigin).toString() : null;
   const cardType = imageUrl ? 'summary_large_image' : 'summary';
   const imageTags = image && imageUrl ? `
   <meta property="og:image" content="${escapeHtml(imageUrl)}">
@@ -103,8 +109,8 @@ export function createSharePreviewHtml(record: SharePreviewRecord, siteOrigin: s
   <meta name="theme-color" content="#07101f">
   <title>${escapeHtml(title)}</title>
   <link rel="canonical" href="${escapeHtml(canonical)}">
-  <link rel="alternate" hreflang="en" href="${escapeHtml(new URL(sharePreviewPath('en', object.id), siteOrigin).toString())}">
-  <link rel="alternate" hreflang="sv" href="${escapeHtml(new URL(sharePreviewPath('sv', object.id), siteOrigin).toString())}">
+  <link rel="alternate" hreflang="en" href="${escapeHtml(new URL(sharePreviewPath('en', object.id, siteBasePath), siteOrigin).toString())}">
+  <link rel="alternate" hreflang="sv" href="${escapeHtml(new URL(sharePreviewPath('sv', object.id, siteBasePath), siteOrigin).toString())}">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="${langLocale}">
   <meta property="og:title" content="${escapeHtml(title)}">

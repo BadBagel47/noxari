@@ -1,5 +1,11 @@
 # Noxari — funktioner och buggar
 
+## F-023 — egen domän, förberedd
+
+Mål: `https://noxari.trythis.one/`; Cloudflare hanterar DNS. Behåll GitHub Pages. Fallbackbygget fortsätter använda `/noxari/` och den nuvarande `badbagel47.github.io`-adressen. Förberedelsen gör basväg och canonical-origin konfigurerbara via `NOXARI_BASE_PATH` och `NOXARI_SITE_ORIGIN`; GitHub Actions tar värdena från samma repo variables. Delningssidor, bilder och GPU-labbet följer dem. Båda byggena passerade TypeScript/produktionsbygge: gammal bas samt `/` + `https://noxari.trythis.one`; 256 engelska/svenska delningssidor byggdes och kontrollerades för canonical, app-/bildadresser och labbresurser. Inga tester kördes i denna körning. Ingen Pages-inställning, DNS-post eller publicering ändrades.
+
+DNS-over-HTTPS visar CNAME `noxari.trythis.one` → `badbagel47.github.io`; DNS-svaret avslöjar inte Cloudflares proxy-läge. Nya domänen svarar ännu HTTP 404 från GitHub Pages. Läsning av Pages-konfigurationen visar `cname: null`, medan den gamla adressen svarar 200. GitHub API avvisade uppdatering av Pages-CNAME och Actions variables (403 `Resource not accessible by integration`), så ingen ändring eller rotpublicering genomfördes. Blockerande manuella GitHub-inställningar: Settings → Pages → Custom domain `noxari.trythis.one`; Settings → Secrets and variables → Actions → Variables: `NOXARI_BASE_PATH=/`, `NOXARI_SITE_ORIGIN=https://noxari.trythis.one`. När användaren meddelar att dessa är sparade fortsätter den redan godkända aktiveringen med publicering och kontroll. Före bytet: exportera/öppna eventuell sparad objektlista och importera den på nya origin; browserns sparade objekt, plats och språk migrerar inte automatiskt. B-001/B-004 pausade, B-007 observeras, B-003 inväntar fysisk återkoppling.
+
 ## Senaste godkända körning — B-003, stabila etiketter under rörelse
 
 Användaren godkände rättningen med ”Kör” efter rekommendationen **Sol High**. Genomfört: stabil prioritet/ID-ordning, företräde för redan synliga etiketter inom samma prioritetsklass och en bestående plats per objektnamn. Etiketten byter inte sida under svep/zoom eller tillfällig utpassage. Den döljs om dess plats blir blockerad; återvisning kräver ytterligare 8 px marginal. Omplacering mellan kontexter sker vid storleks-/språkbyte. Minnet publiceras först i Reacts layout-effekt efter commit och behåller högst 256 ID:n; inga extra JS-timers eller RAF tillkommer. Synlighetsbyten tonas med CSS i 120 ms, avstängt vid reducerad rörelse. Etiketttext anges uttryckligen som 13 px. Markörernas beräknade positioner, tryckyta, namn/val och direkt kameraföljning bevaras.
@@ -179,6 +185,8 @@ Användaren har **pausat B-001** och vill prioritera att färdigställa övrig f
 
 | **F-021** | Automatisk kvällsförhandsvisning under tester | **Klar — tillfällig teststandard** | Startar med befintlig mörkaste-lokala-natt-förhandsvisning som tillfällig teststandard. Behåll tydlig Kvällshimmel-märkning, Nu, säsong/polardag och manuella observationer. Ingen automatisk GPS/följning. Ändrar tidigare standard Nu/ingen automatisk förhandsvisning under testperioden. |
 | **F-022** | Svep tar över från telefonföljning | **Klar — gester/köprov verifierade** | Vid faktiskt enfingersdrag över 8 px, stoppa följning, avbryt köad sensorpublicering och använd samma svep direkt från senaste vy. Tapp/markörval och panel/sökning stoppar inte; pinch behåller följning. Testa både gester och samtidig sensor-/RAF-kö så första manuella rörelsen inte tappas eller skrivs över. Ändrar tidigare Stoppa-först-policy för svep. |
+
+| **F-023** | Publicering på noxari.trythis.one | **Förberedd — väntar på GitHub-inställningar** | CNAME i Cloudflare är korrekt; GitHub Pages custom domain saknas och API-integrationen saknar skrivbehörighet (403). Användaren behöver spara Pages custom domain samt två Actions variables enligt status överst. Därefter fortsätter redan godkänd publicering av rotbygget och HTTPS-/länkkontroll. Exportera/importera sparad objektlista före origin-byte. |
 
 ## Genomförda delar
 

@@ -21,6 +21,8 @@ npm test
 npm run preview
 ```
 
+GitHub Pages builds use `/noxari/` and `https://badbagel47.github.io` by default. For a custom-domain build, set `NOXARI_BASE_PATH=/` and `NOXARI_SITE_ORIGIN=https://noxari.trythis.one`; the main app, object-share previews, images and GPU lab use the same settings. GitHub Actions reads the matching repository variables and falls back to the current GitHub Pages address when they are unset. See [HANDOVER.md](HANDOVER.md) for the staged domain activation and saved-list notes.
+
 Development and test entry points, plus the limits of browser and sensor checks, are collected in [Development diagnostics](docs/DEVELOPMENT_DIAGNOSTICS.md). More → Performance report records a short local ordinary-app session and downloads `noxari-performance.json` for chat review; see [measurement boundaries and privacy](docs/PERFORMANCE_REPORT.md). It is opt-in and does not enable GPS or phone following. The same panel offers a [controlled four-pass GPU buffer comparison](docs/SURFACE_COMPARISON.md) with automatic motion and a separate local report. A separate [GPU rendering prototype](docs/GPU_PROTOTYPE.md) is available at `/noxari/labs/gpu-sky/` after a production build; it compares the same shared layers now used by the ordinary horizon view. See [GPU rendering](docs/GPU_RENDERING.md) for fallback and verification limits.
 
 To test on a phone on the same Wi-Fi network, use the `Network` URL printed by Vite (your firewall may need to allow it).
