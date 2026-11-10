@@ -84,6 +84,7 @@ Läs denna fil vid en ny chatt tillsammans med `AGENTS.md`, `README.md` och `BAC
 ## Arbetssätt som användaren har bestämt
 
 - Kommunicera på svenska, kort och konkret.
+- Håll svaren korta utan att hoppa över viktig information. Undvik tekniska detaljer som användaren inte behöver veta (t.ex. hashar, mätvärden, filnamn); lägg sådant i dokumentationen i stället.
 - Använd permanenta **F-###** för funktioner och **B-###** för buggar från och med 2026-10-31. Se `BACKLOG.md` för återstående arbete och status; ID:n återanvänds eller numreras inte om. Ange ID:n när en körning avgränsas och när arbetet redovisas.
 - Enkel användning är användarens övergripande designprincip för alla funktioner (**F-012**). Senaste önskemål finns under **F-013–F-015** och **B-004** i backloggen. Senaste prioritet **B-005** är att aktiv telefonföljning fortsätter genom sökning/paneler tills användaren trycker Stoppa. B-005 godkändes därefter tillsammans med F-014 och F-015 genom ”Kör”.
 - **Meddela rekommenderad ChatGPT-modell innan varje nytt utvecklingssteg.** Användaren vill spara veckokvoten; använd **GPT-6 Luna med hög resonemangsnivå** för tydligt avgränsade gränssnitts- och interaktionssteg. Föreslå Sol med hög resonemangsnivå för komplex riktning/sensorfelsökning. En rekommendation betyder inte att modellen faktiskt har bytts.
