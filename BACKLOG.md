@@ -2,6 +2,8 @@
 
 ## F-023 — egen domän, publicerad
 
+- [ ] Slå på **Enforce HTTPS** i GitHub repo Settings → Pages och verifiera därefter att HTTP-adressen styr om till HTTPS.
+
 Cloudflare DNS CNAME är `noxari.trythis.one` → `badbagel47.github.io`. GitHub Pages custom domain och Actions repo variables är nu konfigurerade; behåll GitHub Pages som host. Actions bygger appen/labbet på rotbasen via `NOXARI_BASE_PATH=/` och `NOXARI_SITE_ORIGIN=https://noxari.trythis.one`. App, objektbilder, 256 EN/SV-preview-sidor, legacy `?object=`/`?list=`-flöden och GPU-labb använder samma domän. Publicerad commit `e7f160f7ba3ea659ff4ed4c170d0aee16e4bd6b9`, Actions run `42556072397` lyckades med tester och deploy. Nya domänens huvud-/labb-HTML, JS/CSS och M42 EN/SV previewer matchar rent lokalt rotbygge byte för byte; M42-bilden och alla kontrollerade URL:er svarar 200.
 
 Återstår: GitHub API rapporterar `https_enforced: false`. `https://noxari.trythis.one/` fungerar med giltig HTTPS, men gamla Pages-adressen omdirigerar ännu till `http://noxari.trythis.one/`. Slå på **Enforce HTTPS** i GitHub repo Settings → Pages och meddela när det är sparat, så verifieras HTTP→HTTPS-redirecten och certifikatet. Cloudflare proxyläge kunde inte avgöras från DNS-svaret. Origin-byte flyttar inte localStorage: exportera/öppna eventuell sparad lista och importera den, och välj om plats/språk på nya origin. B-001/B-004 pausade, B-007 observeras, B-003 inväntar fysisk återkoppling.
