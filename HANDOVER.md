@@ -1,3 +1,7 @@
+## F-046 och F-047 registrerade (2026-11-12)
+
+F-046: användarens önskemål om ett mer filmiskt demoläge (växande objekt, var man ska titta, svepande bågar, ständig långsam rörelse, mjuka närliggande övergångar). F-047: Telefonriktning döljs på dator och flyttas till Prototyp · felsökning på mobil. Båda inväntar ”Kör”.
+
 ## Rättning F-041 — avskurna teckningar vid horisonten (2026-11-12)
 
 Användaren såg raka snitt i Lejonet och Enhörningen (hästen) när de stod lågt. Orsak: teckningarna ritas som rutnätstrianglar och en triangel hoppades över om någon nod låg under horisonten. Noder under horisonten projiceras nu ändå (marken täcker dem; i stjärnkartan klipps teckningen mot horisontcirkeln). Kontrollerat mot öster med lågt stående Lejonet/Enhörningen/Stora hund före och efter; 223 tester och 15/15 flöden passerar.
