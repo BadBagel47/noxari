@@ -7,21 +7,21 @@
 
 ## Nuläge
 
-En mobilförst, Stellarium-inspirerad planetariewebbapp (React/TypeScript/Vite) med beräknad himmel för vald tid och plats: 360°-vy med telefonföljning, stjärnkarta, HYG-stjärnor med färg och kikarstjärnor, Messier, planeter, dvärgplaneter, ISS, IAU-gränser, figurer och teckningar, färgad Vintergata, landskap, Ikväll med förslag/händelser/molnprognos, sökfält överst, kompakt objektkort med Wikipedia-sammanfattning, objektets bana (kvällens väg och rörelse bland stjärnorna), rörliga ljusa satelliter, objektguide, visning och demoläge, sparade objekt, observationslogg, offline/installation. Ren standardvy (linjer, gränser, teckningar, rutnät av vid start). Inget är fysiskt verifierat på mobil sedan 2026-11-12 förutom etiketter (B-003/F-008) och första kompasstart (B-007, observeras).
+En mobilförst, Stellarium-inspirerad planetariewebbapp (React/TypeScript/Vite) med beräknad himmel för vald tid och plats: 360°-vy med telefonföljning, stjärnkarta, HYG-stjärnor med färg och kikarstjärnor, Messier, planeter, dvärgplaneter, ISS, IAU-gränser, figurer och teckningar, färgad Vintergata, landskap, Ikväll med förslag/händelser/molnprognos, sökfält överst, ihopfällbar snabbrad för lager, kompakt objektkort med Wikipedia-sammanfattning, objektets bana (kvällens väg och rörelse bland stjärnorna), rörliga ljusa satelliter, objektguide, visning och demoläge, sparade objekt, observationslogg, offline/installation. Ren standardvy (linjer, gränser, teckningar, rutnät av vid start). Inget är fysiskt verifierat på mobil sedan 2026-11-12 förutom etiketter (B-003/F-008) och första kompasstart (B-007, observeras).
 
 ## Senaste ändringar
 
-1. 2026-11-12 — F-054 + F-052 + F-053 + F-055: sökfält högst upp (Sök-knappen borttagen), kompakt kort med ”Mer” och Wikipedia, objektets bana, rörliga satelliter (CelesTrak ”visual”). 245 tester, bygge, 15/15 funktionsflöden och GPU-/standardprov passerar; tre äldre diagnosskript faller sedan tidigare (B-014).
-2. 2026-11-12 — Anpassning till agentregler v1.4: denna fil (historiken i docs/HANDOFF_LOG.md), kortade projektregler, ny backlogstruktur, integritetstext i Om (F-058).
-3. 2026-11-12 — F-056 + F-057: färgad Vintergata, neutral natthimmel, ny ljusstyrkekurva, landskapssiluett; mjukare demoläge; B-012.
-4. 2026-11-12 — B-010 (siffersökning) och B-011 (listradens bakgrund).
-5. 2026-11-12 — F-049 + F-050: ren standardvy, stjärnfärger, tryckbara stjärnor med träffprioritet; mindre mark i startvyn.
+1. 2026-11-12 — B-013 + F-051 + B-014: guidepilen vrider sig kortaste vägen, ihopfällbar snabbrad för lager i knappraden, tre diagnosskript uppdaterade och passerar.
+2. 2026-11-12 — F-054 + F-052 + F-053 + F-055: sökfält högst upp, kompakt kort med ”Mer” och Wikipedia, objektets bana, rörliga satelliter.
+3. 2026-11-12 — Anpassning till agentregler v1.4: denna fil (historiken i docs/HANDOFF_LOG.md), kortade projektregler, ny backlogstruktur, integritetstext i Om (F-058).
+4. 2026-11-12 — F-056 + F-057: färgad Vintergata, neutral natthimmel, ny ljusstyrkekurva, landskapssiluett; mjukare demoläge; B-012.
+5. 2026-11-12 — B-010 (siffersökning) och B-011 (listradens bakgrund).
 
 Full historik med testbevis och commits: [docs/HANDOFF_LOG.md](docs/HANDOFF_LOG.md) och git.
 
 ## Nästa steg
 
-Se ”Proposed runs” i [BACKLOG.md](BACKLOG.md) (A: B-013 + F-051, B: B-014). Ingen körning är godkänd. Fysisk mobilkontroll av allt från 2026-11-12 väntar på användaren.
+Inga körklara förslag; nya önskemål samlas i [BACKLOG.md](BACKLOG.md). Parkerat: se backloggen. Fysisk mobilkontroll av allt från 2026-11-12 väntar på användaren.
 
 ## Mål och arbetssätt
 

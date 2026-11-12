@@ -56,7 +56,7 @@ See [B-004 performance analysis](PERFORMANCE_ANALYSIS.md) for the current produc
 
 ## Separate GPU prototype (B-004)
 
-[GPU prototype method/results](GPU_PROTOTYPE.md) describes `/noxari/labs/gpu-sky/`, built separately by `npm run build:gpu-prototype` (also part of the ordinary production build). It has Canvas/GPU/layer comparisons, cancellation, Canvas fallback and a local downloadable report. It does not use phone sensors or replace the main app. Optional browser geometry/image/context/fallback checks: `scripts/verify_gpu_prototype.mjs` with environment-provided Playwright/Chromium; see that document for invocation. Headless SwiftShader results do not establish hardware FPS or the phone’s performance.
+[GPU prototype method/results](GPU_PROTOTYPE.md) describes `/noxari/labs/gpu-sky/`, built separately by `npm run build:gpu-prototype` (also part of the ordinary production build). It has Canvas/GPU/layer comparisons, cancellation, Canvas fallback and a local downloadable report. It does not use phone sensors or replace the main app. Optional browser geometry/image/context/fallback checks: `scripts/verify_gpu_prototype.mjs` with environment-provided Playwright/Chromium; see that document for invocation. `scripts/verify_gpu_prototype.mjs` and `scripts/verify_gpu_resources.mjs` need `LAB_URL` pointing at the lab page (e.g. `http://127.0.0.1:4173/noxari/labs/gpu-sky/` with `vite preview`). Headless SwiftShader results do not establish hardware FPS or the phone’s performance.
 
 
 ## Ordinary horizon GPU layers (B-004)

@@ -5,7 +5,7 @@ import {clampViewPitch} from './groundView';
 import {commonConstellationIds, type FigureMode} from './constellations';
 import React, {useEffect, useLayoutEffect, useMemo, useRef, useState, useCallback} from 'react';
 import {createRoot} from 'react-dom/client';
-import {Search, Star, Compass, Bookmark, MapPin, Clock3, ChevronRight, Share2, X, LocateFixed, Globe2, Info, Check, MoreHorizontal, Maximize, Layers, Type, SquareDashed, Sparkles, Moon, Crosshair, Gauge, Smartphone, SlidersHorizontal, Brush, Grid2X2, Orbit, Rewind, FastForward, Download, NotebookPen, CheckCircle2, Trash2, Play, Trees, ChevronUp, Route, Satellite} from 'lucide-react';
+import {Search, Star, Compass, Bookmark, MapPin, Clock3, ChevronRight, Share2, X, LocateFixed, Globe2, Info, Check, MoreHorizontal, Maximize, Layers, Type, SquareDashed, Sparkles, Moon, Crosshair, Gauge, Smartphone, SlidersHorizontal, Brush, Grid2X2, Orbit, Rewind, FastForward, Download, NotebookPen, CheckCircle2, Trash2, Play, Trees, ChevronUp, Route, Satellite, Binoculars} from 'lucide-react';
 import {objects, zodiac, type SpaceObject, type Gear} from './data';
 import {candidateObjects} from './candidateObjects';
 import {defaultSkyGroups, type SkyGroup, type SkyGroups, type SkyLevel} from './skyLevel';
@@ -31,6 +31,7 @@ import {isCatalogStarPick} from './starPick';
 import {DemoOverlay, TourBar, TourStart} from './TourOverlay';
 import {TopSearch} from './TopSearch';
 import {WikiSummary} from './WikiSummary';
+import {QuickLayers} from './QuickLayers';
 import {hasPath, movesAmongStars} from './objectPath';
 import {cinematicPose, flowingOrder, glideDuration, goalView, holdPose, tourStops, type TourMode, type TourSource} from './tour';
 import {demoZoom, lookHint, objectFacts} from './objectFacts';
@@ -180,6 +181,8 @@ function App() {
   const [showLandscape, setShowLandscape] = useState(true);
   // F-053: the selected object's track (tonight's path + motion among the stars); hidden in the demo.
   const [showObjectPath, setShowObjectPath] = useState(true);
+  // F-051: collapsible quick row for visual layers (collapsed on every load).
+  const [quickOpen, setQuickOpen] = useState(false);
   const milkyWay = useMilkyWay(showMilkyWay);
   const [skyMode, setSkyMode] = useState<'horizon' | 'map'>('horizon');
   const [viewDirection, setViewDirection] = useSkyFrameState<ViewDirection>(() => ({heading: 180, pitch: Math.atan(.76 * innerHeight / Math.max(innerWidth, innerHeight)) * 180 / Math.PI}), skyFrames);
@@ -301,7 +304,7 @@ function App() {
       setViewDirection(originalView);setTimeMode(originalMode);setTime(originalMode === 'live' ? new Date() : originalTime);
     }}, timeMode)) {setDiagnosticMode('comparison');setTimeMode('fixed');setPanel(null);skyFrames.invalidate();}
   };
-  const openPanel = (next: Panel) => { skyFrames.comparison.cancel('user-interaction');setPanel(next); };
+  const openPanel = (next: Panel) => { skyFrames.comparison.cancel('user-interaction');setQuickOpen(false);setPanel(next); };
   const closePanel = () => setPanel(null);
   const cancelGlide = () => skyFrames.setMotion(null);
   const manualView: React.Dispatch<React.SetStateAction<ViewDirection>> = next => { if (!phone.active) { cancelGlide(); setViewDirection(next); } };
@@ -564,9 +567,9 @@ function App() {
   const correctedRecently = ['tracking', 'paused'].includes(phone.status) && phone.diagnostics.lastAutoCorrectionAgeMs !== null && phone.diagnostics.lastAutoCorrectionAgeMs < 6000;
   const needsPhoneHelp = correctedRecently || ['requesting', 'waiting', 'align', 'denied', 'unavailable', 'missing', 'error', 'retrying', 'recalibrate'].includes(phone.status);
   return <div className={`app sky-app${redMode ? ' red-mode' : ''}${tour?.mode === 'demo' ? ` demo-active${caption && !caption.leaving ? ' demo-landed' : ''}` : tour ? ' touring' : ''}`} ref={appRoot}>
-    <div className="sky-workspace" ref={workspace}>
+    <div className={`sky-workspace ${quickOpen ? 'quick-open' : ''}`} ref={workspace}>
       <main className="sky-stage" aria-label={t(lang, 'Sky', 'Himlen')}>
-        <div className="view-switch" key={skyMode}>{skyMode === 'horizon' ? <HorizonView frames={skyFrames} selectedId={selected?.id} finderTarget={finderTarget} phone={phone} onFinderDetails={() => { if (finderTarget) { setSelected(finderTarget); openPanel('details'); } }} onStopFinder={() => { if (tourRef.current?.mode === 'point') stopTour(); else setFinderTarget(null); }} zoomControl={zoomControl} showFigures={showFigures} showFigureNames={showFigureNames} figureMode={figureMode} showBoundaries={showBoundaries} showArt={showArt} showGrid={showGrid} showEcliptic={showEcliptic} showMilkyWay={showMilkyWay} showLandscape={showLandscape} pathObject={pathObject} showSatellites={showSatellites} satellitesKey={satelliteVersion} dynamicKey={issVersion} onSelectConstellation={id => { const object = mainObjects.find(item => item.id === `con-${id.toLowerCase()}`) ?? (id === 'Ori' ? objects.find(item => item.id === 'orion') : id === 'UMa' ? objects.find(item => item.id === 'ursa-major') : undefined); if (object) pickObject(object); }} skyLevel={skyLevel} skyGroups={skyGroups} extraObjects={extraObjects} milkyWay={milkyWay.texture} time={time} timeMode={timeMode} location={location} label={object => display(object, lang)} sunLabel={t(lang, 'Sun', 'Solen')} onSelect={pickObject} language={lang} view={viewDirection} onViewChange={manualView} onDragViewChange={dragView}/> : <SkyMap pathObject={pathObject} showSatellites={showSatellites} satellitesKey={satelliteVersion} dynamicKey={issVersion} selectedId={selected?.id} showFigures={showFigures} showFigureNames={showFigureNames} figureMode={figureMode} showBoundaries={showBoundaries} showArt={showArt} showGrid={showGrid} showEcliptic={showEcliptic} skyLevel={skyLevel} skyGroups={skyGroups} extraObjects={extraObjects} milkyWay={showMilkyWay ? milkyWay.texture : null} time={time} location={location} label={object => display(object, lang)} language={lang} sunLabel={t(lang, 'Sun', 'Solen')} onSelect={pickObject}/>}</div>
+        <div className="view-switch" key={skyMode} onPointerDown={() => { if (quickOpen) setQuickOpen(false); }}>{skyMode === 'horizon' ? <HorizonView frames={skyFrames} selectedId={selected?.id} finderTarget={finderTarget} phone={phone} onFinderDetails={() => { if (finderTarget) { setSelected(finderTarget); openPanel('details'); } }} onStopFinder={() => { if (tourRef.current?.mode === 'point') stopTour(); else setFinderTarget(null); }} zoomControl={zoomControl} showFigures={showFigures} showFigureNames={showFigureNames} figureMode={figureMode} showBoundaries={showBoundaries} showArt={showArt} showGrid={showGrid} showEcliptic={showEcliptic} showMilkyWay={showMilkyWay} showLandscape={showLandscape} pathObject={pathObject} showSatellites={showSatellites} satellitesKey={satelliteVersion} dynamicKey={issVersion} onSelectConstellation={id => { const object = mainObjects.find(item => item.id === `con-${id.toLowerCase()}`) ?? (id === 'Ori' ? objects.find(item => item.id === 'orion') : id === 'UMa' ? objects.find(item => item.id === 'ursa-major') : undefined); if (object) pickObject(object); }} skyLevel={skyLevel} skyGroups={skyGroups} extraObjects={extraObjects} milkyWay={milkyWay.texture} time={time} timeMode={timeMode} location={location} label={object => display(object, lang)} sunLabel={t(lang, 'Sun', 'Solen')} onSelect={pickObject} language={lang} view={viewDirection} onViewChange={manualView} onDragViewChange={dragView}/> : <SkyMap pathObject={pathObject} showSatellites={showSatellites} satellitesKey={satelliteVersion} dynamicKey={issVersion} selectedId={selected?.id} showFigures={showFigures} showFigureNames={showFigureNames} figureMode={figureMode} showBoundaries={showBoundaries} showArt={showArt} showGrid={showGrid} showEcliptic={showEcliptic} skyLevel={skyLevel} skyGroups={skyGroups} extraObjects={extraObjects} milkyWay={showMilkyWay ? milkyWay.texture : null} time={time} location={location} label={object => display(object, lang)} language={lang} sunLabel={t(lang, 'Sun', 'Solen')} onSelect={pickObject}/>}</div>
       </main>
       <header className="sky-statusbar">
         <button className={`observation-chip ${timeMode}`} onClick={() => openPanel('observation')} aria-label={t(lang, 'Time & location', 'Tid och plats')}><MapPin size={15}/><span><strong>{location.name}</strong><small>{stamp}</small></span></button>
@@ -584,6 +587,17 @@ function App() {
         <button onClick={() => openPanel('view')} aria-haspopup="dialog"><Layers size={22}/><span>{t(lang, 'Layers', 'Lager')}</span></button>
         <button onClick={() => openPanel('observation')} aria-haspopup="dialog"><Clock3 size={22}/><span>{t(lang, 'Time & place', 'Tid & plats')}</span></button>
         <button onClick={() => openPanel('more')} aria-haspopup="dialog"><MoreHorizontal size={22}/><span>{t(lang, 'More', 'Mer')}</span></button>
+        <QuickLayers language={lang} open={quickOpen} onOpenChange={setQuickOpen} layers={[
+          {id: 'figures', label: t(lang, 'Constellations', 'Stjärnbilder'), icon: <KindIcon name="constellation" size={22}/>, on: showFigures, toggle: () => setShowFigures(value => !value)},
+          {id: 'art', label: t(lang, 'Drawings', 'Teckningar'), icon: <Brush size={21}/>, on: showArt, toggle: () => setShowArt(value => !value)},
+          {id: 'boundaries', label: t(lang, 'Boundaries', 'Gränser'), icon: <SquareDashed size={21}/>, on: showBoundaries, toggle: () => setShowBoundaries(value => !value)},
+          {id: 'grid', label: t(lang, 'Grid', 'Rutnät'), icon: <Grid2X2 size={21}/>, on: showGrid, toggle: () => setShowGrid(value => !value)},
+          {id: 'ecliptic', label: t(lang, 'Planets’ path', 'Planeternas väg'), icon: <Orbit size={21}/>, on: showEcliptic, toggle: () => setShowEcliptic(value => !value)},
+          {id: 'milkyWay', label: t(lang, 'Milky Way', 'Vintergatan'), icon: <Sparkles size={21}/>, on: showMilkyWay, toggle: () => setShowMilkyWay(value => !value)},
+          {id: 'landscape', label: t(lang, 'Landscape', 'Landskap'), icon: <Trees size={21}/>, on: showLandscape, toggle: () => setShowLandscape(value => !value)},
+          {id: 'satellites', label: t(lang, 'Satellites', 'Satelliter'), icon: <Satellite size={21}/>, on: showSatellites, toggle: () => setShowSatellites(value => !value)},
+          {id: 'binoculars', label: t(lang, 'Binocular level', 'Kikarnivå'), icon: <Binoculars size={21}/>, on: skyLevel !== 'eye', toggle: () => setSkyLevel(level => level === 'eye' ? 'binoculars' : 'eye')},
+        ]}/>
       </nav>
       {needsPhoneHelp && <div className="phone-notice" role="status" style={{top: skyMode === 'horizon' && viewDirection.pitch < 0 ? 'calc(140px + env(safe-area-inset-top))' : undefined}}><span>{phone.status === 'recalibrate' ? t(lang, 'Direction is uncertain. Open controls to recalibrate.', 'Riktningen är osäker. Öppna kontroller för att kalibrera om.') : correctedRecently ? t(lang, 'North reference restored automatically.', 'Nordreferensen återställdes automatiskt.') : phone.needsAlignment ? t(lang, 'Hold still for a compass reference, or open controls.', 'Håll stilla för kompassreferens eller öppna kontroller.') : phone.status === 'waiting' || phone.status === 'requesting' ? t(lang, 'Waiting for phone direction…', 'Väntar på telefonriktning…') : phone.status === 'retrying' ? t(lang, 'Restarting phone direction…', 'Startar om telefonriktningen…') : phone.status === 'denied' ? t(lang, 'Sensor access was denied. Open controls for help.', 'Sensoråtkomst nekades. Öppna kontroller för hjälp.') : phone.status === 'error' ? t(lang, 'Sensor access could not be requested. Open controls to retry.', 'Sensoråtkomst kunde inte begäras. Öppna kontroller för att försöka igen.') : phone.status === 'missing' ? t(lang, 'No usable phone direction arrived. Open controls to retry.', 'Ingen användbar telefonriktning mottogs. Öppna kontroller för att försöka igen.') : t(lang, 'Phone sensors are unavailable in this browser. Manual control works.', 'Telefonsensorer är inte tillgängliga i webbläsaren. Manuell styrning fungerar.')}</span><button onClick={() => openPanel('phone')}>{t(lang, 'Controls', 'Kontroller')}</button></div>}
       {scrub && <section className="time-scrubber" aria-label={t(lang, 'Time scrubber', 'Tidsreglage')}>

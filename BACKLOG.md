@@ -6,11 +6,7 @@ ID:n är permanenta (F-### funktioner, B-### buggar, separata serier — beslut 
 
 Senast uppdaterad 2026-11-12. Bokstäverna gäller bara den senast visade listan.
 
-- **A** – standardmodell, medelnivå – Snabbknappar och guidepil (Prioritet: Medel)
-  - B-013 – Hitta-pilen i objektguiden kan snurra ett helt varv
-  - F-051 – Ihopfällbar snabbrad för visuella lager
-- **B** – standardmodell, medelnivå – Inaktuella diagnosskript (Prioritet: Låg)
-  - B-014 – Tre äldre webbläsarskript för prestanda/GPU förväntar sig gamla standardinställningar
+Inga körklara förslag just nu. Nya önskemål och buggar samlas här.
 
 **Parkerat:** B-001 (riktningsdrift), B-004 (ryckighet), B-007 (första Följ – observeras), F-009 (mobiltester), F-010 (månkalibrering), F-011 (kamera/AR), resterande del av F-037 (mjuk Följ-start).
 
@@ -18,14 +14,13 @@ Senast uppdaterad 2026-11-12. Bokstäverna gäller bara den senast visade listan
 
 | ID | Bugg | Status | Prioritet | Avgränsning / klart när |
 | --- | --- | --- | --- | --- |
-| **B-013** | Hitta-pilen kan snurra ett helt varv | **Ny 2026-11-12 — ej åtgärdad** | Medel | Pilen i Guided Finder (`finder-orbit-arrow`, `src/GuidedFinder.tsx`) har en CSS-övergång på 0,12 s, och vinkeln från `finderArrowRotation` (`src/finderGuidance.ts`) hoppar mellan +180° och −180° när objektet ligger rakt under bildens mitt. Då snurrar pilen snabbt nästan ett varv. Klart när pilen alltid vrider sig den korta vägen, t.ex. genom att hålla en ovikt vinkel (föregående + kortaste skillnad), som `continuousAngle()` i geo-kit (https://github.com/BadBagel47/geo-kit, `src/math.ts`). Liten avgränsad ändring; påverkar inte sensorerna (B-001). |
-| **B-014** | Tre diagnosskript har inaktuella förväntningar | **Ny 2026-11-12 — ej åtgärdad** | Låg | `scripts/verify_performance_report.mjs` (väntar sig alla lager på, `layerMask` 31, men standardvyn är ren sedan F-049), `scripts/verify_gpu_resources.mjs` och `scripts/verify_gpu_prototype.mjs` faller även på koden före körningen 2026-11-12 (F-052–F-055). Appen påverkas inte; skripten används bara för prestanda-/GPU-felsökning (B-004). Klart när skripten slår på de lager de mäter själva och passerar igen. (`verify_horizon_gpu.mjs` hade samma typ av fel — startvinkeln från F-057 — och rättades i körningen.) |
+| – | Inga öppna buggar | | | |
 
 ## Öppna funktioner
 
 | ID | Funktion | Status | Prioritet | Omfattning / klart när |
 | --- | --- | --- | --- | --- |
-| **F-051** | Ihopfällbar snabbrad för visuella lager | **Förslag 2026-11-12** | Medel | Användaren gillar Stellariums snabbknappar i botten men vill inte ha röra. Förslag: en liten knapp vid knappraden fäller ut en rad ikonknappar (stjärnbilder, teckningar, gränser, rutnät, Vintergatan, planeternas väg, nivå öga/kikare) ovanför knappraden; tryck igen eller på himlen fäller ihop. Ikonerna visar på/av-läge, långtryck/hovring visar namn. Hopfälld som standard; samma val som under Lager. Mobil först; på dator kan raden få plats bredvid knappraden. Inte startgodkänd. |
+| – | Inga öppna funktioner utöver Parkerat | | | |
 
 ## Parkerat
 
@@ -112,3 +107,6 @@ Pausade, senare och observerade poster (räknas som Parkerad). De ingår inte i 
 | **F-052** | Kompakt infokort + ”Mer” med Wikipedia | **Klar 2026-11-12 — fysisk kontroll kvar** | Genomfört med ”Kör” (Opus): kortet visar namn, typ, höjd, riktning, magnitud och första meningen av beskrivningen; knapparna Visa, Guida, Mer. ”Mer” öppnar allt som tidigare plus en Wikipedia-sammanfattning (svensk artikel via språklänkar om den finns, annars engelsk med markering), länk och CC BY-SA 4.0. Bara artikelnamnet skickas; sparas i minnet under besöket. Objekt utan säker artikel (t.ex. katalogstjärnor utan namn, kandidater) visar ingen Wikipediadel. Svenska Wikipedia kunde inte nås från testmiljön; den engelska reservvägen är testad. |
 | **F-053** | Objektets bana över himlen | **Klar 2026-11-12 — fysisk kontroll kvar** | Genomfört med ”Kör” (Opus): för valt objekt ritas kvällens beräknade väg (streckad blå, solnedgång−30 min → soluppgång+30 min, var 10:e minut) med hela klockslag, och för solsystemets kroppar rörelsen bland stjärnorna (prickad orange): månen ±3 dygn (dagsetiketter), Merkurius–Mars ±4 veckor (veckovis), Jupiter/Saturnus ±3 månader (månadsvis), övriga ±6 månader. I båda vyerna; Lager → Objektets bana (på från start); döljs i demoläget och för ISS/satelliter och stjärnbilder. Förklaring under kurvan i ”Mer”. Geometriska lägen utan ljusbrytning. |
 | **F-055** | Satelliter som rör sig | **Klar 2026-11-12 — fysisk kontroll kvar** | Genomfört med ”Kör” (Opus): CelesTraks grupp ”visual” (≈155 ljusa satelliter och raketsteg; ISS har kvar egen markör) – inbyggd kopia från bygget, hämtas av appen högst en gång per dygn (ingen plats skickas). SGP4; prickar bara när satelliten är solbelyst och solen under −6°. I läget Nu rör de sig i realtid (en enkel timer ber den gemensamma ritslingan om ny bild 4 gånger/s, 1 gång/s vid reducerad rörelse; ingen egen RAF), i fast tid visas läget för den tiden; stjärnkartan visar läget för vald tid. Tryck visar namn och kort; vald satellit får ring och namn. Lager → Satelliter (på från start). Nästa passage per satellit och Starlink-tåg ej gjorda. |
+| **B-013** | Hitta-pilen kunde snurra ett helt varv | **Klar 2026-11-12 — fysisk kontroll kvar** | Rättat: pilens vinkel hålls ovikt (föregående + kortaste skillnad, `continuousAngle` i `src/finderGuidance.ts`), så CSS-övergången alltid går den korta vägen. Enhetstest. Sensorlogiken är orörd. |
+| **F-051** | Ihopfällbar snabbrad för visuella lager | **Klar 2026-11-12 — fysisk kontroll kvar** | Liten pilknapp sist i knappraden fäller ut en rad ikonknappar ovanför (bredvid sidoraden i liggande läge): stjärnbilder, teckningar, gränser, rutnät, planeternas väg, Vintergatan, landskap, satelliter och kikarnivå. Ikonerna visar på/av, namnet visas vid hovring och kort efter varje tryck. Fälls ihop med knappen, vid tryck på himlen och när en panel öppnas; hopfälld vid varje start. Objektkortet flyttas upp när raden är öppen. Samma val som under Lager. |
+| **B-014** | Inaktuella diagnosskript | **Klar 2026-11-12** | `verify_performance_report` (ren standardvy, nya knappnamn, kartbyte via Lager), `verify_gpu_prototype` (F-057:s ljusstyrkekurva som referens; 0,9 px-stjärnan vid DPR 1 får 12 % tolerans för pixelavrundning) och `verify_horizon_gpu` (Följ telefonen bara med pekskärm, strömmad sensorsimulering, kartbyte via Lager) passerar. `verify_gpu_resources` var aldrig inaktuellt: det behöver `LAB_URL` till labbsidan (dokumenterat). Idle-kontrollen i `verify_horizon_gpu` föll 1 av 3 körningar i mjukvarurenderaren (tidsberoende). |

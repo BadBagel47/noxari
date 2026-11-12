@@ -24,3 +24,10 @@ export function finderArrowRotation(target: SkyPosition, view: ViewDirection, wi
   if (Math.hypot(dx, dy) < 1e-6) { dx = 0; dy = -1; }
   return Math.atan2(dx, -dy) / RAD;
 }
+
+/** B-013: keep the arrow angle unwrapped (previous + shortest difference), so a CSS transition never spins the long way round. */
+export function continuousAngle(previous: number | null, next: number) {
+  if (previous === null || !Number.isFinite(previous)) return next;
+  const difference = ((next - previous) % 360 + 540) % 360 - 180;
+  return previous + difference;
+}

@@ -3,7 +3,7 @@ import {ArrowUp, X} from 'lucide-react';
 import {DateTime} from 'luxon';
 import type {ObservingLocation, SkyPosition} from './astronomy';
 import type {SpaceObject} from './data';
-import {CENTER_TOLERANCE, finderArrowRotation, finderGuidance} from './finderGuidance';
+import {CENTER_TOLERANCE, continuousAngle, finderArrowRotation, finderGuidance} from './finderGuidance';
 import {projectPerspective, type ViewDirection} from './skyProjection';
 import type {usePhoneOrientation} from './usePhoneOrientation';
 
@@ -24,7 +24,8 @@ export function GuidedFinder({object, position, nextRise, location, view, width,
   }, [guidance.centered, phone.active]);
   const point = projectPerspective(position, view, width, height, false, false, zoom);
   const inView = point && point.x >= 12 && point.x <= width - 12 && point.y >= 12 && point.y <= height - 12;
-  const arrowRotation = finderArrowRotation(position, view, width, height, point);
+  const lastArrow = useRef<number | null>(null);
+  const arrowRotation = lastArrow.current = continuousAngle(lastArrow.current, finderArrowRotation(position, view, width, height, point));
   const riseStamp = nextRise && DateTime.fromJSDate(nextRise, {zone: location.timeZone}).setLocale(sv ? 'sv' : 'en').toFormat('dd LLL HH:mm');
   const number = (value: number, digits = 0) => value.toLocaleString(sv ? 'sv-SE' : 'en-GB', {minimumFractionDigits: digits, maximumFractionDigits: digits});
   const heading = `${guidance.headingDelta < 0 ? '←' : '→'} ${number(Math.abs(guidance.headingDelta))}°`;

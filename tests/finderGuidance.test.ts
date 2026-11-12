@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {finderArrowRotation, finderGuidance} from '../src/finderGuidance';
+import {continuousAngle, finderArrowRotation, finderGuidance} from '../src/finderGuidance';
 import {nextObjectRise, objectPosition, stockholm} from '../src/astronomy';
 import {objects} from '../src/data';
 
@@ -46,5 +46,15 @@ describe('next geometric target rise', () => {
     expect(nextObjectRise(m31, new Date('2026-01-15T12:00:00Z'), {...stockholm, latitude: -80})).toBeNull();
     const orion = objects.find(object => object.id === 'orion')!;
     expect(nextObjectRise(orion, new Date(), stockholm)).toBeNull();
+  });
+});
+
+describe('B-013 continuous arrow angle', () => {
+  it('turns the short way across ±180°', () => {
+    expect(continuousAngle(179, -179)).toBe(181);
+    expect(continuousAngle(-179, 179)).toBe(-181);
+    expect(continuousAngle(540, -175)).toBe(545);
+    expect(continuousAngle(null, 30)).toBe(30);
+    expect(continuousAngle(10, 20)).toBe(20);
   });
 });

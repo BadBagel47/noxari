@@ -34,7 +34,7 @@ function validate(report) {
   assert.ok(frame.gpuCopySubmissionMs<=frame.stagesMs.milkyWay+frame.stagesMs.stars+.006);
   for(const value of Object.values(frame.stagesMs))assert.ok(Number.isFinite(value)&&value>=0);
  }
- for(const context of report.contexts){assert.equal(context.starCount,8922);assert.equal(context.layerMask,31);assert.equal(context.figureMode,'all');}
+ for(const context of report.contexts){assert.equal(context.starCount,8922);assert.equal(context.layerMask,10); /* clean default view since F-049: names + Milky Way */assert.equal(context.figureMode,'all');}
  const keys=[];const visit=value=>{if(value&&typeof value==='object')for(const [key,v] of Object.entries(value)){keys.push(key);visit(v)}};visit(report);
  for(const field of ['latitude','longitude','location','selectedTime','heading','pitch','alpha','beta','gamma','userAgent','url','search','saved'])assert.ok(!keys.includes(field),field);
 }
@@ -53,9 +53,9 @@ try {
   console.log('PASS ordinary report manual/idle/download/layout',test,report.frames.length);await p.close();
  }
  // Follow requests retain their source; the nested camera setter is not counted as manual input.
- const p=await pageFor({mode:'gpu'});await p.getByRole('button',{name:'Follow',exact:true}).click();
+ const p=await pageFor({mode:'gpu'});await p.getByRole('button',{name:'Follow the phone',exact:true}).click();
  const emit=alpha=>p.evaluate(alpha=>window.dispatchEvent(new DeviceOrientationEvent('deviceorientation',{alpha,beta:90,gamma:0,absolute:false})),alpha);
- await emit(0);await p.waitForTimeout(80);await p.getByRole('button',{name:'More',exact:true}).click();await p.getByRole('button',{name:'Phone direction',exact:true}).click();
+ await emit(0);await p.waitForTimeout(80);await p.getByRole('button',{name:'More',exact:true}).click();await p.getByRole('button',{name:/^Phone direction/}).click();
  await p.getByRole('dialog').getByRole('button',{name:'Align north',exact:true}).click();await p.getByRole('button',{name:'Close panel'}).click();await start(p);
  for(let i=1;i<=12;i++){await emit(360-i);await p.waitForTimeout(30);}
  const phone=await save(p);validate(phone);assert.ok(phone.frames.some(f=>f.inputs['phone-publication']>0));assert.ok(phone.frames.every(f=>f.inputs['manual-view']===0));
@@ -67,7 +67,7 @@ try {
  const fallback=await save(loss);validate(fallback);assert.ok(fallback.contexts.some(c=>c.backend==='gpu'));assert.ok(fallback.contexts.some(c=>c.backend==='canvas'&&c.reason==='context-lost'));await loss.close();console.log('PASS runtime fallback identity');
  // A real map transition stops capture but retains the downloadable report.
  const map=await pageFor();await start(map);await map.locator('.horizon-view').focus();await map.keyboard.press('ArrowRight');await map.waitForTimeout(100);
- await map.getByRole('button',{name:'More',exact:true}).click();await map.getByRole('button',{name:'Sky display',exact:true}).click();await map.getByRole('button',{name:'Sky map',exact:true}).click();await map.getByRole('button',{name:'Close panel'}).click();await open(map);
+ await map.getByRole('button',{name:'Layers',exact:true}).click();await map.getByRole('button',{name:'Sky map',exact:true}).click();await map.getByRole('button',{name:'Close panel'}).click();await open(map);
  assert.equal(await map.getByRole('button',{name:'New recording',exact:true}).isDisabled(),true);const mapReport=await save(map,false,false);assert.equal(mapReport.stopReason,'view-unavailable');await map.close();console.log('PASS map transition / retained report');
  // Simulated page visibility transition stops the recorder and preserves its report.
  const hidden=await pageFor();await start(hidden);await hidden.locator('.horizon-view').focus();await hidden.keyboard.press('ArrowRight');await hidden.waitForTimeout(100);
