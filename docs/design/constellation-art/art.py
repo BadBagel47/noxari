@@ -14,7 +14,7 @@ ART = {
       'M188 160 L186 170 M200 158 L202 170',                                # neck
       'M130 176 C150 166 200 166 222 180 C224 200 218 224 210 246 C204 258 190 266 172 270 C160 254 148 228 138 204 C134 194 130 186 130 176 Z',  # torso
       'M166 262 C182 256 198 250 212 244 M168 272 C184 266 200 260 214 254', # belt
-      'M168 270 C158 290 150 306 146 318 C166 328 214 326 236 312 C228 292 220 270 212 250',  # tunic
+      'M168 270 C158 290 150 306 146 318 C166 328 214 326 236 312 C228 292 220 270 212 250 Z',  # tunic
       'M182 280 L178 318 M200 276 L204 320 M190 268 C190 282 188 294 186 304',  # folds, sword
       'M160 322 C156 334 152 346 148 356 L164 360 C166 348 170 336 174 324',  # back leg
       'M212 322 C224 330 236 340 246 348 L254 340 C244 330 232 318 224 312',  # front leg
@@ -46,7 +46,7 @@ ART = {
       'M213 134 l3 -12 l7 8 l6 -11 l6 11 l7 -8 l3 12 Z',                    # crown
       'M238 140 C250 150 252 170 244 186',                                  # hair
       'M214 166 C204 176 198 192 200 210 C202 232 210 250 222 262 L270 262 C268 240 262 216 254 196 C248 180 240 170 232 164 Z',  # bodice
-      'M222 262 C210 276 196 300 182 330 C176 342 172 350 170 356 L300 356 C296 338 290 318 284 300 C280 286 276 272 270 262',  # gown
+      'M222 262 C210 276 196 300 182 330 C176 342 172 350 170 356 L300 356 C296 338 290 318 284 300 C280 286 276 272 270 262 Z',  # gown
       'M220 290 L206 350 M246 286 L244 352 M268 292 L280 350',              # folds
       'M208 186 C186 184 160 186 138 184 C118 168 98 146 82 128 M214 198 C190 198 164 198 140 196 C120 180 100 158 86 140',  # raised arm
       'M80 126 C68 112 60 98 56 82 M66 112 l-12 -2 M62 102 l-12 -4 M58 92 l-10 -6 M66 104 l8 -8 M62 94 l8 -10',  # palm
@@ -80,7 +80,8 @@ def panel(cid, style, fig, seed):
     bg = ''.join(f'<circle cx="{rnd.uniform(0,400):.0f}" cy="{rnd.uniform(0,400):.0f}" r="{rnd.choice([.5,.6,.8,1])}" fill="#cfe0ff" opacity="{rnd.uniform(.2,.6):.2f}"/>' for _ in range(140))
     lines = ''.join('<polyline points="' + ' '.join(f'{fig["pts"][h][0]},{fig["pts"][h][1]}' for h in line) + '" fill="none" stroke="#6f9cc8" stroke-opacity=".28" stroke-width="1"/>' for line in fig['lines'])
     stars = ''.join(f'<circle cx="{x}" cy="{y}" r="{max(1.4, 4.6 - m*0.75):.1f}" fill="#fff8e6"/>' for x, y, m in fig['pts'].values())
-    art = ''.join(f'<path d="{d}" style="{STYLES[style]["art"]}"/>' for d in ART[cid]['body'])
+    # Only closed shapes are filled; open strokes (tails, arms, necks, feathers) never get a fill.
+    art = ''.join(f'<path d="{d}" style="{STYLES[style]["art"]}{"" if d.rstrip().endswith("Z") else ";fill:none"}"/>' for d in ART[cid]['body'])
     name = ART[cid]['name'][1]
     return (f'<figure><svg viewBox="0 0 400 400" width="300" height="300"><defs><filter id="glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'
             f'<radialGradient id="sky{seed}" cx="50%" cy="40%" r="75%"><stop offset="0" stop-color="#14304f"/><stop offset="1" stop-color="#061020"/></radialGradient></defs>'
