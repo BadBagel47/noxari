@@ -339,24 +339,29 @@ function App() {
     if (phone.active) phone.takeManualControl();
     setSkyMode('horizon');
     const goalZoom = cinematic ? demoZoom(object) : Math.min(1.8, demoZoom(object));
-    const centred = goalView(target), lift = Math.atan(.2 * innerHeight / (Math.max(innerWidth, innerHeight) / 2 * goalZoom)) * 180 / Math.PI;
-    // In the demo the object sits in the upper third of the screen, clear of the title card and photo.
-    const goal = cinematic ? {...centred, pitch: clampViewPitch(centred.pitch - lift)} : centred;
-    if (reducedMotion) { cancelGlide(); setViewDirection(goal); zoomControl.current?.(goalZoom); if (done) setTimeout(done, 0); return true; }
-    const from = live.current.view, duration = glideDuration(from, goal, cinematic);
+    // In the demo the object sits in the upper third of the screen, clear of the title card and photo. The offset
+    // is recomputed for the current zoom every frame, so zooming in and out stays anchored on the object.
+    const liftAt = (zoom: number) => cinematic ? Math.atan(.2 * innerHeight / (Math.max(innerWidth, innerHeight) / 2 * zoom)) * 180 / Math.PI : 0;
+    const centred = goalView(target), framed = (view: ViewDirection, zoom: number, weight = 1) => ({...view, pitch: clampViewPitch(view.pitch - liftAt(zoom) * weight)});
+    if (reducedMotion) { cancelGlide(); setViewDirection(framed(centred, goalZoom)); zoomControl.current?.(goalZoom); if (done) setTimeout(done, 0); return true; }
+    const from = live.current.view;
+    // The swing interpolates toward the object itself; the framing offset blends in with the move.
+    const fromCentred = {...from, pitch: from.pitch}, duration = glideDuration(fromCentred, centred, cinematic);
     let start: number | null = null, fromZoom: number | null = null;
     let holdStart: number | null = null, landed = false;
     skyFrames.setMotion(now => {
       if (holdStart !== null) {
         // F-046: keep the shot alive with a slow push-in and drift (same motion slot, so the frame loop keeps it).
-        const pose = holdPose((now - holdStart) / (DEMO_HOLD + DEMO_FADE), goal, goalZoom);
-        zoomControl.current?.(pose.zoom); setViewDirection(pose.view);
+        const pose = holdPose((now - holdStart) / (DEMO_HOLD + DEMO_FADE), centred, goalZoom);
+        zoomControl.current?.(pose.zoom); setViewDirection(framed(pose.view, pose.zoom));
         return now - holdStart < DEMO_HOLD + DEMO_FADE;
       }
       start ??= now;
       const k = Math.min(1, (now - start) / duration);
-      zoomControl.current?.(current => { fromZoom ??= current; return cinematicPose(k, from, fromZoom, goal, goalZoom, cinematic).zoom; });
-      setViewDirection(cinematicPose(k, from, fromZoom ?? 1, goal, goalZoom, cinematic).view);
+      const pose = cinematicPose(k, fromCentred, fromZoom ?? 1, centred, goalZoom, cinematic);
+      zoomControl.current?.(current => { fromZoom ??= current; return cinematicPose(k, fromCentred, fromZoom, centred, goalZoom, cinematic).zoom; });
+      const blend = k < .5 ? 4 * k * k * k : 1 - (-2 * k + 2) ** 3 / 2;
+      setViewDirection(framed(pose.view, pose.zoom, blend));
       if (k < 1) return true;
       if (!landed) { landed = true; if (done) setTimeout(done, 0); }
       if (!cinematic) return false;

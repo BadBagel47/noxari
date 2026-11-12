@@ -55,7 +55,7 @@ export function cinematicPose(k: number, from: ViewDirection, fromZoom: number, 
 /** While an object is shown the camera keeps moving: a slow push-in and a gentle drift. */
 export function holdPose(k: number, base: ViewDirection, baseZoom: number) {
   const t = Math.max(0, Math.min(1, k)), sine = (1 - Math.cos(Math.PI * t)) / 2;
-  return {view: {heading: (base.heading + 2.5 * sine + 360) % 360, pitch: Math.max(-89.9, Math.min(89.9, base.pitch + .8 * sine))}, zoom: Math.min(3, baseZoom * (1 + .16 * sine))};
+  return {view: {heading: (base.heading + 1.2 * sine + 360) % 360, pitch: Math.max(-89.9, Math.min(89.9, base.pitch + .4 * sine))}, zoom: Math.min(3, baseZoom * (1 + .16 * sine))};
 }
 
 export function goalView(position: SkyPosition): ViewDirection {

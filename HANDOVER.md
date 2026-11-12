@@ -1,3 +1,7 @@
+## Rättning F-046 — demons zoom och gloria (2026-11-12)
+
+Användaren såg att inzoomningen inte skedde mot objektet och att den gula animationen inte satt på objektet. Orsaker: förstoringen av markören ersatte dess centrering (markören flyttades), och objektet ligger i övre tredjedelen medan zoom sker kring skärmens mitt. Nu behåller markören centreringen, och kamerans lutning räknas om för aktuell zoom varje bildruta så att objektet ligger kvar på samma skärmposition under in- och utzoomning; driften är halverad. Kontrollerat med positionsmätning under landning och visning (desktop och mobil).
+
 ## F-046 + F-047 + F-048 genomförda (2026-11-12, Opus)
 
 Användaren gav ”Kör”.

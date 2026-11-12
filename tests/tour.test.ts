@@ -69,7 +69,7 @@ describe('F-046 demo motion and look hints', () => {
     const base = {heading: 100, pitch: 30};
     expect(holdPose(0, base, 2)).toEqual({view: base, zoom: 2});
     const end = holdPose(1, base, 2);
-    expect(end.zoom).toBeCloseTo(2.32); expect(end.view.heading).toBeCloseTo(102.5);
+    expect(end.zoom).toBeCloseTo(2.32); expect(end.view.heading).toBeCloseTo(101.2);
     expect(holdPose(1, base, 2.9).zoom).toBeLessThanOrEqual(3);
   });
 
