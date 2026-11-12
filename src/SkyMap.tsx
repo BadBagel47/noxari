@@ -1,6 +1,7 @@
 import {MilkyWayPainter, type MilkyWayTexture} from './milkyWay';
 import {SkyMarkerPoint} from './KindIcon';
 import {ConstellationArtImages, constellationArtSky, drawConstellationArt} from './constellationArt';
+import {constellationArt} from './generated/constellationArt';
 import {eclipticSky} from './ecliptic';
 import {namedStarObjects} from './namedStars';
 import {useEffect, useMemo, useRef, useState, type PointerEvent} from 'react';
@@ -57,6 +58,7 @@ export function SkyMap({selectedId, time, location, label, language, sunLabel, o
   const boundaries = useMemo(() => showBoundaries ? boundarySky(time, location) : [], [showBoundaries, time, location]);
   const artSky = useMemo(() => showArt ? constellationArtSky(time, location, figureMode) : [], [showArt, time, location, figureMode]);
   const ecliptic = useMemo(() => showEcliptic ? eclipticSky(time, location) : [], [showEcliptic, time, location]);
+  useEffect(() => { if (showArt) artImages.current.preload(constellationArt.map(art => art.id), () => setArtLoaded(count => count + 1)); }, [showArt]);
   const stars = useMemo(() => catalog.flatMap(star => {
     const point = projectHorizontal(star, size.width, size.height, zoom);
     return point ? [{...star, ...point}] : [];
@@ -193,7 +195,7 @@ export function SkyMap({selectedId, time, location, label, language, sunLabel, o
         context.restore();
       }
       if (showBoundaries) drawBoundaries(context, boundaries, position => projectHorizontal(position, width, height, zoom), width, height, starVisibility);
-      if (showArt) drawConstellationArt(context, artSky, projectFigure, width, height, starVisibility * .38 * Math.max(.3, Math.min(1, 1.3 - .3 * zoom)), artImages.current, () => setArtLoaded(count => count + 1));
+      const artFading = showArt && drawConstellationArt(context, artSky, projectFigure, width, height, starVisibility * .38 * Math.max(.3, Math.min(1, 1.3 - .3 * zoom)), artImages.current, () => setArtLoaded(count => count + 1));
 
       const animating = showFigures && drawConstellations(context, figures, projectFigure, width, height, starVisibility, showFigureNames, {reveal: reveal.current, now: performance.now(), reducedMotion, entryInset: false}, figureCache.current);
       if (!showFigures) reveal.current.reset();
@@ -210,7 +212,7 @@ export function SkyMap({selectedId, time, location, label, language, sunLabel, o
         }
         context.globalAlpha = 1;
       }
-      if (animating) frame = requestAnimationFrame(render);
+      if (animating || artFading) frame = requestAnimationFrame(render);
     };
     render();
     return () => cancelAnimationFrame(frame);

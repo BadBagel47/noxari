@@ -1,6 +1,7 @@
 import {horizonGrid} from './skyGrid';
 import {SkyMarkerPoint} from './KindIcon';
 import {ConstellationArtImages, constellationArtSky, drawConstellationArt} from './constellationArt';
+import {constellationArt} from './generated/constellationArt';
 import {eclipticSky} from './ecliptic';
 import {LayerFades} from './layerFade';
 import {namedStarObjects} from './namedStars';
@@ -72,6 +73,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
   if (showBoundaries) shown.current.boundaries = true;
   if (showArt) shown.current.art = true;
   if (showEcliptic) shown.current.ecliptic = true;
+  useEffect(() => { if (showArt) artImages.current.preload(constellationArt.map(art => art.id), () => frames.invalidate()); }, [showArt, frames]);
   const milkyWayPainter = useRef(new MilkyWayPainter());
   const gpu = useRef<HorizonGpu | null>(null);
   const [performanceScene] = useState<PerformanceScene>(() => ({backend: 'canvas', reason: 'not-drawn', driver: '',
@@ -259,7 +261,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
 
       measurement?.phase('grid');
       if (fade.values.boundaries > 0) drawBoundaries(context, preparedBoundaries, projectBoundary, width, height, starVisibility * fade.values.boundaries);
-      if (fade.values.art > 0) drawConstellationArt(context, artSky, projectFigure, width, height, starVisibility * fade.values.art * .38 * Math.max(.3, Math.min(1, 1.45 - .45 * zoom)), artImages.current, () => frames.invalidate(), view);
+      const artFading = fade.values.art > 0 && drawConstellationArt(context, artSky, projectFigure, width, height, starVisibility * fade.values.art * .38 * Math.max(.3, Math.min(1, 1.45 - .45 * zoom)), artImages.current, () => frames.invalidate(), view);
 
       measurement?.phase('boundaries');
       const animating = fade.values.figures > 0 && drawConstellations(context, figures, projectFigure, width, height, starVisibility * fade.values.figures, showFigureNames, {reveal: comparing ? trackers.reveal : reveal.current, now, reducedMotion}, comparing ? trackers.cache : figureCache.current);
@@ -328,7 +330,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       frames.activePerformance.scene = performanceScene;
       if (comparing) frames.comparison.validateScene(performanceScene, sceneKey + `|${finderTarget?.id ?? ''}|${selectedId ?? ''}|${language}`, window.devicePixelRatio || 1);
       frames.performance.sceneChanged();
-      return Boolean(animating) || fade.animating;
+      return Boolean(animating) || fade.animating || Boolean(artFading);
     };
     frames.setRenderer(render);
   }, [projectFigure, frames, size, view, zoom, stars, figures, boundaries, preparedBoundaries, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, artSky, ecliptic, reducedMotion, sun.altitude, milkyWay, milkyBasis, sceneKey, time, timeMode, location, performanceScene, phone.active, showCandidateCollection, comparisonStatus.active, selectedId, finderTarget, language]);

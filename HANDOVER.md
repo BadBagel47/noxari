@@ -1,3 +1,7 @@
+## F-041 — förladdning och intoning (2026-11-12)
+
+Användaren såg teckningar ”ploppa in” vid snabba svep. Nu förladdas alla 85 bilder i bakgrunden (4 åt gången) när lagret är på, avkodas innan de används och tonas in under 350 ms; intoningen drivs av samma renderare (inga extra loopar). Vintergatan ritas under teckningarna men syns igenom eftersom teckningarna är halvgenomskinliga (38 %); användaren har fått frågan om de ska göras tydligare eller Vintergatan dämpas där teckningar visas. 197 tester och 15/15 flöden passerar; mätning median ≈19 ms (16,7 utan teckningar).
+
 ## F-041 — teckningar som rutnät (2026-11-12)
 
 Användaren såg fortfarande utsträckta teckningar (Stora björnen, Lodjuret, Pegasus, Valfisken). En enda plan (affin) avbildning kan inte följa perspektivets krökning över stora figurer (30–50°). Varje bild har nu ett 5×5-nät av nodpunkter fixerade på himlen (gnomonisk anpassning genom ankarna); figurer under 28° ritas med en avbildning, större med 2×2 celler (8 trianglar, var och en klippt och bara sin egen bilddel rastrerad). Toningen efter blickriktning ligger nu på 62–78°. Mätning (Canvas-väg, 390×844 @2x, skriptat svep): median 17,7 ms (16,7 utan teckningar), p95 ≈26 ms (≈17 utan). En 4×4-variant gav median 26 ms och valdes bort. 198 tester, 15/15 flöden och 6/6 etikettprov passerar.

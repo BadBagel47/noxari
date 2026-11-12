@@ -81,20 +81,45 @@ export function affineFromTriangles(source: [number, number][], target: MapPoint
   return {a, b, c, d, e, f};
 }
 
-/** Lazily loaded tinted images; the callback asks the shared frame loop for a redraw. */
+/**
+ * Tinted images. All are preloaded in the background once the layer is on, and
+ * each one fades in over ~350 ms after it has been decoded, so drawings never
+ * pop in abruptly during fast panning. The callback asks the shared frame loop
+ * for a redraw; no separate animation loop is used.
+ */
 export class ConstellationArtImages {
-  private images = new Map<string, HTMLImageElement>();
-  constructor(private base: string) {}
-  get(id: string, onLoad: () => void) {
-    let image = this.images.get(id);
-    if (!image) {
-      image = new Image();
+  private images = new Map<string, {image: HTMLImageElement; readyAt: number | null}>();
+  private preloading = false;
+  constructor(private base: string, private fadeMs = 350) {}
+  private load(id: string, onLoad: () => void) {
+    let entry = this.images.get(id);
+    if (!entry) {
+      const image = new Image();
       image.decoding = 'async';
-      image.onload = onLoad;
+      entry = {image, readyAt: null};
+      const ready = () => { entry!.readyAt = performance.now(); onLoad(); };
+      image.onload = () => { (image.decode ? image.decode() : Promise.resolve()).then(ready, ready); };
       image.src = `${this.base}constellation-art/${id}.webp`;
-      this.images.set(id, image);
+      this.images.set(id, entry);
     }
-    return image.complete && image.naturalWidth > 0 ? image : null;
+    return entry;
+  }
+  /** Load every drawing a few at a time in the background. */
+  preload(ids: string[], onLoad: () => void) {
+    if (this.preloading) return;
+    this.preloading = true;
+    const queue = [...ids];
+    const next = () => {
+      for (let i = 0; i < 4 && queue.length; i++) this.load(queue.shift()!, onLoad);
+      if (queue.length) setTimeout(next, 60);
+    };
+    next();
+  }
+  /** Image plus its fade-in factor (0–1), or null while it is still loading. */
+  get(id: string, onLoad: () => void, now = performance.now()) {
+    const entry = this.load(id, onLoad);
+    if (entry.readyAt === null || !entry.image.naturalWidth) return null;
+    return {image: entry.image, fade: Math.min(1, (now - entry.readyAt) / this.fadeMs)};
   }
 }
 
@@ -113,7 +138,8 @@ export function artViewFade(center: PreparedHorizontalDirection, view: {heading:
 
 export function drawConstellationArt(context: CanvasRenderingContext2D, sky: ArtSky[], project: (position: PreparedHorizontalDirection) => MapPoint | null,
   width: number, height: number, alpha: number, images: ConstellationArtImages, onLoad: () => void, view?: {heading: number; pitch: number}) {
-  if (alpha <= 0.01) return;
+  if (alpha <= 0.01) return false;
+  let fading = false;
   for (const art of sky) {
     const viewFade = view ? artViewFade(art.anchors[CENTER], view) : 1;
     if (viewFade <= 0.01) continue;
@@ -122,10 +148,12 @@ export function drawConstellationArt(context: CanvasRenderingContext2D, sky: Art
     if (visible.length < 3) continue;
     const xs = visible.map(p => p.x), ys = visible.map(p => p.y);
     if (Math.max(...xs) < 0 || Math.min(...xs) > width || Math.max(...ys) < 0 || Math.min(...ys) > height) continue;
-    const image = images.get(art.id, onLoad);
-    if (!image) continue;
+    const loaded = images.get(art.id, onLoad);
+    if (!loaded) continue;
+    const image = loaded.image;
+    if (loaded.fade < 1) fading = true;
     context.save();
-    context.globalAlpha = alpha * viewFade;
+    context.globalAlpha = alpha * viewFade * loaded.fade;
     const n = art.grid + 1;
     const triangle = (a: number, b: number, c: number) => {
       const pa = points[a], pb = points[b], pc = points[c];
@@ -164,4 +192,5 @@ export function drawConstellationArt(context: CanvasRenderingContext2D, sky: Art
     }
     context.restore();
   }
+  return fading;
 }
