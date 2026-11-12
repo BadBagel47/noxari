@@ -5,6 +5,8 @@ Användaren gav ”Kör”.
 - **F-047:** Telefonriktning ligger under Prototyp · felsökning och visas bara med pekskärm eller aktiv följning.
 - **F-048 foton:** 115 nya Commons-bilder (Messier + planeter, månen, dvärgplaneter, Vesta), 123 totalt. Licenser: public domain, CC0, CC BY 2.0–4.0, CC BY-SA 2.5–4.0; metadata från Commons, bilderna granskade visuellt (M38 avvisad; två felhämtningar upptäckta och omhämtade). WebP ≤560 px, 6,8 MB totalt, förcachas inte. Kredit i Om & källor. Delningssidor använder fortsatt bara JPEG i public domain. Molnmiljön fick åtkomst till Wikipedia/Commons (godkänt av användaren).
 
+**Publicering:** appcommit `042bb5a69df38e915af0e7b212c36398b04127d6`, Actions 43228352436 lyckades; live-sidan serverar de nya fotona.
+
 Verifiering: 225 enhetstester, fullt bygge, 15/15 funktionsflöden, etiketter, start/fokus, testinställningar; webbläsarprov av demoläget (kontinuerlig riktning utan hopp mellan objekt, drift under visning, foto och riktningstext). Ingen fysisk mobilkontroll. B-001/B-004 pausade, B-007 observeras. Ingen ny körning godkänd.
 
 ## F-046 och F-047 registrerade (2026-11-12)
