@@ -19,6 +19,8 @@ export class SkyFrames {
   private animating = false;
   private renderer: SkyFrameRenderer | null = null;
   private updates = new Map<symbol, () => void>();
+  /** Optional eased camera move; it stages its pose before this frame's commit. */
+  private motion: SkyFrameRenderer | null = null;
 
   constructor(private host: FrameHost, readonly performance = new SkyPerformance()) { this.comparison = new SurfaceComparison(performance); }
 
@@ -32,6 +34,12 @@ export class SkyFrames {
     this.performance.cancelInput(key);
     this.updates.delete(key);
     this.cancelIfIdle();
+  }
+
+  setMotion(step: SkyFrameRenderer | null) {
+    this.motion = step;
+    if (step) this.request();
+    else this.cancelIfIdle();
   }
 
   setRenderer(renderer: SkyFrameRenderer) {
@@ -48,6 +56,7 @@ export class SkyFrames {
     this.comparison.cancel('view-unavailable');
     this.performance.stop('view-unavailable');
     this.renderer = null;
+    this.motion = null;
     this.dirty = this.animating = false;
     this.cancelIfIdle();
   }
@@ -59,11 +68,12 @@ export class SkyFrames {
     this.pending = null;
     this.updates.clear();
     this.renderer = null;
+    this.motion = null;
     this.dirty = this.animating = false;
   }
 
   private cancelIfIdle() {
-    if (!this.updates.size && !this.dirty && !this.animating && !this.comparison.active && this.pending !== null) {
+    if (!this.updates.size && !this.dirty && !this.animating && !this.motion && !this.comparison.active && this.pending !== null) {
       this.host.cancel(this.pending);
       this.pending = null;
     }
@@ -85,6 +95,8 @@ export class SkyFrames {
     this.comparison.beforeFrame(callback ?? now);
     const recorder = this.activePerformance;
     const measurement = recorder.beginFrame(callback === null ? undefined : {requested, callback, rafTimestamp: now});
+    try { if (this.motion && !this.motion(now)) this.motion = null; }
+    catch { this.motion = null; }
     const hadUpdates = this.updates.size > 0;
     let failed = true;
     try {
@@ -105,7 +117,7 @@ export class SkyFrames {
       recorder.endFrame(measurement, this.animating || this.comparison.active, failed);
       this.comparison.afterFrame(failed);
       this.running = false;
-      if (this.updates.size || this.dirty || this.animating || this.comparison.needsFrame) this.request();
+      if (this.updates.size || this.dirty || this.animating || this.motion || this.comparison.needsFrame) this.request();
     }
   };
 }

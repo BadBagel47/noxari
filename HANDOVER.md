@@ -1,3 +1,18 @@
+## F-025 steg 1 + F-024 + F-038 + delar av F-037 — genomfört (2026-11-12)
+
+Användaren gav ”Kör” (rekommenderad modell Opus). Genomfört:
+- **Språk:** Auto (enhetens första språk; svenska annars engelska) / SV / EN i Mer. Ny lagringsnyckel `noxari-lang-pref`; gamla `noxari-lang` läses inte längre (den skrevs alltid och var inget aktivt val). `?lang=` i delade länkar gäller för besöket tills användaren väljer.
+- **Nedre rad:** Sök · Ikväll · Lager · Tid & plats · Mer. **Följ** uppe till höger ersätter Manual-chip + Följ/Stoppa i raden (tryck = starta/stoppa; vid Kalibrera/Rikta norr öppnas telefonpanelen). Telefonriktning finns under Mer.
+- **Lager:** vyval, sex rutor (stjärnbilder, namn, gränser, Vintergatan, småkroppar, rödfilter), Vanliga/Alla, förklaringar och pilknappar/centrering bakom utfällbara rader. F-020-standard oförändrad.
+- **Mer:** grupperad (Mina objekt · Inställningar med språk, rödfilter, helskärm, telefonriktning · Prototyp/felsökning · Om). Inställningspanelen är borttagen; dess text ligger i Om.
+- **Tid & plats:** Nu / Ikväll (mörkast) / Välj, datumfält med Kvällshimmel-märke, Använd min position, ortsval, Avancerat (koordinater/tidszon, öppnas vid Egna koordinater). B-008-beteende och validering oförändrade.
+- **Objektkort:** symbol, katalog-ID, typ, höjd, bästa tid; **Visa på himlen** (glider 700 ms via ny `SkyFrames.setMotion` i samma bildruteloop, stänger följning som vid drag, avbryts av drag/knappar/Följ; reducerad rörelse = direkt), Guida, Detaljer, Spara, Dela. Under horisonten visas ungefärlig uppgång i stället.
+- **F-038 symboler:** `src/KindIcon.tsx`; utbredda objekt (galax, nebulosor, hopar, dvärgplaneter, asteroider, kandidater) ritas som symbol i båda himmelsvyerna, planeter/måne/stjärnor behåller prick. Symboler även i listkort och objektkort. Ingen CSS-filtereffekt på markörer (prestanda).
+- **F-024 rödfilter:** ett multiplikationslager (`mix-blend-mode:multiply`, #e01000) över hela appen, sparat lokalt. Inget CSS-filter på himlen. Skärmens ljusstyrka kan inte styras.
+- **F-037 (del):** paneler glider in/ut, vybyte tonar/zoomar, objektkort glider in, urvalsringen pulserar, Guidens centrering pulserar och vibrerar kort (Android, vid följning). Allt av vid reducerad rörelse. Ej gjort: lager-toning, mjuk Följ-start, mjuka tidsbyten (kräver ritlogik/sensorer; senare steg).
+
+**Verifiering:** 188 enhetstester, TypeScript/produktionsbygge. Chromium: 15/15 funktionsflöden (390×844, 1280×800, 568×320), etikettstabilitet 6/6 (EN/SV), start/fokus 13/13, testinställningar/följning 8/8. Flödesskripten uppdaterades till nya knappnamn. Sensorer/GPS simulerade; ingen fysisk mobilvalidering eller mätning av svepflyt — användarens återkoppling behövs, särskilt för rödfilter och symboler under svep. B-001/B-004 pausade, B-007 observeras.
+
 ## UX-översyn — beslut inför designskiss (2026-11-12)
 
 Användaren vill göra appen snyggare, renare och effektivare utan att inställningar blir svåra att nå. Beslut:

@@ -1,3 +1,4 @@
+import {useEffect, useRef} from 'react';
 import {ArrowUp, X} from 'lucide-react';
 import {DateTime} from 'luxon';
 import type {ObservingLocation, SkyPosition} from './astronomy';
@@ -15,6 +16,12 @@ type Props = {
 export function GuidedFinder({object, position, nextRise, location, view, width, height, language, phone, sunAltitude, zoom, onClose, onDetails}: Props) {
   const sv = language === 'sv', name = sv ? object.sv : object.en;
   const guidance = finderGuidance(position, view);
+  const wasCentered = useRef(guidance.centered);
+  useEffect(() => {
+    // F-037: a short buzz when the phone first lands on the target (where supported).
+    if (guidance.centered && !wasCentered.current && phone.active) navigator.vibrate?.(35);
+    wasCentered.current = guidance.centered;
+  }, [guidance.centered, phone.active]);
   const point = projectPerspective(position, view, width, height, false, false, zoom);
   const inView = point && point.x >= 12 && point.x <= width - 12 && point.y >= 12 && point.y <= height - 12;
   const arrowRotation = finderArrowRotation(position, view, width, height, point);

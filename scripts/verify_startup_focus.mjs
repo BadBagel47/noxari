@@ -17,8 +17,8 @@ async function setup(permission='granted'){
  await page.goto(base+'?skyRenderer=canvas');await page.clock.runFor(100);return page;
 }
 async function follow(page,panel=false){
- if(panel){await page.locator('.direction-chip').click();await page.getByRole('button',{name:'Follow phone',exact:true}).click();}
- else await page.getByRole('button',{name:'Follow',exact:true}).click();
+ if(panel){await page.getByRole('button',{name:'More',exact:true}).click();await page.getByRole('button',{name:/^Phone direction/}).click();await page.getByRole('button',{name:'Follow phone',exact:true}).click();}
+ else await page.getByRole('button',{name:'Follow the phone',exact:true}).click();
 }
 async function stable(page){
  for(let i=0;i<22;i++){
@@ -27,7 +27,7 @@ async function stable(page){
  }
 }
 async function report(page){
- await page.locator('.direction-chip').click();await page.locator('.direction-diagnostics summary').click();
+ await page.getByRole('button',{name:'More',exact:true}).click();await page.getByRole('button',{name:/^Phone direction/}).click();await page.locator('.direction-diagnostics summary').click();
  const event=page.waitForEvent('download');await page.getByRole('button',{name:'Download direction report',exact:true}).click();let json='';for await(const b of await(await event).createReadStream())json+=b;return JSON.parse(json);
 }
 try {
@@ -39,7 +39,7 @@ try {
  await cold.close();console.log('PASS simulated silent first subscription recovers in same opt-in session; one permission request; startup report');
  const absent=await setup();await follow(absent);
  for(let second=1;second<=7;second++){await absent.clock.runFor(1000);assert.equal(await absent.evaluate(()=>window.__starts),second+1,'one retry on each second');}
- await absent.clock.runFor(1000);assert.equal(await absent.locator('.direction-chip').innerText(),'Manual');
+ await absent.clock.runFor(1000);assert.equal(await absent.locator('.direction-chip').innerText(),'Follow');
  assert.equal(await absent.evaluate(()=>window.__starts),8);assert.equal(await absent.evaluate(()=>window.__live.size),0);assert.match(await absent.locator('.phone-notice').innerText(),/No usable phone direction/);
  const missing=await report(absent);assert.equal(missing.startup.phase,'missing');assert.equal(missing.startup.usableDirections,0);assert.equal(missing.startup.listenerRestarts,7);await absent.close();console.log('PASS original no-data deadline, bounded retry and zero-data failure report');
  const normal=await setup();await follow(normal);await stable(normal);assert.equal(await normal.locator('.direction-chip').innerText(),'Following');
@@ -47,9 +47,9 @@ try {
  for(const action of ['stop','hidden','pending-stop','pending-hidden']){
   const pending=action.startsWith('pending'),p=await setup(pending?'pending':'granted');await follow(p);
   if(action.endsWith('hidden'))await p.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,value:true});document.dispatchEvent(new Event('visibilitychange'));delete document.hidden;});
-  else await p.getByRole('button',{name:'Stop',exact:true}).click();
+  else await p.getByRole('button',{name:'Stop following the phone',exact:true}).click();
   if(pending)await p.evaluate(()=>window.__grant());await p.clock.runFor(9500);
-  assert.equal(await p.evaluate(()=>window.__starts),pending?0:1);assert.equal(await p.evaluate(()=>window.__live.size),0);assert.equal(await p.locator('.direction-chip').innerText(),'Manual');await p.close();console.log('PASS cancellation',action);
+  assert.equal(await p.evaluate(()=>window.__starts),pending?0:1);assert.equal(await p.evaluate(()=>window.__live.size),0);assert.equal(await p.locator('.direction-chip').innerText(),'Follow');await p.close();console.log('PASS cancellation',action);
  }
  for(const permission of ['denied','error','unsupported']){
   const p=await setup(permission);await follow(p);await p.clock.runFor(9500);assert.equal(await p.evaluate(()=>window.__starts),0);

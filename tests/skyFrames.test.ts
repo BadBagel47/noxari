@@ -19,6 +19,23 @@ function harness() {
 }
 
 describe('shared sky frame scheduling', () => {
+  it('runs an eased camera motion inside the shared frame and stops when it finishes', () => {
+    const {frames, callbacks, tick, commit} = harness();
+    const camera = Symbol('camera'), poses: number[] = [];
+    frames.setRenderer(() => false);
+    tick(0);
+    let step = 0;
+    frames.setMotion(() => { const pose = ++step; frames.enqueue(camera, () => { poses.push(pose); }); return pose < 3; });
+    expect(callbacks.size).toBe(1);
+    tick(16); tick(32); tick(48);
+    expect(poses).toEqual([1, 2, 3]);
+    expect(commit).toHaveBeenCalledTimes(3);
+    expect(callbacks.size).toBe(0);
+    frames.setMotion(() => true);
+    frames.setMotion(null);
+    expect(callbacks.size).toBe(0);
+  });
+
   it('coalesces input, commits the latest pose and matching overlay before drawing once', () => {
     const {frames, callbacks, tick, commit} = harness();
     const key = Symbol('camera'), draws: number[] = [];

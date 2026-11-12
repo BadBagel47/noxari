@@ -121,3 +121,119 @@ html,body,#root{width:100%;height:100%;overflow:hidden}
 
 /* Pointer steering must not inherit the keyboard focus outline after a panel. */
 .sky-workspace .horizon-view[data-pointer-steering]:focus{outline:none}
+
+/* F-038 object symbols in the sky. */
+.sky-point.sky-symbol{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:none!important;box-shadow:none!important;opacity:.95}
+.sky-point.sky-symbol svg{display:block}
+
+/* ===== F-025 UX step 1: dock, follow toggle, sheets, object card ===== */
+.quick-tools{width:min(calc(100% - 20px),430px);justify-content:space-between;gap:2px;padding:5px;border-radius:20px}
+.quick-tools button{flex:1 1 0;width:auto;min-width:0;font-size:12.5px;line-height:1.15;text-align:center}
+.quick-tools button span{white-space:nowrap}
+.follow-toggle{min-width:84px;justify-content:center;font-weight:650}
+.follow-toggle[aria-pressed="true"]{background:#173e33e6!important;border-color:#85c9a6!important;color:#b3f0d1!important}
+.sky-workspace .horizon-heading{left:50%;right:auto;transform:translateX(-50%);top:calc(70px + env(safe-area-inset-top));padding:5px 11px;font-size:12.5px;border-radius:14px;white-space:nowrap;background:#071627a6;border-color:#739cbb40}
+.sky-workspace .horizon-heading .below-horizon-label{white-space:normal;text-align:center}
+
+.object-preview{padding:12px 12px 12px 14px;border-radius:18px;border-color:#5a7f9d}
+.object-preview .preview-head{display:flex;align-items:center;gap:12px}
+.preview-icon{display:grid;place-items:center;width:44px;height:44px;flex-shrink:0;border-radius:12px;background:#163150}
+.preview-title{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.preview-title strong{font-size:17px!important;line-height:1.25}
+.preview-title small{font-size:13px;color:#a9c1d8;line-height:1.35}
+.preview-below{margin:8px 0 0;font-size:13px;color:#f1d3a6}
+.preview-actions{flex-wrap:wrap;margin-top:10px;gap:7px}
+.preview-actions button{flex:1 1 auto}
+.preview-actions button.primary{flex:1.6 1 auto;font-weight:700}
+.preview-actions button.icon-only{flex:0 0 46px;padding:0}
+.card-icon{flex-shrink:0}
+
+.sheet-label{margin:20px 2px 9px;font-size:12px;font-weight:650;letter-spacing:1.1px;text-transform:uppercase;color:#93acc5}
+.sheet-body>.sheet-label:first-child,.sheet-body>*:first-child .sheet-label:first-child,.more-menu>.sheet-label:first-child{margin-top:0}
+.segmented.wide{display:flex;width:100%;gap:4px;padding:4px;border:1px solid #2c4560;border-radius:13px;background:#0a1626}
+.segmented.wide button{flex:1;min-height:44px;border-radius:10px;font-size:15px;color:#b8cbe0}
+.segmented.wide button.chosen{background:#2a5675;color:#fff;font-weight:650}
+.segmented.wide button:disabled{opacity:.45}
+
+.time-place{display:flex;flex-direction:column;align-items:stretch;gap:10px}
+.time-place .sheet-label{margin-bottom:0}
+.time-place .gps-status{margin:0;font-size:14px;color:#c1d5e8}
+.field-row{display:flex!important;flex-direction:row!important;align-items:center;gap:10px;padding:0 12px;min-height:50px;border:1px solid #34516e;border-radius:12px;background:#132238;color:#b9cde2;flex:none!important}
+.field-row input,.field-row select{flex:1;min-width:0;border:0!important;background:transparent!important;color:#eef6ff;height:48px!important;font-size:16px;outline-offset:2px}
+.field-row select option{background:#0c1b2b}
+.badge{flex-shrink:0;font-size:12px;color:#f2c98a;border:1px solid #6f5634;border-radius:10px;padding:2px 8px}
+.field-note{margin:-2px 2px 0;font-size:13px!important;line-height:1.5;color:#9fb6cc}
+.wide-action{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:50px;border-radius:12px;border:1px solid #537d9d;background:#1b3a53;font-size:16px;font-weight:650}
+.wide-action.primary{background:#86cbef;color:#071728;border:0}
+.wide-action:disabled{opacity:.6}
+.advanced-location{border:1px solid #2b4360;border-radius:12px;background:#14243a}
+.advanced-location summary{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 14px;cursor:pointer;list-style:none}
+.advanced-location summary::-webkit-details-marker{display:none}
+.advanced-location summary>span{flex:1;display:flex;flex-direction:column;line-height:1.3}
+.advanced-location summary small{font-size:13px;color:#98b0c8}
+.advanced-location .summary-chevron{color:#6f89a6;transition:transform .2s}
+.advanced-location[open] .summary-chevron{transform:rotate(90deg)}
+.advanced-fields{display:flex;flex-wrap:wrap;gap:10px;padding:2px 14px 14px}
+.advanced-fields label{display:flex;flex-direction:column;gap:5px;flex:1 1 120px;font-size:13px;color:#b5c9dd}
+.advanced-fields label.timezone{flex-basis:100%}
+.advanced-fields input{height:44px;font-size:16px;padding:0 10px;border:1px solid #34516e;border-radius:10px;background:#0e1c2e;color:#eef6ff}
+.advanced-fields p{flex-basis:100%;margin:0;font-size:13px!important;color:#9fb6cc}
+.panel-foot{display:flex;gap:7px;align-items:flex-start;margin:4px 2px 0;font-size:13px!important;line-height:1.5;color:#9fb6cc}
+.panel-foot svg{flex-shrink:0;margin-top:2px}
+
+.layer-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.layer-tiles button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;min-height:84px;padding:10px 4px;border:1px solid #2b4360;border-radius:14px;background:#14243a;color:#a9bdd4;font-size:13px;line-height:1.2;text-align:center;transition:background-color .18s,border-color .18s,color .18s}
+.layer-tiles button[aria-pressed="true"]{background:#1b3c58;border-color:#5b9ac2;color:#fff}
+.layer-tiles button.red-tile[aria-pressed="true"]{background:#4a1414;border-color:#c25b5b;color:#ffd3d3}
+.layer-tiles button:disabled{opacity:.45}
+.layer-help{margin-top:14px;border-top:1px solid #22364f;padding-top:6px}
+.layer-help summary{display:flex;align-items:center;gap:8px;min-height:44px;cursor:pointer;color:#a9c4dc;font-size:14px}
+.layer-help .panel-note{margin-top:6px;font-size:14px}
+
+.more-menu.grouped{gap:0}
+.menu-list{display:flex;flex-direction:column;border:1px solid #2b4360;border-radius:14px;background:#14243a;overflow:hidden}
+.menu-list.spaced{margin-top:14px}
+.more-menu .menu-list>button,.menu-row{display:flex;align-items:center;gap:13px;min-height:54px;padding:10px 14px;border:0;border-top:1px solid #22364f;border-radius:0;background:none;text-align:left;font-size:16px;color:#e8effb}
+.more-menu .menu-list>:first-child{border-top:0}
+.menu-text{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}
+.menu-text small{font-size:13px;color:#98b0c8;margin-top:2px}
+.menu-value{color:#98b0c8;font-size:14px}
+.menu-row .segmented{display:flex;gap:2px;padding:3px;border-radius:10px;background:#0a1626;border:1px solid #2c4560}
+.menu-row .segmented button{min-width:48px;min-height:40px;border-radius:8px;font-size:14px;padding:0 8px}
+.toggle{position:relative;flex-shrink:0;width:46px;height:28px;border-radius:14px;background:#2a3a4f;transition:background-color .2s}
+.toggle::after{content:"";position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#9fb3c9;transition:transform .2s,background-color .2s}
+.toggle.on{background:#2f6b8f}.toggle.on::after{transform:translateX(18px);background:#fff}
+
+/* ===== F-037 motion ===== */
+.view-switch{position:absolute;inset:0;animation:view-in .34s ease-out}
+@keyframes view-in{from{opacity:.25;transform:scale(1.035)}to{opacity:1;transform:none}}
+.panel-backdrop{animation:backdrop-in .2s ease-out}
+.panel-backdrop .sky-sheet{animation:sheet-up .28s cubic-bezier(.2,.8,.2,1)}
+.panel-backdrop.is-closing{animation:backdrop-out .17s ease-in forwards}
+.panel-backdrop.is-closing .sky-sheet{animation:sheet-down .17s ease-in forwards}
+@keyframes backdrop-in{from{background-color:#02091400;backdrop-filter:blur(0)}}
+@keyframes backdrop-out{to{background-color:#02091400;backdrop-filter:blur(0)}}
+@keyframes sheet-up{from{transform:translateY(100%)}}
+@keyframes sheet-down{to{transform:translateY(100%)}}
+.object-preview{animation:card-in .24s cubic-bezier(.2,.8,.2,1)}
+@keyframes card-in{from{opacity:0;transform:translateY(14px)}}
+.sky-workspace button.sky-object.is-selected .sky-point{animation:ring-pulse .7s ease-out}
+@keyframes ring-pulse{from{outline-offset:18px;outline-color:#ffe2a000}to{outline-offset:6px;outline-color:#ffe2a0}}
+.is-centered .finder-reticle{animation:centered-pulse .6s ease-out}
+@keyframes centered-pulse{0%{box-shadow:0 0 0 0 #98e5bd99}100%{box-shadow:0 0 0 22px #98e5bd00,0 0 24px #98e5bd55}}
+@media(min-width:761px),(orientation:landscape) and (min-width:568px){
+ .panel-backdrop .sky-sheet{animation-name:sheet-left}.panel-backdrop.is-closing .sky-sheet{animation-name:sheet-right}
+ .quick-tools{width:auto;justify-content:center}.quick-tools button{flex:none;width:68px}
+ .sky-workspace .horizon-heading{left:50%}
+}
+@keyframes sheet-left{from{transform:translateX(100%)}}
+@keyframes sheet-right{to{transform:translateX(100%)}}
+@media(prefers-reduced-motion:reduce){
+ .view-switch,.panel-backdrop,.panel-backdrop .sky-sheet,.object-preview,.sky-workspace button.sky-object.is-selected .sky-point,.is-centered .finder-reticle{animation:none!important}
+ .toggle,.toggle::after,.layer-tiles button,.advanced-location .summary-chevron{transition:none}
+}
+
+/* ===== F-024 red night mode: whole app in red/black, dimmed ===== */
+/* A single multiply layer keeps only (dimmed) red light; no filter pass over the moving sky. */
+.sky-app.red-mode::after{content:"";position:absolute;inset:0;z-index:1000;pointer-events:none;background:#e01000;mix-blend-mode:multiply}
+.sky-map .sky-point.sky-symbol{width:16px;height:16px}.sky-map .sky-point.sky-symbol svg{width:15px;height:15px}

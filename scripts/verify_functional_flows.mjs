@@ -16,6 +16,8 @@ async function make(viewport={width:390,height:844},url=base+'?skyRenderer=canva
 }
 async function close(p){if(await p.getByRole('button',{name:'Close panel',exact:true}).count())await p.getByRole('button',{name:'Close panel',exact:true}).click();}
 async function more(p,name){await close(p);await p.getByRole('button',{name:'More',exact:true}).click();await p.getByRole('button',{name,exact:true}).click();assert.equal(await p.getByRole('dialog').count(),1);}
+async function layers(p){await close(p);await p.getByRole('button',{name:'Layers',exact:true}).click();assert.equal(await p.getByRole('dialog').count(),1);}
+async function advanced(p){if(!(await p.locator('details.advanced-location').evaluate(d=>d.open)))await p.locator('details.advanced-location summary').click();}
 async function search(p,query){await close(p);await p.getByRole('button',{name:'Search',exact:true}).click();await p.getByRole('button',{name:'Main catalog',exact:true}).click();await p.getByRole('button',{name:'All objects',exact:true}).click();await p.getByRole('textbox').fill(query);}
 async function pick(p,query){await search(p,query);assert.equal(await p.locator('.card-main').count(),1);await p.locator('.card-main').click();}
 async function wait(){await new Promise(r=>setTimeout(r,60));}
@@ -42,10 +44,10 @@ try {
   });
   await check('bookmark reload and object/list share round trip',viewport,async p=>{
    await pick(p,'M31');await p.getByRole('button',{name:'Save object',exact:true}).click();assert.equal(await p.getByRole('button',{name:'Remove bookmark',exact:true}).getAttribute('aria-pressed'),'true');
-   await p.getByRole('button',{name:'Details',exact:true}).click();await p.getByRole('button',{name:'Share object',exact:true}).click();
+   await p.getByRole('button',{name:'Details',exact:true}).click();await p.getByRole('dialog').getByRole('button',{name:'Share object',exact:true}).click();
    let url=await p.evaluate(()=>window.__shares.at(-1).url);assert.match(url,/\/noxari\/share\/en\/m31\/$/);
    const response=await p.request.get(url);assert.equal(response.status(),200);const html=await response.text();assert.match(html,/og:title/);assert.match(html,/object=m31/);
-   await p.evaluate(()=>Object.defineProperty(navigator,'share',{configurable:true,value:undefined}));await p.getByRole('button',{name:'Share object',exact:true}).click();assert.equal(await p.evaluate(()=>window.__clipboard.at(-1)),url);
+   await p.evaluate(()=>Object.defineProperty(navigator,'share',{configurable:true,value:undefined}));await p.getByRole('dialog').getByRole('button',{name:'Share object',exact:true}).click();assert.equal(await p.evaluate(()=>window.__clipboard.at(-1)),url);
    await p.reload();await more(p,'Saved objects');assert.equal(await p.locator('.card-main').count(),1);assert.match(await p.locator('.card-main').innerText(),/Andromeda/);
    await p.getByRole('button',{name:'Share list',exact:true}).click();url=await p.evaluate(()=>window.__shares.at(-1).url);assert.equal(new URL(url).searchParams.get('list'),'m31');
    const other=await make(viewport,url);try{await other.locator('.panel-shared').waitFor();assert.equal(await other.locator('.card-main').count(),1);assert.equal(await other.evaluate(()=>JSON.parse(localStorage.getItem('noxari-saved')||'[]').length),0);await other.getByRole('button',{name:'Save all to my list',exact:true}).click();assert.deepEqual(await other.evaluate(()=>JSON.parse(localStorage.getItem('noxari-saved'))),['m31']);await other.reload();await other.locator('.panel-shared').waitFor();assert.equal(await other.locator('.card-main').count(),1);}finally{await other.close();}
@@ -61,30 +63,30 @@ try {
   });
   await check('real CDP pinch in horizon and map without object selection',viewport,async p=>{
    const before=await positions(p);await pinch(p,'.horizon-view');const after=await positions(p);assert.notDeepEqual(after,before);assert.equal(await p.locator('.object-preview').count(),0);
-   await more(p,'Sky display');await p.getByRole('button',{name:'Sky map',exact:true}).click();await close(p);const mapBefore=await positions(p);await pinch(p,'.sky-map');assert.notDeepEqual(await positions(p),mapBefore);assert.equal(await p.locator('.object-preview').count(),0);
-   await more(p,'Sky display');await p.getByRole('button',{name:'Look around',exact:true}).click();await close(p);assert.equal(await p.locator('.horizon-view').count(),1);
+   await layers(p);await p.getByRole('button',{name:'Sky map',exact:true}).click();await close(p);const mapBefore=await positions(p);await pinch(p,'.sky-map');assert.notDeepEqual(await positions(p),mapBefore);assert.equal(await p.locator('.object-preview').count(),0);
+   await layers(p);await p.getByRole('button',{name:'Look around',exact:true}).click();await close(p);assert.equal(await p.locator('.horizon-view').count(),1);
   });
  }
  await check('timezones, fixed/Now/preview, coordinate validation and persistence',{width:390,height:844},async p=>{
   await p.getByRole('button',{name:'Time & location',exact:true}).click();await p.getByRole('button',{name:'Now',exact:true}).click();assert.match(await p.locator('.observation-chip').innerText(),/Now/);
   await p.locator('input[type=datetime-local]').fill('2026-01-20T20:00');assert.match(await p.locator('.observation-chip').innerText(),/Selected time/);
   await p.getByRole('combobox',{name:'Location',exact:true}).selectOption('London');assert.equal(await p.locator('input[type=datetime-local]').inputValue(),'2026-01-20T19:00');
-  await p.getByRole('spinbutton',{name:'Latitude',exact:true}).fill('91');await p.getByRole('button',{name:'Apply',exact:true}).click();assert.match(await p.locator('.toast').innerText(),/latitude/);assert.match(await p.locator('.observation-chip').innerText(),/London/);
+  await advanced(p);await p.getByRole('spinbutton',{name:'Latitude',exact:true}).fill('91');await p.getByRole('button',{name:'Apply',exact:true}).click();assert.match(await p.locator('.toast').innerText(),/latitude/);assert.match(await p.locator('.observation-chip').innerText(),/London/);
   await p.getByRole('spinbutton',{name:'Latitude',exact:true}).fill('51.5');await p.getByRole('textbox',{name:'Timezone',exact:true}).fill('Not/AZone');await p.getByRole('button',{name:'Apply',exact:true}).click();assert.match(await p.locator('.toast').innerText(),/valid IANA/);
   await p.getByRole('textbox',{name:'Timezone',exact:true}).fill('Europe/London');await p.getByRole('button',{name:'Apply',exact:true}).click();assert.match(await p.locator('.observation-chip').innerText(),/Custom coordinates/);
   await p.locator('input[type=datetime-local]').fill('2026-03-29T01:30');assert.match(await p.locator('.toast').innerText(),/does not exist/);assert.equal(await p.locator('input[type=datetime-local]').inputValue(),'2026-01-20T19:00');
-  await p.getByRole('button',{name:'Show stars tonight',exact:true}).click();assert.match(await p.locator('.observation-chip').innerText(),/Night preview/);await p.reload();assert.match(await p.locator('.observation-chip').innerText(),/Custom coordinates/);
+  await p.getByRole('button',{name:'Tonight (darkest)',exact:true}).click();assert.match(await p.locator('.observation-chip').innerText(),/Night preview/);await p.reload();assert.match(await p.locator('.observation-chip').innerText(),/Custom coordinates/);
  });
  await check('GPS opt in, denial/timeout/success and stale-result cancellation',{width:390,height:844},async p=>{
   assert.equal(await p.evaluate(()=>window.__gps.length),0);await p.getByRole('button',{name:'Time & location',exact:true}).click();
   await p.getByRole('button',{name:'Use my location',exact:true}).click();await p.evaluate(()=>window.__gps.at(-1).error({code:1}));await p.locator('.gps-status').filter({hasText:/denied/}).waitFor();assert.match(await p.locator('.gps-status').innerText(),/denied/);
   await p.getByRole('button',{name:'Use my location',exact:true}).click();await p.evaluate(()=>window.__gps.at(-1).error({code:3}));await p.locator('.gps-status').filter({hasText:/timed out/}).waitFor();assert.match(await p.locator('.gps-status').innerText(),/timed out/);
   await p.getByRole('button',{name:'Use my location',exact:true}).click();await p.evaluate(()=>window.__gps.at(-1).ok({coords:{latitude:51.5,longitude:-.1,accuracy:12}}));await p.locator('.observation-chip').filter({hasText:/Device location/}).waitFor();assert.match(await p.locator('.observation-chip').innerText(),/Device location/);assert.match(await p.locator('.gps-status').innerText(),/12 m/);
-  await p.getByRole('button',{name:'Use my location',exact:true}).click();await p.getByRole('combobox',{name:'Location',exact:true}).selectOption('Sydney');await p.evaluate(()=>window.__gps.at(-1).ok({coords:{latitude:0,longitude:0,accuracy:1}}));await p.waitForTimeout(80);assert.match(await p.locator('.observation-chip').innerText(),/Sydney/);assert.equal(await p.getByRole('spinbutton',{name:'Latitude',exact:true}).inputValue(),'-33.8688');
+  await p.getByRole('button',{name:'Use my location',exact:true}).click();await p.getByRole('combobox',{name:'Location',exact:true}).selectOption('Sydney');await p.evaluate(()=>window.__gps.at(-1).ok({coords:{latitude:0,longitude:0,accuracy:1}}));await p.waitForTimeout(80);assert.match(await p.locator('.observation-chip').innerText(),/Sydney/);await advanced(p);assert.equal(await p.getByRole('spinbutton',{name:'Latitude',exact:true}).inputValue(),'-33.8688');
  });
  await check('Swedish settings persistence and localized sharing',{width:390,height:844},async p=>{
-  await more(p,'Settings');await p.getByRole('button',{name:'SV',exact:true}).click();await p.getByRole('button',{name:'Stäng panel',exact:true}).click();await p.reload();assert.equal(await p.getByRole('button',{name:'Sök',exact:true}).count(),1);
-  await p.getByRole('button',{name:'Sök',exact:true}).click();await p.getByRole('textbox').fill('Pluto');await p.locator('.card-main').click();await p.getByRole('button',{name:'Detaljer',exact:true}).click();await p.getByRole('button',{name:'Dela objekt',exact:true}).click();assert.match(await p.evaluate(()=>window.__shares.at(-1).url),/\/share\/sv\/pluto\/$/);await p.screenshot({path:'/tmp/noxari-f009-sv-mobile.png'});
+  await close(p);await p.getByRole('button',{name:'More',exact:true}).click();await p.getByRole('button',{name:'SV',exact:true}).click();await p.getByRole('button',{name:'Stäng panel',exact:true}).click();await p.reload();assert.equal(await p.getByRole('button',{name:'Sök',exact:true}).count(),1);
+  await p.getByRole('button',{name:'Sök',exact:true}).click();await p.getByRole('textbox').fill('Pluto');await p.locator('.card-main').click();await p.getByRole('button',{name:'Detaljer',exact:true}).click();await p.getByRole('dialog').getByRole('button',{name:'Dela objekt',exact:true}).click();assert.match(await p.evaluate(()=>window.__shares.at(-1).url),/\/share\/sv\/pluto\/$/);await p.screenshot({path:'/tmp/noxari-f009-sv-mobile.png'});
  });
  assert.deepEqual(errors,[]);
 }finally {writeFileSync(process.env.QA_OUTPUT || '/tmp/noxari-f009-results.json',JSON.stringify({expectedBuild:process.env.EXPECTED_BUILD || null,results,pageErrors:errors},null,2));await browser.close();}

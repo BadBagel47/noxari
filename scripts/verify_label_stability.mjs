@@ -64,10 +64,8 @@ try {
     }
     await page.mouse.up();
     assert.ok(memory.size > 0, 'no label continuity was checked');
-    const more = language === 'sv' ? 'Mer' : 'More', display = language === 'sv' ? 'Himmelsvy' : 'Sky display';
-    await page.getByRole('button', {name: more, exact: true}).click();
-    await page.getByRole('button', {name: display, exact: true}).click();
-    await page.getByRole('button', {name: language === 'sv' ? 'Himmelskarta' : 'Sky map', exact: true}).click();
+    await page.getByRole('button', {name: language === 'sv' ? 'Lager' : 'Layers', exact: true}).click();
+    await page.getByRole('button', {name: language === 'sv' ? 'Stjärnkarta' : 'Sky map', exact: true}).click();
     await page.getByRole('button', {name: language === 'sv' ? 'Stäng panel' : 'Close panel', exact: true}).click();
     const mapMemory = new Map();
     remember(await sample(page, '.sky-map'), mapMemory);
