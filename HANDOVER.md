@@ -1,3 +1,7 @@
+## F-052 och F-053 registrerade (2026-11-12)
+
+F-052: kompakt infokort med ”Mer” och Wikipedia-sammanfattning/länk (inspirerat av Stellarium, men mindre på mobil). F-053: visa objektets bana över himlen under natten med klockslag, och för planeter/månen rörelsen bland stjärnorna över längre tid. Inväntar ”Kör” (tillsammans med F-051).
+
 ## F-049 + F-050 genomförda (2026-11-12, Opus) + mindre UI-önskemål
 
 Användaren gav ”Kör” och valde ren standardvy som Stellarium.
