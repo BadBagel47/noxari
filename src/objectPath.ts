@@ -58,7 +58,7 @@ export function starPathSamples(object: SpaceObject, time: Date, location: Obser
   const body = object.position?.kind === 'solar' ? object.position.body : null;
   const [spanDays, labelEvery] = body === 'Moon' ? [3, 1]
     : body === 'Mercury' || body === 'Venus' || body === 'Mars' ? [28, 7]
-    : body === 'Jupiter' || body === 'Saturn' ? [90, 30] : [180, 60];
+    : body === 'Jupiter' || body === 'Saturn' ? [90, 30] : object.position?.kind === 'keplerian' ? [90, 30] : [180, 60];
   const steps = 48, stepDays = spanDays / steps, labelStep = Math.round(steps * labelEvery / spanDays);
   const locale = language === 'sv' ? 'sv' : 'en';
   const samples: {ra: number; dec: number; time: Date; label: string}[] = [];

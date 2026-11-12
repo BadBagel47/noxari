@@ -46,12 +46,13 @@ type Props = {
   milkyWay: MilkyWayTexture | null;
   /** F-053: object whose track across the sky is drawn. */
   pathObject?: SpaceObject | null;
+  pathMotion?: boolean;
   showSatellites?: boolean;
   satellitesKey?: number;
 };
 
 const noObjects: SpaceObject[] = [];
-export function SkyMap({selectedId, time, location, label, language, sunLabel, onSelect, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, dynamicKey, skyLevel, skyGroups, milkyWay, extraObjects = noObjects, pathObject = null, showSatellites = false, satellitesKey = 0}: Props) {
+export function SkyMap({selectedId, time, location, label, language, sunLabel, onSelect, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, dynamicKey, skyLevel, skyGroups, milkyWay, extraObjects = noObjects, pathObject = null, pathMotion = false, showSatellites = false, satellitesKey = 0}: Props) {
   const container = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const reveal = useRef(new ConstellationReveal());
@@ -80,7 +81,7 @@ export function SkyMap({selectedId, time, location, label, language, sunLabel, o
   const pathNightKey = nightKey(time);
   const pathNight = useMemo(() => pathObject ? nightPath(pathObject, time, location) : null, [pathObject, pathNightKey, location]);
   const pathStarKey = Math.floor(time.getTime() / (pathObject?.id === 'moon' ? 3_600_000 : 21_600_000));
-  const pathSamples = useMemo(() => movesAmongStars(pathObject) ? starPathSamples(pathObject!, time, location, language) : null, [pathObject, pathStarKey, location, language]);
+  const pathSamples = useMemo(() => pathMotion && movesAmongStars(pathObject) ? starPathSamples(pathObject!, time, location, language) : null, [pathObject, pathMotion, pathStarKey, location, language]);
   const pathStars = useMemo(() => starPathSky(pathSamples, time, location), [pathSamples, time, location]);
   const objectTrack = useMemo(() => pathNight ? {...pathNight, ...pathStars} : null, [pathNight, pathStars]);
   // F-055: the map shows satellites at the shown time (the sky view animates them live).

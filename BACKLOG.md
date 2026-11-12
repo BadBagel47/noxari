@@ -6,8 +6,7 @@ ID:n är permanenta (F-### funktioner, B-### buggar, separata serier — beslut 
 
 Senast uppdaterad 2026-11-12. Bokstäverna gäller bara den senast visade listan.
 
-- **A** – standardmodell, medelnivå – Objektets bana, enklare standard (Prioritet: Medel)
-  - F-059 – Bara kvällens väg (blå) som standard; rörelsen bland stjärnorna (orange) slås på i objektets beskrivning
+Inga körklara förslag just nu.
 
 **Parkerat:** B-001 (riktningsdrift), B-004 (ryckighet), B-007 (första Följ – observeras), F-009 (mobiltester), F-010 (månkalibrering), F-011 (kamera/AR), resterande del av F-037 (mjuk Följ-start).
 
@@ -21,7 +20,7 @@ Senast uppdaterad 2026-11-12. Bokstäverna gäller bara den senast visade listan
 
 | ID | Funktion | Status | Prioritet | Omfattning / klart när |
 | --- | --- | --- | --- | --- |
-| **F-059** | Objektets bana: bara kvällens väg som standard | **Förslag 2026-11-12** | Medel | Användaren (skärmbild med Vesta): den orange slingan (rörelse bland stjärnorna) plus ekliptikan blev för många spår. Förslag: Lager → Objektets bana visar bara kvällens väg (blå streckad med klockslag). Rörelsen bland stjärnorna slås på per tillfälle med en knapp i objektets beskrivning under ”Mer” (”Visa rörelse bland stjärnorna”), med kort förklaring av retrograd slinga; av igen när man väljer ett annat objekt. Kontrollerat: Vestas slinga 2026 är korrekt (framåt till aug, bakåt aug–dec, framåt igen). Tillval i samma körning: kortare fönster för asteroider/dvärgplaneter (±3 månader) och datumetiketter som undviker andra objekts namn. Inte startgodkänd. |
+| **F-059** | Objektets bana: bara kvällens väg som standard | **Klar 2026-11-12** | Medel | Användaren (skärmbild med Vesta): den orange slingan (rörelse bland stjärnorna) plus ekliptikan blev för många spår. Förslag: Lager → Objektets bana visar bara kvällens väg (blå streckad med klockslag). Rörelsen bland stjärnorna slås på per tillfälle med en knapp i objektets beskrivning under ”Mer” (”Visa rörelse bland stjärnorna”), med kort förklaring av retrograd slinga; av igen när man väljer ett annat objekt. Kontrollerat: Vestas slinga 2026 är korrekt (framåt till aug, bakåt aug–dec, framåt igen). Gjort: knapp under ”Mer”, asteroider/dvärgplaneter ±3 månader. Ej gjort: datumetiketter som undviker andra objekts namn (de undviker bara varandra). |
 
 ## Parkerat
 

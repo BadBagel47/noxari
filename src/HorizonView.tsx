@@ -77,6 +77,7 @@ type Props = {
   extraObjects?: SpaceObject[];
   /** F-053: object whose track across the sky is drawn (selected object, when the layer is on). */
   pathObject?: SpaceObject | null;
+  pathMotion?: boolean;
   /** F-055: moving satellite dots (version changes when new elements arrive). */
   showSatellites?: boolean;
   satellitesKey?: number;
@@ -86,7 +87,7 @@ const noObjects: SpaceObject[] = [];
 const wrap = (degrees: number) => (degrees % 360 + 360) % 360;
 const cardinal = (heading: number, language: 'en' | 'sv') => (language === 'sv' ? ['N', 'NO', 'Ö', 'SO', 'S', 'SV', 'V', 'NV'] : ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'])[Math.round(wrap(heading) / 45) % 8];
 
-export function HorizonView({frames, selectedId, time, timeMode, location, label, sunLabel, onSelect, language, view, onViewChange, onDragViewChange, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showMilkyWay, showLandscape = true, dynamicKey, onSelectConstellation, skyLevel, skyGroups, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails, zoomControl, extraObjects = noObjects, pathObject = null, showSatellites = false, satellitesKey = 0}: Props) {
+export function HorizonView({frames, selectedId, time, timeMode, location, label, sunLabel, onSelect, language, view, onViewChange, onDragViewChange, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showMilkyWay, showLandscape = true, dynamicKey, onSelectConstellation, skyLevel, skyGroups, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails, zoomControl, extraObjects = noObjects, pathObject = null, pathMotion = false, showSatellites = false, satellitesKey = 0}: Props) {
   const comparisonStatus = useSyncExternalStore(frames.comparison.subscribe, frames.comparison.getSnapshot);
   const [comparisonTrackers] = useState(() => ({current: {pass: -1, reveal: new ConstellationReveal(), cache: new ConstellationDrawingCache(), resolution: new MotionResolution()}}));
   const root = useRef<HTMLDivElement>(null);
@@ -143,7 +144,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
   const pathNightKey = nightKey(time);
   const pathNight = useMemo(() => pathObject ? nightPath(pathObject, time, location) : null, [pathObject, pathNightKey, location]);
   const pathStarKey = Math.floor(time.getTime() / (pathObject?.id === 'moon' ? 3_600_000 : 21_600_000));
-  const pathSamples = useMemo(() => movesAmongStars(pathObject) ? starPathSamples(pathObject!, time, location, language) : null, [pathObject, pathStarKey, location, language]);
+  const pathSamples = useMemo(() => pathMotion && movesAmongStars(pathObject) ? starPathSamples(pathObject!, time, location, language) : null, [pathObject, pathMotion, pathStarKey, location, language]);
   const pathStars = useMemo(() => starPathSky(pathSamples, time, location), [pathSamples, time, location]);
   const objectTrack = useMemo(() => pathNight ? {...pathNight, ...pathStars} : null, [pathNight, pathStars]);
   const preparedBoundaries = useMemo(() => boundaries.map(arc => prepareHorizontalDirections(arc)), [boundaries]);
