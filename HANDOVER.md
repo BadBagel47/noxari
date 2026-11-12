@@ -1,3 +1,7 @@
+## F-044 och F-045 registrerade (2026-11-12)
+
+Användaren vill ha en visning: guidad tur genom sparade objekt med Nästa/Föregående/Stoppa, antingen genom att peka mobilen själv (inaktiverat på dator med förklaring) eller att himlen glider dit (F-044), samt ett separat självgående demoläge för helskärm (F-045). Inväntar ”Kör”; rekommenderad modell Opus.
+
 ## F-043 synlighetsnivåer — genomfört (2026-11-12, Opus)
 
 Användaren gav ”Kör”. Lager → ”Vad som syns på himlen”: **Blotta ögat** (standard vid varje start), **Kikare**, **Hela katalogen**. Nivån bygger på objektens befintliga utrustningsklass (samma som Ikvälls utrustningsfilter): Blotta ögat visar M31, M42, M44, M45 bland djuprymdsobjekten; Kikare lägger till kikarobjekt; Hela katalogen visar allt inklusive kandidater (egen knapp, fortsatt märkta). **Hela solsystemet** (sol, måne, alla planeter, dvärgplaneter, Vesta, ISS) och namngivna stjärnor visas alltid (användarbeslut). Gruppknappar: Galaxer, Stjärnhopar, Nebulosor (+ Kandidater i Hela katalogen). Ett valt objekt syns alltid. ”Småkroppar”-rutan är ersatt. Nivån är sessionslokal som övriga lager.
