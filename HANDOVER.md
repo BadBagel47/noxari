@@ -8,7 +8,7 @@ Användaren vill göra appen snyggare, renare och effektivare utan att inställn
 - Förebilder: Stellarium föredras framför Sky Guide — fler direkt nåbara knappar, men rent.
 - Arbetssätt: först en designskiss med före/efter-bilder utan appkodändring, sedan godkännande och byggsteg.
 
-Modellrekommendationer: sessionen körs nu med Claude Code. Rekommendera Claude-modeller (t.ex. Opus för design/komplex analys, Sonnet för väl avgränsade steg) i stället för de tidigare GPT-namnen Luna/Sol. Designskissen är föreslagen med Opus; inväntar ”Kör”.
+Modellrekommendationer: sessionen körs nu med Claude Code. Rekommendera Claude-modeller (t.ex. Opus för design/komplex analys, Sonnet för väl avgränsade steg) i stället för de tidigare GPT-namnen Luna/Sol. Designskissen godkändes med ”Kör” och är klar i `docs/design/ux-2026-11/` (före/efter-bilder, ingen appkod ändrad). Inväntar användarens synpunkter; bygge kräver nytt ”Kör”.
 
 ## Mobilåterkoppling 2026-11-12
 
