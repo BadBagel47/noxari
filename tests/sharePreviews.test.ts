@@ -28,7 +28,8 @@ describe('static object share previews', () => {
     expect(records).toHaveLength(2 * (objects.length + candidateObjects.length));
     expect(new Set(records.map(record => `${record.language}/${record.object.id}`)).size).toBe(records.length);
     expect(records.some(record => record.object.id === '2026-ed138' && record.language === 'sv')).toBe(true);
-    expect(sourceImages.filter(image => mayUseSharePreviewImage(image.license))).toHaveLength(7);
+    expect(sourceImages.filter(image => mayUseSharePreviewImage(image.license))).toHaveLength(sourceImages.filter(image => image.license === 'Public domain').length);
+    expect(sourceImages.filter(image => mayUseSharePreviewImage(image.license)).every(image => image.license === 'Public domain')).toBe(true);
     expect(mayUseSharePreviewImage('CC BY-SA 2.5')).toBe(false);
   });
 

@@ -10,7 +10,7 @@ To review/update this snapshot, check each source page, retain the factual value
 
 ## Selected Messier images
 
-`object-images.json` is the source of record for eight 960-pixel Commons thumbnails used in object Details. It retains the individual source-file page, creator credit, license label/link, accessible English/Swedish descriptions, download URL and SHA-256 for the exact thumbnail bytes shipped in `public/images/objects/`. Reproduce or integrity-check the files with:
+`object-images.json` is the source of record for the object photos used in Details and the demo title card: the original eight 960-pixel Commons JPEG thumbnails (F-005) plus 115 more (F-048, 2026-11-12) for most Messier objects and the solar-system bodies. F-048 entries were proposed by `scripts/find_object_images.py` (English Wikipedia lead image → Commons license metadata; only public domain, CC0, CC BY and CC BY-SA without extra restrictions), visually reviewed (M38 rejected: wide field centred on IC 410/IC 417), and are re-encoded to WebP at most 560 px; they carry `format: "webp"`, the SHA-256 of the downloaded source thumbnail (`sha256`) and of the shipped file (`fileSha256`). M40, M73 and other entries keep whatever the source shows; link previews still use only the public-domain JPEGs. It retains the individual source-file page, creator credit, license label/link, accessible English/Swedish descriptions, download URL and SHA-256 for the exact thumbnail bytes shipped in `public/images/objects/`. Reproduce or integrity-check the files with:
 
 ```sh
 python3 scripts/download_object_images.py

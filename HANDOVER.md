@@ -1,3 +1,12 @@
+## F-046 + F-047 + F-048 genomförda (2026-11-12, Opus)
+
+Användaren gav ”Kör”.
+- **F-046 demoläge:** kameran går i en båge (lyft upp till 14°), drar sig alltid ut minst halvvägs även mellan närliggande objekt och tar minst ≈2,6 s; därefter långsam inzoomning (+16 %) och drift (2,5°) under hela visningen i samma rörelseplats i bildruteloopen. Visat objekt hamnar i övre tredjedelen, markören växer med en pulserande gloria. Titelskylten får foto (om det finns, med fotograf/licens och ”långexponering”) och var man ska titta: väderstreck, höjd i handbredder (≈10° var) och en liten himmelsskiss. Text tonas ut före och in efter rörelsen. Rättat: demon läste en gammal kamerariktning från en tidigare rendering (kunde ge ryck) — nu används alltid senaste vy/tid/plats. Reducerad rörelse: inga kamerarörelser eller pulser.
+- **F-047:** Telefonriktning ligger under Prototyp · felsökning och visas bara med pekskärm eller aktiv följning.
+- **F-048 foton:** 115 nya Commons-bilder (Messier + planeter, månen, dvärgplaneter, Vesta), 123 totalt. Licenser: public domain, CC0, CC BY 2.0–4.0, CC BY-SA 2.5–4.0; metadata från Commons, bilderna granskade visuellt (M38 avvisad; två felhämtningar upptäckta och omhämtade). WebP ≤560 px, 6,8 MB totalt, förcachas inte. Kredit i Om & källor. Delningssidor använder fortsatt bara JPEG i public domain. Molnmiljön fick åtkomst till Wikipedia/Commons (godkänt av användaren).
+
+Verifiering: 225 enhetstester, fullt bygge, 15/15 funktionsflöden, etiketter, start/fokus, testinställningar; webbläsarprov av demoläget (kontinuerlig riktning utan hopp mellan objekt, drift under visning, foto och riktningstext). Ingen fysisk mobilkontroll. B-001/B-004 pausade, B-007 observeras. Ingen ny körning godkänd.
+
 ## F-046 och F-047 registrerade (2026-11-12)
 
 F-046: användarens önskemål om ett mer filmiskt demoläge (växande objekt, var man ska titta, svepande bågar, ständig långsam rörelse, mjuka närliggande övergångar). F-047: Telefonriktning döljs på dator och flyttas till Prototyp · felsökning på mobil. Båda inväntar ”Kör”.

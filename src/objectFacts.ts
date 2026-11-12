@@ -54,3 +54,15 @@ export function demoZoom(object: SpaceObject) {
   if (object.kind === 'Constellation') return 1;
   return object.kind === 'Moon' ? 2 : 2.4;
 }
+
+/** F-046: where to look, in words a beginner can use outdoors (a hand at arm's length ≈ 10°). */
+export function lookHint(position: {altitude: number; azimuth: number}, language: 'en' | 'sv') {
+  const sv = language === 'sv';
+  const names = sv ? ['norr', 'nordost', 'öster', 'sydost', 'söder', 'sydväst', 'väster', 'nordväst'] : ['north', 'north-east', 'east', 'south-east', 'south', 'south-west', 'west', 'north-west'];
+  const direction = names[Math.round(((position.azimuth % 360) + 360) % 360 / 45) % 8];
+  const altitude = Math.round(position.altitude), hands = Math.round(position.altitude / 10);
+  const height = position.altitude >= 75 ? (sv ? 'nästan rakt upp' : 'almost straight up')
+    : hands < 1 ? (sv ? 'strax ovanför horisonten' : 'just above the horizon')
+    : sv ? `${hands} ${hands === 1 ? 'handbredd' : 'handbredder'} upp` : `${hands} hand${hands === 1 ? '' : 's'} up`;
+  return {direction, height, altitude, text: sv ? `Titta mot ${direction}, ${height} (${altitude}°)` : `Look ${direction}, ${height} (${altitude}°)`};
+}

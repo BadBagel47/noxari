@@ -43,7 +43,8 @@ try {
   const imageManifest = JSON.parse(await readFile(path.join(root, 'data/object-images.json'), 'utf8'));
   const images = new Map();
   for (const image of imageManifest) {
-    if (!mayUseSharePreviewImage(image.license)) continue;
+    // Link previews (og:image) use the original JPEG thumbnails only; F-048 WebP photos stay in the app.
+    if (!mayUseSharePreviewImage(image.license) || !/\.jpe?g$/i.test(image.file)) continue;
     const file = path.basename(image.file);
     const assetPath = path.join(root, 'public/images/objects', file);
     const dimensions = jpegDimensions(await readFile(assetPath));

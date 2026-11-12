@@ -444,3 +444,21 @@ html,body,#root{width:100%;height:100%;overflow:hidden}
 @keyframes demo-title{from{opacity:0;transform:translateY(22px);letter-spacing:.06em;filter:blur(6px)}to{opacity:1;transform:none;letter-spacing:-.02em;filter:blur(0)}}
 @keyframes demo-out{to{opacity:0;transform:translateY(-10px)}}
 @media(prefers-reduced-motion:reduce){.tour-bar,.demo-overlay,.demo-kicker,.demo-caption h2,.demo-caption dl div,.demo-caption.leaving{animation-duration:.01ms!important;animation-delay:0s!important}}
+/* F-046: the shown object grows with a soft halo once the camera lands */
+.sky-app.demo-active .sky-object.is-selected .sky-point{transition:transform 1.6s cubic-bezier(.2,.8,.2,1),filter 1.6s}
+.sky-app.demo-landed .sky-object.is-selected .sky-point{transform:scale(2.3);filter:drop-shadow(0 0 10px #ffe7b0)}
+.sky-app.demo-active .sky-object.is-selected::after{content:'';position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;border:1.5px solid #ffe2a8;opacity:0;pointer-events:none}
+.sky-app.demo-landed .sky-object.is-selected::after{animation:demo-halo 2.8s ease-out .3s infinite}
+@keyframes demo-halo{0%{opacity:.75;transform:scale(.8)}100%{opacity:0;transform:scale(2.6)}}
+.demo-photo{margin:0 0 14px;width:min(260px,52vw);opacity:0;animation:demo-photo 1.2s .15s cubic-bezier(.2,.8,.2,1) forwards}
+.demo-photo img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:14px;border:1px solid #ffffff2e;box-shadow:0 12px 40px #000a;animation:demo-kenburns 9s ease-in-out forwards}
+.demo-photo{overflow:visible}.demo-photo img{transform-origin:50% 45%}
+.demo-photo figcaption{margin-top:5px;font-size:11px;line-height:1.35;color:#a7c0d4;text-shadow:none}
+.demo-look{display:flex;align-items:center;gap:10px;margin:0 0 14px;font-size:16px;font-weight:600;color:#ffe2a8;opacity:0;animation:demo-up .7s .35s ease-out forwards}
+.demo-look svg{flex:none}
+.demo-look-dot{animation:demo-dot 1.6s ease-in-out infinite}
+@keyframes demo-photo{from{opacity:0;transform:scale(.92) translateY(10px)}to{opacity:1;transform:none}}
+@keyframes demo-kenburns{from{transform:scale(1)}to{transform:scale(1.08)}}
+@keyframes demo-dot{50%{opacity:.45}}
+@media(max-height:560px){.demo-photo{display:none}}
+@media(prefers-reduced-motion:reduce){.sky-app.demo-landed .sky-object.is-selected::after,.demo-photo img,.demo-look-dot{animation:none}.demo-photo,.demo-look{animation-duration:.01ms!important;animation-delay:0s!important}}
