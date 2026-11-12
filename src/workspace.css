@@ -284,3 +284,32 @@ html,body,#root{width:100%;height:100%;overflow:hidden}
 .layer-tiles button svg{width:28px;height:28px}
 @media(orientation:landscape) and (max-height:500px) and (min-width:568px){.sky-sheet{border-radius:0 18px 18px 0}.sky-sheet::before{display:none}}
 @media(min-width:761px) and (min-height:501px){.sky-sheet{border-radius:22px 22px 0 0}}
+/* Focus must never scroll the fixed app shell (sheets start off-screen while sliding in). */
+.sky-app{overflow:clip}
+
+/* Interface chrome is not selectable; factual text stays selectable. */
+.sky-app{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+.sky-app :is(.description,.stat-grid,.chart-note,.settings-note,.about-copy,.catalog-sources,.notice,.panel-note,.field-note,.panel-foot,.object-photo figcaption,.night-summary,.planning-note,.ranking-method p,.ranking-method li,.suggestion-summary,.gps-status,.direction-diagnostics dl,.performance-panel p,.performance-panel dl,.preview-below,.sky-sheet .sheet-head h1+*,input,textarea){-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+
+/* Expandable rows: one consistent chevron on the right, clear spacing. */
+.sky-sheet summary{display:flex;align-items:center;gap:10px;min-height:48px;list-style:none;cursor:pointer;color:#c9dcef;font-weight:600}
+.sky-sheet summary::-webkit-details-marker{display:none}
+.sky-sheet summary::marker{content:""}
+.sky-sheet details:not(.advanced-location)>summary::after{content:"";width:8px;height:8px;margin-left:auto;margin-right:4px;border-right:2px solid #7f9ab6;border-bottom:2px solid #7f9ab6;transform:rotate(45deg) translate(-2px,-2px);transition:transform .2s;flex-shrink:0}
+.sky-sheet details[open]:not(.advanced-location)>summary::after{transform:rotate(-135deg) translate(-2px,-2px)}
+.sky-sheet .ranking-method,.sky-sheet .outside-criteria{padding:0 14px;border:1px solid #2b4360;border-radius:14px;background:#14243a}
+.sky-sheet .ranking-method[open],.sky-sheet .outside-criteria[open]{padding-bottom:12px}
+@media(prefers-reduced-motion:reduce){.sky-sheet summary::after{transition:none}}
+
+/* List cards stay still; the bookmark is a clear round button. */
+.sky-sheet .object-card:hover,.object-card:hover{transform:none}
+.object-card{transition:border-color .15s,background-color .15s}
+.object-card:hover{border-color:#527fa5;background:#12233a}
+.sheet-body .card-top{padding-right:52px}
+.sheet-body .save-btn{top:12px;right:12px;width:44px;height:44px;min-width:44px;min-height:44px;display:grid;place-items:center;padding:0;border:1px solid #2f4a66;border-radius:50%;background:#172b43;color:#a9c1d8;transition:background-color .15s,color .15s,border-color .15s}
+.sheet-body .save-btn:hover{background:#21405f;color:#e3f2ff;border-color:#4d7598}
+.sheet-body .save-btn.active{background:#24506e;border-color:#6aa9cb;color:#bfe6ff}
+.sheet-body .save-btn:active{transform:scale(.94)}
+.preview-actions button,.layer-tiles button,.menu-list>button,.quick-tools button,.wide-action{transition:background-color .15s,border-color .15s,transform .1s}
+.preview-actions button:active,.layer-tiles button:active,.menu-list>button:active,.quick-tools button:active,.wide-action:active{transform:scale(.97)}
+@media(hover:hover){.menu-list>button:hover{background:#1a2f48}.layer-tiles button:hover{border-color:#4d7598}}

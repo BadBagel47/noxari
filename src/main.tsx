@@ -349,7 +349,7 @@ function App() {
     const peak = peakSample(visibility);
     return <article className="object-card" key={object.id}>
       <button className="card-main" onClick={() => pickObject(object)}>
-        <div className="card-top"><KindIcon className="card-icon" name={kindIconName(object)} size={24} color={object.color}/><div className="card-title"><strong>{display(object, lang)}</strong><small>{object.id.toUpperCase()} · {kindDisplay(object.kind, lang)}</small></div><ChevronRight size={17}/></div>
+        <div className="card-top"><KindIcon className="card-icon" name={kindIconName(object)} size={24} color={object.color}/><div className="card-title"><strong>{display(object, lang)}</strong><small>{object.id.toUpperCase()} · {kindDisplay(object.kind, lang)}</small></div></div>
         <VisibilityChart series={visibility}/>
         {suggestion && <SuggestionSummary suggestion={suggestion} language={lang} timeZone={location.timeZone}/>}
         <div className="card-foot"><span><Eye size={13}/>{visibility.real ? t(lang, 'Calculated altitude', 'Beräknad höjd') : t(lang, 'DEMO curve', 'DEMO-kurva')}</span><span>{visibility.real ? peak ? `${t(lang, 'Highest', 'Högst')} ${clockTime(peak.time, location.timeZone)}` : t(lang, 'No peak in suitable darkness', 'Ingen topp i lämpligt mörker') : t(lang, 'Illustrative only', 'Endast illustration')}</span></div>

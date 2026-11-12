@@ -16,7 +16,7 @@ export function SkyPanel({title, onClose, children, name, closeLabel}: {title: s
   useEffect(() => () => { if (closeTimer.current !== null) clearTimeout(closeTimer.current); }, []);
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
-    root.current?.querySelector<HTMLButtonElement>('.panel-close')?.focus();
+    root.current?.querySelector<HTMLButtonElement>('.panel-close')?.focus({preventScroll: true});
     return () => {
       if (previous?.isConnected && !previous.closest('[inert]')) previous.focus({preventScroll: true});
       else document.querySelector<HTMLElement>('[data-default-focus]')?.focus({preventScroll: true});
