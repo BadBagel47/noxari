@@ -1,6 +1,6 @@
 import type {MilkyWayTexture} from './milkyWay';
 import type {PreparedHorizontalStar, ViewDirection} from './skyProjection';
-import {stellarBrightness} from './skyVisibility';
+import {starRadius, stellarBrightness} from './skyVisibility';
 import {faintCount, type FaintSky} from './binocularStars';
 import {faintStarBrightness} from './skyLevel';
 import type {PerformanceFrame} from './skyPerformance';
@@ -51,6 +51,7 @@ layout(location=0) in vec3 direction;
 layout(location=1) in float radius;
 layout(location=2) in float brightness;
 layout(location=3) in float magnitude;
+layout(location=4) in float colorIndex;
 uniform vec4 pose;
 uniform vec2 viewport;
 uniform vec2 pixelViewport;
@@ -59,12 +60,27 @@ uniform float dpr;
 uniform vec2 visibility;
 uniform bool below;
 uniform float magnitudeLimit;
-flat out float spriteSize;flat out vec2 tile;flat out float alpha;
+flat out float spriteSize;flat out vec2 tile;flat out float alpha;flat out vec3 tint;
+// F-049: same B–V colour ramp as src/starColor.ts.
+vec3 ramp(float ci){
+  vec3 c=vec3(155.,178.,255.);
+  c=mix(c,vec3(196.,212.,255.),clamp((ci+.33)/.33,0.,1.));
+  c=mix(c,vec3(236.,240.,255.),clamp(ci/.3,0.,1.));
+  c=mix(c,vec3(255.,247.,236.),clamp((ci-.3)/.28,0.,1.));
+  c=mix(c,vec3(255.,234.,206.),clamp((ci-.58)/.23,0.,1.));
+  c=mix(c,vec3(255.,216.,172.),clamp((ci-.81)/.34,0.,1.));
+  c=mix(c,vec3(255.,190.,136.),clamp((ci-1.15)/.45,0.,1.));
+  c=mix(c,vec3(255.,168.,112.),clamp((ci-1.6)/.4,0.,1.));
+  return c/255.;
+}
 void main(){
+  tint=ramp(colorIndex);
   float ch=pose.x,sh=pose.y,cp=pose.z,sp=pose.w;
   float forward=direction.x*ch+direction.y*sh;
   float depth=forward*cp+direction.z*sp;
   alpha=(direction.z<0.0?max(visibility.x,visibility.y):visibility.x)*brightness;
+  // F-049: stars dim a little close to the horizon (atmospheric extinction look); sin(15°)≈0.259.
+  if(direction.z>=0.0)alpha*=0.55+0.45*clamp(direction.z/0.259,0.0,1.0);
   // F-043: stars fainter than V 6.5 fade in as the zoom-dependent limit passes them.
   if(magnitude>6.5)alpha*=magnitude>magnitudeLimit?0.0:clamp((magnitudeLimit-magnitude)/0.4+0.25,0.0,1.0);
   spriteSize=ceil(radius*dpr+1.0)*2.0;gl_PointSize=spriteSize;tile=vec2(0.0);
@@ -83,12 +99,12 @@ void main(){
 }`;
 const starFragment = `#version 300 es
 precision highp float;
-flat in float spriteSize;flat in vec2 tile;flat in float alpha;out vec4 color;
+flat in float spriteSize;flat in vec2 tile;flat in float alpha;flat in vec3 tint;out vec4 color;
 uniform sampler2D starAtlas;
 void main(){
   ivec2 pixel=ivec2(tile+8.0-spriteSize*0.5+floor(gl_PointCoord*spriteSize));
   float a=alpha*texelFetch(starAtlas,pixel,0).a;
-  color=vec4(vec3(227.0,241.0,255.0)/255.0*a,a);
+  color=vec4(tint*a,a);
 }`;
 
 export function starCoverageAtlas(dpr: number) {
@@ -106,21 +122,22 @@ export function starCoverageAtlas(dpr: number) {
   return context.getImageData(0, 0, canvas.width, canvas.height);
 }
 
-const STRIDE = 6;
+const STRIDE = 7;
 export function packStars(stars: PreparedHorizontalStar[], faint: FaintSky | null = null) {
   const packed = new Float32Array((stars.length + (faint?.count ?? 0)) * STRIDE);
   stars.forEach((star, index) => packed.set([
     star.cosAltitude * star.cosAzimuth,
     star.cosAltitude * star.sinAzimuth,
     star.sinAltitude,
-    star.magnitude < 0 ? 3 : star.magnitude < 2 ? 2.2 : star.magnitude < 4 ? 1.5 : .9,
+    starRadius(star.magnitude),
     .28 + stellarBrightness(star.magnitude) * .72,
     // The bright subset is always drawn in full; only F-043 faint stars carry a real fade magnitude.
     Math.min(6.5, star.magnitude),
+    star.ci ?? .45,
   ], index * STRIDE));
   if (faint) for (let i = 0, offset = stars.length * STRIDE; i < faint.count; i++, offset += STRIDE) {
     packed[offset] = faint.direction[i * 3];packed[offset + 1] = faint.direction[i * 3 + 1];packed[offset + 2] = faint.direction[i * 3 + 2];
-    packed[offset + 3] = .8;packed[offset + 4] = faintStarBrightness(faint.magnitude[i]);packed[offset + 5] = faint.magnitude[i];
+    packed[offset + 3] = .8;packed[offset + 4] = faintStarBrightness(faint.magnitude[i]);packed[offset + 5] = faint.magnitude[i];packed[offset + 6] = .45;
   }
   return packed;
 }
@@ -175,7 +192,7 @@ export class GpuSky {
       if (!buffer) throw new Error('GPU-buffert kunde inte skapas.');
       this.buffers.push(buffer); this.starsBuffer = buffer;
       gl.bindVertexArray(this.starsVao);gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-      for (const [index, size, offset] of [[0, 3, 0], [1, 1, 12], [2, 1, 16], [3, 1, 20]]) {
+      for (const [index, size, offset] of [[0, 3, 0], [1, 1, 12], [2, 1, 16], [3, 1, 20], [4, 1, 24]]) {
         gl.enableVertexAttribArray(index);gl.vertexAttribPointer(index, size, gl.FLOAT, false, STRIDE * 4, offset);
       }
       this.sourceTexture = this.texture(true);this.rasterTexture = this.texture(false);

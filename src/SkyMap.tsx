@@ -3,7 +3,7 @@ import {SkyMarkerPoint} from './KindIcon';
 import {ConstellationArtImages, constellationArtSky, drawConstellationArt} from './constellationArt';
 import {constellationArt} from './generated/constellationArt';
 import {eclipticSky} from './ecliptic';
-import {namedStarObjects} from './namedStars';
+import {namedStarObjects, namedStarShown} from './namedStars';
 import {issObject} from './issObject';
 import {useEffect, useMemo, useRef, useState, type PointerEvent} from 'react';
 import {ConstellationDrawingCache, constellationSky, drawConstellations, type FigureMode} from './constellations';
@@ -16,7 +16,8 @@ import {objects, type SpaceObject} from './data';
 import {candidateObjects} from './candidateObjects';
 import {shownAtSkyLevel, type SkyGroups, type SkyLevel} from './skyLevel';
 import {horizontalStarCatalog, projectHorizontal} from './skyProjection';
-import {stellarBrightness} from './skyVisibility';
+import {starRadius, stellarBrightness} from './skyVisibility';
+import {starFill} from './starColor';
 import {skyOverlayExclusions} from './objectLabels';
 import {useObjectLabels} from './useObjectLabels';
 
@@ -39,10 +40,12 @@ type Props = {
   dynamicKey?: number;
   skyLevel: SkyLevel;
   skyGroups: SkyGroups;
+  extraObjects?: SpaceObject[];
   milkyWay: MilkyWayTexture | null;
 };
 
-export function SkyMap({selectedId, time, location, label, language, sunLabel, onSelect, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, dynamicKey, skyLevel, skyGroups, milkyWay}: Props) {
+const noObjects: SpaceObject[] = [];
+export function SkyMap({selectedId, time, location, label, language, sunLabel, onSelect, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, dynamicKey, skyLevel, skyGroups, milkyWay, extraObjects = noObjects}: Props) {
   const container = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const reveal = useRef(new ConstellationReveal());
@@ -75,15 +78,15 @@ export function SkyMap({selectedId, time, location, label, language, sunLabel, o
   }), [catalog, size, zoom]);
   const objectSky = useMemo(() => {
     const resolve = objectPositioner(time, location);
-    return [...objects, issObject, ...namedStarObjects, ...candidateObjects].flatMap(object => {
+    return [...objects, issObject, ...namedStarObjects, ...candidateObjects, ...extraObjects].flatMap(object => {
       const position = resolve(object);
       const appearance = object.kind === 'Planet' ? solarAppearance(object, time) : null;
       return position ? [{object, position, appearance}] : [];
     });
-  }, [time, location, dynamicKey]);
+  }, [time, location, dynamicKey, extraObjects]);
   const markers = useMemo(() => objectSky.flatMap(({object, position, appearance}) => {
     if (!size.width || !size.height) return [];
-    if (object.id !== selectedId && !shownAtSkyLevel(object, skyLevel, skyGroups)) return [];
+    if (object.id !== selectedId && (!shownAtSkyLevel(object, skyLevel, skyGroups) || !namedStarShown(object, zoom))) return [];
     // Markers distinguish civil twilight for planets from darker deep-sky conditions.
     if (!showObjectMarker(object, sun.altitude, appearance)) return [];
     const point = position && projectHorizontal(position, size.width, size.height, zoom);
@@ -218,8 +221,8 @@ export function SkyMap({selectedId, time, location, label, language, sunLabel, o
         for (const star of stars) {
           const brightness = stellarBrightness(star.magnitude);
           context.globalAlpha = starVisibility * (0.28 + brightness * 0.72);
-          context.fillStyle = '#e2efff';
-          const radius = star.magnitude < 0 ? 2.9 : star.magnitude < 2 ? 2.1 : star.magnitude < 4 ? 1.35 : 0.8;
+          context.fillStyle = starFill(star.ci);
+          const radius = starRadius(star.magnitude) * .92;
           context.beginPath();
           context.arc(star.x, star.y, radius, 0, Math.PI * 2);
           context.fill();

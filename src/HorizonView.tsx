@@ -4,13 +4,9 @@ import {ConstellationArtImages, constellationArtSky, drawConstellationArt} from 
 import {constellationArt} from './generated/constellationArt';
 import {eclipticSky} from './ecliptic';
 import {LayerFades} from './layerFade';
-import {namedStarObjects} from './namedStars';
+import {namedStarObjects, namedStarShown} from './namedStars';
 import {issObject} from './issObject';
-import {starNames} from './generated/starNames';
 
-/** F-039: bloom tint per bright named star from its spectral class (RGB triplets). */
-const spectralRgb: Record<string, string> = {O: '170,195,255', B: '185,210,255', A: '225,232,255', F: '255,246,228', G: '255,236,190', K: '255,210,160', M: '255,180,140'};
-const bloomColors = new Map(starNames.map(star => [star.hip, spectralRgb[star.spect.trim()[0]] ?? '225,232,255']));
 import {MotionResolution} from './motionResolution';
 import {useSkyFrameState} from './useSkyFrames';
 import type {SkyFrames} from './skyFrames';
@@ -23,6 +19,7 @@ import {Body, Illumination} from 'astronomy-engine';
 import {nextObjectRise, objectPosition, objectPositioner, positionAt, showObjectMarker, solarAppearance, type ObservingLocation} from './astronomy';
 import {objects, type SpaceObject} from './data';
 import {candidateObjects} from './candidateObjects';
+import {objectWeight, pickBest, pickRadius, starObject, starWeight, tappableMagnitude, type PickCandidate} from './starPick';
 import {faintStarBrightness, faintStarFade, shownAtSkyLevel, starMagnitudeLimit, type SkyGroups, type SkyLevel} from './skyLevel';
 import {faintCount, faintSky, loadFaintStars, type FaintStars} from './binocularStars';
 import {createDirectionProjector, createPerspectiveProjector, createPreparedPerspectiveProjector, horizontalStarCatalog, perspectiveFocal, prepareHorizontalDirection, prepareHorizontalDirections, prepareHorizontalStars, projectPerspective, type MapPoint, type PreparedHorizontalDirection, type ViewDirection} from './skyProjection';
@@ -31,7 +28,9 @@ import {clampViewPitch, groundOpacity} from './groundView';
 import {MilkyWayPainter, milkyWayBasis, type MilkyWayTexture} from './milkyWay';
 import {HorizonGpu, skyRendererPreference} from './horizonGpu';
 import type {PerformanceScene} from './skyPerformance';
-import {darkSkyVisibility, projectedStarVisibility, stellarBrightness} from './skyVisibility';
+import {darkSkyVisibility, projectedStarVisibility, starRadius, stellarBrightness} from './skyVisibility';
+import {glowSprite} from './starGlow';
+import {starFill} from './starColor';
 import type {usePhoneOrientation} from './usePhoneOrientation';
 import {skyOverlayExclusions} from './objectLabels';
 import {useObjectLabels} from './useObjectLabels';
@@ -69,12 +68,15 @@ type Props = {
   onFinderDetails: () => void;
   /** F-044/F-045: lets guided tours animate the zoom inside the shared frame loop. */
   zoomControl?: {current: Dispatch<SetStateAction<number>> | null};
+  /** F-050: a tapped catalogue star (not in the fixed object lists) shown as the selected marker. */
+  extraObjects?: SpaceObject[];
 };
 
+const noObjects: SpaceObject[] = [];
 const wrap = (degrees: number) => (degrees % 360 + 360) % 360;
 const cardinal = (heading: number, language: 'en' | 'sv') => (language === 'sv' ? ['N', 'NO', 'Ö', 'SO', 'S', 'SV', 'V', 'NV'] : ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'])[Math.round(wrap(heading) / 45) % 8];
 
-export function HorizonView({frames, selectedId, time, timeMode, location, label, sunLabel, onSelect, language, view, onViewChange, onDragViewChange, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showMilkyWay, dynamicKey, onSelectConstellation, skyLevel, skyGroups, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails, zoomControl}: Props) {
+export function HorizonView({frames, selectedId, time, timeMode, location, label, sunLabel, onSelect, language, view, onViewChange, onDragViewChange, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showMilkyWay, dynamicKey, onSelectConstellation, skyLevel, skyGroups, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails, zoomControl, extraObjects = noObjects}: Props) {
   const comparisonStatus = useSyncExternalStore(frames.comparison.subscribe, frames.comparison.getSnapshot);
   const [comparisonTrackers] = useState(() => ({current: {pass: -1, reveal: new ConstellationReveal(), cache: new ConstellationDrawingCache(), resolution: new MotionResolution()}}));
   const root = useRef<HTMLDivElement>(null);
@@ -133,16 +135,16 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
   const nextRise = useMemo(() => finderTarget && targetPosition && targetPosition.altitude < 0 ? nextObjectRise(finderTarget, time, location) : null, [finderTarget, targetPosition, time, location]);
   const objectSky = useMemo(() => {
     const resolve = objectPositioner(time, location);
-    return [...objects, issObject, ...namedStarObjects, ...candidateObjects].flatMap(object => {
+    return [...objects, issObject, ...namedStarObjects, ...candidateObjects, ...extraObjects].flatMap(object => {
       const position = resolve(object);
       const appearance = object.kind === 'Planet' ? solarAppearance(object, time) : null;
       return position ? [{object, position, appearance}] : [];
     });
-  }, [time, location, dynamicKey]);
+  }, [time, location, dynamicKey, extraObjects]);
   const markers = useMemo(() => objectSky.flatMap(({object, position, appearance}) => {
     if (object.id === finderTarget?.id) return [];
     // F-043: the chosen level/groups decide which objects are drawn; a selected object always stays visible.
-    if (object.id !== selectedId && !shownAtSkyLevel(object, skyLevel, skyGroups)) return [];
+    if (object.id !== selectedId && (!shownAtSkyLevel(object, skyLevel, skyGroups) || !namedStarShown(object, zoom))) return [];
     if (!showObjectMarker(object, sun.altitude, appearance)) return [];
     if (position.altitude < 0 && groundOpacity(view.pitch) > .9) return [];
     const point = position && projectPerspective(position, view, size.width, size.height, true, view.pitch < 0, zoom);
@@ -277,6 +279,15 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
         }
       }
 
+      // F-049: a faint haze band (air glow / extinction) just above the horizon.
+      if (daylight < 1 && horizonY > 0) {
+        const haze = context.createLinearGradient(0, horizonY - height * .22, 0, horizonY);
+        haze.addColorStop(0, 'rgba(64,86,126,0)');
+        haze.addColorStop(1, `rgba(74,98,140,${(.24 * (1 - daylight)).toFixed(3)})`);
+        context.fillStyle = haze;
+        context.fillRect(0, Math.max(0, horizonY - height * .22), width, Math.min(horizonY, height));
+      }
+
       // Below the geometric horizon the transparent ground reveals a
       // deliberately simulated dark sky, even when the real sky is daytime.
       if (belowReveal > 0) {
@@ -339,20 +350,22 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
 
       if (starVisibility > 0 || belowReveal > 0) {
         if (!renderer?.drawStars(context, width, height, dpr, view, starVisibility, belowReveal, zoom, magnitudeLimit)) {
-          context.fillStyle = '#e3f1ff';
           for (const star of stars) {
             const visibility = projectedStarVisibility(sun.altitude, star.altitude, belowReveal);
             if (visibility <= 0) continue;
             const point = projectStar(star);
             if (!point) continue;
             const brightness = stellarBrightness(star.magnitude);
-            context.globalAlpha = visibility * (.28 + brightness * .72);
-            const radius = star.magnitude < 0 ? 3 : star.magnitude < 2 ? 2.2 : star.magnitude < 4 ? 1.5 : .9;
+            // F-049: stars dim a little close to the horizon (atmospheric extinction look).
+            context.globalAlpha = visibility * (.28 + brightness * .72) * (star.altitude < 0 ? 1 : .55 + .45 * Math.min(1, star.altitude / 15));
+            context.fillStyle = starFill(star.ci);
+            const radius = starRadius(star.magnitude);
             context.beginPath();
             context.arc(point.x, point.y, radius, 0, Math.PI * 2);
             context.fill();
           }
           if (faint && magnitudeLimit > 6.5) {
+            context.fillStyle = '#e3f1ff';
             const project = createDirectionProjector(view, width, height, zoom);
             const count = faintCount(faint.magnitude, magnitudeLimit), direction = faint.direction;
             for (let i = 0; i < count; i++) {
@@ -371,25 +384,20 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
           context.globalAlpha = 1;
         }
       }
-      // F-039: soft bloom around the brightest stars, tinted by spectral type.
+      // F-039/F-049: soft glow around the brighter stars (V ≤ 3), tinted by colour index, from cached sprites.
       if (starVisibility > 0 || belowReveal > 0) {
         context.save();
         context.globalCompositeOperation = 'lighter';
         for (const star of stars) {
-          if (star.magnitude > 1.6) continue;
+          if (star.magnitude > 3) continue;
           const visibility = projectedStarVisibility(sun.altitude, star.altitude, belowReveal);
           if (visibility <= 0) continue;
           const point = projectStar(star);
           if (!point) continue;
-          const strength = Math.min(1, (1.9 - star.magnitude) / 3.2) * visibility;
-          const radius = (7 + 9 * strength) * Math.sqrt(zoom);
-          const color = (star.hip !== null && bloomColors.get(star.hip)) || '205,225,255';
-          const glow = context.createRadialGradient(point.x, point.y, 0, point.x, point.y, radius);
-          glow.addColorStop(0, `rgba(${color},${(.55 * strength).toFixed(3)})`);
-          glow.addColorStop(.35, `rgba(${color},${(.16 * strength).toFixed(3)})`);
-          glow.addColorStop(1, `rgba(${color},0)`);
-          context.fillStyle = glow;
-          context.fillRect(point.x - radius, point.y - radius, radius * 2, radius * 2);
+          const strength = Math.min(1, (3.2 - star.magnitude) / 4.4);
+          const radius = (6 + 18 * strength) * Math.sqrt(zoom);
+          context.globalAlpha = Math.min(1, .3 + .7 * strength) * visibility;
+          context.drawImage(glowSprite(star.ci), point.x - radius, point.y - radius, radius * 2, radius * 2);
         }
         context.restore();
       }
@@ -507,18 +515,34 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       // pan. Activate a settled marker tap here and suppress its later click.
       suppressClick.current = true;
       gesture.marker.click();
-    } else if (!pinch.current && gesture?.id === event.pointerId && !gesture.moved && !gesture.marker && showFigures && showFigureNames && onSelectConstellation && root.current) {
-      // F-036: a tap near a constellation name opens that constellation's info.
+    } else if (!pinch.current && gesture?.id === event.pointerId && !gesture.moved && !gesture.marker && root.current) {
       const box = root.current.getBoundingClientRect();
       const x = event.clientX - box.left, y = event.clientY - box.top;
-      let best: {id: string; distance: number} | null = null;
-      for (const figure of figures) {
-        const point = projectFigure({...figure.center, ...prepareHorizontalDirection(figure.center)});
-        if (!point) continue;
-        const distance = Math.hypot(point.x - x, point.y - y);
-        if (distance < 40 && (!best || distance < best.distance)) best = {id: figure.id, distance};
+      // F-050: a tap on open sky picks the best marker or catalogue star nearby; known objects win over closer faint stars.
+      type Candidate = PickCandidate & {object?: SpaceObject; index?: number};
+      const candidates: Candidate[] = markers.map(({object, point}) => ({x: point.x, y: point.y, weight: objectWeight(object), key: object.id, object}));
+      if (darkSkyVisibility(sun.altitude) > 0 || belowReveal > 0) {
+        const projectTap = createPreparedPerspectiveProjector(view, size.width, size.height, true, belowReveal > 0, zoom), tapLimit = tappableMagnitude(zoom);
+        for (const star of stars) {
+          if (star.index === undefined || star.magnitude > tapLimit || (star.altitude < 0 && belowReveal <= 0)) continue;
+          const point = projectTap(star);
+          if (point) candidates.push({x: point.x, y: point.y, weight: starWeight(star.magnitude), key: `star-${star.index}`, index: star.index});
+        }
       }
-      if (best) onSelectConstellation(best.id);
+      const best = pickBest(candidates, x, y, pickRadius(event.pointerType, zoom));
+      if (best?.object) onSelect(best.object);
+      else if (best?.index !== undefined) void starObject(best.index).then(onSelect);
+      else if (showFigures && showFigureNames && onSelectConstellation) {
+        // F-036: a tap near a constellation name opens that constellation's info.
+        let nearest: {id: string; distance: number} | null = null;
+        for (const figure of figures) {
+          const point = projectFigure({...figure.center, ...prepareHorizontalDirection(figure.center)});
+          if (!point) continue;
+          const distance = Math.hypot(point.x - x, point.y - y);
+          if (distance < 40 && (!nearest || distance < nearest.distance)) nearest = {id: figure.id, distance};
+        }
+        if (nearest) onSelectConstellation(nearest.id);
+      }
     }
     endPointer(event);
   };

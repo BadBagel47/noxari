@@ -1,3 +1,14 @@
+## F-049 + F-050 genomförda (2026-11-12, Opus) + mindre UI-önskemål
+
+Användaren gav ”Kör” och valde ren standardvy som Stellarium.
+- **F-049:** start med stjärnor, Vintergatan, planeter och markörer; linjer, gränser, teckningar, rutnät och planeternas väg av (slås på under Lager; namn för stjärnbilder följer med figurerna). Stjärnfärg från HYG B–V (`src/generated/starColors.ts`, `src/starColor.ts`; GPU-attribut `colorIndex`, stride 7; samma ramp i shader), sken från cachade sprites kring stjärnor ≤ V 3 (`src/starGlow.ts`), nya radiesteg (`starRadius`), lätt dämpning under 15° höjd, horisontdis. Namngivna stjärnor märks vid 1× bara till V 1,5, fler vid zoom (`namedStarShown`). Ej gjort: blinkning (skulle kräva ständig omritning, B-004) och landskap.
+- **F-050:** tryck på öppen himmel väljer bästa markör eller stjärna med prioritet (`src/starPick.ts`); stjärnkort med Bayer/Flamsteed-beteckning, HD, avstånd, spektraltyp och stjärnbild från `src/generated/starDetails.ts` (laddas vid första tryck). Generator: `scripts/generate_star_extras.py` (samma pinnade HYG och urval/ordning som ljusa katalogen).
+- **Startvy:** horisonten hamnar vid ≈88 % av höjden (tidigare 80 %), så marken tar mindre plats på alla skärmar.
+- **Riktningsrutan** ligger nu nere vid horisonten ovanför knappraden och döljs när objektkort, tidsreglage eller visningsrad använder platsen; i guiden ligger den kvar uppe. **Platsrutan** har mer luft till höger.
+- Testskriptet för testinställningar väntar nu in ”Align north” innan det klickar (tidsberoende i långsam bred testrendering).
+Mätning (Canvas/mjukvara, 390×844 @2x, svep): median 16,7 ms, p95 27 ms utzoomat (tidigare 18,7/31 med alla lager på). 230 enhetstester, 15/15 flöden, etiketter, start/fokus, testinställningar 8/8. Ingen fysisk mobilkontroll.
+Nytt förslag F-051 (ihopfällbar snabbrad) registrerat, inte startgodkänt.
+
 ## Rättning — tryckläge i menylistor (2026-11-12)
 
 Användaren såg att en rad i Mer/inställningar krympte inuti sin ram när man tryckte (bakgrunden blev mindre). Rader i grupperade listor skalas inte längre; de lyser upp i stället. Fristående knappar (lagerrutor, knappraden m.fl.) behåller den lilla tryckkrympningen.

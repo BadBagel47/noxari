@@ -87,7 +87,7 @@ describe('F-043 binocular star file', () => {
   it('packs faint stars after the bright subset with their magnitude for the GPU fade', () => {
     const sky = faintSky(stars, new Date('2026-01-15T22:00:00Z'), stockholm);
     const packed = packStars([], sky);
-    expect(packed.length).toBe(stars.count * 6);
+    expect(packed.length).toBe(stars.count * 7);
     expect(packed[5]).toBeCloseTo(stars.magnitude[0]);
   });
 });

@@ -37,3 +37,13 @@ export const namedStarObjects: SpaceObject[] = starNames.filter(star => star.nam
 });
 
 export const isNamedStar = (object: Pick<SpaceObject, 'id'>) => object.id.startsWith('star-');
+
+const magnitudes = new Map(starNames.map(star => [`star-${star.hip}`, star.mag]));
+/**
+ * F-049: a clean, Stellarium-like sky names only the brightest stars at 1× (V ≤ 1.5),
+ * revealing fainter named stars as the user zooms in. Selected stars always show.
+ */
+export function namedStarShown(object: Pick<SpaceObject, 'id'>, zoom: number) {
+  const magnitude = magnitudes.get(object.id);
+  return magnitude === undefined || magnitude <= 1.5 + (Math.max(1, zoom) - 1) * 1.6;
+}

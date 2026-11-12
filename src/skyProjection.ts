@@ -1,11 +1,13 @@
 import {AstroTime, Observer, RotateVector, Rotation_EQJ_HOR, Vector} from 'astronomy-engine';
 import {brightStars} from './generated/brightStars';
+import {starColorIndex} from './generated/starColors';
 import type {ObservingLocation, SkyPosition} from './astronomy';
 import {movingStarVector, yearsSinceJ2000} from './starMotion';
 
 export type MapPoint = {x: number; y: number};
 export type ProjectedStar = MapPoint & {magnitude: number; name?: string};
-export type HorizontalStar = SkyPosition & {magnitude: number; name?: string; hip: number | null};
+/** `index` is the star's position in brightStars (and in the F-049/F-050 colour/detail tables); `ci` is its B–V colour index. */
+export type HorizontalStar = SkyPosition & {magnitude: number; name?: string; hip: number | null; index?: number; ci?: number | null};
 export type PreparedHorizontalDirection = SkyPosition & {sinAltitude: number; cosAltitude: number; sinAzimuth: number; cosAzimuth: number};
 export type PreparedHorizontalStar = HorizontalStar & Pick<PreparedHorizontalDirection, 'sinAltitude'|'cosAltitude'|'sinAzimuth'|'cosAzimuth'>;
 const RAD = Math.PI / 180;
@@ -42,12 +44,14 @@ export function horizontalStarCatalog(time: Date, location: ObservingLocation): 
   const rotation = Rotation_EQJ_HOR(instant, observer);
   const visible: HorizontalStar[] = [];
   const years = yearsSinceJ2000(time);
-  for (const [ra, dec, magnitude, name, pmRaCosDec, pmDec, hip] of brightStars) {
+  for (let index = 0; index < brightStars.length; index++) {
+    const [ra, dec, magnitude, name, pmRaCosDec, pmDec, hip] = brightStars[index];
     const star = movingStarVector(ra, dec, pmRaCosDec, pmDec, years);
     const horizontal = RotateVector(rotation, new Vector(star.x, star.y, star.z, instant));
     const altitude = Math.asin(horizontal.z) * DEG;
     const azimuth = (Math.atan2(-horizontal.y, horizontal.x) * DEG + 360) % 360;
-    visible.push({altitude, azimuth, magnitude, name: name ?? undefined, hip});
+    const ci = starColorIndex[index];
+    visible.push({altitude, azimuth, magnitude, name: name ?? undefined, hip, index, ci: ci === null ? null : ci / 100});
   }
   return visible;
 }
