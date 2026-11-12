@@ -1,3 +1,11 @@
+## F-043 synlighetsnivåer — genomfört (2026-11-12, Opus)
+
+Användaren gav ”Kör”. Lager → ”Vad som syns på himlen”: **Blotta ögat** (standard vid varje start), **Kikare**, **Hela katalogen**. Nivån bygger på objektens befintliga utrustningsklass (samma som Ikvälls utrustningsfilter): Blotta ögat visar M31, M42, M44, M45 bland djuprymdsobjekten; Kikare lägger till kikarobjekt; Hela katalogen visar allt inklusive kandidater (egen knapp, fortsatt märkta). **Hela solsystemet** (sol, måne, alla planeter, dvärgplaneter, Vesta, ISS) och namngivna stjärnor visas alltid (användarbeslut). Gruppknappar: Galaxer, Stjärnhopar, Nebulosor (+ Kandidater i Hela katalogen). Ett valt objekt syns alltid. ”Småkroppar”-rutan är ersatt. Nivån är sessionslokal som övriga lager.
+
+Kikarstjärnor: 52 894 HYG-stjärnor V 6,5–8,5 (`public/stars/binocular-v1.bin`, 264 kB, laddas först vid Kikare/Hela katalogen, inte förcachade men sparas offline efter första användning). Gräns V 7,0 vid 1× som stiger till 8,5 vid 2×, med intoning; samma resultat i GPU- och Canvas-vägen. Bara i Se dig omkring (stjärnkartan oförändrad). Ny zoom med mushjul/styrplatta och +/− (samma 1×–3×), så att datoranvändare når de svaga stjärnorna.
+
+Verifiering: 214 enhetstester (nya: nivåer, grupper, stjärnfil, rotation mot katalogtransform, projektion, GPU-packning), fullt bygge, 15/15 funktionsflöden, etiketter 6/6, start/fokus, testinställningar 8/8. Skärmbilder: panel i tre nivåer, himmel med/utan kikarstjärnor i båda ritvägar. Mätning (Canvas/mjukvara, 390×844 @2x, skriptat svep): Blotta ögat 1× median 18,7 ms, Kikare 1× 21,3 ms; inzoomat 16,8 resp. 16,9 ms. Ingen fysisk mobilkontroll. B-001/B-004 pausade, B-007 observeras. F-042 (ISS-hämtning) inte startgodkänd.
+
 ## F-043 registrerad (2026-11-12)
 
 Användaren vill styra vad som syns: standard Blotta ögat (inkl. Andromeda), extra lager Kikare och Hela katalogen (ordnad i grupper). Användarbeslut: hela solsystemet syns alltid i standardläget även om det inte syns med blotta ögat. Kikarnivån får svagare stjärnor som i Stellarium (zoomberoende, laddas vid behov). Se BACKLOG F-043; inväntar ”Kör” (Opus).

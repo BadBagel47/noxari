@@ -140,3 +140,19 @@ export function createPreparedPerspectiveProjector<T extends PreparedHorizontalD
     return !clipToViewport || (x >= -clipMargin && x <= width + clipMargin && y >= -clipMargin && y <= height + clipMargin) ? {x, y} : null;
   };
 }
+
+/** Project horizontal unit directions (cosAlt·cosAz, cosAlt·sinAz, sinAlt), as stored for F-043 faint stars. */
+export function createDirectionProjector(view: ViewDirection, width: number, height: number, zoom = 1) {
+  const heading = view.heading * RAD, pitch = view.pitch * RAD;
+  const cosHeading = Math.cos(heading), sinHeading = Math.sin(heading);
+  const cosPitch = Math.cos(pitch), sinPitch = Math.sin(pitch);
+  const focal = perspectiveFocal(width, height, zoom);
+  return (x: number, y: number, z: number): MapPoint | null => {
+    const forward = x * cosHeading + y * sinHeading;
+    const depth = forward * cosPitch + z * sinPitch;
+    if (depth <= 0) return null;
+    const px = width / 2 + focal * (y * cosHeading - x * sinHeading) / depth;
+    const py = height / 2 - focal * (z * cosPitch - forward * sinPitch) / depth;
+    return px >= 0 && px <= width && py >= 0 && py <= height ? {x: px, y: py} : null;
+  };
+}

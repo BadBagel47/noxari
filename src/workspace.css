@@ -393,3 +393,8 @@ html,body,#root{width:100%;height:100%;overflow:hidden}
 .iss-passes h3{font-size:15px;margin:18px 0 8px}
 .iss-passes .object-list{margin-bottom:6px}
 .sky-point.sky-moon{display:grid;place-items:center;width:24px;height:24px;background:none!important;border:0!important;box-shadow:none!important;border-radius:50%}
+/* F-043: sky level and object groups */
+.segmented.wide.sky-level button{font-size:14px;padding:6px 4px;line-height:1.2}
+.sky-level-note{margin:8px 2px 10px}
+.sky-groups{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+.sky-groups .category{display:inline-flex;align-items:center;gap:7px}

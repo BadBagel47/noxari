@@ -8,6 +8,7 @@ import {createRoot} from 'react-dom/client';
 import {Search, Star, Compass, Bookmark, MapPin, Clock3, ChevronRight, Share2, X, LocateFixed, Globe2, Info, Check, MoreHorizontal, Maximize, Layers, Type, SquareDashed, Sparkles, Moon, Crosshair, Gauge, Smartphone, SlidersHorizontal, Brush, Grid2X2, Orbit, Rewind, FastForward, Download, NotebookPen, CheckCircle2, Trash2} from 'lucide-react';
 import {objects, zodiac, type SpaceObject, type Gear} from './data';
 import {candidateObjects} from './candidateObjects';
+import {defaultSkyGroups, type SkyGroup, type SkyGroups, type SkyLevel} from './skyLevel';
 import {clockTime, darkestNightSample, nextObjectRise, objectPositioner, showObjectMarker, localDateTimeValue, nightContext, nightWindow, nightCatalog, objectPosition, positionAt, solarAppearance, selectedLocalTime, stockholm, type ObservingLocation} from './astronomy';
 import {Body} from 'astronomy-engine';
 import {DateTime} from 'luxon';
@@ -121,7 +122,9 @@ function App() {
   const [gear, setGear] = useState<'all'|Gear>('all');
   const [category, setCategory] = useState('All');
   const [catalogGroup, setCatalogGroup] = useState<'main'|'extra'>('main');
-  const [showCandidateCollection, setShowCandidateCollection] = useState(true);
+  // F-043: naked-eye level by default on every load (session-local like the other layers).
+  const [skyLevel, setSkyLevel] = useState<SkyLevel>('eye');
+  const [skyGroups, setSkyGroups] = useState<SkyGroups>(defaultSkyGroups);
   const [startupObservation] = useState(() => initialObservation(new Date(), initialLocation));
   const [time, setTime] = useState(startupObservation.time);
   const [timeMode, setTimeMode] = useState<'live' | 'fixed' | 'preview'>(startupObservation.mode);
@@ -200,7 +203,7 @@ function App() {
     }
     const id = params.get('object');
     const object = allObjects.find(item => item.id === (id ? catalogIdentifier(id) ?? id.toLowerCase() : id) || item.aliases?.some(alias => alias.toLowerCase() === id?.toLowerCase()));
-    if (object) { setSelected(object); setPanel('details'); if (candidateObjects.some(candidate => candidate.id === object.id)) setShowCandidateCollection(true); }
+    if (object) { setSelected(object); setPanel('details'); }
   }, []);
 
   const windowDescriptor = useMemo(() => nightWindow(time, location), [time, location]);
@@ -259,7 +262,6 @@ function App() {
   const toggleSaved = (id: string) => setSaved(current => current.includes(id) ? current.filter(item => item !== id) : [...current, id]);
   const pickObject = (object: SpaceObject) => {
     setSelected(object); setFinderTarget(null); setPanel(null);
-    if (candidateObjects.some(candidate => candidate.id === object.id)) setShowCandidateCollection(true);
     requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.object-preview button')?.focus({preventScroll: true}));
   };
   const startComparison = () => {
@@ -424,7 +426,7 @@ function App() {
   return <div className={`app sky-app${redMode ? ' red-mode' : ''}`} ref={appRoot}>
     <div className="sky-workspace" ref={workspace}>
       <main className="sky-stage" aria-label={t(lang, 'Sky', 'Himlen')}>
-        <div className="view-switch" key={skyMode}>{skyMode === 'horizon' ? <HorizonView frames={skyFrames} selectedId={selected?.id} finderTarget={finderTarget} phone={phone} onFinderDetails={() => { if (finderTarget) { setSelected(finderTarget); openPanel('details'); } }} onStopFinder={() => { setFinderTarget(null); }} showFigures={showFigures} showFigureNames={showFigureNames} figureMode={figureMode} showBoundaries={showBoundaries} showArt={showArt} showGrid={showGrid} showEcliptic={showEcliptic} showMilkyWay={showMilkyWay} dynamicKey={issVersion} onSelectConstellation={id => { const object = mainObjects.find(item => item.id === `con-${id.toLowerCase()}`) ?? (id === 'Ori' ? objects.find(item => item.id === 'orion') : id === 'UMa' ? objects.find(item => item.id === 'ursa-major') : undefined); if (object) pickObject(object); }} showCandidateCollection={showCandidateCollection} milkyWay={milkyWay.texture} time={time} timeMode={timeMode} location={location} label={object => display(object, lang)} sunLabel={t(lang, 'Sun', 'Solen')} onSelect={pickObject} language={lang} view={viewDirection} onViewChange={manualView} onDragViewChange={dragView}/> : <SkyMap dynamicKey={issVersion} selectedId={selected?.id} showFigures={showFigures} showFigureNames={showFigureNames} figureMode={figureMode} showBoundaries={showBoundaries} showArt={showArt} showGrid={showGrid} showEcliptic={showEcliptic} showCandidateCollection={showCandidateCollection} milkyWay={showMilkyWay ? milkyWay.texture : null} time={time} location={location} label={object => display(object, lang)} language={lang} sunLabel={t(lang, 'Sun', 'Solen')} onSelect={pickObject}/>}</div>
+        <div className="view-switch" key={skyMode}>{skyMode === 'horizon' ? <HorizonView frames={skyFrames} selectedId={selected?.id} finderTarget={finderTarget} phone={phone} onFinderDetails={() => { if (finderTarget) { setSelected(finderTarget); openPanel('details'); } }} onStopFinder={() => { setFinderTarget(null); }} showFigures={showFigures} showFigureNames={showFigureNames} figureMode={figureMode} showBoundaries={showBoundaries} showArt={showArt} showGrid={showGrid} showEcliptic={showEcliptic} showMilkyWay={showMilkyWay} dynamicKey={issVersion} onSelectConstellation={id => { const object = mainObjects.find(item => item.id === `con-${id.toLowerCase()}`) ?? (id === 'Ori' ? objects.find(item => item.id === 'orion') : id === 'UMa' ? objects.find(item => item.id === 'ursa-major') : undefined); if (object) pickObject(object); }} skyLevel={skyLevel} skyGroups={skyGroups} milkyWay={milkyWay.texture} time={time} timeMode={timeMode} location={location} label={object => display(object, lang)} sunLabel={t(lang, 'Sun', 'Solen')} onSelect={pickObject} language={lang} view={viewDirection} onViewChange={manualView} onDragViewChange={dragView}/> : <SkyMap dynamicKey={issVersion} selectedId={selected?.id} showFigures={showFigures} showFigureNames={showFigureNames} figureMode={figureMode} showBoundaries={showBoundaries} showArt={showArt} showGrid={showGrid} showEcliptic={showEcliptic} skyLevel={skyLevel} skyGroups={skyGroups} milkyWay={showMilkyWay ? milkyWay.texture : null} time={time} location={location} label={object => display(object, lang)} language={lang} sunLabel={t(lang, 'Sun', 'Solen')} onSelect={pickObject}/>}</div>
       </main>
       <header className="sky-statusbar">
         <button className={`observation-chip ${timeMode}`} onClick={() => openPanel('observation')} aria-label={t(lang, 'Time & location', 'Tid och plats')}><MapPin size={15}/><span><strong>{location.name}</strong><small>{stamp}</small></span></button>
@@ -513,13 +515,16 @@ function App() {
       {panel === 'phone' && <PhoneControls phone={phone} language={lang} onStart={follow}/>}
       {panel === 'view' && <>
         <div className="segmented wide" role="group" aria-label={t(lang, 'View', 'Vy')}><button className={skyMode === 'horizon' ? 'chosen' : ''} aria-pressed={skyMode === 'horizon'} onClick={() => setSkyMode('horizon')}>{t(lang, 'Look around', 'Se dig omkring')}</button><button className={skyMode === 'map' ? 'chosen' : ''} aria-pressed={skyMode === 'map'} onClick={() => setSkyMode('map')}>{t(lang, 'Sky map', 'Stjärnkarta')}</button></div>
-        <h2 className="sheet-label">{t(lang, 'Show in the sky', 'Visa på himlen')}</h2>
+        <h2 className="sheet-label">{t(lang, 'What the sky shows', 'Vad som syns på himlen')}</h2>
+        <div className="segmented wide sky-level" role="group" aria-label={t(lang, 'What the sky shows', 'Vad som syns på himlen')}>{(['eye', 'binoculars', 'all'] as const).map(level => <button key={level} className={skyLevel === level ? 'chosen' : ''} aria-pressed={skyLevel === level} onClick={() => setSkyLevel(level)}>{level === 'eye' ? t(lang, 'Naked eye', 'Blotta ögat') : level === 'binoculars' ? t(lang, 'Binoculars', 'Kikare') : t(lang, 'Whole catalog', 'Hela katalogen')}</button>)}</div>
+        <p className="panel-note sky-level-note">{skyLevel === 'eye' ? t(lang, 'Stars and objects that can be seen without optical aid under a dark sky. The whole solar system is always shown.', 'Stjärnor och objekt som kan ses utan hjälpmedel under mörk himmel. Hela solsystemet visas alltid.') : skyLevel === 'binoculars' ? t(lang, 'Adds objects for binoculars. Zoom in to see fainter stars (Look around view).', 'Lägger till objekt för kikare. Zooma in för att se svagare stjärnor (vyn Se dig omkring).') : t(lang, 'Everything the app knows, including telescope objects and provisional candidates. Zoom in for fainter stars.', 'Allt appen känner till, även objekt som kräver teleskop och preliminära kandidater. Zooma in för svagare stjärnor.')}</p>
+        <div className="sky-groups" role="group" aria-label={t(lang, 'Object groups', 'Objektgrupper')}>{(['galaxies', 'clusters', 'nebulae', ...(skyLevel === 'all' ? ['candidates'] as const : [])] as SkyGroup[]).map(group => <button key={group} className={'category ' + (skyGroups[group] ? 'selected' : '')} aria-pressed={skyGroups[group]} onClick={() => setSkyGroups(current => ({...current, [group]: !current[group]}))}><KindIcon name={group === 'galaxies' ? 'galaxy' : group === 'clusters' ? 'open' : group === 'nebulae' ? 'nebula' : 'candidate'} size={18}/>{group === 'galaxies' ? t(lang, 'Galaxies', 'Galaxer') : group === 'clusters' ? t(lang, 'Star clusters', 'Stjärnhopar') : group === 'nebulae' ? t(lang, 'Nebulae', 'Nebulosor') : t(lang, `Candidates (${candidateObjects.length})`, `Kandidater (${candidateObjects.length})`)}</button>)}</div>
+        <h2 className="sheet-label">{t(lang, 'Layers', 'Lager')}</h2>
         <div className="layer-tiles">
           <button aria-pressed={showFigures} onClick={() => setShowFigures(value => !value)}><KindIcon name="constellation" size={26}/>{t(lang, 'Constellations', 'Stjärnbilder')}</button>
           <button aria-pressed={showFigures && showFigureNames} disabled={!showFigures} onClick={() => setShowFigureNames(value => !value)}><Type size={24}/>{t(lang, 'Names', 'Namn')}</button>
           <button aria-pressed={showBoundaries} onClick={() => setShowBoundaries(value => !value)}><SquareDashed size={24}/>{t(lang, 'Boundaries', 'Gränser')}</button>
           <button aria-pressed={showMilkyWay} onClick={() => setShowMilkyWay(value => !value)}><Sparkles size={24}/>{t(lang, 'Milky Way', 'Vintergatan')}</button>
-          <button aria-pressed={showCandidateCollection} onClick={() => setShowCandidateCollection(value => !value)}><KindIcon name="asteroid" size={26}/>{t(lang, `Small bodies (${candidateObjects.length})`, `Småkroppar (${candidateObjects.length})`)}</button>
           <button aria-pressed={showArt} onClick={() => setShowArt(value => !value)}><Brush size={24}/>{t(lang, 'Drawings', 'Teckningar')}</button>
           <button aria-pressed={showGrid} onClick={() => setShowGrid(value => !value)}><Grid2X2 size={24}/>{t(lang, 'Grid', 'Rutnät')}</button>
           <button aria-pressed={showEcliptic} onClick={() => setShowEcliptic(value => !value)}><Orbit size={24}/>{t(lang, 'Planets’ path', 'Planeternas väg')}</button>

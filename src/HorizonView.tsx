@@ -23,7 +23,9 @@ import {Body, Illumination} from 'astronomy-engine';
 import {nextObjectRise, objectPosition, objectPositioner, positionAt, showObjectMarker, solarAppearance, type ObservingLocation} from './astronomy';
 import {objects, type SpaceObject} from './data';
 import {candidateObjects} from './candidateObjects';
-import {createPerspectiveProjector, createPreparedPerspectiveProjector, horizontalStarCatalog, perspectiveFocal, prepareHorizontalDirection, prepareHorizontalDirections, prepareHorizontalStars, projectPerspective, type MapPoint, type PreparedHorizontalDirection, type ViewDirection} from './skyProjection';
+import {faintStarBrightness, faintStarFade, shownAtSkyLevel, starMagnitudeLimit, type SkyGroups, type SkyLevel} from './skyLevel';
+import {faintCount, faintSky, loadFaintStars, type FaintStars} from './binocularStars';
+import {createDirectionProjector, createPerspectiveProjector, createPreparedPerspectiveProjector, horizontalStarCatalog, perspectiveFocal, prepareHorizontalDirection, prepareHorizontalDirections, prepareHorizontalStars, projectPerspective, type MapPoint, type PreparedHorizontalDirection, type ViewDirection} from './skyProjection';
 import {GuidedFinder} from './GuidedFinder';
 import {clampViewPitch, groundOpacity} from './groundView';
 import {MilkyWayPainter, milkyWayBasis, type MilkyWayTexture} from './milkyWay';
@@ -55,7 +57,8 @@ type Props = {
   /** Changes when externally loaded data (ISS elements) arrives. */
   dynamicKey?: number;
   onSelectConstellation?: (id: string) => void;
-  showCandidateCollection: boolean;
+  skyLevel: SkyLevel;
+  skyGroups: SkyGroups;
   milkyWay: MilkyWayTexture | null;
   view: ViewDirection;
   onViewChange: Dispatch<SetStateAction<ViewDirection>>;
@@ -69,7 +72,7 @@ type Props = {
 const wrap = (degrees: number) => (degrees % 360 + 360) % 360;
 const cardinal = (heading: number, language: 'en' | 'sv') => (language === 'sv' ? ['N', 'NO', 'Ö', 'SO', 'S', 'SV', 'V', 'NV'] : ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'])[Math.round(wrap(heading) / 45) % 8];
 
-export function HorizonView({frames, selectedId, time, timeMode, location, label, sunLabel, onSelect, language, view, onViewChange, onDragViewChange, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showMilkyWay, dynamicKey, onSelectConstellation, showCandidateCollection, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails}: Props) {
+export function HorizonView({frames, selectedId, time, timeMode, location, label, sunLabel, onSelect, language, view, onViewChange, onDragViewChange, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showMilkyWay, dynamicKey, onSelectConstellation, skyLevel, skyGroups, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails}: Props) {
   const comparisonStatus = useSyncExternalStore(frames.comparison.subscribe, frames.comparison.getSnapshot);
   const [comparisonTrackers] = useState(() => ({current: {pass: -1, reveal: new ConstellationReveal(), cache: new ConstellationDrawingCache(), resolution: new MotionResolution()}}));
   const root = useRef<HTMLDivElement>(null);
@@ -101,6 +104,16 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
   const zoom = comparisonStatus.active ? 1 : normalZoom;
   const [size, setSize] = useState({width: 0, height: 0});
   const stars = useMemo(() => prepareHorizontalStars(horizontalStarCatalog(time, location)), [time, location]);
+  // F-043: fainter binocular stars load on demand and rotate with one matrix per time change.
+  const [faintData, setFaintData] = useState<FaintStars | null>(null);
+  useEffect(() => {
+    if (skyLevel === 'eye' || faintData) return;
+    let live = true;
+    loadFaintStars(import.meta.env.BASE_URL).then(data => { if (live) setFaintData(data); }).catch(() => {});
+    return () => { live = false; };
+  }, [skyLevel, faintData]);
+  const faint = useMemo(() => skyLevel !== 'eye' && faintData ? faintSky(faintData, time, location) : null, [skyLevel, faintData, time, location]);
+  const magnitudeLimit = starMagnitudeLimit(skyLevel, zoom);
   const milkyBasis = useMemo(() => milkyWayBasis(time, location), [time, location]);
   const sceneKey = `${time.getTime()}|${location.latitude}|${location.longitude}`;
   const figures = useMemo(() => constellationSky(stars, figureMode), [stars, figureMode]);
@@ -113,19 +126,21 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
   const nextRise = useMemo(() => finderTarget && targetPosition && targetPosition.altitude < 0 ? nextObjectRise(finderTarget, time, location) : null, [finderTarget, targetPosition, time, location]);
   const objectSky = useMemo(() => {
     const resolve = objectPositioner(time, location);
-    return [...objects, issObject, ...namedStarObjects, ...(showCandidateCollection ? candidateObjects : [])].flatMap(object => {
+    return [...objects, issObject, ...namedStarObjects, ...candidateObjects].flatMap(object => {
       const position = resolve(object);
       const appearance = object.kind === 'Planet' ? solarAppearance(object, time) : null;
       return position ? [{object, position, appearance}] : [];
     });
-  }, [time, location, showCandidateCollection, dynamicKey]);
+  }, [time, location, dynamicKey]);
   const markers = useMemo(() => objectSky.flatMap(({object, position, appearance}) => {
     if (object.id === finderTarget?.id) return [];
+    // F-043: the chosen level/groups decide which objects are drawn; a selected object always stays visible.
+    if (object.id !== selectedId && !shownAtSkyLevel(object, skyLevel, skyGroups)) return [];
     if (!showObjectMarker(object, sun.altitude, appearance)) return [];
     if (position.altitude < 0 && groundOpacity(view.pitch) > .9) return [];
     const point = position && projectPerspective(position, view, size.width, size.height, true, view.pitch < 0, zoom);
     return point ? [{object, position, point}] : [];
-  }), [objectSky, sun.altitude, view, size, finderTarget, zoom]);
+  }), [objectSky, sun.altitude, view, size, finderTarget, zoom, skyLevel, skyGroups, selectedId]);
   const hasDaylightPlanetMarker = sun.altitude >= 0 && markers.some(marker => marker.object.kind === 'Planet');
   const belowReveal = 1 - groundOpacity(view.pitch);
   const project = createPerspectiveProjector(view, size.width, size.height, true, belowReveal > 0, zoom);
@@ -150,6 +165,20 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
     observer.observe(root.current);
     return () => observer.disconnect();
   }, []);
+
+  // Mouse wheel / trackpad zoom (F-043: desktop users can reach fainter stars). Same 1×–3× range as pinch.
+  useEffect(() => {
+    const element = root.current;
+    if (!element) return;
+    const wheel = (event: WheelEvent) => {
+      if (frames.comparison.active) return;
+      event.preventDefault();
+      const scale = Math.exp(-Math.max(-200, Math.min(200, event.deltaY * (event.deltaMode === 1 ? 33 : 1))) * .0015);
+      setZoom(current => Math.max(1, Math.min(3, current * scale)));
+    };
+    element.addEventListener('wheel', wheel, {passive: false});
+    return () => element.removeEventListener('wheel', wheel);
+  }, [frames, setZoom]);
 
   useEffect(() => {
     const end = (event: globalThis.PointerEvent) => {
@@ -196,7 +225,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       if (comparing) now = frames.comparison.simulationTime;
       measurement?.beginDraw(renderer?.backend ?? 'canvas');
       renderer?.setMeasurement(measurement);
-      renderer?.setScene(stars, milkyWay);
+      renderer?.setScene(stars, milkyWay, faint);
       const quality = (comparing ? trackers.resolution : resolution.current).sample(view, zoom, window.devicePixelRatio || 1, comparing ? now : performance.now());
       if (restoreResolution.current !== null) clearTimeout(restoreResolution.current);
       restoreResolution.current = comparing || quality.restoreAt === null ? null : setTimeout(() => {
@@ -300,7 +329,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       measurement?.phase('figures');
 
       if (starVisibility > 0 || belowReveal > 0) {
-        if (!renderer?.drawStars(context, width, height, dpr, view, starVisibility, belowReveal, zoom)) {
+        if (!renderer?.drawStars(context, width, height, dpr, view, starVisibility, belowReveal, zoom, magnitudeLimit)) {
           context.fillStyle = '#e3f1ff';
           for (const star of stars) {
             const visibility = projectedStarVisibility(sun.altitude, star.altitude, belowReveal);
@@ -313,6 +342,22 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
             context.beginPath();
             context.arc(point.x, point.y, radius, 0, Math.PI * 2);
             context.fill();
+          }
+          if (faint && magnitudeLimit > 6.5) {
+            const project = createDirectionProjector(view, width, height, zoom);
+            const count = faintCount(faint.magnitude, magnitudeLimit), direction = faint.direction;
+            for (let i = 0; i < count; i++) {
+              const z = direction[i * 3 + 2];
+              const visibility = z < 0 ? Math.max(starVisibility, belowReveal) : starVisibility;
+              if (visibility <= 0 || (z < 0 && belowReveal <= 0)) continue;
+              const point = project(direction[i * 3], direction[i * 3 + 1], z);
+              if (!point) continue;
+              const magnitude = faint.magnitude[i];
+              context.globalAlpha = visibility * faintStarBrightness(magnitude) * faintStarFade(magnitude, magnitudeLimit);
+              context.beginPath();
+              context.arc(point.x, point.y, .8, 0, Math.PI * 2);
+              context.fill();
+            }
           }
           context.globalAlpha = 1;
         }
@@ -372,7 +417,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       performanceScene.backend = renderer?.backend ?? 'canvas';performanceScene.reason = renderer?.reason ?? '';
       performanceScene.driver = renderer?.driver ?? '';performanceScene.width = width;performanceScene.height = height;
       performanceScene.dpr = dpr;performanceScene.zoom = zoom;performanceScene.starCount = stars.length;
-      performanceScene.layerMask = Number(showFigures) | Number(showFigureNames) << 1 | Number(showBoundaries) << 2 | Number(Boolean(milkyWay)) << 3 | Number(showCandidateCollection) << 4;
+      performanceScene.layerMask = Number(showFigures) | Number(showFigureNames) << 1 | Number(showBoundaries) << 2 | Number(Boolean(milkyWay)) << 3 | Number(skyLevel === 'all' && skyGroups.candidates) << 4;
       performanceScene.figureMode = figureMode;performanceScene.following = phone.active;performanceScene.reducedMotion = reducedMotion;
       performanceScene.timeMode = timeMode;performanceScene.starsVisible = starVisibility > 0 || belowReveal > 0;
       performanceScene.milkyWayVisible = Boolean(milkyWay) && sun.altitude < -8;performanceScene.belowHorizon = belowReveal > 0;
@@ -386,7 +431,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       return Boolean(animating) || fade.animating || Boolean(artFading);
     };
     frames.setRenderer(render);
-  }, [projectFigure, frames, size, view, zoom, stars, figures, boundaries, preparedBoundaries, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showMilkyWay, artSky, ecliptic, reducedMotion, sun.altitude, milkyWay, milkyBasis, sceneKey, time, timeMode, location, performanceScene, phone.active, showCandidateCollection, comparisonStatus.active, selectedId, finderTarget, language]);
+  }, [projectFigure, frames, size, view, zoom, stars, figures, boundaries, preparedBoundaries, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showMilkyWay, artSky, ecliptic, reducedMotion, sun.altitude, milkyWay, milkyBasis, sceneKey, time, timeMode, location, performanceScene, phone.active, skyLevel, skyGroups, faint, magnitudeLimit, comparisonStatus.active, selectedId, finderTarget, language]);
 
   const move = (heading: number, pitch: number) => onViewChange(current => ({heading: wrap(current.heading + heading), pitch: clampViewPitch(current.pitch + pitch)}));
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
@@ -479,6 +524,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       if (frames.comparison.active) {frames.comparison.cancel('user-interaction');event.preventDefault();event.stopPropagation();return;}
       delete event.currentTarget.dataset.pointerSteering;
       if (finderTarget && event.key === 'Escape') { event.preventDefault(); onStopFinder(); return; }
+      if ((event.key === '+' || event.key === '=' || event.key === '-') && event.target === event.currentTarget) { event.preventDefault(); setZoom(current => Math.max(1, Math.min(3, current * (event.key === '-' ? 1 / 1.25 : 1.25)))); return; }
       const changes: Record<string, [number, number]> = {ArrowLeft: [-10, 0], ArrowRight: [10, 0], ArrowUp: [0, 8], ArrowDown: [0, -8]};
       const change = changes[event.key];
       if (change && event.target === event.currentTarget) { event.preventDefault(); move(...change); }
@@ -489,7 +535,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
     {markers.map(({object, position, point}) => {const placement = labelPlacements.get(object.id)!;return <button key={object.id} className={`sky-object ${selectedId === object.id ? 'is-selected' : ''}`} aria-pressed={selectedId === object.id} style={{left: point.x, top: point.y, opacity: position.altitude < 0 ? belowReveal * .8 : 1}} onClick={() => onSelect(object)} title={`${label(object)} · ${position.altitude.toLocaleString(language === 'sv' ? 'sv-SE' : 'en-GB', {minimumFractionDigits: 1, maximumFractionDigits: 1})}°`} aria-label={`${label(object)}, ${language === 'sv' ? 'höjd' : 'altitude'} ${position.altitude.toLocaleString(language === 'sv' ? 'sv-SE' : 'en-GB', {minimumFractionDigits: 1, maximumFractionDigits: 1})}°`}><SkyMarkerPoint object={object} moonPhase={object.id === 'moon' ? moonPhase(point) : undefined}/><span className="sky-object-label" aria-hidden="true" data-visible={placement.visible} style={{left: `calc(50% + ${placement.dx}px)`, top: `calc(50% + ${placement.dy}px)`}}>{label(object)}</span></button>;})}
     {sunPoint && <span className="sky-object sky-sun" style={{left: sunPoint.x, top: sunPoint.y, opacity: sun.altitude < 0 ? belowReveal * .8 : 1}} role="img" aria-label={`${sunLabel}, ${language === 'sv' ? 'höjd' : 'altitude'} ${sun.altitude.toLocaleString(language === 'sv' ? 'sv-SE' : 'en-GB', {minimumFractionDigits: 1, maximumFractionDigits: 1})}°`}><span className="sky-point"/><span className="sky-object-label" aria-hidden="true" data-visible={labelPlacements.get('sun')?.visible ?? false} style={{left: `calc(50% + ${labelPlacements.get('sun')?.dx ?? 0}px)`, top: `calc(50% + ${labelPlacements.get('sun')?.dy ?? 32}px)`}}>{sunLabel}</span></span>}
     {finderTarget && targetPosition && <GuidedFinder object={finderTarget} position={targetPosition} nextRise={nextRise} location={location} view={view} width={size.width} height={size.height} language={language} phone={phone} sunAltitude={sun.altitude} zoom={zoom} onClose={onStopFinder} onDetails={onFinderDetails}/>}
-    <div className="horizon-help">{language === 'sv' ? 'Dra för att se dig omkring · nyp för att zooma' : 'Drag to look around · pinch to zoom'}</div>
+    <div className="horizon-help">{language === 'sv' ? 'Dra för att se dig omkring · nyp eller skrolla för att zooma' : 'Drag to look around · pinch or scroll to zoom'}</div>
     <div className="horizon-controls" aria-label={language === 'sv' ? 'Styr vyn' : 'View controls'}>
       <button onClick={() => move(-30, 0)} aria-label={language === 'sv' ? 'Vrid åt vänster' : 'Turn left'}>←</button>
       <button onClick={() => move(0, 15)} aria-label={language === 'sv' ? 'Titta upp' : 'Look up'}>↑</button>

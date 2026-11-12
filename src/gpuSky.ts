@@ -1,6 +1,8 @@
 import type {MilkyWayTexture} from './milkyWay';
 import type {PreparedHorizontalStar, ViewDirection} from './skyProjection';
 import {stellarBrightness} from './skyVisibility';
+import {faintCount, type FaintSky} from './binocularStars';
+import {faintStarBrightness} from './skyLevel';
 import type {PerformanceFrame} from './skyPerformance';
 
 const quadVertex = `#version 300 es
@@ -48,6 +50,7 @@ precision highp float;
 layout(location=0) in vec3 direction;
 layout(location=1) in float radius;
 layout(location=2) in float brightness;
+layout(location=3) in float magnitude;
 uniform vec4 pose;
 uniform vec2 viewport;
 uniform vec2 pixelViewport;
@@ -55,12 +58,15 @@ uniform float focal;
 uniform float dpr;
 uniform vec2 visibility;
 uniform bool below;
+uniform float magnitudeLimit;
 flat out float spriteSize;flat out vec2 tile;flat out float alpha;
 void main(){
   float ch=pose.x,sh=pose.y,cp=pose.z,sp=pose.w;
   float forward=direction.x*ch+direction.y*sh;
   float depth=forward*cp+direction.z*sp;
   alpha=(direction.z<0.0?max(visibility.x,visibility.y):visibility.x)*brightness;
+  // F-043: stars fainter than V 6.5 fade in as the zoom-dependent limit passes them.
+  if(magnitude>6.5)alpha*=magnitude>magnitudeLimit?0.0:clamp((magnitudeLimit-magnitude)/0.4+0.25,0.0,1.0);
   spriteSize=ceil(radius*dpr+1.0)*2.0;gl_PointSize=spriteSize;tile=vec2(0.0);
   if(depth<=0.0||(direction.z<0.0&&!below)||alpha<=0.0){gl_Position=vec4(2.0,2.0,2.0,1.0);return;}
   float right=direction.y*ch-direction.x*sh;
@@ -100,15 +106,22 @@ export function starCoverageAtlas(dpr: number) {
   return context.getImageData(0, 0, canvas.width, canvas.height);
 }
 
-export function packStars(stars: PreparedHorizontalStar[]) {
-  const packed = new Float32Array(stars.length * 5);
+const STRIDE = 6;
+export function packStars(stars: PreparedHorizontalStar[], faint: FaintSky | null = null) {
+  const packed = new Float32Array((stars.length + (faint?.count ?? 0)) * STRIDE);
   stars.forEach((star, index) => packed.set([
     star.cosAltitude * star.cosAzimuth,
     star.cosAltitude * star.sinAzimuth,
     star.sinAltitude,
     star.magnitude < 0 ? 3 : star.magnitude < 2 ? 2.2 : star.magnitude < 4 ? 1.5 : .9,
     .28 + stellarBrightness(star.magnitude) * .72,
-  ], index * 5));
+    // The bright subset is always drawn in full; only F-043 faint stars carry a real fade magnitude.
+    Math.min(6.5, star.magnitude),
+  ], index * STRIDE));
+  if (faint) for (let i = 0, offset = stars.length * STRIDE; i < faint.count; i++, offset += STRIDE) {
+    packed[offset] = faint.direction[i * 3];packed[offset + 1] = faint.direction[i * 3 + 1];packed[offset + 2] = faint.direction[i * 3 + 2];
+    packed[offset + 3] = .8;packed[offset + 4] = faintStarBrightness(faint.magnitude[i]);packed[offset + 5] = faint.magnitude[i];
+  }
   return packed;
 }
 
@@ -141,6 +154,7 @@ export class GpuSky {
   private rasterHeight = 0;
   private starCount = 0;
   private sceneStars: PreparedHorizontalStar[] | null = null;
+  private sceneFaint: FaintSky | null = null;
   private sceneTexture: MilkyWayTexture | null = null;
   private rasterKey = '';
   private disposed = false;
@@ -161,8 +175,8 @@ export class GpuSky {
       if (!buffer) throw new Error('GPU-buffert kunde inte skapas.');
       this.buffers.push(buffer); this.starsBuffer = buffer;
       gl.bindVertexArray(this.starsVao);gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-      for (const [index, size, offset] of [[0, 3, 0], [1, 1, 12], [2, 1, 16]]) {
-        gl.enableVertexAttribArray(index);gl.vertexAttribPointer(index, size, gl.FLOAT, false, 20, offset);
+      for (const [index, size, offset] of [[0, 3, 0], [1, 1, 12], [2, 1, 16], [3, 1, 20]]) {
+        gl.enableVertexAttribArray(index);gl.vertexAttribPointer(index, size, gl.FLOAT, false, STRIDE * 4, offset);
       }
       this.sourceTexture = this.texture(true);this.rasterTexture = this.texture(false);
       this.framebuffer = gl.createFramebuffer();
@@ -185,14 +199,15 @@ export class GpuSky {
     };
   }
 
-  setScene(stars: PreparedHorizontalStar[], texture: MilkyWayTexture | null) {
+  setScene(stars: PreparedHorizontalStar[], texture: MilkyWayTexture | null, faint: FaintSky | null = null) {
     const gl = this.gl;
-    if (stars !== this.sceneStars) {
+    if (stars !== this.sceneStars || faint !== this.sceneFaint) {
       gl.bindBuffer(gl.ARRAY_BUFFER, this.starsBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, packStars(stars), gl.STATIC_DRAW);
+      gl.bufferData(gl.ARRAY_BUFFER, packStars(stars, faint), gl.STATIC_DRAW);
       if (gl.getError() !== gl.NO_ERROR) throw new Error('GPU-stjärnbufferten kunde inte laddas.');
       this.starCount = stars.length;
       this.sceneStars = stars;
+      this.sceneFaint = faint;
     }
     if (texture && texture !== this.sceneTexture) {
       gl.bindTexture(gl.TEXTURE_2D, this.sourceTexture);
@@ -277,7 +292,7 @@ export class GpuSky {
     this.copy(context, this.pixelWidth / dpr, this.pixelHeight / dpr);
   }
 
-  drawStars(context: CanvasRenderingContext2D, width: number, height: number, dpr: number, view: ViewDirection, starVisibility: number, belowReveal: number, zoom: number) {
+  drawStars(context: CanvasRenderingContext2D, width: number, height: number, dpr: number, view: ViewDirection, starVisibility: number, belowReveal: number, zoom: number, magnitudeLimit = 6.5) {
     this.surface(width, height, dpr);
     const atlas = this.starAtlas(dpr);
     const gl = this.gl;
@@ -292,7 +307,9 @@ export class GpuSky {
     gl.uniform1f(this.uniform(this.starsProgram, 'dpr'), dpr);
     gl.uniform2f(this.uniform(this.starsProgram, 'visibility'), starVisibility, belowReveal);
     gl.uniform1i(this.uniform(this.starsProgram, 'below'), Number(belowReveal > 0));
-    gl.drawArrays(gl.POINTS, 0, this.starCount);
+    gl.uniform1f(this.uniform(this.starsProgram, 'magnitudeLimit'), magnitudeLimit);
+    // Faint stars are sorted by magnitude, so only the prefix up to the limit is submitted.
+    gl.drawArrays(gl.POINTS, 0, this.starCount + (magnitudeLimit > 6.5 && this.sceneFaint ? faintCount(this.sceneFaint.magnitude, magnitudeLimit) : 0));
     this.copy(context, this.pixelWidth / dpr, this.pixelHeight / dpr);
   }
 

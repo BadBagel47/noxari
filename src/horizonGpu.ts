@@ -3,6 +3,7 @@ import {GpuSky} from './gpuSky';
 import type {MilkyWayTexture} from './milkyWay';
 import type {PreparedHorizontalStar} from './skyProjection';
 import type {PerformanceFrame} from './skyPerformance';
+import type {FaintSky} from './binocularStars';
 
 export type SkyRendererPreference = 'auto' | 'canvas' | 'gpu';
 export function skyRendererPreference(search: string): SkyRendererPreference {
@@ -16,6 +17,7 @@ export class HorizonGpu {
   private context: WebGL2RenderingContext | null = null;
   private stars: PreparedHorizontalStar[] = [];
   private texture: MilkyWayTexture | null = null;
+  private faint: FaintSky | null = null;
   private disposed = false;
   private surfacePolicy: SurfacePolicy = 'auto';
   reason = '';
@@ -52,7 +54,7 @@ export class HorizonGpu {
       } else if (info.pointRange[1] < 14) {
         this.fail('point-size-limit');
       } else {
-        this.gpu.setScene(this.stars, this.texture);
+        this.gpu.setScene(this.stars, this.texture, this.faint);
         this.reason = '';
       }
     } catch {
@@ -78,11 +80,12 @@ export class HorizonGpu {
     this.invalidate();
   };
 
-  setScene(stars: PreparedHorizontalStar[], texture: MilkyWayTexture | null) {
+  setScene(stars: PreparedHorizontalStar[], texture: MilkyWayTexture | null, faint: FaintSky | null = null) {
     this.stars = stars;
     this.texture = texture;
+    this.faint = faint;
     if (this.gpu?.available) {
-      try { this.gpu.setScene(stars, texture); }
+      try { this.gpu.setScene(stars, texture, faint); }
       catch { this.fail('scene-upload'); }
     }
   }

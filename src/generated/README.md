@@ -14,6 +14,10 @@ CSV source: `https://raw.githubusercontent.com/astronexus/HYG-Database/3bf37f4b2
 
 SHA-256: `d9f69fd86bbf90a4e4d52b4c5c53eacfa6dfc0bfdef85bfd94f095e0bebe4ebd`.
 
+## Binocular stars (F-043)
+
+`public/stars/binocular-v1.bin` holds the 52,894 HYG v4.1 stars with 6.5 < V ≤ 8.5 that are not in the bright subset (HIP 30665 and 33165 already ship there), from the same pinned HYG commit and checksum (CC BY-SA 4.0, credited with the other HYG data in About & sources). Generator: `python3 scripts/generate_binocular_stars.py [local hygdata_v41.csv]`; provenance and output SHA-256 in `data/binocular-stars/manifest.json`. Layout: magic `NXS1`, uint32 count, uint16 RA (24 h/65,536), int16 Dec (90°/32,767), uint8 (V − 6.5)·100; sorted by magnitude. Proper motion is omitted (a few arcseconds since J2000 for these stars, below the ~10–20″ encoding). The file (264 kB, ≈212 kB gzip) is fetched only when the Binoculars or Whole catalog level is chosen, is not precached by the service worker and is cached at runtime on first use. The app rotates the J2000 vectors with one Astronomy Engine EQJ→HOR matrix per time change, draws only the magnitude-sorted prefix up to a zoom-dependent limit (V 7.0 at 1×, rising to 8.5 at 2×) and fades stars in near that limit. Only the eye-level view draws them; the all-sky map keeps the bright subset.
+
 ## Constellation figures
 
 `constellations.ts` is adapted from Stellarium's **modern** skyculture by the Stellarium team. [Pinned source](https://github.com/Stellarium/stellarium/blob/daace2add6a1bf886e8ee1934f51e9c69f818d18/skycultures/modern/index.json). [License declaration](https://github.com/Stellarium/stellarium/blob/daace2add6a1bf886e8ee1934f51e9c69f818d18/skycultures/modern/description.md#license): “Text and data: CC BY-SA 4.0”. Both original data and this adaptation are under CC BY-SA 4.0.

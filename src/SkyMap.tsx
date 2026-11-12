@@ -14,6 +14,7 @@ import {Body} from 'astronomy-engine';
 import {objectPositioner, positionAt, showObjectMarker, solarAppearance, type ObservingLocation} from './astronomy';
 import {objects, type SpaceObject} from './data';
 import {candidateObjects} from './candidateObjects';
+import {shownAtSkyLevel, type SkyGroups, type SkyLevel} from './skyLevel';
 import {horizontalStarCatalog, projectHorizontal} from './skyProjection';
 import {stellarBrightness} from './skyVisibility';
 import {skyOverlayExclusions} from './objectLabels';
@@ -36,11 +37,12 @@ type Props = {
   showEcliptic: boolean;
   /** Changes when externally loaded data (ISS elements) arrives. */
   dynamicKey?: number;
-  showCandidateCollection: boolean;
+  skyLevel: SkyLevel;
+  skyGroups: SkyGroups;
   milkyWay: MilkyWayTexture | null;
 };
 
-export function SkyMap({selectedId, time, location, label, language, sunLabel, onSelect, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, dynamicKey, showCandidateCollection, milkyWay}: Props) {
+export function SkyMap({selectedId, time, location, label, language, sunLabel, onSelect, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, dynamicKey, skyLevel, skyGroups, milkyWay}: Props) {
   const container = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const reveal = useRef(new ConstellationReveal());
@@ -68,19 +70,20 @@ export function SkyMap({selectedId, time, location, label, language, sunLabel, o
   }), [catalog, size, zoom]);
   const objectSky = useMemo(() => {
     const resolve = objectPositioner(time, location);
-    return [...objects, issObject, ...namedStarObjects, ...(showCandidateCollection ? candidateObjects : [])].flatMap(object => {
+    return [...objects, issObject, ...namedStarObjects, ...candidateObjects].flatMap(object => {
       const position = resolve(object);
       const appearance = object.kind === 'Planet' ? solarAppearance(object, time) : null;
       return position ? [{object, position, appearance}] : [];
     });
-  }, [time, location, showCandidateCollection, dynamicKey]);
+  }, [time, location, dynamicKey]);
   const markers = useMemo(() => objectSky.flatMap(({object, position, appearance}) => {
     if (!size.width || !size.height) return [];
+    if (object.id !== selectedId && !shownAtSkyLevel(object, skyLevel, skyGroups)) return [];
     // Markers distinguish civil twilight for planets from darker deep-sky conditions.
     if (!showObjectMarker(object, sun.altitude, appearance)) return [];
     const point = position && projectHorizontal(position, size.width, size.height, zoom);
     return point ? [{object, point, altitude: position.altitude}] : [];
-  }), [objectSky, size.width, size.height, sun.altitude, zoom]);
+  }), [objectSky, size.width, size.height, sun.altitude, zoom, skyLevel, skyGroups, selectedId]);
   const hasDaylightPlanetMarker = sun.altitude >= 0 && markers.some(marker => marker.object.kind === 'Planet');
   const sunPoint = size.width && size.height ? projectHorizontal(sun, size.width, size.height, zoom) : null;
   const labelExclusions = useMemo(() => skyOverlayExclusions(container.current), [size.width, size.height, selectedId, language]);

@@ -77,7 +77,7 @@ describe('horizon GPU ownership and fallback', () => {
     renderer.setScene(newerStars, null);
     canvas.dispatchEvent(new Event('webglcontextrestored'));
     expect(renderer.backend).toBe('gpu');
-    expect(state.instances[1].setScene).toHaveBeenLastCalledWith(newerStars, null);
+    expect(state.instances[1].setScene).toHaveBeenLastCalledWith(newerStars, null, null);
     expect(invalidate).toHaveBeenCalledTimes(2);
     renderer.dispose();
     canvas.dispatchEvent(new Event('webglcontextrestored'));
@@ -89,7 +89,7 @@ describe('horizon GPU ownership and fallback', () => {
   it('recreates bounded GPU resources for policy changes then restores automatic sizing', () => {
     const canvas = surface(), renderer = new HorizonGpu(canvas, vi.fn(), 'gpu');renderer.setScene(stars, texture);
     expect(renderer.policy).toBe('retained');expect(renderer.resetSurface('exact')).toBe(true);expect(renderer.policy).toBe('exact');
-    expect(state.instances[0].dispose).toHaveBeenCalledOnce();expect(state.instances[1].setScene).toHaveBeenCalledWith(stars, texture);
+    expect(state.instances[0].dispose).toHaveBeenCalledOnce();expect(state.instances[1].setScene).toHaveBeenCalledWith(stars, texture, null);
     expect(renderer.resetSurface('retained')).toBe(true);expect(renderer.policy).toBe('retained');
     state.software = true;expect(renderer.resetSurface('auto')).toBe(true);expect(renderer.policy).toBe('exact');
     renderer.dispose();for (const gpu of state.instances) expect(gpu.dispose).toHaveBeenCalledOnce();
