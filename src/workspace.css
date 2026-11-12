@@ -237,3 +237,25 @@ html,body,#root{width:100%;height:100%;overflow:hidden}
 /* A single multiply layer keeps only (dimmed) red light; no filter pass over the moving sky. */
 .sky-app.red-mode::after{content:"";position:absolute;inset:0;z-index:1000;pointer-events:none;background:#e01000;mix-blend-mode:multiply}
 .sky-map .sky-point.sky-symbol{width:16px;height:16px}.sky-map .sky-point.sky-symbol svg{width:15px;height:15px}
+
+/* F-025 fix: wide screens use the same bottom dock and content-height bottom sheets as phones. */
+@media(min-width:761px) and (min-height:501px){
+ .quick-tools{left:50%;top:auto;bottom:max(14px,env(safe-area-inset-bottom));transform:translateX(-50%);flex-direction:row;gap:4px;padding:6px;width:auto}
+ .quick-tools button{width:84px;flex:none}
+ .sky-statusbar{left:max(16px,env(safe-area-inset-left));right:max(16px,env(safe-area-inset-right))}
+ .sky-workspace .horizon-heading{left:50%;top:calc(76px + env(safe-area-inset-top))}
+ .panel-backdrop{justify-content:center;align-items:flex-end}
+ .sky-sheet{width:min(480px,calc(100% - 32px));max-width:none;height:auto;max-height:calc(100% - 96px);border:1px solid #466988;border-bottom:0;border-radius:20px 20px 0 0}
+ .panel-backdrop .sky-sheet{animation-name:sheet-up}.panel-backdrop.is-closing .sky-sheet{animation-name:sheet-down}
+ .object-preview,.sky-app .finder-hud{left:calc(50% - 230px);right:auto;width:460px;bottom:calc(98px + env(safe-area-inset-bottom))}
+ .phone-notice{left:calc(50% - 230px);right:auto;width:460px;max-width:none}
+ .sky-app .toast{bottom:calc(98px + env(safe-area-inset-bottom))}
+}
+/* Short landscape phones keep the left rail; the sheet opens from the same side. */
+@media(orientation:landscape) and (max-height:500px) and (min-width:568px){
+ .panel-backdrop{justify-content:flex-start}
+ .sky-sheet{border:1px solid #466988;border-left:0;border-radius:0 16px 16px 0}
+ .panel-backdrop .sky-sheet{animation-name:sheet-from-left}.panel-backdrop.is-closing .sky-sheet{animation-name:sheet-to-left}
+}
+@keyframes sheet-from-left{from{transform:translateX(-100%)}}
+@keyframes sheet-to-left{to{transform:translateX(-100%)}}

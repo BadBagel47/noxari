@@ -11,7 +11,9 @@ Användaren gav ”Kör” (rekommenderad modell Opus). Genomfört:
 - **F-024 rödfilter:** ett multiplikationslager (`mix-blend-mode:multiply`, #e01000) över hela appen, sparat lokalt. Inget CSS-filter på himlen. Skärmens ljusstyrka kan inte styras.
 - **F-037 (del):** paneler glider in/ut, vybyte tonar/zoomar, objektkort glider in, urvalsringen pulserar, Guidens centrering pulserar och vibrerar kort (Android, vid följning). Allt av vid reducerad rörelse. Ej gjort: lager-toning, mjuk Följ-start, mjuka tidsbyten (kräver ritlogik/sensorer; senare steg).
 
-**Publicering:** appcommit `eb952806c130d7d88734379e9f003b53317b9e35`, GitHub Actions 43137695806 lyckades; https://noxari.trythis.one/ serverar bygget med samma commit-ID och de nya funktionerna.
+**Rättning efter användarens skärmbild:** på breda skärmar (≥761 px bred och >500 px hög) används nu samma nedre rad och innehållshöga paneler nerifrån som på mobil; liggande mobil behåller vänsterlist men panelen öppnas från vänster. 15/15 flöden och 6/6 etikettprov passerar efter ändringen.
+
+**Publicering (första versionen):** appcommit `eb952806c130d7d88734379e9f003b53317b9e35`, GitHub Actions 43137695806 lyckades; https://noxari.trythis.one/ serverar bygget med samma commit-ID och de nya funktionerna.
 
 **Verifiering:** 188 enhetstester, TypeScript/produktionsbygge. Chromium: 15/15 funktionsflöden (390×844, 1280×800, 568×320), etikettstabilitet 6/6 (EN/SV), start/fokus 13/13, testinställningar/följning 8/8. Flödesskripten uppdaterades till nya knappnamn. Sensorer/GPS simulerade; ingen fysisk mobilvalidering eller mätning av svepflyt — användarens återkoppling behövs, särskilt för rödfilter och symboler under svep. B-001/B-004 pausade, B-007 observeras.
 
