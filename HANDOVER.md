@@ -1,3 +1,7 @@
+## F-042 registrerad (2026-11-12)
+
+CelesTrak skickar nu `access-control-allow-origin: *`, så webbläsaren kan hämta ISS-element direkt (tidigare slutsats om saknad CORS var fel). Användaren bad om att lägga detta i listan som F-042; inte startgodkänd. Frågan om daglig schemalagd publicering ersätts av F-042.
+
 ## Stor körning 2 — ”Kör alla som inte vilar/pausade” (2026-11-12, Opus)
 
 Genomfört (publicering och verifiering nedan):
