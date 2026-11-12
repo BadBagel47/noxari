@@ -1,6 +1,6 @@
 ## F-044 och F-045 registrerade (2026-11-12)
 
-Användaren vill ha en visning: guidad tur genom sparade objekt med Nästa/Föregående/Stoppa, antingen genom att peka mobilen själv (inaktiverat på dator med förklaring) eller att himlen glider dit (F-044), samt ett separat självgående demoläge för helskärm (F-045). Inväntar ”Kör”; rekommenderad modell Opus.
+Användaren vill ha en visning: guidad tur genom sparade objekt med Nästa/Föregående/Stoppa, antingen genom att peka mobilen själv (inaktiverat på dator med förklaring) eller att himlen glider dit (F-044), samt ett separat självgående demoläge för helskärm (F-045). Tillägg: demoläget ska vara mer cinematiskt med zoomningar, tydligt namn, typ, avstånd och storlek (storlek kräver ny data från OpenNGC, se BACKLOG). Inväntar ”Kör”; rekommenderad modell Opus.
 
 ## F-043 synlighetsnivåer — genomfört (2026-11-12, Opus)
 
