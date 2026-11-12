@@ -195,6 +195,17 @@ Användaren har **pausat B-001** och vill prioritera att färdigställa övrig f
 | **F-023** | Publicering på noxari.trythis.one | **Klar — HTTPS tvingas (2026-11-12)** | Rotbygget ligger live på nya domänen; CI och bytejämförelse för huvudapp/labb/delningar passerade. `Enforce HTTPS` är ännu avstängd i Pages och gammal adress redirectar till HTTP. Användaren behöver aktivera HTTPS-tvingning och meddela oss för slutverifiering. Exportera/importera sparad objektlista före origin-byte. |
 | **F-024** | Rödfilter / nattläge | **Förslag 2026-11-12** | Hela gränssnittet och himlen i röda/svarta toner för att bevara mörkerseendet. Lätt att slå av/på (snabbknapp + Mer). Webbsidor kan inte styra skärmens ljusstyrka; användaren sänker den själv. Inte startgodkänd. |
 | **F-025** | UX-översyn enligt designskiss | **Godkänd plan 2026-11-12 — bygge inväntar ”Kör”** | Se `docs/design/ux-2026-11/`. Steg 1: nedre rad Sök·Ikväll·Lager·Tid & plats·Mer, en Följ-knapp, Lager-snabbpanel, grupperad Mer med språk Auto/SV/EN (Auto = enhetens språk), Tid & plats med Nu/Ikväll/Välj och Avancerat, fasta paneler utan tom yta, objektkort med Visa på himlen (vrider vyn, stänger följning som vid drag; under horisonten visar uppgångstid). Steg 2: kompakt sök med minikurva (nu-prick, horisontlinje, ⓘ-förklaring) och Synligt nu, Ikväll med knappar för utrustning, nytt Rutnät-lager. F-020/F-021 och synliga felsökningsverktyg behålls. |
+| **F-026** | Namn på ljusa stjärnor och tryck på stjärna | **Förslag 2026-11-12** | Visa namn på de ljusaste stjärnorna (Vega, Sirius, Betelgeuse …) och låt användaren trycka på en stjärna för kort info. Namndata finns redan i HYG-urvalet. Viktigt för nybörjare. Inte startgodkänd. |
+| **F-027** | Tidsreglage | **Förslag 2026-11-12** | Spola tiden framåt/bakåt (t.ex. ±1 h, ±1 dygn, dra-reglage) och se himlen röra sig, som i Stellarium. Nu/Ikväll finns kvar. Inte startgodkänd. |
+| **F-028** | Fungera utan uppkoppling | **Förslag 2026-11-12** | Installera på hemskärmen och använd appen utan mobiltäckning (offline-cache). Observationsplatser saknar ofta täckning. Inte startgodkänd. |
+| **F-029** | Händelsekalender | **Förslag 2026-11-12** | Månfaser, meteorskurar, förmörkelser och planetmöten för vald plats, beräknat lokalt där möjligt. Inte startgodkänd. |
+| **F-030** | Molnprognos ikväll | **Förslag 2026-11-12** | Visa förväntat molntäcke per timme i Ikväll via extern vädertjänst. Kräver godkänd tjänst/licens och avrundad position; ingen synlighetsgaranti. Inte startgodkänd. |
+| **F-031** | Månens och solens tider | **Förslag 2026-11-12** | Måne upp/ned och fas tydligt i Ikväll och objektkort, utöver befintlig solnedgång/soluppgång. Inte startgodkänd. |
+| **F-032** | Satellitpassager (ISS) | **Förslag 2026-11-12** | Synliga ISS-passager för vald plats. Kräver hämtade banelement och regelbunden uppdatering. Inte startgodkänd. |
+| **F-033** | Observationslogg | **Förslag 2026-11-12** | Markera objekt som sedda med datum och egen anteckning, sparat lokalt. Inte startgodkänd. |
+| **F-034** | Kort introduktion första gången | **Förslag 2026-11-12** | Tre–fyra tips vid första start: svep, sök, Följ, Lager. Kan stängas och visas igen under Mer. Inte startgodkänd. |
+| **F-035** | Ekliptikalinje | **Förslag 2026-11-12** | Valbart lager som visar ekliptikan (”planeternas väg”), bredvid Rutnät. Inte startgodkänd. |
+| **F-036** | Info om stjärnbilder | **Förslag 2026-11-12** | Tryck på stjärnbildsnamn för kort beskrivning och huvudstjärnor. Inte startgodkänd. |
 
 ## Genomförda delar
 
