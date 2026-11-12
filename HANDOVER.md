@@ -1,3 +1,15 @@
+## UX-översyn — beslut inför designskiss (2026-11-12)
+
+Användaren vill göra appen snyggare, renare och effektivare utan att inställningar blir svåra att nå. Beslut:
+- Gränssnittsspråk: starta på operativsystemets/webbläsarens språk (svenska om sådant, annars engelska); användaren kan byta.
+- Målgrupp: nybörjare till medelvana.
+- Behåll tillfällig natthimmelsstart (F-021) och alla lager på vid start (F-020) tills vidare, för prestandauppföljning.
+- Felsökningsverktyg (prestandarapport, telefonriktning) får vara fortsatt synliga under prototypfasen.
+- Förebilder: Stellarium föredras framför Sky Guide — fler direkt nåbara knappar, men rent.
+- Arbetssätt: först en designskiss med före/efter-bilder utan appkodändring, sedan godkännande och byggsteg.
+
+Modellrekommendationer: sessionen körs nu med Claude Code. Rekommendera Claude-modeller (t.ex. Opus för design/komplex analys, Sonnet för väl avgränsade steg) i stället för de tidigare GPT-namnen Luna/Sol. Designskissen är föreslagen med Opus; inväntar ”Kör”.
+
 ## Mobilåterkoppling 2026-11-12
 
 **Beslut 2026-11-12:** Användaren parkerar resterande F-009-mobilprov (delning, GPS, iOS m.m.) tills vidare. Inget nytt steg är godkänt; kvarvarande förslag är F-021 (ta bort tillfällig natthimmelsstart, Luna High) och B-004 (mjukare svep, Sol High).
