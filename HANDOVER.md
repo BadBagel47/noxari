@@ -6,6 +6,8 @@ Användaren gav ”Kör alla tre”.
 - **F-045 Demoläge:** helskärm (om webbläsaren tillåter), kameran drar sig ut, sveper och zoomar in (`src/tour.ts`, längre sväng = längre och bredare rörelse), titelskylt med typ, namn, avstånd, storlek på himlen, ungefärlig verklig storlek och stjärnbild som tonas in i steg, framstegsprickar, 7 s per objekt och loop; tryck, Esc eller lämnad helskärm avslutar och zoomen återgår till 1×. Storlekar: `src/generated/messierSizes.ts` från samma pinnade OpenNGC (108/110), verklig storlek = avstånd × vinkel (≈); planeter/månen/dvärgplaneter med standarddiametrar och beräknat avstånd. Messierposterna är oförändrade. Reducerad rörelse: hopp i stället för glidning.
 Alla kamerarörelser går i den gemensamma bildruteloopen (`SkyFrames.setMotion`, zoom via `zoomControl`); ingen ny loop.
 
+**Publicering:** appcommit `e74d2dae90e0d02567e8ed3b0940c5c87a3174d2`, Actions 43214133865 lyckades; live-paketet innehåller den nya ISS-hämtningen.
+
 Verifiering: 223 enhetstester (nya: ISS-hämtning, turstopp, kamerakurva, storlekar/fakta), fullt bygge, 15/15 funktionsflöden, etiketter, start/fokus, testinställningar. Webbläsarprov: alla tre lägen inkl. simulerad kompass för Peka själv, stopp, desktop med avstängd Peka själv. Ingen fysisk mobilkontroll. B-001/B-004 pausade, B-007 observeras. Ingen ny körning godkänd.
 
 ## F-044 och F-045 registrerade (2026-11-12)
