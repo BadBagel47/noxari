@@ -1,6 +1,6 @@
 ## F-041 — förladdning och intoning (2026-11-12)
 
-Användaren såg teckningar ”ploppa in” vid snabba svep. Nu förladdas alla 85 bilder i bakgrunden (4 åt gången) när lagret är på, avkodas innan de används och tonas in under 350 ms; intoningen drivs av samma renderare (inga extra loopar). Vintergatan ritas under teckningarna men syns igenom eftersom teckningarna är halvgenomskinliga (38 %); användaren har fått frågan om de ska göras tydligare eller Vintergatan dämpas där teckningar visas. 197 tester och 15/15 flöden passerar; mätning median ≈19 ms (16,7 utan teckningar).
+Användaren såg teckningar ”ploppa in” vid snabba svep. Nu förladdas alla 85 bilder i bakgrunden (4 åt gången) när lagret är på, avkodas innan de används och tonas in under 350 ms; intoningen drivs av samma renderare (inga extra loopar). Vintergatan ritas under teckningarna men syns igenom eftersom teckningarna är halvgenomskinliga (38 %); användaren beslutade att detta tas i F-039. 197 tester och 15/15 flöden passerar; mätning median ≈19 ms (16,7 utan teckningar).
 
 ## F-041 — teckningar som rutnät (2026-11-12)
 
