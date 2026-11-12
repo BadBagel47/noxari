@@ -2,7 +2,7 @@
 
 A mobile-first planetarium prototype with a full-viewport calculated sky, swipeable eye-level and all-sky views, foreground panels, object positions and altitude curves.
 
-For a new chat or project handover, read [HANDOVER.md](HANDOVER.md) together with [AGENTS.md](AGENTS.md). The handover is maintained as work and plans change and records the user's model-recommendation and approval workflow.
+For a new chat or project handover, read [HANDOFF.md](HANDOFF.md) together with [AGENTS.md](AGENTS.md) (which points to the global agent rules) and [BACKLOG.md](BACKLOG.md). Detailed history and test evidence are in [docs/HANDOFF_LOG.md](docs/HANDOFF_LOG.md).
 
 ## Start locally
 
@@ -21,7 +21,7 @@ npm test
 npm run preview
 ```
 
-GitHub Actions now publishes to `https://noxari.trythis.one/` using `NOXARI_BASE_PATH=/` and `NOXARI_SITE_ORIGIN=https://noxari.trythis.one`; the main app, object-share previews, images and GPU lab share that root. Builds still default locally to `/noxari/` and the repository's GitHub Pages origin unless those variables are set. See [HANDOVER.md](HANDOVER.md) for deployment evidence and the saved-list note.
+GitHub Actions now publishes to `https://noxari.trythis.one/` using `NOXARI_BASE_PATH=/` and `NOXARI_SITE_ORIGIN=https://noxari.trythis.one`; the main app, object-share previews, images and GPU lab share that root. Builds still default locally to `/noxari/` and the repository's GitHub Pages origin unless those variables are set. See [docs/HANDOFF_LOG.md](docs/HANDOFF_LOG.md) for deployment evidence and the saved-list note.
 
 Development and test entry points, plus the limits of browser and sensor checks, are collected in [Development diagnostics](docs/DEVELOPMENT_DIAGNOSTICS.md). More → Performance report records a short local ordinary-app session and downloads `noxari-performance.json` for chat review; see [measurement boundaries and privacy](docs/PERFORMANCE_REPORT.md). It is opt-in and does not enable GPS or phone following. The same panel offers a [controlled four-pass GPU buffer comparison](docs/SURFACE_COMPARISON.md) with automatic motion and a separate local report. A separate [GPU rendering prototype](docs/GPU_PROTOTYPE.md) is available at `/noxari/labs/gpu-sky/` after a production build; it compares the same shared layers now used by the ordinary horizon view. See [GPU rendering](docs/GPU_RENDERING.md) for fallback and verification limits.
 
@@ -131,11 +131,11 @@ The direction stability and automatic recovery fixes have 98 offline tests (26 f
 
 ## Next implementation milestones
 
-Remaining features and bugs now have permanent IDs in [BACKLOG.md](BACKLOG.md): `F-###` for features and `B-###` for bugs. Use those IDs when proposing or approving a batch. Completed functionality and verified deployment evidence remain in [HANDOVER.md](HANDOVER.md).
+Remaining features and bugs now have permanent IDs in [BACKLOG.md](BACKLOG.md): `F-###` for features and `B-###` for bugs. Use those IDs when proposing or approving a batch. Completed functionality and verified deployment evidence remain in [docs/HANDOFF_LOG.md](docs/HANDOFF_LOG.md).
 
-The user wants every feature to be simple to use (**F-012**) and asks for a model recommendation before each development batch, with explicit approval before work starts. **F-019** adds the five recognized dwarf planets and Vesta to the main catalog with separate type filters. **F-002** adds conservative daytime markers for especially bright planets and clearly marks them as calculated positions. **F-018** provides the read-only `npm run catalogs:check` report; see `HANDOVER.md` and `data/README.md` for update procedure and limitations.
+The user wants every feature to be simple to use (**F-012**) and asks for a model recommendation before each development batch, with explicit approval before work starts. **F-019** adds the five recognized dwarf planets and Vesta to the main catalog with separate type filters. **F-002** adds conservative daytime markers for especially bright planets and clearly marks them as calculated positions. **F-018** provides the read-only `npm run catalogs:check` report; see `docs/HANDOFF_LOG.md` and `data/README.md` for update procedure and limitations.
 
-On 2026-10-31 the user paused **B-001 (phone direction drift)** to prioritize the remaining functionality. The deployed sensor code and evidence are retained; physical validation of automatic recovery remains incomplete. **F-001 + B-002**, **F-013 + F-007**, **F-003 + F-005**, **F-017**, **F-018**, **F-019**, and **F-002** are complete; check `HANDOVER.md` for deployment evidence. F-018 is a read-only source audit; it does not change app behavior or data. Other remaining work is listed by ID in `BACKLOG.md`; each new batch still requires a model recommendation and the user's approval.
+On 2026-10-31 the user paused **B-001 (phone direction drift)** to prioritize the remaining functionality. The deployed sensor code and evidence are retained; physical validation of automatic recovery remains incomplete. **F-001 + B-002**, **F-013 + F-007**, **F-003 + F-005**, **F-017**, **F-018**, **F-019**, and **F-002** are complete; check `docs/HANDOFF_LOG.md` for deployment evidence. F-018 is a read-only source audit; it does not change app behavior or data. Other remaining work is listed by ID in `BACKLOG.md`; each new batch still requires a model recommendation and the user's approval.
 
 ## Tonight planning model
 

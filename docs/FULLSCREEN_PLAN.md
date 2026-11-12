@@ -1,6 +1,6 @@
 # Förslag: himlen som huvudvy
 
-Analyserat 2026-10-29. **Godkänd av användaren genom ”Kör” och implementerad. Publicerad; verifierad appversion och kontrollresultat dokumenteras i HANDOVER.md.**
+Analyserat 2026-10-29. **Godkänd av användaren genom ”Kör” och implementerad. Publicerad; verifierad appversion och kontrollresultat dokumenteras i HANDOFF_LOG.md.**
 
 ## Utgångspunkt
 

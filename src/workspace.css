@@ -477,3 +477,8 @@ html,body,#root{width:100%;height:100%;overflow:hidden}
 .panel-action{display:inline-flex;align-items:center;gap:8px}
 .panel-actions{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 14px}.panel-actions .panel-action{margin-top:0}
 .sheet-body>.panel-action{margin-bottom:14px}
+/* F-058: privacy note in About */
+.privacy-note{margin:0 0 18px;padding:12px 14px;border:1px solid #2c4560;border-radius:12px;background:#0f2134}
+.privacy-note h3{margin:0 0 6px;font-size:15px}
+.privacy-note p{margin:0 0 8px;font-size:14px;line-height:1.5;color:#bcd0e2}
+.privacy-note p:last-child{margin-bottom:0}

@@ -1,3 +1,7 @@
+# Noxari — handoff-logg (arkiv)
+
+Tidigare `HANDOVER.md`, flyttad oförändrad vid anpassningen till agentregler v1.4 (2026-11-12). Aktuellt läge, beslut och nästa steg: [../HANDOFF.md](../HANDOFF.md). Sektionen ”Pending adaptation” nedan är genomförd.
+
 ## Agentregler och inventering
 
 - **Agentregler:** v1.4 inlästa 2026-11-12. Repot hade inte följt agentreglerna tidigare; anpassning pågår (se ”Pending adaptation”).
