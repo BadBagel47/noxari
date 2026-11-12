@@ -1,3 +1,7 @@
+## Rättning — tryckläge i menylistor (2026-11-12)
+
+Användaren såg att en rad i Mer/inställningar krympte inuti sin ram när man tryckte (bakgrunden blev mindre). Rader i grupperade listor skalas inte längre; de lyser upp i stället. Fristående knappar (lagerrutor, knappraden m.fl.) behåller den lilla tryckkrympningen.
+
 ## F-049 och F-050 registrerade (2026-11-12)
 
 Användaren jämförde med Stellarium Web: himlen känns mer levande, och där kan man trycka på små stjärnor. F-049 (renare standardvy, stjärnfärger, sken, blinkning, horisontdis, ev. landskap) och F-050 (alla stjärnor tryckbara + träffprioritet där kända objekt vinner över närmare okända). Inväntar ”Kör”.
