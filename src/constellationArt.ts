@@ -11,12 +11,49 @@ import {catalogHorizontalTransform, prepareHorizontalDirection, type MapPoint, t
  */
 export type ArtSky = {id: string; w: number; h: number; image: [number, number][]; anchors: PreparedHorizontalDirection[]};
 
+/** Unit vector for J2000 RA (hours) / Dec (degrees). */
+const unit = (ra: number, dec: number) => {
+  const a = ra * Math.PI / 12, d = dec * Math.PI / 180;
+  return [Math.cos(d) * Math.cos(a), Math.cos(d) * Math.sin(a), Math.sin(d)] as const;
+};
+
+/**
+ * Fit each image to the sky once, in a gnomonic tangent plane around its
+ * anchor stars, then derive three well-spread reference points around the
+ * image centre. Placing the image through those points (a local linear map at
+ * its centre) avoids the blow-ups an affine through three closely spaced or
+ * nearly collinear anchors produces once perspective bends the anchors.
+ */
+const references = constellationArt.map(art => {
+  const vectors = art.anchors.map(([, , , ra, dec]) => unit(ra, dec));
+  const sum = vectors.reduce((acc, v) => [acc[0] + v[0], acc[1] + v[1], acc[2] + v[2]], [0, 0, 0]);
+  const length = Math.hypot(sum[0], sum[1], sum[2]);
+  const c = [sum[0] / length, sum[1] / length, sum[2] / length];
+  // Tangent basis: east (e) and north (n) at the centre.
+  const e0 = [-c[1], c[0], 0]; const el = Math.hypot(e0[0], e0[1]) || 1;
+  const e = [e0[0] / el, e0[1] / el, 0];
+  const n = [c[1] * e[2] - c[2] * e[1], c[2] * e[0] - c[0] * e[2], c[0] * e[1] - c[1] * e[0]];
+  const toPlane = (v: readonly number[]) => {
+    const dot = v[0] * c[0] + v[1] * c[1] + v[2] * c[2];
+    return {x: (v[0] * e[0] + v[1] * e[1] + v[2] * e[2]) / dot, y: (v[0] * n[0] + v[1] * n[1] + v[2] * n[2]) / dot};
+  };
+  const fit = affineFromTriangles(art.anchors.map(([u, v]) => [u, v] as [number, number]), vectors.map(toPlane));
+  if (!fit) return null;
+  const image: [number, number][] = [[art.w / 2, art.h / 2], [art.w * .75, art.h / 2], [art.w / 2, art.h * .75]];
+  const sky = image.map(([u, v]) => {
+    const x = fit.a * u + fit.c * v + fit.e, y = fit.b * u + fit.d * v + fit.f;
+    const w = [c[0] + x * e[0] + y * n[0], c[1] + x * e[1] + y * n[1], c[2] + x * e[2] + y * n[2]];
+    const r = Math.hypot(w[0], w[1], w[2]);
+    return [((Math.atan2(w[1], w[0]) * 12 / Math.PI) + 24) % 24, Math.asin(w[2] / r) * 180 / Math.PI] as [number, number];
+  });
+  return {id: art.id, w: art.w, h: art.h, image, sky};
+});
+
 export function constellationArtSky(time: Date, location: ObservingLocation, mode: FigureMode): ArtSky[] {
   const project = catalogHorizontalTransform(time, location);
-  return constellationArt.filter(art => mode === 'all' || commonConstellationIds.has(art.id)).map(art => ({
-    id: art.id, w: art.w, h: art.h,
-    image: art.anchors.map(([u, v]) => [u, v] as [number, number]),
-    anchors: art.anchors.map(([, , , ra, dec]) => { const position = project(ra, dec); return {...position, ...prepareHorizontalDirection(position)}; }),
+  return references.filter((ref): ref is NonNullable<typeof ref> => ref !== null && (mode === 'all' || commonConstellationIds.has(ref.id))).map(ref => ({
+    id: ref.id, w: ref.w, h: ref.h, image: ref.image,
+    anchors: ref.sky.map(([ra, dec]) => { const position = project(ra, dec); return {...position, ...prepareHorizontalDirection(position)}; }),
   }));
 }
 
@@ -62,11 +99,11 @@ export function drawConstellationArt(context: CanvasRenderingContext2D, sky: Art
     if (!m) continue;
     // Reject placements the affine fit cannot represent well: anchors far outside
     // the view (strong perspective), extreme scale or strong shear/stretch.
-    if ((points as MapPoint[]).some(point => Math.abs(point.x - width / 2) > width * 1.6 || Math.abs(point.y - height / 2) > height * 1.6)) continue;
+    if (Math.abs(points[0]!.x - width / 2) > width * 1.5 || Math.abs(points[0]!.y - height / 2) > height * 1.5) continue;
     const p = m.a * m.a + m.b * m.b, q = m.c * m.c + m.d * m.d, r = m.a * m.c + m.b * m.d;
     const root = Math.sqrt(Math.max(0, (p - q) * (p - q) + 4 * r * r));
     const s1 = Math.sqrt((p + q + root) / 2), s2 = Math.sqrt(Math.max(0, (p + q - root) / 2));
-    if (!Number.isFinite(s1) || s1 > 12 || s2 < 0.02 || s1 / s2 > 3.2) continue;
+    if (!Number.isFinite(s1) || s1 > 16 || s2 < 0.02 || s1 / s2 > 4) continue;
     const corners = [[0, 0], [art.w, 0], [0, art.h], [art.w, art.h]].map(([u, v]) => [m.a * u + m.c * v + m.e, m.b * u + m.d * v + m.f]);
     const xs = corners.map(c => c[0]), ys = corners.map(c => c[1]);
     if (Math.max(...xs) < 0 || Math.min(...xs) > width || Math.max(...ys) < 0 || Math.min(...ys) > height) continue;

@@ -1,3 +1,7 @@
+## Rättning F-041 — utsträckta teckningar (2026-11-12)
+
+Användaren såg att vissa teckningar (t.ex. Stora björnen, Lodjuret) sträcktes över hela skärmen när man tittade runt. Orsak: affin placering genom tre nära liggande eller nästan linjära ankarstjärnor förstärkte perspektivets förvrängning över hela bilden. Nu passas varje bild in en gång i ett gnomoniskt tangentplan kring ankarstjärnorna (J2000), och tre välspridda referenspunkter runt bildens mitt används för placeringen (lokal linjär avbildning vid mitten). Kontrollerat med panorering i 12 riktningar på två höjder; inga utsträckningar. 196 tester och 15/15 flöden passerar.
+
 ## Stor körning 1–8 genomförd (2026-11-12, Opus)
 
 Användaren gav ”Kör 1-8”. Genomfört:
