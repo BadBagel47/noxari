@@ -40,8 +40,8 @@ describe('constellation art view fade', () => {
   it('keeps drawings near the view direction and hides far ones', () => {
     expect(artViewFade(at(30, 180), {heading: 180, pitch: 30})).toBe(1);
     expect(artViewFade(at(30, 220), {heading: 180, pitch: 30})).toBe(1);
-    expect(artViewFade(at(30, 270), {heading: 180, pitch: 30})).toBe(0);
-    const mid = artViewFade(at(0, 230), {heading: 180, pitch: 0});
+    expect(artViewFade(at(30, 330), {heading: 180, pitch: 30})).toBe(0);
+    const mid = artViewFade(at(0, 250), {heading: 180, pitch: 0});
     expect(mid).toBeGreaterThan(0); expect(mid).toBeLessThan(1);
   });
 });

@@ -9,7 +9,7 @@ import {catalogHorizontalTransform, prepareHorizontalDirection, type MapPoint, t
  * anchor stars: the screen positions of those stars define an affine image
  * transform, so the figure follows the same projection as stars and lines.
  */
-export type ArtSky = {id: string; w: number; h: number; image: [number, number][]; anchors: PreparedHorizontalDirection[]};
+export type ArtSky = {id: string; w: number; h: number; grid: number; cells: number; image: [number, number][]; anchors: PreparedHorizontalDirection[]};
 
 /** Unit vector for J2000 RA (hours) / Dec (degrees). */
 const unit = (ra: number, dec: number) => {
@@ -24,6 +24,10 @@ const unit = (ra: number, dec: number) => {
  * its centre) avoids the blow-ups an affine through three closely spaced or
  * nearly collinear anchors produces once perspective bends the anchors.
  */
+/** Image mesh: GRID×GRID cells, each drawn as two triangles that follow the sky's projection. */
+const GRID = 4;
+const CENTER = (GRID / 2) * (GRID + 1) + GRID / 2;
+
 const references = constellationArt.map(art => {
   const vectors = art.anchors.map(([, , , ra, dec]) => unit(ra, dec));
   const sum = vectors.reduce((acc, v) => [acc[0] + v[0], acc[1] + v[1], acc[2] + v[2]], [0, 0, 0]);
@@ -39,20 +43,25 @@ const references = constellationArt.map(art => {
   };
   const fit = affineFromTriangles(art.anchors.map(([u, v]) => [u, v] as [number, number]), vectors.map(toPlane));
   if (!fit) return null;
-  const image: [number, number][] = [[art.w / 2, art.h / 2], [art.w * .75, art.h / 2], [art.w / 2, art.h * .75]];
+  const image: [number, number][] = [];
+  for (let j = 0; j <= GRID; j++) for (let i = 0; i <= GRID; i++) image.push([art.w * i / GRID, art.h * j / GRID]);
   const sky = image.map(([u, v]) => {
     const x = fit.a * u + fit.c * v + fit.e, y = fit.b * u + fit.d * v + fit.f;
     const w = [c[0] + x * e[0] + y * n[0], c[1] + x * e[1] + y * n[1], c[2] + x * e[2] + y * n[2]];
     const r = Math.hypot(w[0], w[1], w[2]);
     return [((Math.atan2(w[1], w[0]) * 12 / Math.PI) + 24) % 24, Math.asin(w[2] / r) * 180 / Math.PI] as [number, number];
   });
-  return {id: art.id, w: art.w, h: art.h, image, sky};
+  // Angular size decides how finely the image must follow the curved projection.
+  const corners = [0, GRID, GRID * (GRID + 1), GRID * (GRID + 1) + GRID].map(index => unit(...sky[index]));
+  const span = Math.max(...corners.flatMap(a => corners.map(b => Math.acos(Math.max(-1, Math.min(1, a[0] * b[0] + a[1] * b[1] + a[2] * b[2])))))) * 180 / Math.PI;
+  const cells = span < 28 ? 1 : 2;
+  return {id: art.id, w: art.w, h: art.h, image, sky, cells};
 });
 
 export function constellationArtSky(time: Date, location: ObservingLocation, mode: FigureMode): ArtSky[] {
   const project = catalogHorizontalTransform(time, location);
   return references.filter((ref): ref is NonNullable<typeof ref> => ref !== null && (mode === 'all' || commonConstellationIds.has(ref.id))).map(ref => ({
-    id: ref.id, w: ref.w, h: ref.h, image: ref.image,
+    id: ref.id, w: ref.w, h: ref.h, grid: GRID, cells: ref.cells, image: ref.image,
     anchors: ref.sky.map(([ra, dec]) => { const position = project(ra, dec); return {...position, ...prepareHorizontalDirection(position)}; }),
   }));
 }
@@ -91,14 +100,14 @@ export class ConstellationArtImages {
 
 /**
  * Perspective views: fade a drawing out as its centre moves away from the view
- * direction (full up to 42°, gone at 58°). Near 90° the perspective blows the
- * image up across the whole screen, so far-off drawings are not drawn at all.
+ * direction (full up to 62°, gone at 78°). The mesh follows the projection, but
+ * close to 90° perspective still blows parts up, so those are not drawn.
  */
 export function artViewFade(center: PreparedHorizontalDirection, view: {heading: number; pitch: number}) {
   const h = view.heading * Math.PI / 180, p = view.pitch * Math.PI / 180;
   const cosAngle = center.cosAltitude * Math.cos(p) * (center.cosAzimuth * Math.cos(h) + center.sinAzimuth * Math.sin(h)) + center.sinAltitude * Math.sin(p);
   const angle = Math.acos(Math.max(-1, Math.min(1, cosAngle))) * 180 / Math.PI;
-  const k = Math.max(0, Math.min(1, (58 - angle) / 16));
+  const k = Math.max(0, Math.min(1, (78 - angle) / 16));
   return k * k * (3 - 2 * k);
 }
 
@@ -106,28 +115,53 @@ export function drawConstellationArt(context: CanvasRenderingContext2D, sky: Art
   width: number, height: number, alpha: number, images: ConstellationArtImages, onLoad: () => void, view?: {heading: number; pitch: number}) {
   if (alpha <= 0.01) return;
   for (const art of sky) {
-    const viewFade = view ? artViewFade(art.anchors[0], view) : 1;
+    const viewFade = view ? artViewFade(art.anchors[CENTER], view) : 1;
     if (viewFade <= 0.01) continue;
     const points = art.anchors.map(project);
-    if (points.some(point => !point)) continue;
-    const m = affineFromTriangles(art.image, points as MapPoint[]);
-    if (!m) continue;
-    // Reject placements the affine fit cannot represent well: anchors far outside
-    // the view (strong perspective), extreme scale or strong shear/stretch.
-    if (Math.abs(points[0]!.x - width / 2) > width * 1.5 || Math.abs(points[0]!.y - height / 2) > height * 1.5) continue;
-    const p = m.a * m.a + m.b * m.b, q = m.c * m.c + m.d * m.d, r = m.a * m.c + m.b * m.d;
-    const root = Math.sqrt(Math.max(0, (p - q) * (p - q) + 4 * r * r));
-    const s1 = Math.sqrt((p + q + root) / 2), s2 = Math.sqrt(Math.max(0, (p + q - root) / 2));
-    if (!Number.isFinite(s1) || s1 > 16 || s2 < 0.02 || s1 / s2 > 4) continue;
-    const corners = [[0, 0], [art.w, 0], [0, art.h], [art.w, art.h]].map(([u, v]) => [m.a * u + m.c * v + m.e, m.b * u + m.d * v + m.f]);
-    const xs = corners.map(c => c[0]), ys = corners.map(c => c[1]);
+    const visible = points.filter((point): point is MapPoint => point !== null);
+    if (visible.length < 3) continue;
+    const xs = visible.map(p => p.x), ys = visible.map(p => p.y);
     if (Math.max(...xs) < 0 || Math.min(...xs) > width || Math.max(...ys) < 0 || Math.min(...ys) > height) continue;
     const image = images.get(art.id, onLoad);
     if (!image) continue;
     context.save();
     context.globalAlpha = alpha * viewFade;
-    context.transform(m.a, m.b, m.c, m.d, m.e, m.f);
-    context.drawImage(image, 0, 0, art.w, art.h);
+    const n = art.grid + 1;
+    const triangle = (a: number, b: number, c: number) => {
+      const pa = points[a], pb = points[b], pc = points[c];
+      if (!pa || !pb || !pc) return;
+      const minX = Math.min(pa.x, pb.x, pc.x), maxX = Math.max(pa.x, pb.x, pc.x), minY = Math.min(pa.y, pb.y, pc.y), maxY = Math.max(pa.y, pb.y, pc.y);
+      if (maxX < 0 || minX > width || maxY < 0 || minY > height) return;
+      if (maxX - minX > width * 3 || maxY - minY > height * 3) return;
+      const m = affineFromTriangles([art.image[a], art.image[b], art.image[c]], [pa, pb, pc]);
+      if (!m) return;
+      // Grow the clip triangle by ~0.7 px around its centroid to hide hairline seams.
+      const cx = (pa.x + pb.x + pc.x) / 3, cy = (pa.y + pb.y + pc.y) / 3;
+      const grow = (p: MapPoint) => { const dx = p.x - cx, dy = p.y - cy, d = Math.hypot(dx, dy) || 1; return [p.x + dx / d * .7, p.y + dy / d * .7]; };
+      const [ax, ay] = grow(pa), [bx, by] = grow(pb), [qx, qy] = grow(pc);
+      context.save();
+      context.beginPath(); context.moveTo(ax, ay); context.lineTo(bx, by); context.lineTo(qx, qy); context.closePath(); context.clip();
+      context.transform(m.a, m.b, m.c, m.d, m.e, m.f);
+      // Only rasterize the image cell this triangle covers (plus a 2 px margin).
+      const us = [art.image[a][0], art.image[b][0], art.image[c][0]], vs = [art.image[a][1], art.image[b][1], art.image[c][1]];
+      const sx = Math.max(0, Math.min(...us) - 2), sy = Math.max(0, Math.min(...vs) - 2);
+      const sw = Math.min(art.w, Math.max(...us) + 2) - sx, sh = Math.min(art.h, Math.max(...vs) + 2) - sy;
+      context.drawImage(image, sx, sy, sw, sh, sx, sy, sw, sh);
+      context.restore();
+    };
+    if (art.cells === 1) {
+      // Small figure: one affine map through three corners, no clipping needed.
+      const pa = points[0], pb = points[art.grid], pc = points[art.grid * n];
+      const m = pa && pb && pc ? affineFromTriangles([art.image[0], art.image[art.grid], art.image[art.grid * n]], [pa, pb, pc]) : null;
+      if (m) { context.transform(m.a, m.b, m.c, m.d, m.e, m.f); context.drawImage(image, 0, 0, art.w, art.h); }
+    } else {
+      const step = art.grid / art.cells;
+      for (let j = 0; j < art.grid; j += step) for (let i = 0; i < art.grid; i += step) {
+        const p00 = j * n + i, p10 = p00 + step, p01 = p00 + step * n, p11 = p01 + step;
+        triangle(p00, p10, p01);
+        triangle(p11, p01, p10);
+      }
+    }
     context.restore();
   }
 }

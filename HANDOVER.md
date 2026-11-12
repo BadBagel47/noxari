@@ -1,3 +1,7 @@
+## F-041 — teckningar som rutnät (2026-11-12)
+
+Användaren såg fortfarande utsträckta teckningar (Stora björnen, Lodjuret, Pegasus, Valfisken). En enda plan (affin) avbildning kan inte följa perspektivets krökning över stora figurer (30–50°). Varje bild har nu ett 5×5-nät av nodpunkter fixerade på himlen (gnomonisk anpassning genom ankarna); figurer under 28° ritas med en avbildning, större med 2×2 celler (8 trianglar, var och en klippt och bara sin egen bilddel rastrerad). Toningen efter blickriktning ligger nu på 62–78°. Mätning (Canvas-väg, 390×844 @2x, skriptat svep): median 17,7 ms (16,7 utan teckningar), p95 ≈26 ms (≈17 utan). En 4×4-variant gav median 26 ms och valdes bort. 198 tester, 15/15 flöden och 6/6 etikettprov passerar.
+
 ## Rättningar efter användarens återkoppling (2026-11-12)
 
 - **F-041, fler utsträckta teckningar:** alla 85 granskades med en utvecklarsida (`labs/art-audit/`, ritar varje teckning mot figurlinjer och ankarstjärnor, centrerad och 35° åt sidan). Placeringen stämmer; utsträckningen kom från stora figurer vars mitt låg långt från blickriktningen, där perspektivet blåser upp bilden. Teckningar tonas nu ut när mitten är 42–58° från blickriktningen (`artViewFade`) och ritas inte längre bort.
