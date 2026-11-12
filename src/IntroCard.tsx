@@ -7,7 +7,7 @@ export const shouldShowIntro = () => {
   try { return !localStorage.getItem(INTRO_KEY) && !navigator.webdriver; } catch { return false; }
 };
 
-export function IntroCard({language, onClose}: {language: 'en' | 'sv'; onClose: () => void}) {
+export function IntroCard({language, canFollow, onClose}: {language: 'en' | 'sv'; canFollow: boolean; onClose: () => void}) {
   const sv = language === 'sv';
   const button = useRef<HTMLButtonElement>(null);
   useEffect(() => { button.current?.focus({preventScroll: true}); }, []);
@@ -18,11 +18,12 @@ export function IntroCard({language, onClose}: {language: 'en' | 'sv'; onClose: 
     [<Star size={22}/>, sv ? 'Se vad som syns i natt' : 'See what is up tonight', sv ? 'Ikväll föreslår objekt för vald natt och utrustning.' : 'Tonight suggests targets for the selected night and equipment.'],
     [<Layers size={22}/>, sv ? 'Anpassa himlen' : 'Customize the sky', sv ? 'Lager slår på och av teckningar, linjer, rutnät och rödfilter.' : 'Layers toggles drawings, lines, grid and red mode.'],
   ];
+  const shown = canFollow ? tips : tips.filter((_, index) => index !== 1);
   return <div className="intro-backdrop" role="dialog" aria-modal="true" aria-labelledby="intro-title" onKeyDown={event => { if (event.key === 'Escape') onClose(); }}>
     <section className="intro-card">
       <h1 id="intro-title">{sv ? 'Välkommen till Noxari' : 'Welcome to Noxari'}</h1>
       <p className="intro-lead">{sv ? 'En beräknad stjärnhimmel för din plats och tid.' : 'A calculated night sky for your place and time.'}</p>
-      <ul>{tips.map(([icon, title, text]) => <li key={title}><span className="intro-icon">{icon}</span><span><strong>{title}</strong><small>{text}</small></span></li>)}</ul>
+      <ul>{shown.map(([icon, title, text]) => <li key={title}><span className="intro-icon">{icon}</span><span><strong>{title}</strong><small>{text}</small></span></li>)}</ul>
       <button ref={button} className="wide-action primary" onClick={onClose}>{sv ? 'Kom igång' : 'Get started'}</button>
     </section>
   </div>;

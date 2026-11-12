@@ -53,13 +53,13 @@ try {
    const other=await make(viewport,url);try{await other.locator('.panel-shared').waitFor();assert.equal(await other.locator('.row-main').count(),1);assert.equal(await other.evaluate(()=>JSON.parse(localStorage.getItem('noxari-saved')||'[]').length),0);await other.getByRole('button',{name:'Save all to my list',exact:true}).click();assert.deepEqual(await other.evaluate(()=>JSON.parse(localStorage.getItem('noxari-saved'))),['m31']);await other.reload();await other.locator('.panel-shared').waitFor();assert.equal(await other.locator('.row-main').count(),1);}finally{await other.close();}
    await p.getByRole('button',{name:'Remove bookmark',exact:true}).click();assert.match(await p.getByRole('dialog').innerText(),/Nothing saved yet/);
   });
-  await check('Finder manual center, stop and below-horizon guard',viewport,async p=>{
+  await check('Finder show-in-sky centering, stop and below-horizon guard',viewport,async p=>{
    await p.getByRole('button',{name:'Time & location',exact:true}).click();await p.getByRole('button',{name:'Now',exact:true}).click();await close(p);
    await pick(p,'M31');await p.getByRole('button',{name:'Guide',exact:true}).click();assert.equal(await p.locator('.guided-finder').count(),1);
-   await p.locator('.finder-hud').getByRole('button',{name:'Details',exact:true}).click();assert.equal(await p.getByRole('button',{name:'Center manual view',exact:true}).isEnabled(),true);await p.getByRole('button',{name:'Center manual view',exact:true}).click();await p.locator('.guided-finder.is-centered').waitFor();assert.equal(await p.locator('.finder-orbit-arrow').count(),0);
+   await p.locator('.finder-hud').getByRole('button',{name:'Details',exact:true}).click();assert.equal(await p.getByRole('dialog').getByRole('button',{name:'Show in sky',exact:true}).isEnabled(),true);await p.getByRole('dialog').getByRole('button',{name:'Show in sky',exact:true}).click();await p.locator('.guided-finder.is-centered').waitFor();assert.equal(await p.locator('.finder-orbit-arrow').count(),0);
    await p.getByRole('button',{name:'Stop Guided Finder',exact:true}).click();assert.equal(await p.locator('.guided-finder').count(),0);
    await pick(p,'M7');await p.getByRole('button',{name:'Guide',exact:true}).click();await p.locator('.guided-finder.is-below').waitFor();assert.equal(await p.locator('.finder-orbit-arrow').count(),0);assert.equal(await p.locator('.finder-target-ring').count(),0);
-   await p.locator('.finder-hud').getByRole('button',{name:'Details',exact:true}).click();assert.equal(await p.getByRole('button',{name:'Center manual view',exact:true}).isDisabled(),true);
+   await p.locator('.finder-hud').getByRole('button',{name:'Details',exact:true}).click();assert.equal(await p.getByRole('dialog').getByRole('button',{name:'Show in sky',exact:true}).isDisabled(),true);
   });
   await check('real CDP pinch in horizon and map without object selection',viewport,async p=>{
    const before=await positions(p);await pinch(p,'.horizon-view');const after=await positions(p);assert.notDeepEqual(after,before);assert.equal(await p.locator('.object-preview').count(),0);

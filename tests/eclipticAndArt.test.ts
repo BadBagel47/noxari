@@ -32,3 +32,16 @@ describe('ecliptic and constellation art geometry', () => {
     expect(namedStarObjects.find(star => star.en === 'Polaris')?.sv).toBe('Polstjärnan');
   });
 });
+
+import {artViewFade} from '../src/constellationArt';
+import {prepareHorizontalDirection} from '../src/skyProjection';
+describe('constellation art view fade', () => {
+  const at = (altitude: number, azimuth: number) => ({altitude, azimuth, ...prepareHorizontalDirection({altitude, azimuth})});
+  it('keeps drawings near the view direction and hides far ones', () => {
+    expect(artViewFade(at(30, 180), {heading: 180, pitch: 30})).toBe(1);
+    expect(artViewFade(at(30, 220), {heading: 180, pitch: 30})).toBe(1);
+    expect(artViewFade(at(30, 270), {heading: 180, pitch: 30})).toBe(0);
+    const mid = artViewFade(at(0, 230), {heading: 180, pitch: 0});
+    expect(mid).toBeGreaterThan(0); expect(mid).toBeLessThan(1);
+  });
+});

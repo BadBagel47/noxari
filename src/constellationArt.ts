@@ -89,10 +89,25 @@ export class ConstellationArtImages {
   }
 }
 
+/**
+ * Perspective views: fade a drawing out as its centre moves away from the view
+ * direction (full up to 42°, gone at 58°). Near 90° the perspective blows the
+ * image up across the whole screen, so far-off drawings are not drawn at all.
+ */
+export function artViewFade(center: PreparedHorizontalDirection, view: {heading: number; pitch: number}) {
+  const h = view.heading * Math.PI / 180, p = view.pitch * Math.PI / 180;
+  const cosAngle = center.cosAltitude * Math.cos(p) * (center.cosAzimuth * Math.cos(h) + center.sinAzimuth * Math.sin(h)) + center.sinAltitude * Math.sin(p);
+  const angle = Math.acos(Math.max(-1, Math.min(1, cosAngle))) * 180 / Math.PI;
+  const k = Math.max(0, Math.min(1, (58 - angle) / 16));
+  return k * k * (3 - 2 * k);
+}
+
 export function drawConstellationArt(context: CanvasRenderingContext2D, sky: ArtSky[], project: (position: PreparedHorizontalDirection) => MapPoint | null,
-  width: number, height: number, alpha: number, images: ConstellationArtImages, onLoad: () => void) {
+  width: number, height: number, alpha: number, images: ConstellationArtImages, onLoad: () => void, view?: {heading: number; pitch: number}) {
   if (alpha <= 0.01) return;
   for (const art of sky) {
+    const viewFade = view ? artViewFade(art.anchors[0], view) : 1;
+    if (viewFade <= 0.01) continue;
     const points = art.anchors.map(project);
     if (points.some(point => !point)) continue;
     const m = affineFromTriangles(art.image, points as MapPoint[]);
@@ -110,7 +125,7 @@ export function drawConstellationArt(context: CanvasRenderingContext2D, sky: Art
     const image = images.get(art.id, onLoad);
     if (!image) continue;
     context.save();
-    context.globalAlpha = alpha;
+    context.globalAlpha = alpha * viewFade;
     context.transform(m.a, m.b, m.c, m.d, m.e, m.f);
     context.drawImage(image, 0, 0, art.w, art.h);
     context.restore();

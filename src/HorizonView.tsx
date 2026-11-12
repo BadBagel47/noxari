@@ -259,7 +259,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
 
       measurement?.phase('grid');
       if (fade.values.boundaries > 0) drawBoundaries(context, preparedBoundaries, projectBoundary, width, height, starVisibility * fade.values.boundaries);
-      if (fade.values.art > 0) drawConstellationArt(context, artSky, projectFigure, width, height, starVisibility * fade.values.art * .38 * Math.max(.3, Math.min(1, 1.45 - .45 * zoom)), artImages.current, () => frames.invalidate());
+      if (fade.values.art > 0) drawConstellationArt(context, artSky, projectFigure, width, height, starVisibility * fade.values.art * .38 * Math.max(.3, Math.min(1, 1.45 - .45 * zoom)), artImages.current, () => frames.invalidate(), view);
 
       measurement?.phase('boundaries');
       const animating = fade.values.figures > 0 && drawConstellations(context, figures, projectFigure, width, height, starVisibility * fade.values.figures, showFigureNames, {reveal: comparing ? trackers.reveal : reveal.current, now, reducedMotion}, comparing ? trackers.cache : figureCache.current);

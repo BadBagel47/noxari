@@ -1,3 +1,11 @@
+## Rättningar efter användarens återkoppling (2026-11-12)
+
+- **F-041, fler utsträckta teckningar:** alla 85 granskades med en utvecklarsida (`labs/art-audit/`, ritar varje teckning mot figurlinjer och ankarstjärnor, centrerad och 35° åt sidan). Placeringen stämmer; utsträckningen kom från stora figurer vars mitt låg långt från blickriktningen, där perspektivet blåser upp bilden. Teckningar tonas nu ut när mitten är 42–58° från blickriktningen (`artViewFade`) och ritas inte längre bort.
+- **Knappstyrning borttagen** (användarbeslut): pilknapparna och ”Centrera manuell vy” är borta. Objektdetaljer har i stället ”Visa på himlen” (samma glidning, avaktiverad under horisonten). Piltangenter direkt på himlen finns kvar för tangentbord. Funktionsflödet för Guiden testar nu Visa på himlen. Detta ersätter AGENTS-regeln om manuell centrering.
+- **Följ döljs utan pekskärm** (användarbeslut): knappen visas bara om enheten har grov pekare (`any-pointer: coarse`) eller om följning redan är aktiv; introduktionens Följ-tips döljs likaså. Telefonriktning finns kvar under Mer.
+
+198 enhetstester, 15/15 flöden, etiketter 6/6, start/fokus 13/13, testinställningar 8/8 passerar.
+
 ## Rättning F-041 — utsträckta teckningar (2026-11-12)
 
 Användaren såg att vissa teckningar (t.ex. Stora björnen, Lodjuret) sträcktes över hela skärmen när man tittade runt. Orsak: affin placering genom tre nära liggande eller nästan linjära ankarstjärnor förstärkte perspektivets förvrängning över hela bilden. Nu passas varje bild in en gång i ett gnomoniskt tangentplan kring ankarstjärnorna (J2000), och tre välspridda referenspunkter runt bildens mitt används för placeringen (lokal linjär avbildning vid mitten). Kontrollerat med panorering i 12 riktningar på två höjder; inga utsträckningar. 196 tester och 15/15 flöden passerar.
