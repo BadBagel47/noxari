@@ -206,6 +206,9 @@ Användaren har **pausat B-001** och vill prioritera att färdigställa övrig f
 | **F-034** | Kort introduktion första gången | **Förslag 2026-11-12** | Tre–fyra tips vid första start: svep, sök, Följ, Lager. Kan stängas och visas igen under Mer. Inte startgodkänd. |
 | **F-035** | Ekliptikalinje | **Förslag 2026-11-12** | Valbart lager som visar ekliptikan (”planeternas väg”), bredvid Rutnät. Inte startgodkänd. |
 | **F-036** | Info om stjärnbilder | **Förslag 2026-11-12** | Tryck på stjärnbildsnamn för kort beskrivning och huvudstjärnor. Inte startgodkänd. |
+| **F-037** | Mjuka övergångar och animationer | **Förslag 2026-11-12** | Paneler glider upp/ned; Se dig omkring ↔ Stjärnkarta med zoom-/tonövergång; Visa på himlen och Följ-start glider till rätt riktning i stället för att hoppa; tidsbyten (Nu/Ikväll/tidsreglage) flyttar himlen mjukt; lager tonas in/ut; urvalsring och centrering i Guiden pulserar kort (ev. vibration på Android). Respektera ”reducerad rörelse”, ingen egen ritloop utanför gemensam bildruteloop, prestanda kontrolleras. Inte startgodkänd. |
+| **F-038** | Objektsymboler | **Förslag 2026-11-12** | Egen symbol per objekttyp (galax, nebulosa, planetarisk nebulosa, öppen hop, klothop, planet, dvärgplanet, asteroid, måne, stjärna, dubbelstjärna, stjärnbild, kandidat; komet/satellit när sådana finns) i himlen, sök, Ikväll och objektkort. Skiss: docs/design/ux-2026-11/after/08-ikoner.png. Inte startgodkänd. |
+| **F-039** | Visuell förfining av himlen | **Förslag 2026-11-12** | Stjärnfärger efter spektraltyp, mjukt sken kring ljusa stjärnor, månen med verklig fas, planeter som små färgade skivor, skymningsfärger och dis mot horisonten, tydligare väderstreck på horisonten, lugnare gränslinjer och tydligare textnivåer (stjärnbild/objekt/stjärna). Allt beräknat/stiliserat och märkt som tidigare; prestanda kontrolleras. Inte startgodkänd. |
 
 ## Genomförda delar
 

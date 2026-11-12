@@ -1,0 +1,39 @@
+<!doctype html><html lang="sv"><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+body{width:390px;height:844px;background:#0b1626}
+.wrap{padding:22px 18px}
+h2{margin:0 0 4px;font-size:20px}.sub{color:#8fa6c0;font-size:13px;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.k{background:#14243a;border:1px solid #2b4360;border-radius:14px;padding:12px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;color:#c9d8ea;text-align:center}
+.k svg{width:34px;height:34px;stroke-width:1.5}
+.lab{margin-top:20px}
+.card{background:#101e31;border:1px solid #3a5470;border-radius:18px;padding:14px 16px;display:flex;gap:12px;align-items:center}
+.badge2{width:44px;height:44px;border-radius:12px;background:#1b3350;display:grid;place-items:center;color:#9fd2f5}.badge2 svg{width:28px;height:28px}
+</style>
+<body><div class="wrap">
+<h2>Objektsymboler</h2><div class="sub">Samma symbol i himlen, sök, Ikväll och objektkort.</div>
+<div class="grid" id="g"></div>
+<div class="lab" style="font-size:12px;color:#8fa6c0;letter-spacing:1px;text-transform:uppercase;margin:20px 2px 8px">Exempel: objektkort</div>
+<div class="card"><div class="badge2" style="color:#b9c8ff"><svg viewBox="0 0 40 40"><ellipse cx="20" cy="20" rx="16" ry="7" transform="rotate(-25 20 20)"/><circle cx="20" cy="20" r="2.5" fill="currentColor"/></svg></div>
+<div style="flex:1"><b style="font-size:17px">Andromedagalaxen</b><div style="font-size:12px;color:#8fa6c0;margin-top:3px">M31 · Galax · 79° högt · bäst 20:10</div></div></div>
+</div>
+<script>
+const S={
+'Galax':'<ellipse cx="20" cy="20" rx="16" ry="7" transform="rotate(-25 20 20)"/><circle cx="20" cy="20" r="2.5" fill="currentColor"/>',
+'Nebulosa':'<path d="M8 22c0-6 5-10 10-9 2-4 9-4 11 1 5 0 7 6 4 9 2 4-2 8-6 6-3 4-10 3-11-1-5 1-9-2-8-6z"/>',
+'Planetarisk nebulosa':'<circle cx="20" cy="20" r="8"/><circle cx="20" cy="20" r="2" fill="currentColor"/><path d="M20 6v5M20 29v5M6 20h5M29 20h5"/>',
+'Öppen stjärnhop':'<circle cx="20" cy="20" r="14" stroke-dasharray="3 3"/><circle cx="15" cy="16" r="1.6" fill="currentColor"/><circle cx="24" cy="15" r="1.6" fill="currentColor"/><circle cx="20" cy="23" r="1.6" fill="currentColor"/><circle cx="26" cy="24" r="1.2" fill="currentColor"/><circle cx="14" cy="25" r="1.2" fill="currentColor"/>',
+'Klothop':'<circle cx="20" cy="20" r="13"/><path d="M20 7v26M7 20h26"/>',
+'Planet':'<circle cx="20" cy="20" r="8"/><ellipse cx="20" cy="20" rx="16" ry="5" transform="rotate(-20 20 20)"/>',
+'Dvärgplanet':'<circle cx="20" cy="20" r="7"/><circle cx="20" cy="20" r="13" stroke-dasharray="2 3"/>',
+'Asteroid':'<path d="M11 17l6-7 9 1 5 8-3 9-9 3-7-5z"/><circle cx="18" cy="18" r="1.5"/><circle cx="24" cy="24" r="1.2"/>',
+'Komet':'<circle cx="27" cy="13" r="4" fill="currentColor"/><path d="M24 16 7 33M23 12 9 26M28 17 15 31"/>',
+'Månen':'<path d="M27 31a12 12 0 1 1 0-22 10 10 0 0 0 0 22z"/>',
+'Stjärna':'<path d="m20 6 3.5 9.5L33 19l-9.5 3.5L20 32l-3.5-9.5L7 19l9.5-3.5z"/>',
+'Dubbelstjärna':'<circle cx="15" cy="20" r="5" fill="currentColor"/><circle cx="27" cy="18" r="3"/>',
+'Stjärnbild':'<path d="M7 29 15 14l9 8 9-14"/><circle cx="7" cy="29" r="2" fill="currentColor"/><circle cx="15" cy="14" r="2" fill="currentColor"/><circle cx="24" cy="22" r="2" fill="currentColor"/><circle cx="33" cy="8" r="2" fill="currentColor"/>',
+'Satellit':'<rect x="16" y="16" width="8" height="8" transform="rotate(45 20 20)"/><path d="M7 11l8 8M25 21l8 8"/><rect x="3" y="5" width="8" height="5" transform="rotate(45 7 7)"/><rect x="29" y="27" width="8" height="5" transform="rotate(45 33 29)"/>',
+'Kandidat':'<circle cx="20" cy="20" r="7"/><path d="M20 4v4M20 32v4M4 20h4M32 20h4"/><text x="20" y="24" font-size="10" text-anchor="middle" fill="currentColor" stroke="none">?</text>'};
+const C={'Galax':'#b9c8ff','Nebulosa':'#f2a98a','Planetarisk nebulosa':'#8fe0d0','Öppen stjärnhop':'#cfe0ff','Klothop':'#ffe2a8','Planet':'#e6c48f','Dvärgplanet':'#c9b8ff','Asteroid':'#b8b0a4','Komet':'#9fe7ff','Månen':'#f4f1e6','Stjärna':'#fff6d8','Dubbelstjärna':'#fff6d8','Stjärnbild':'#86b6e6','Satellit':'#d0d8e4','Kandidat':'#f2c98a'};
+document.getElementById('g').innerHTML=Object.entries(S).map(([n,p])=>`<div class="k" style="color:${C[n]}"><svg viewBox="0 0 40 40" style="stroke:currentColor;fill:none">${p}</svg><span style="color:#c9d8ea">${n}</span></div>`).join('');
+</script></body></html>

@@ -22,3 +22,8 @@ Jämförelse mot Stellarium/Sky Guide för nybörjare–medelvana, baserad på n
 2. F-025 steg 2 + F-026 + F-035.
 3. F-027 + F-028.
 4. F-029 + F-031, därefter F-030/F-032/F-033/F-034/F-036 efter behov.
+
+## Visuellt (tillägg)
+- F-037 Mjuka övergångar: i dag byter paneler, vyläge, centrering, Följ-start, tidsbyten och lager läge direkt utan animation (endast etiketttoning och små knappeffekter finns).
+- F-038 Objektsymboler: i dag visas alla objekt som färgade prickar; typer skiljs inte åt visuellt.
+- F-039 Himlens visuella förfining (stjärnfärger, månfas, planetskivor, horisontsken, väderstreck, textnivåer).
