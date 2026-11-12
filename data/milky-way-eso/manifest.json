@@ -1,0 +1,13 @@
+{
+ "source": "https://cdn.eso.org/images/large/eso0932a.jpg",
+ "page": "https://www.eso.org/public/images/eso0932a/",
+ "credit": "ESO/S. Brunier",
+ "license": "CC BY 4.0",
+ "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+ "sha256": "60400c92c54b7c1bd12299c69e83b16e5b6256e7dabacc478c021758ecd28179",
+ "output": {
+  "width": 1440,
+  "height": 720,
+  "layout": "J2000 equirectangular, RA 0..24h left to right, Dec +90..-90 top to bottom"
+ }
+}

@@ -4,6 +4,7 @@ import {ConstellationArtImages, constellationArtSky, drawConstellationArt} from 
 import {constellationArt} from './generated/constellationArt';
 import {eclipticSky} from './ecliptic';
 import {namedStarObjects} from './namedStars';
+import {issObject} from './issObject';
 import {useEffect, useMemo, useRef, useState, type PointerEvent} from 'react';
 import {ConstellationDrawingCache, constellationSky, drawConstellations, type FigureMode} from './constellations';
 import {ConstellationReveal} from './constellationReveal';
@@ -33,11 +34,13 @@ type Props = {
   showArt: boolean;
   showGrid: boolean;
   showEcliptic: boolean;
+  /** Changes when externally loaded data (ISS elements) arrives. */
+  dynamicKey?: number;
   showCandidateCollection: boolean;
   milkyWay: MilkyWayTexture | null;
 };
 
-export function SkyMap({selectedId, time, location, label, language, sunLabel, onSelect, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showCandidateCollection, milkyWay}: Props) {
+export function SkyMap({selectedId, time, location, label, language, sunLabel, onSelect, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, dynamicKey, showCandidateCollection, milkyWay}: Props) {
   const container = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const reveal = useRef(new ConstellationReveal());
@@ -65,12 +68,12 @@ export function SkyMap({selectedId, time, location, label, language, sunLabel, o
   }), [catalog, size, zoom]);
   const objectSky = useMemo(() => {
     const resolve = objectPositioner(time, location);
-    return [...objects, ...namedStarObjects, ...(showCandidateCollection ? candidateObjects : [])].flatMap(object => {
+    return [...objects, issObject, ...namedStarObjects, ...(showCandidateCollection ? candidateObjects : [])].flatMap(object => {
       const position = resolve(object);
       const appearance = object.kind === 'Planet' ? solarAppearance(object, time) : null;
       return position ? [{object, position, appearance}] : [];
     });
-  }, [time, location, showCandidateCollection]);
+  }, [time, location, showCandidateCollection, dynamicKey]);
   const markers = useMemo(() => objectSky.flatMap(({object, position, appearance}) => {
     if (!size.width || !size.height) return [];
     // Markers distinguish civil twilight for planets from darker deep-sky conditions.

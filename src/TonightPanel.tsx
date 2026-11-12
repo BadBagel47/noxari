@@ -1,6 +1,12 @@
 import {DateTime} from 'luxon';
-import {Info, Moon} from 'lucide-react';
+import {CalendarDays, Info, Moon, MoonStar, Orbit, Sparkles, Sun} from 'lucide-react';
+import {KindIcon} from './KindIcon';
 import {moonInfo, moonPhaseLabel} from './moonInfo';
+import {useState} from 'react';
+import type {SkyEvent} from './skyEvents';
+import type {IssPass} from './iss';
+import {CloudForecast} from './CloudForecast';
+import {KindIcon as SatelliteIcon} from './KindIcon';
 import type {ReactNode} from 'react';
 import type {Gear, SpaceObject} from './data';
 import {clockTime, type NightContext, type ObservingLocation} from './astronomy';
@@ -29,11 +35,14 @@ export function SuggestionSummary({suggestion, language, timeZone}: {suggestion:
   </div>;
 }
 
-export function TonightPanel({context, location, language, gear, onGearChange, ranked, renderCard}: {
+export function TonightPanel({context, location, language, gear, onGearChange, ranked, renderCard, events, onShowTime, issPasses, issAgeDays, onShowPass}: {
   context: NightContext; location: ObservingLocation; language: 'en' | 'sv'; gear: 'all' | Gear;
   onGearChange: (gear: 'all' | Gear) => void; ranked: ReturnType<typeof rankTonight>;
   renderCard: (object: SpaceObject, recommendation: Recommendation) => ReactNode;
+  events: SkyEvent[]; onShowTime: (time: Date) => void;
+  issPasses: IssPass[]; issAgeDays: number | null; onShowPass: (time: Date) => void;
 }) {
+  const [tab, setTab] = useState<'tonight' | 'upcoming'>('tonight');
   const sv = language === 'sv', {window, samples} = context;
   const date = (time: Date) => DateTime.fromJSDate(time, {zone: location.timeZone}).setLocale(sv ? 'sv' : 'en').toFormat('dd LLL HH:mm');
   const suggested = ranked.filter(item => item.best), other = ranked.filter(item => !item.best);
@@ -49,7 +58,17 @@ export function TonightPanel({context, location, language, gear, onGearChange, r
   const moonTimes = [inWindow(moon.rise) && `${sv ? 'upp' : 'rises'} ${clockTime(moon.rise!, location.timeZone)}`, inWindow(moon.set) && `${sv ? 'ned' : 'sets'} ${clockTime(moon.set!, location.timeZone)}`].filter(Boolean).join(' · ')
     || (moonUp === 0 ? (sv ? 'nere hela natten' : 'down all night') : moonUp === samples.length ? (sv ? 'uppe hela natten' : 'up all night') : '');
   const gearOptions: ['eye' | 'binoculars' | 'all', string][] = [['eye', sv ? 'Ögat' : 'Eye'], ['binoculars', sv ? 'Kikare' : 'Binoculars'], ['all', sv ? 'Teleskop' : 'Telescope']];
+  const tabs = <div className="segmented wide tonight-tabs" role="group" aria-label={sv ? 'Visa' : 'Show'}><button className={tab === 'tonight' ? 'chosen' : ''} aria-pressed={tab === 'tonight'} onClick={() => setTab('tonight')}>{sv ? 'I natt' : 'Tonight'}</button><button className={tab === 'upcoming' ? 'chosen' : ''} aria-pressed={tab === 'upcoming'} onClick={() => setTab('upcoming')}>{sv ? 'Kommande' : 'Upcoming'}</button></div>;
+  const eventIcon: Record<SkyEvent['kind'], ReactNode> = {moonPhase: <Moon size={20}/>, lunarEclipse: <MoonStar size={20}/>, solarEclipse: <Sun size={20}/>, conjunction: <Sparkles size={20}/>, elongation: <Orbit size={20}/>, season: <CalendarDays size={20}/>, meteor: <KindIcon name="comet" size={22}/>};
+  if (tab === 'upcoming') return <>
+    {tabs}
+    <p className="panel-note">{sv ? 'Beräknade händelser för vald plats: kommande 60 dagar (förmörkelser ett år framåt). Tider i platsens tidszon.' : 'Calculated events for the selected place: next 60 days (eclipses one year ahead). Times in the place’s timezone.'}</p>
+    {events.length ? <div className="object-list event-list">{events.map(event => <article className="object-row event-row" key={event.kind + event.time.getTime() + event.title.en}>
+      <button className="row-main" onClick={() => onShowTime(event.time)}><span className="event-icon" aria-hidden="true">{eventIcon[event.kind]}</span><span className="row-text"><strong>{sv ? event.title.sv : event.title.en}</strong><small>{DateTime.fromJSDate(event.time, {zone: location.timeZone}).setLocale(sv ? 'sv' : 'en').toFormat(event.kind === 'meteor' ? 'ccc d LLL' : 'ccc d LLL · HH:mm')} · {sv ? event.detail.sv : event.detail.en}</small></span><span className="event-go">{sv ? 'Visa' : 'Show'}</span></button>
+    </article>)}</div> : <div className="empty"><p>{sv ? 'Inga händelser hittades.' : 'No events found.'}</p></div>}
+  </>;
   return <>
+    {tabs}
     <section className="night-summary compact" aria-label={sv ? 'Nattens förutsättningar' : 'Night conditions'}>
       <Moon size={22} aria-hidden="true"/>
       <div>
@@ -58,6 +77,11 @@ export function TonightPanel({context, location, language, gear, onGearChange, r
         <span>{moonPhaseLabel(moon.phase, sv)} {Math.round(moon.illumination * 100)} %{moonTimes ? ` · ${sv ? 'månen' : 'Moon'} ${moonTimes}` : ''}</span>
       </div>
     </section>
+    <CloudForecast location={location} window={window} language={language}/>
+    {issPasses.length > 0 && <>
+      <h2 className="sheet-label">{sv ? 'ISS i natt' : 'ISS tonight'}</h2>
+      <div className="object-list">{issPasses.map(pass => <article className="object-row" key={pass.peak.getTime()}><button className="row-main" onClick={() => onShowPass(pass.peak)}><span className="event-icon" aria-hidden="true"><SatelliteIcon name="satellite" size={22}/></span><span className="row-text"><strong>{sv ? 'Synlig passage' : 'Visible pass'} ≈ {clockTime(pass.peak, location.timeZone)} · {Math.round(pass.peakAltitude)}°</strong><small>{clockTime(pass.rise, location.timeZone)}–{clockTime(pass.set, location.timeZone)}{issAgeDays !== null && issAgeDays > 5 ? (sv ? ' · banelementen är gamla, tiden kan avvika' : ' · elements are old, time may be off') : ''}</small></span><span className="event-go">{sv ? 'Visa' : 'Show'}</span></button></article>)}</div>
+    </>}
     <h2 className="sheet-label">{sv ? 'Utrustning' : 'Equipment'}</h2>
     <div className="segmented wide" role="group" aria-label={sv ? 'Utrustning' : 'Equipment'}>{gearOptions.map(([value, text]) => <button key={value} className={(gear === value || (value === 'all' && gear === 'telescope')) ? 'chosen' : ''} aria-pressed={gear === value || (value === 'all' && gear === 'telescope')} onClick={() => onGearChange(value)}>{text}</button>)}</div>
     <h2 className="sheet-label">{sv ? 'Bäst i natt' : 'Best tonight'} ({suggested.length})</h2>

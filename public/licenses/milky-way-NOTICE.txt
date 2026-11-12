@@ -1,0 +1,13 @@
+Noxari – Milky Way texture
+
+Source: "The Milky Way panorama", ESO/S. Brunier (eso0932a)
+  https://www.eso.org/public/images/eso0932a/
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+  https://creativecommons.org/licenses/by/4.0/
+Credit line (mandatory): ESO/S. Brunier
+
+Modifications by Noxari: converted to luminance, point stars removed with a
+median filter, reprojected from galactic to J2000 equatorial coordinates
+(1440 × 720 equirectangular grid), sky floor subtracted, normalised and
+gamma-adjusted (src/generated/milkyWay.png). Generator:
+scripts/generate_milky_way_eso.py; source hash in data/milky-way-eso/manifest.json.

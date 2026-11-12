@@ -31,5 +31,6 @@ export function useMilkyWay(enabled: boolean) {
     loadTexture().then(value => { if (!cancelled) setTexture(value); }, () => { if (!cancelled) setFailed(true); });
     return () => { cancelled = true; };
   }, [enabled]);
-  return {texture: enabled ? texture : null, failed: enabled && failed};
+  // Keep a loaded texture when the layer is switched off so the sky can fade it out (F-037).
+  return {texture, failed: enabled && failed};
 }

@@ -18,10 +18,20 @@ function textureFromPng(): MilkyWayTexture {
     i += length + 12;
   }
   const raw = inflateSync(Buffer.concat(blocks));
+  // 8-bit grayscale PNG: undo the per-row filters (None, Sub, Up, Average, Paeth).
+  expect(file[24]).toBe(8); expect(file[25]).toBe(0);
   const pixels = new Uint8ClampedArray(width * height * 4);
+  let previous = new Uint8Array(width);
   for (let y = 0; y < height; y++) {
-    expect(raw[y * (width + 1)]).toBe(0);
-    for (let x = 0; x < width; x++) pixels[(y * width + x) * 4] = raw[y * (width + 1) + x + 1];
+    const filter = raw[y * (width + 1)], row = new Uint8Array(width);
+    for (let x = 0; x < width; x++) {
+      const value = raw[y * (width + 1) + x + 1], left = x ? row[x - 1] : 0, up = previous[x], upLeft = x ? previous[x - 1] : 0;
+      const p = left + up - upLeft, pa = Math.abs(p - left), pb = Math.abs(p - up), pc = Math.abs(p - upLeft);
+      const predictor = filter === 1 ? left : filter === 2 ? up : filter === 3 ? (left + up) >> 1 : filter === 4 ? (pa <= pb && pa <= pc ? left : pb <= pc ? up : upLeft) : 0;
+      row[x] = (value + predictor) & 255;
+      pixels[(y * width + x) * 4] = row[x];
+    }
+    previous = row;
   }
   return {width, height, pixels};
 }
@@ -62,14 +72,14 @@ describe('downward exploration without changing observing constraints', () => {
   });
 });
 
-describe('sourced J2000 Milky Way grid', () => {
+describe('sourced J2000 Milky Way grid (ESO/S. Brunier panorama)', () => {
   const texture = textureFromPng();
   it('puts the bright Galactic center and Carina on the band, with both Galactic poles dark', () => {
-    expect([texture.width, texture.height]).toEqual([720, 360]);
+    expect([texture.width, texture.height]).toEqual([1440, 720]);
     expect(sample(texture, 266.405, -28.936)).toBeGreaterThan(80);
     expect(sample(texture, 160, -60)).toBeGreaterThan(30);
-    expect(sample(texture, 192.85948, 27.12825)).toBe(0);
-    expect(sample(texture, 12.85948, -27.12825)).toBe(0);
+    expect(sample(texture, 192.85948, 27.12825)).toBeLessThan(6);
+    expect(sample(texture, 12.85948, -27.12825)).toBeLessThan(6);
   });
   it('samples continuously across RA=0/24h and remains finite at the equatorial poles', () => {
     expect(sample(texture, .0001, 60)).toBeCloseTo(sample(texture, 359.9999, 60), 2);

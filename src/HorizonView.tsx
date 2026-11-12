@@ -5,6 +5,12 @@ import {constellationArt} from './generated/constellationArt';
 import {eclipticSky} from './ecliptic';
 import {LayerFades} from './layerFade';
 import {namedStarObjects} from './namedStars';
+import {issObject} from './issObject';
+import {starNames} from './generated/starNames';
+
+/** F-039: bloom tint per bright named star from its spectral class (RGB triplets). */
+const spectralRgb: Record<string, string> = {O: '170,195,255', B: '185,210,255', A: '225,232,255', F: '255,246,228', G: '255,236,190', K: '255,210,160', M: '255,180,140'};
+const bloomColors = new Map(starNames.map(star => [star.hip, spectralRgb[star.spect.trim()[0]] ?? '225,232,255']));
 import {MotionResolution} from './motionResolution';
 import {useSkyFrameState} from './useSkyFrames';
 import type {SkyFrames} from './skyFrames';
@@ -13,11 +19,11 @@ import {ConstellationDrawingCache, constellationSky, drawConstellations, type Fi
 import {ConstellationReveal} from './constellationReveal';
 import {useReducedMotion} from './useReducedMotion';
 import {boundarySky, drawBoundaries} from './constellationBoundaries';
-import {Body} from 'astronomy-engine';
+import {Body, Illumination} from 'astronomy-engine';
 import {nextObjectRise, objectPosition, objectPositioner, positionAt, showObjectMarker, solarAppearance, type ObservingLocation} from './astronomy';
 import {objects, type SpaceObject} from './data';
 import {candidateObjects} from './candidateObjects';
-import {createPerspectiveProjector, createPreparedPerspectiveProjector, horizontalStarCatalog, perspectiveFocal, prepareHorizontalDirections, prepareHorizontalStars, projectPerspective, type MapPoint, type PreparedHorizontalDirection, type ViewDirection} from './skyProjection';
+import {createPerspectiveProjector, createPreparedPerspectiveProjector, horizontalStarCatalog, perspectiveFocal, prepareHorizontalDirection, prepareHorizontalDirections, prepareHorizontalStars, projectPerspective, type MapPoint, type PreparedHorizontalDirection, type ViewDirection} from './skyProjection';
 import {GuidedFinder} from './GuidedFinder';
 import {clampViewPitch, groundOpacity} from './groundView';
 import {MilkyWayPainter, milkyWayBasis, type MilkyWayTexture} from './milkyWay';
@@ -45,6 +51,10 @@ type Props = {
   showArt: boolean;
   showGrid: boolean;
   showEcliptic: boolean;
+  showMilkyWay: boolean;
+  /** Changes when externally loaded data (ISS elements) arrives. */
+  dynamicKey?: number;
+  onSelectConstellation?: (id: string) => void;
   showCandidateCollection: boolean;
   milkyWay: MilkyWayTexture | null;
   view: ViewDirection;
@@ -59,7 +69,7 @@ type Props = {
 const wrap = (degrees: number) => (degrees % 360 + 360) % 360;
 const cardinal = (heading: number, language: 'en' | 'sv') => (language === 'sv' ? ['N', 'NO', 'Ö', 'SO', 'S', 'SV', 'V', 'NV'] : ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'])[Math.round(wrap(heading) / 45) % 8];
 
-export function HorizonView({frames, selectedId, time, timeMode, location, label, sunLabel, onSelect, language, view, onViewChange, onDragViewChange, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showCandidateCollection, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails}: Props) {
+export function HorizonView({frames, selectedId, time, timeMode, location, label, sunLabel, onSelect, language, view, onViewChange, onDragViewChange, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showMilkyWay, dynamicKey, onSelectConstellation, showCandidateCollection, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails}: Props) {
   const comparisonStatus = useSyncExternalStore(frames.comparison.subscribe, frames.comparison.getSnapshot);
   const [comparisonTrackers] = useState(() => ({current: {pass: -1, reveal: new ConstellationReveal(), cache: new ConstellationDrawingCache(), resolution: new MotionResolution()}}));
   const root = useRef<HTMLDivElement>(null);
@@ -67,7 +77,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
   const reveal = useRef(new ConstellationReveal());
   const figureCache = useRef(new ConstellationDrawingCache());
   const artImages = useRef(new ConstellationArtImages(import.meta.env.BASE_URL));
-  const fades = useRef(new LayerFades<'grid' | 'boundaries' | 'figures' | 'art' | 'ecliptic'>());
+  const fades = useRef(new LayerFades<'grid' | 'boundaries' | 'figures' | 'art' | 'ecliptic' | 'milkyWay'>());
   // Keep data for a layer once it has been shown, so it can fade out instead of vanishing.
   const shown = useRef({boundaries: false, art: false, ecliptic: false});
   if (showBoundaries) shown.current.boundaries = true;
@@ -103,12 +113,12 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
   const nextRise = useMemo(() => finderTarget && targetPosition && targetPosition.altitude < 0 ? nextObjectRise(finderTarget, time, location) : null, [finderTarget, targetPosition, time, location]);
   const objectSky = useMemo(() => {
     const resolve = objectPositioner(time, location);
-    return [...objects, ...namedStarObjects, ...(showCandidateCollection ? candidateObjects : [])].flatMap(object => {
+    return [...objects, issObject, ...namedStarObjects, ...(showCandidateCollection ? candidateObjects : [])].flatMap(object => {
       const position = resolve(object);
       const appearance = object.kind === 'Planet' ? solarAppearance(object, time) : null;
       return position ? [{object, position, appearance}] : [];
     });
-  }, [time, location, showCandidateCollection]);
+  }, [time, location, showCandidateCollection, dynamicKey]);
   const markers = useMemo(() => objectSky.flatMap(({object, position, appearance}) => {
     if (object.id === finderTarget?.id) return [];
     if (!showObjectMarker(object, sun.altitude, appearance)) return [];
@@ -121,6 +131,10 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
   const project = createPerspectiveProjector(view, size.width, size.height, true, belowReveal > 0, zoom);
   const projectFigure = useMemo(() => createPreparedPerspectiveProjector(view, size.width, size.height, false, belowReveal > 0, zoom), [view.heading, view.pitch, size.width, size.height, belowReveal > 0, zoom]);
   const sunPoint = project(sun);
+  // F-039: lit fraction and on-screen bright-limb angle for the Moon marker.
+  const moonFraction = useMemo(() => Illumination(Body.Moon, time).phase_fraction, [time]);
+  const sunScreen = projectPerspective(sun, view, size.width, size.height, false, true, zoom);
+  const moonPhase = (point: MapPoint) => ({fraction: moonFraction, angle: sunScreen ? Math.atan2(sunScreen.y - point.y, sunScreen.x - point.x) * 180 / Math.PI : 0});
   const labelExclusions = useMemo(() => skyOverlayExclusions(root.current), [size.width, size.height, selectedId, finderTarget, phone.status, language]);
   const labelPlacements = useObjectLabels([
     ...markers.map(({object, point}) => ({id: object.id, text: label(object), x: point.x, y: point.y, priority: object.id === selectedId ? 1000 : object.kind === 'Moon' ? 800 : object.kind === 'Planet' ? 700 : 300})),
@@ -203,11 +217,27 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       const projectStar = createPreparedPerspectiveProjector(view, width, height, true, belowReveal > 0, zoom);
       // Limit path commands to the visible viewport plus a small overscan.
       const projectBoundary = createPreparedPerspectiveProjector(view, width, height, true, belowReveal > 0, zoom, 48);
-      const sky = context.createLinearGradient(0, 0, 0, height);
-      sky.addColorStop(0, daylight ? `rgb(${Math.round(6 + 52 * daylight)},${Math.round(14 + 92 * daylight)},${Math.round(35 + 145 * daylight)})` : '#040c1b');
-      sky.addColorStop(1, daylight ? `rgb(${Math.round(21 + 77 * daylight)},${Math.round(41 + 103 * daylight)},${Math.round(69 + 139 * daylight)})` : '#14304b');
+      // F-039: darker zenith and a soft glow toward the horizon, anchored to the real horizon line.
+      const skyTop = Math.min(0, horizonY - height * 1.4), skyBottom = Math.max(horizonY, 1);
+      const sky = context.createLinearGradient(0, skyTop, 0, skyBottom);
+      sky.addColorStop(0, daylight ? `rgb(${Math.round(6 + 52 * daylight)},${Math.round(14 + 92 * daylight)},${Math.round(35 + 145 * daylight)})` : '#01040b');
+      sky.addColorStop(.62, daylight ? `rgb(${Math.round(12 + 62 * daylight)},${Math.round(26 + 98 * daylight)},${Math.round(50 + 142 * daylight)})` : '#050d1c');
+      sky.addColorStop(1, daylight ? `rgb(${Math.round(21 + 77 * daylight)},${Math.round(41 + 103 * daylight)},${Math.round(69 + 139 * daylight)})` : '#112540');
       context.fillStyle = sky;
       context.fillRect(0, 0, width, height);
+      const twilight = sun.altitude > -18 && sun.altitude < 4 ? Math.min(1, (sun.altitude + 18) / 16) : 0;
+      if (twilight > 0) {
+        const glowPoint = projectPerspective({altitude: 0, azimuth: sun.azimuth}, view, width, height, false, true, zoom);
+        if (glowPoint) {
+          const radius = Math.max(width, height) * (.55 + .5 * twilight);
+          const glow = context.createRadialGradient(glowPoint.x, horizonY, 0, glowPoint.x, horizonY, radius);
+          glow.addColorStop(0, `rgba(255,${Math.round(150 + 40 * twilight)},${Math.round(90 + 60 * twilight)},${(.42 * twilight * twilight).toFixed(3)})`);
+          glow.addColorStop(.45, `rgba(190,110,140,${(.16 * twilight * twilight).toFixed(3)})`);
+          glow.addColorStop(1, 'rgba(60,70,140,0)');
+          context.fillStyle = glow;
+          context.fillRect(0, 0, width, height);
+        }
+      }
 
       // Below the geometric horizon the transparent ground reveals a
       // deliberately simulated dark sky, even when the real sky is daytime.
@@ -223,8 +253,10 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       }
 
       measurement?.phase('background');
-      if (milkyWay) {
-        const visibility = Math.max(0, Math.min(1, (-sun.altitude - 8) / 10));
+      const fade = fades.current.step({grid: showGrid, boundaries: showBoundaries, figures: showFigures, art: showArt, ecliptic: showEcliptic, milkyWay: showMilkyWay}, now, reducedMotion || comparing);
+      if (milkyWay && fade.values.milkyWay > 0) {
+        // F-039: the Milky Way steps back a little where drawings are shown, so they read on top.
+        const visibility = Math.max(0, Math.min(1, (-sun.altitude - 8) / 10)) * fade.values.milkyWay * (1 - .25 * fade.values.art);
         if (!renderer?.drawMilkyWay(context, width, height, dpr, view, visibility, belowReveal > 0, zoom, milkyBasis, sceneKey)) {
           milkyWayPainter.current.draw(context, milkyWay, time, location, width, height, visibility, view, belowReveal > 0, zoom);
         }
@@ -244,7 +276,6 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
         }
         context.stroke();
       };
-      const fade = fades.current.step({grid: showGrid, boundaries: showBoundaries, figures: showFigures, art: showArt, ecliptic: showEcliptic}, now, reducedMotion || comparing);
       if (fade.values.grid > 0) {
         context.strokeStyle = `rgba(171,209,233,${.17 * fade.values.grid})`;
         context.lineWidth = 1;
@@ -261,7 +292,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
 
       measurement?.phase('grid');
       if (fade.values.boundaries > 0) drawBoundaries(context, preparedBoundaries, projectBoundary, width, height, starVisibility * fade.values.boundaries);
-      const artFading = fade.values.art > 0 && drawConstellationArt(context, artSky, projectFigure, width, height, starVisibility * fade.values.art * .38 * Math.max(.3, Math.min(1, 1.45 - .45 * zoom)), artImages.current, () => frames.invalidate(), view);
+      const artFading = fade.values.art > 0 && drawConstellationArt(context, artSky, projectFigure, width, height, starVisibility * fade.values.art * .46 * Math.max(.3, Math.min(1, 1.45 - .45 * zoom)), artImages.current, () => frames.invalidate(), view);
 
       measurement?.phase('boundaries');
       const animating = fade.values.figures > 0 && drawConstellations(context, figures, projectFigure, width, height, starVisibility * fade.values.figures, showFigureNames, {reveal: comparing ? trackers.reveal : reveal.current, now, reducedMotion}, comparing ? trackers.cache : figureCache.current);
@@ -286,6 +317,28 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
           context.globalAlpha = 1;
         }
       }
+      // F-039: soft bloom around the brightest stars, tinted by spectral type.
+      if (starVisibility > 0 || belowReveal > 0) {
+        context.save();
+        context.globalCompositeOperation = 'lighter';
+        for (const star of stars) {
+          if (star.magnitude > 1.6) continue;
+          const visibility = projectedStarVisibility(sun.altitude, star.altitude, belowReveal);
+          if (visibility <= 0) continue;
+          const point = projectStar(star);
+          if (!point) continue;
+          const strength = Math.min(1, (1.9 - star.magnitude) / 3.2) * visibility;
+          const radius = (7 + 9 * strength) * Math.sqrt(zoom);
+          const color = (star.hip !== null && bloomColors.get(star.hip)) || '205,225,255';
+          const glow = context.createRadialGradient(point.x, point.y, 0, point.x, point.y, radius);
+          glow.addColorStop(0, `rgba(${color},${(.55 * strength).toFixed(3)})`);
+          glow.addColorStop(.35, `rgba(${color},${(.16 * strength).toFixed(3)})`);
+          glow.addColorStop(1, `rgba(${color},0)`);
+          context.fillStyle = glow;
+          context.fillRect(point.x - radius, point.y - radius, radius * 2, radius * 2);
+        }
+        context.restore();
+      }
       measurement?.phase('stars');
       context.font = 'bold 12px system-ui, sans-serif';
       context.textAlign = 'center';
@@ -300,8 +353,8 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
         context.save();
         context.globalAlpha = groundOpacity(view.pitch);
         const ground = context.createLinearGradient(0, Math.max(0, horizonY), 0, height);
-        ground.addColorStop(0, daylight > 0.4 ? '#233f4c' : '#142b38');
-        ground.addColorStop(1, '#061420');
+        ground.addColorStop(0, daylight > 0.4 ? '#233f4c' : '#0b1520');
+        ground.addColorStop(1, '#03070c');
         context.fillStyle = ground;
         context.fillRect(0, Math.max(0, horizonY), width, height);
         context.restore();
@@ -333,7 +386,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       return Boolean(animating) || fade.animating || Boolean(artFading);
     };
     frames.setRenderer(render);
-  }, [projectFigure, frames, size, view, zoom, stars, figures, boundaries, preparedBoundaries, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, artSky, ecliptic, reducedMotion, sun.altitude, milkyWay, milkyBasis, sceneKey, time, timeMode, location, performanceScene, phone.active, showCandidateCollection, comparisonStatus.active, selectedId, finderTarget, language]);
+  }, [projectFigure, frames, size, view, zoom, stars, figures, boundaries, preparedBoundaries, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showMilkyWay, artSky, ecliptic, reducedMotion, sun.altitude, milkyWay, milkyBasis, sceneKey, time, timeMode, location, performanceScene, phone.active, showCandidateCollection, comparisonStatus.active, selectedId, finderTarget, language]);
 
   const move = (heading: number, pitch: number) => onViewChange(current => ({heading: wrap(current.heading + heading), pitch: clampViewPitch(current.pitch + pitch)}));
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
@@ -400,6 +453,18 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       // pan. Activate a settled marker tap here and suppress its later click.
       suppressClick.current = true;
       gesture.marker.click();
+    } else if (!pinch.current && gesture?.id === event.pointerId && !gesture.moved && !gesture.marker && showFigures && showFigureNames && onSelectConstellation && root.current) {
+      // F-036: a tap near a constellation name opens that constellation's info.
+      const box = root.current.getBoundingClientRect();
+      const x = event.clientX - box.left, y = event.clientY - box.top;
+      let best: {id: string; distance: number} | null = null;
+      for (const figure of figures) {
+        const point = projectFigure({...figure.center, ...prepareHorizontalDirection(figure.center)});
+        if (!point) continue;
+        const distance = Math.hypot(point.x - x, point.y - y);
+        if (distance < 40 && (!best || distance < best.distance)) best = {id: figure.id, distance};
+      }
+      if (best) onSelectConstellation(best.id);
     }
     endPointer(event);
   };
@@ -421,7 +486,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
     <canvas ref={canvas} aria-hidden="true"/>
     {hasDaylightPlanetMarker && <p className="daylight-marker-note">{language === 'sv' ? 'Beräknad dagsposition · synlighet varierar' : 'Calculated daytime position · visibility varies'}</p>}
     <div className="horizon-heading" aria-live="off">{language === 'sv' ? 'Mot' : 'Facing'} {cardinal(view.heading, language)} · {Math.round(view.heading)}° <span>{view.pitch < 0 ? '↓' : '↑'} {Math.round(Math.abs(view.pitch))}°</span>{view.pitch < 0 && <span className="below-horizon-label">{language === 'sv' ? 'Under horisonten · simulerad vy' : 'Below horizon · simulated view'}</span>}</div>
-    {markers.map(({object, position, point}) => {const placement = labelPlacements.get(object.id)!;return <button key={object.id} className={`sky-object ${selectedId === object.id ? 'is-selected' : ''}`} aria-pressed={selectedId === object.id} style={{left: point.x, top: point.y, opacity: position.altitude < 0 ? belowReveal * .8 : 1}} onClick={() => onSelect(object)} title={`${label(object)} · ${position.altitude.toLocaleString(language === 'sv' ? 'sv-SE' : 'en-GB', {minimumFractionDigits: 1, maximumFractionDigits: 1})}°`} aria-label={`${label(object)}, ${language === 'sv' ? 'höjd' : 'altitude'} ${position.altitude.toLocaleString(language === 'sv' ? 'sv-SE' : 'en-GB', {minimumFractionDigits: 1, maximumFractionDigits: 1})}°`}><SkyMarkerPoint object={object}/><span className="sky-object-label" aria-hidden="true" data-visible={placement.visible} style={{left: `calc(50% + ${placement.dx}px)`, top: `calc(50% + ${placement.dy}px)`}}>{label(object)}</span></button>;})}
+    {markers.map(({object, position, point}) => {const placement = labelPlacements.get(object.id)!;return <button key={object.id} className={`sky-object ${selectedId === object.id ? 'is-selected' : ''}`} aria-pressed={selectedId === object.id} style={{left: point.x, top: point.y, opacity: position.altitude < 0 ? belowReveal * .8 : 1}} onClick={() => onSelect(object)} title={`${label(object)} · ${position.altitude.toLocaleString(language === 'sv' ? 'sv-SE' : 'en-GB', {minimumFractionDigits: 1, maximumFractionDigits: 1})}°`} aria-label={`${label(object)}, ${language === 'sv' ? 'höjd' : 'altitude'} ${position.altitude.toLocaleString(language === 'sv' ? 'sv-SE' : 'en-GB', {minimumFractionDigits: 1, maximumFractionDigits: 1})}°`}><SkyMarkerPoint object={object} moonPhase={object.id === 'moon' ? moonPhase(point) : undefined}/><span className="sky-object-label" aria-hidden="true" data-visible={placement.visible} style={{left: `calc(50% + ${placement.dx}px)`, top: `calc(50% + ${placement.dy}px)`}}>{label(object)}</span></button>;})}
     {sunPoint && <span className="sky-object sky-sun" style={{left: sunPoint.x, top: sunPoint.y, opacity: sun.altitude < 0 ? belowReveal * .8 : 1}} role="img" aria-label={`${sunLabel}, ${language === 'sv' ? 'höjd' : 'altitude'} ${sun.altitude.toLocaleString(language === 'sv' ? 'sv-SE' : 'en-GB', {minimumFractionDigits: 1, maximumFractionDigits: 1})}°`}><span className="sky-point"/><span className="sky-object-label" aria-hidden="true" data-visible={labelPlacements.get('sun')?.visible ?? false} style={{left: `calc(50% + ${labelPlacements.get('sun')?.dx ?? 0}px)`, top: `calc(50% + ${labelPlacements.get('sun')?.dy ?? 32}px)`}}>{sunLabel}</span></span>}
     {finderTarget && targetPosition && <GuidedFinder object={finderTarget} position={targetPosition} nextRise={nextRise} location={location} view={view} width={size.width} height={size.height} language={language} phone={phone} sunAltitude={sun.altitude} zoom={zoom} onClose={onStopFinder} onDetails={onFinderDetails}/>}
     <div className="horizon-help">{language === 'sv' ? 'Dra för att se dig omkring · nyp för att zooma' : 'Drag to look around · pinch to zoom'}</div>

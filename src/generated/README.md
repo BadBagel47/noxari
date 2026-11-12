@@ -65,21 +65,13 @@ Regenerate with `python3 scripts/generate_messier.py`. It verifies both pinned d
 
 Run `python3 scripts/generate_bright_stars.py`. Both downloads are checksum-verified before writing. To regenerate offline, pass the HYG CSV and Stellarium index JSON as the first and second arguments. No third-party Python packages are needed. The app links to the authors/sources and CC BY-SA 4.0 in More → About & sources.
 
-## Milky Way brightness grid — BSD 3-Clause
+## Milky Way brightness grid — ESO/S. Brunier, CC BY 4.0 (F-040)
 
-`milkyWay.png` is a grayscale **data grid**, adapted from José R. Vieira's Milky Way Outline Catalog as distributed in **d3-celestial by Olaf Frohn**. The pinned repository's README identifies `data/mw.json` as five brightness contours, credits Vieira, specifies J2000 RA/Dec (RA expressed as signed longitude degrees), and releases the distribution under its BSD license. The complete BSD 3-Clause text is retained at `public/licenses/milky-way-BSD-3-Clause.txt` and linked with both author credits in About & sources. The original catalog URL listed by upstream currently returns 404; reproduction uses the pinned d3-celestial distribution, not that unavailable page.
+Since 2026-11-12 `milkyWay.png` is derived from the ESO all-sky panorama **eso0932a** ("The Milky Way panorama", credit **ESO/S. Brunier**, CC BY 4.0; credit line mandatory). Source: `https://cdn.eso.org/images/large/eso0932a.jpg` (page `https://www.eso.org/public/images/eso0932a/`), input SHA-256 `60400c92c54b7c1bd12299c69e83b16e5b6256e7dabacc478c021758ecd28179`, recorded in `data/milky-way-eso/manifest.json`. The credit and license link appear in More → About & sources; `public/licenses/milky-way-NOTICE.txt` states the source, license and modifications.
 
-Upstream commit: `7e720a3de062059d4c5400a379146a601d9010e0`.
+Changes (`python3 scripts/generate_milky_way_eso.py [local eso0932a.jpg]`, needs numpy + Pillow): luminance → resize to 3000×1500 → 9 px median filter (removes point stars, which the app draws from its own catalogue) → Gaussian blur 1.2 px → reproject from galactic (l=0 at centre, increasing left) to a 1440×720 J2000 equirectangular grid (RA 0→24 h left to right, Dec +90→−90 down) with the IAU J2000→galactic rotation and bilinear sampling → subtract the 55th-percentile sky floor, normalise to the 99.7th percentile, gamma 0.8 → 8-bit grayscale PNG. Output SHA-256 `3ec4ebdd258e48b13e9bb9dfe96c83d0a68abb33f2e195ca69087497587d837e` (212,932 bytes). Orientation was checked against the previous contour grid (correlation 0.83) and by unit tests (Galactic centre and Carina bright, both Galactic poles dark, continuous RA seam). Tint, opacity and smoothing are visual choices; this is not a calibrated surface-brightness or naked-eye visibility prediction.
 
-| Input | SHA-256 |
-| --- | --- |
-| `data/mw.json` | `aee221a7a0e879418e685de00c3e68fbdfac5667c0a8aab74929ef9cf4aab4fb` |
-| `LICENSE` | `a8c79239001ad4bea243d1796b85084e1fc39309c5c5a663930a1b46320254c6` |
-| `readme.md` | `c3d77ea7e64565a31876cd2be3c2bc71919712e0379ecd1d98b490afc68703e2` |
-
-Changes: rasterize the five levels to a 720×360 equirectangular J2000 grid at 0.5° spacing, with RA increasing right from 0 to 24h and Dec decreasing down from +90° to −90°. Unwrap seam-crossing rings and close winding polar caps before even/odd filling. Preserve nested dark regions. Set grayscale levels to 51×contour level and apply two symmetric 3×3 box filters (periodic RA, clamped Dec) to soften steps. No photograph, invented dust shapes or prose is embedded. Brightness/color/opacity are stylized; this is not a calibrated surface-brightness or naked-eye visibility prediction.
-
-Output PNG SHA-256: `ef8b95fc6d23fcc711a5d2727fd7626b034ab6f76985c894c5aa85987259749f` (22,998 bytes). Generate with `python3 scripts/generate_milky_way.py`; offline, pass local `mw.json`, `LICENSE` and `readme.md` paths in that order. All inputs are checksum-verified. Only the Python standard library is needed; builds/tests do not download data.
+Previous grid (until 2026-11-12): a contour rasterisation of José R. Vieira's Milky Way Outline Catalog from the BSD 3-Clause d3-celestial distribution by Olaf Frohn (upstream commit `7e720a3de062059d4c5400a379146a601d9010e0`, output SHA-256 `ef8b95fc…749f`). `scripts/generate_milky_way.py` and `public/licenses/milky-way-BSD-3-Clause.txt` are kept for reproduction/history; that grid no longer ships in the app.
 
 Runtime: inverse-project screen rays into the horizontal frame, rotate them to J2000 with Astronomy Engine and sample the grid bilinearly across the RA seam. This avoids polygon stitching across the camera/horizon. A cached diffuse layer uses at most 320 pixels on its longer axis and is reused for animation-only redraws. The local texture is loaded once, with an error/retry control if loading fails. Daylight fades it between Sun altitudes −18° and −8°. The all-sky map stays above the horizon; the eye-level view can expose the lower sky when looking down, with explicit simulation labeling. No proper motion is applied to this diffuse background.
 

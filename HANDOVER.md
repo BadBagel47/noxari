@@ -1,3 +1,20 @@
+## Stor körning 2 — ”Kör alla som inte vilar/pausade” (2026-11-12, Opus)
+
+Genomfört (publicering och verifiering nedan):
+- **F-028 offline/installera:** manifest + ikoner, servicearbetare som genereras efter bygget (`scripts/generate_service_worker.mjs`, ny cache per bygge). App, kataloger, teckningar och bilder förcachas; navigering och `data/` hämtas nätverk-först. Registreras bara i produktion över HTTPS/localhost. Installera-rad (och iOS-tips) under Mer. Delningssidor och labbsidor förcachas inte.
+- **F-029 händelser:** Ikväll → Kommande (60 dagar): månfaser, mån- och lokala solförmörkelser (ett år), möten Måne/planeter <3°, Merkurius/Venus största elongation, årstider (halvklotsanpassade), stora meteorskurar (ungefärliga IMO-datum). ”Visa” glider tiden dit. `src/skyEvents.ts`.
+- **F-030 molnprognos:** i Ikväll efter uttryckligt val; Open-Meteo (CC BY 4.0), plats avrundad till 0,1° (≈10 km), timstaplar och sammanfattning, kan stängas av. Ingen synlighetsgaranti.
+- **F-032 ISS:** valbart objekt (SGP4 via satellite.js) och passager i Ikväll/detaljer (>10°, ”synlig” = solbelyst och sol < −6°). CelesTrak saknar CORS, så banelementen hämtas vid bygget till `data/iss-tle.json`; ålder visas. **Färskhet beror på publiceringsfrekvens** — en daglig schemalagd publicering i Actions har inte lagts till (kräver användarens godkännande).
+- **F-033 observationslogg:** ”Markera som sedd” + anteckning i detaljer, lista under Mer, lokalt (`noxari-log`).
+- **F-036 stjärnbildsinfo:** 86 stjärnbilder som sökbara objekt; tryck nära stjärnbildens namn i himlen öppnar kortet.
+- **F-037 rest:** Nu/Ikväll/tidsreglage/händelser/ISS glider tiden (≤12 h, 650 ms) i gemensamma bildruteloopen; Vintergatan tonas. Mjuk Följ-start ej gjord (sensorlogik, B-001 pausad).
+- **F-039 (del):** horisontförankrad nattgradient, skymningssken mot solen, bloom kring de ljusaste namngivna stjärnorna (färg efter spektralklass), månen med beräknad fas och riktning mot solen, starkare planetglöd, mörkare mark, Vintergatan dämpas där teckningar syns. Kvar: färg för alla stjärnor (stjärnurvalet saknar färgdata), planetskivor, horisontdis, textnivåer.
+- **F-040 Vintergatan:** ESO/S. Brunier-panoramat (CC BY 4.0) med stjärnorna bortfiltrerade, omprojicerat till J2000 (1440×720). Kredit i Om & källor och `public/licenses/milky-way-NOTICE.txt`; gamla konturrutnätet levereras inte längre.
+
+Miljö: en ny molnmiljö ”noxari” skapades (användaren godkände) med åtkomst till ESO, Open-Meteo och CelesTrak.
+
+Verifiering: 207 enhetstester, produktionsbygge, 15/15 funktionsflöden, etiketter 6/6, start/fokus 13/13, testinställningar 8/8 (testet skickar nu sensordata löpande under justering, som en riktig telefon; felet fanns även i förra versionen och berodde på att en enda händelse blev äldre än 500 ms i långsam bred testrendering — ingen appändring). Offline-omladdning kontrollerad i Chromium. Mätning (Canvas, 390×844 @2x, skriptat svep): median 18,1 ms/p95 25,3 ms med teckningar, 16,7/19,5 utan — i nivå med förra körningen. Ingen fysisk mobilkontroll. B-001/B-004 pausade, B-007 observeras. Ingen ny körning godkänd.
+
 ## F-041 — förladdning och intoning (2026-11-12)
 
 Användaren såg teckningar ”ploppa in” vid snabba svep. Nu förladdas alla 85 bilder i bakgrunden (4 åt gången) när lagret är på, avkodas innan de används och tonas in under 350 ms; intoningen drivs av samma renderare (inga extra loopar). Vintergatan ritas under teckningarna men syns igenom eftersom teckningarna är halvgenomskinliga (38 %); användaren beslutade att detta tas i F-039. 197 tester och 15/15 flöden passerar; mätning median ≈19 ms (16,7 utan teckningar).

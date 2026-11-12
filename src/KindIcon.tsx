@@ -7,6 +7,7 @@ export type KindIconName = 'galaxy' | 'nebula' | 'planetary' | 'open' | 'globula
 export function kindIconName(object: Pick<SpaceObject, 'kind' | 'subtype' | 'id'>): KindIconName {
   const subtype = object.subtype?.toLowerCase() ?? '';
   switch (object.kind) {
+    case 'Satellite': return 'satellite';
     case 'Galaxy': return 'galaxy';
     case 'Nebula': return subtype.includes('planetary') ? 'planetary' : 'nebula';
     case 'Star cluster': return subtype.includes('globular') ? 'globular' : 'open';
@@ -52,9 +53,20 @@ export function usesSkySymbol(name: KindIconName) {
   return !['planet', 'moon', 'sun', 'star', 'double'].includes(name);
 }
 
+/** F-039: the Moon drawn with its calculated phase; the lit limb points toward the Sun on screen. */
+export function MoonPhaseGlyph({fraction, angle, size = 22}: {fraction: number; angle: number; size?: number}) {
+  const f = Math.max(0, Math.min(1, fraction));
+  const rx = 9 * Math.abs(1 - 2 * f);
+  return <svg viewBox="0 0 20 20" width={size} height={size} aria-hidden="true" focusable="false" style={{overflow: 'visible'}}>
+    <circle cx="10" cy="10" r="9" fill="#1b2433" stroke="#8494ab" strokeOpacity=".45" strokeWidth=".6"/>
+    {f > .005 && <path transform={`rotate(${angle.toFixed(1)} 10 10)`} d={f >= .995 ? 'M10 1 A9 9 0 1 1 9.99 1 Z' : `M10 1 A9 9 0 0 1 10 19 A${rx.toFixed(2)} 9 0 0 ${f > .5 ? 1 : 0} 10 1 Z`} fill="#f4f1e6"/>}
+  </svg>;
+}
+
 /** Marker glyph inside a sky button; keeps the existing .sky-point ring/focus hooks. */
-export function SkyMarkerPoint({object}: {object: SpaceObject}) {
+export function SkyMarkerPoint({object, moonPhase}: {object: SpaceObject; moonPhase?: {fraction: number; angle: number}}) {
+  if (object.kind === 'Moon' && object.id === 'moon' && moonPhase) return <span className="sky-point sky-moon" style={{filter: 'drop-shadow(0 0 8px #f4f1e699)'}}><MoonPhaseGlyph fraction={moonPhase.fraction} angle={moonPhase.angle}/></span>;
   const name = kindIconName(object);
-  if (!usesSkySymbol(name)) return <span className="sky-point" style={{width: object.size + 4, height: object.size + 4, background: object.color, boxShadow: `0 0 16px ${object.color}`}}/>;
+  if (!usesSkySymbol(name)) return <span className="sky-point" style={{width: object.size + 4, height: object.size + 4, background: object.color, boxShadow: `0 0 ${object.kind === 'Planet' ? 22 : 16}px ${object.kind === 'Planet' ? 4 : 0}px ${object.color}`}}/>;
   return <span className="sky-point sky-symbol" style={{color: object.color}}><KindIcon name={name} size={20}/></span>;
 }
