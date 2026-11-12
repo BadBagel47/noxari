@@ -1,0 +1,16 @@
+{
+ "source": "https://cdn.eso.org/images/large/eso0932a.jpg",
+ "page": "https://www.eso.org/public/images/eso0932a/",
+ "credit": "ESO/S. Brunier",
+ "license": "CC BY 4.0",
+ "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+ "sha256": "60400c92c54b7c1bd12299c69e83b16e5b6256e7dabacc478c021758ecd28179",
+ "output": {
+  "file": "public/sky/milky-way-color-v1.webp",
+  "width": 2880,
+  "height": 1440,
+  "bytes": 1281302,
+  "sha256": "9491bb38880c36cc5ee4fc3ccbc65c43660b6d635cd875d49786d8a6d9f6a9bd",
+  "layout": "J2000 equirectangular; RGB colour at full value, A brightness"
+ }
+}

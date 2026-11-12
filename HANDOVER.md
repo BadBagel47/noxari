@@ -1,3 +1,13 @@
+## F-056 + F-057 + demo-uppföljning + B-012 (2026-11-12, Opus)
+
+Användaren gav ”Kör” för ”Himlen steg 3” och Vintergatan i färg; jämförelsebilder mot användarens Stellarium-skärmbild (Uppsala, 12 nov 18:41, mot NO) togs före och efter varje steg.
+- **Bakgrund:** natthimlen nästan svart och neutral (#020409 → #0a111c), svagare neutral horisontdis; skymning/dag oförändrade. Marken mörkare.
+- **Stjärnor:** ny `stellarBrightness` (full styrka till V 2, 0,75 vid V 4, 0,45 vid V 5, 0,08 vid V 6,5; monoton), radiesteg upp till V 4 = 1,5 px, gloria till V 4 med starkare kärna för de ljusaste.
+- **Vintergatan (F-056):** färgtextur, se `src/generated/README.md`; `MilkyWayTexture.color`, kanal A = ljusstyrka, styrka 0,4 i båda ritvägarna.
+- **Landskap:** `src/landscape.ts`, deterministisk siluett med kullar, grandungar och lövträd; lager ”Landskap” (på från start); tonas bort när man tittar nedåt; horisontlinjen dämpas när landskapet syns. Dekorativt, inte lokal terräng, påverkar inga beräkningar.
+- **Demoläget (användarens återkoppling):** objektet ≈40 % från toppen; zoomen är en sammanhängande kurva (tidigare stannade den helt vid 45 % av förflyttningen, vilket kändes som inbromsning); Kvällens förslag ordnas som ett svep i azimut från strax vänster om blickriktningen och hoppar över objekt närmare än 12° det föregående. Sparade behåller användarens ordning.
+- **B-012:** knapparna ovanför listan i Sparade har mellanrum och luft mot listan.
+- **Prestanda:** färgad Vintergata kostade mest i Canvas-vägen; färgen läses nu från närmaste bildpunkt, gloria bara till V 3,2 och siluetten samplas grövre. Mätning (Canvas/mjukvara, 390×844 @2x, svep): median 16,5–17,0 ms, p95 28–31 ms (före steget 27 ms; utan Vintergata 19 ms). GPU-vägen (mobiler) mäts inte här. 233 enhetstester, 15/15 flöden, etiketter, start/fokus, testinställningar passerar.
 ## B-011 rättad; F-054–F-056 registrerade (2026-11-12)
 
 B-011: hela listraden ljusnar vid hovring/tryck. Nya förslag: F-054 sökfält direkt på himlen som i Stellarium, F-055 rörliga satelliter (CelesTrak visual-gruppen), F-056 Vintergatan i färg och högre upplösning m.m. Inväntar ”Kör” tillsammans med F-051–F-053.

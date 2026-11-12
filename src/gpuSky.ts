@@ -2,6 +2,7 @@ import type {MilkyWayTexture} from './milkyWay';
 import type {PreparedHorizontalStar, ViewDirection} from './skyProjection';
 import {starRadius, stellarBrightness} from './skyVisibility';
 import {faintCount, type FaintSky} from './binocularStars';
+import {MILKY_WAY_COLOR_STRENGTH} from './milkyWay';
 import {faintStarBrightness} from './skyLevel';
 import type {PerformanceFrame} from './skyPerformance';
 
@@ -20,6 +21,8 @@ uniform mat3 horizontalToEquatorial;
 uniform vec2 rasterSize;
 uniform vec4 pose;
 uniform bool below;
+uniform bool colorTexture;
+uniform float colorStrength;
 const float PI=3.141592653589793;
 void main(){
   vec2 ray=(uv-0.5)*rasterSize/(max(rasterSize.x,rasterSize.y)*0.5);
@@ -30,9 +33,11 @@ void main(){
   vec3 eq=horizontalToEquatorial*hor;
   float longitude=atan(eq.y,eq.x)/(2.0*PI);
   float latitude=atan(eq.z,length(eq.xy));
-  float value=texture(skyTexture,vec2(longitude,0.5-latitude/PI)).r;
-  float alpha=value*0.68;
-  color=vec4(vec3(132.0,154.0,180.0)/255.0*alpha,alpha);
+  vec4 texel=texture(skyTexture,vec2(longitude,0.5-latitude/PI));
+  // F-056: colour texture keeps brightness in A and colour in RGB; the grey grid keeps the old tint.
+  float alpha=colorTexture?texel.a*colorStrength:texel.r*0.68;
+  vec3 tint=colorTexture?texel.rgb:vec3(132.0,154.0,180.0)/255.0;
+  color=vec4(tint*alpha,alpha);
 }`;
 const copyFragment = `#version 300 es
 precision highp float;
@@ -295,6 +300,7 @@ export class GpuSky {
       gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D, this.sourceTexture);
       gl.uniform1i(this.uniform(this.mwProgram, 'skyTexture'), 0);
       gl.uniform2f(this.uniform(this.mwProgram, 'rasterSize'), cols, rows);
+      gl.uniform1i(this.uniform(this.mwProgram, 'colorTexture'), Number(Boolean(this.sceneTexture?.color)));gl.uniform1f(this.uniform(this.mwProgram, 'colorStrength'), MILKY_WAY_COLOR_STRENGTH);
       gl.uniformMatrix3fv(this.uniform(this.mwProgram, 'horizontalToEquatorial'), false, basis);
       gl.uniform1i(this.uniform(this.mwProgram, 'below'), Number(below));this.pose(this.mwProgram, view);
       gl.drawArrays(gl.TRIANGLES, 0, 3);this.rasterKey = key;

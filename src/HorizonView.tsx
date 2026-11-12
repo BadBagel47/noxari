@@ -30,6 +30,7 @@ import {HorizonGpu, skyRendererPreference} from './horizonGpu';
 import type {PerformanceScene} from './skyPerformance';
 import {darkSkyVisibility, projectedStarVisibility, starRadius, stellarBrightness} from './skyVisibility';
 import {glowSprite} from './starGlow';
+import {landscapeHeight} from './landscape';
 import {starFill} from './starColor';
 import type {usePhoneOrientation} from './usePhoneOrientation';
 import {skyOverlayExclusions} from './objectLabels';
@@ -53,6 +54,8 @@ type Props = {
   showGrid: boolean;
   showEcliptic: boolean;
   showMilkyWay: boolean;
+  /** F-057: decorative horizon silhouette. */
+  showLandscape?: boolean;
   /** Changes when externally loaded data (ISS elements) arrives. */
   dynamicKey?: number;
   onSelectConstellation?: (id: string) => void;
@@ -76,7 +79,7 @@ const noObjects: SpaceObject[] = [];
 const wrap = (degrees: number) => (degrees % 360 + 360) % 360;
 const cardinal = (heading: number, language: 'en' | 'sv') => (language === 'sv' ? ['N', 'NO', 'Ö', 'SO', 'S', 'SV', 'V', 'NV'] : ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'])[Math.round(wrap(heading) / 45) % 8];
 
-export function HorizonView({frames, selectedId, time, timeMode, location, label, sunLabel, onSelect, language, view, onViewChange, onDragViewChange, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showMilkyWay, dynamicKey, onSelectConstellation, skyLevel, skyGroups, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails, zoomControl, extraObjects = noObjects}: Props) {
+export function HorizonView({frames, selectedId, time, timeMode, location, label, sunLabel, onSelect, language, view, onViewChange, onDragViewChange, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showMilkyWay, showLandscape = true, dynamicKey, onSelectConstellation, skyLevel, skyGroups, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails, zoomControl, extraObjects = noObjects}: Props) {
   const comparisonStatus = useSyncExternalStore(frames.comparison.subscribe, frames.comparison.getSnapshot);
   const [comparisonTrackers] = useState(() => ({current: {pass: -1, reveal: new ConstellationReveal(), cache: new ConstellationDrawingCache(), resolution: new MotionResolution()}}));
   const root = useRef<HTMLDivElement>(null);
@@ -260,9 +263,10 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       // F-039: darker zenith and a soft glow toward the horizon, anchored to the real horizon line.
       const skyTop = Math.min(0, horizonY - height * 1.4), skyBottom = Math.max(horizonY, 1);
       const sky = context.createLinearGradient(0, skyTop, 0, skyBottom);
-      sky.addColorStop(0, daylight ? `rgb(${Math.round(6 + 52 * daylight)},${Math.round(14 + 92 * daylight)},${Math.round(35 + 145 * daylight)})` : '#01040b');
-      sky.addColorStop(.62, daylight ? `rgb(${Math.round(12 + 62 * daylight)},${Math.round(26 + 98 * daylight)},${Math.round(50 + 142 * daylight)})` : '#050d1c');
-      sky.addColorStop(1, daylight ? `rgb(${Math.round(21 + 77 * daylight)},${Math.round(41 + 103 * daylight)},${Math.round(69 + 139 * daylight)})` : '#112540');
+      // F-057: a near-black, neutral night sky (only a faint lift toward the horizon); twilight/day keep their blue.
+      sky.addColorStop(0, daylight ? `rgb(${Math.round(2 + 56 * daylight)},${Math.round(4 + 102 * daylight)},${Math.round(9 + 171 * daylight)})` : '#020409');
+      sky.addColorStop(.62, daylight ? `rgb(${Math.round(4 + 70 * daylight)},${Math.round(8 + 116 * daylight)},${Math.round(15 + 177 * daylight)})` : '#03070e');
+      sky.addColorStop(1, daylight ? `rgb(${Math.round(9 + 89 * daylight)},${Math.round(14 + 130 * daylight)},${Math.round(24 + 184 * daylight)})` : '#0a111c');
       context.fillStyle = sky;
       context.fillRect(0, 0, width, height);
       const twilight = sun.altitude > -18 && sun.altitude < 4 ? Math.min(1, (sun.altitude + 18) / 16) : 0;
@@ -282,8 +286,8 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       // F-049: a faint haze band (air glow / extinction) just above the horizon.
       if (daylight < 1 && horizonY > 0) {
         const haze = context.createLinearGradient(0, horizonY - height * .22, 0, horizonY);
-        haze.addColorStop(0, 'rgba(64,86,126,0)');
-        haze.addColorStop(1, `rgba(74,98,140,${(.24 * (1 - daylight)).toFixed(3)})`);
+        haze.addColorStop(0, 'rgba(70,74,86,0)');
+        haze.addColorStop(1, `rgba(84,86,96,${(.13 * (1 - daylight)).toFixed(3)})`);
         context.fillStyle = haze;
         context.fillRect(0, Math.max(0, horizonY - height * .22), width, Math.min(horizonY, height));
       }
@@ -389,19 +393,35 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
         context.save();
         context.globalCompositeOperation = 'lighter';
         for (const star of stars) {
-          if (star.magnitude > 3) continue;
+          if (star.magnitude > 3.2) continue;
           const visibility = projectedStarVisibility(sun.altitude, star.altitude, belowReveal);
           if (visibility <= 0) continue;
           const point = projectStar(star);
           if (!point) continue;
-          const strength = Math.min(1, (3.2 - star.magnitude) / 4.4);
-          const radius = (6 + 18 * strength) * Math.sqrt(zoom);
+          const strength = Math.min(1, (3.4 - star.magnitude) / 4.4);
+          const radius = (6 + 26 * strength * strength) * Math.sqrt(zoom);
           context.globalAlpha = Math.min(1, .3 + .7 * strength) * visibility;
           context.drawImage(glowSprite(star.ci), point.x - radius, point.y - radius, radius * 2, radius * 2);
         }
         context.restore();
       }
       measurement?.phase('stars');
+      // F-057: decorative silhouette (hills and trees) standing on the horizon; fades away when looking down.
+      if (showLandscape && horizonY > -height && horizonY < height * 1.6) {
+        const sweep = 90 / zoom * Math.max(1, width / height) * .75 + 10, step = Math.max(.08, sweep / 360);
+        context.save();
+        context.globalAlpha = groundOpacity(view.pitch);
+        context.fillStyle = daylight > .4 ? '#1c3340' : '#020407';
+        context.beginPath();
+        let started = false;
+        for (let azimuth = view.heading - sweep; azimuth <= view.heading + sweep; azimuth += step) {
+          const point = projectPerspective({altitude: landscapeHeight((azimuth + 360) % 360), azimuth: (azimuth + 360) % 360}, view, width, height, false, true, zoom);
+          if (!point) continue;
+          if (started) context.lineTo(point.x, point.y); else { context.moveTo(point.x, Math.max(horizonY, height) + 2); context.lineTo(point.x, point.y); started = true; }
+        }
+        if (started) { context.lineTo(width + 4, Math.max(horizonY, height) + 2); context.closePath(); context.fill(); }
+        context.restore();
+      }
       context.font = 'bold 12px system-ui, sans-serif';
       context.textAlign = 'center';
       context.fillStyle = '#d5e9f4';
@@ -415,13 +435,13 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
         context.save();
         context.globalAlpha = groundOpacity(view.pitch);
         const ground = context.createLinearGradient(0, Math.max(0, horizonY), 0, height);
-        ground.addColorStop(0, daylight > 0.4 ? '#233f4c' : '#0b1520');
+        ground.addColorStop(0, daylight > 0.4 ? '#233f4c' : '#04070b');
         ground.addColorStop(1, '#03070c');
         context.fillStyle = ground;
         context.fillRect(0, Math.max(0, horizonY), width, height);
         context.restore();
         if (horizonY >= 0) {
-          context.strokeStyle = 'rgba(174,216,238,.6)';
+          context.strokeStyle = showLandscape ? 'rgba(174,216,238,.12)' : 'rgba(174,216,238,.6)';
           context.lineWidth = 1;
           context.beginPath();
           context.moveTo(0, horizonY + .5);
@@ -448,7 +468,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       return Boolean(animating) || fade.animating || Boolean(artFading);
     };
     frames.setRenderer(render);
-  }, [projectFigure, projectArt, frames, size, view, zoom, stars, figures, boundaries, preparedBoundaries, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showMilkyWay, artSky, ecliptic, reducedMotion, sun.altitude, milkyWay, milkyBasis, sceneKey, time, timeMode, location, performanceScene, phone.active, skyLevel, skyGroups, faint, magnitudeLimit, comparisonStatus.active, selectedId, finderTarget, language]);
+  }, [projectFigure, projectArt, frames, size, view, zoom, stars, figures, boundaries, preparedBoundaries, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showMilkyWay, artSky, ecliptic, reducedMotion, sun.altitude, milkyWay, milkyBasis, sceneKey, time, timeMode, location, performanceScene, phone.active, showLandscape, skyLevel, skyGroups, faint, magnitudeLimit, comparisonStatus.active, selectedId, finderTarget, language]);
 
   const move = (heading: number, pitch: number) => onViewChange(current => ({heading: wrap(current.heading + heading), pitch: clampViewPitch(current.pitch + pitch)}));
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {

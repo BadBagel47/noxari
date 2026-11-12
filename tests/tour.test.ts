@@ -23,11 +23,16 @@ describe('F-044 tour stops and camera moves', () => {
     expect(cinematicPose(0, from, 2, goal, 2.5).zoom).toBeCloseTo(2);
     const end = cinematicPose(1, from, 2, goal, 2.5);
     expect(end.view.heading).toBeCloseTo(200); expect(end.view.pitch).toBeCloseTo(40); expect(end.zoom).toBeCloseTo(2.5);
-    expect(cinematicPose(.45, from, 2, goal, 2.5).zoom).toBeCloseTo(1);
+    // One smooth pull-back: zoom falls, reaches a single low point near 1×, then rises (no stop half-way).
+    const zooms = Array.from({length: 101}, (_, i) => cinematicPose(i / 100, from, 2, goal, 2.5).zoom);
+    const low = zooms.indexOf(Math.min(...zooms));
+    expect(Math.min(...zooms)).toBeLessThan(1.3);
+    for (let i = 1; i <= low; i++) expect(zooms[i]).toBeLessThanOrEqual(zooms[i - 1] + 1e-9);
+    for (let i = low + 1; i < zooms.length; i++) expect(zooms[i]).toBeGreaterThanOrEqual(zooms[i - 1] - 1e-9);
     const near = {heading: 14, pitch: 21};
     expect(cinematicPose(.45, from, 2, near, 2.5, false).zoom).toBeGreaterThan(1.8);
     // Cinematic hops between neighbours still pull back about half-way and rise in an arc.
-    expect(cinematicPose(.45, from, 2, near, 2.5).zoom).toBeLessThan(1.6);
+    expect(cinematicPose(.5, from, 2, near, 2.5).zoom).toBeLessThan(1.8);
     expect(cinematicPose(.5, from, 2, near, 2.5).view.pitch).toBeGreaterThan(cinematicPose(.5, from, 2, near, 2.5, false).view.pitch + 2);
     expect(glideDuration(from, near, true)).toBeGreaterThanOrEqual(2600);
     // Heading takes the short way round the north point.
@@ -78,5 +83,14 @@ describe('F-046 demo motion and look hints', () => {
     expect(lookHint({altitude: 12, azimuth: 2}, 'en').text).toBe('Look north, 1 hand up (12°)');
     expect(lookHint({altitude: 3, azimuth: 270}, 'sv').height).toBe('strax ovanför horisonten');
     expect(lookHint({altitude: 80, azimuth: 270}, 'sv').height).toBe('nästan rakt upp');
+  });
+});
+
+describe('F-046 follow-up: flowing order for unordered lists', () => {
+  it('sweeps by azimuth from the current heading and skips near neighbours', async () => {
+    const {flowingOrder} = await import('../src/tour');
+    const items = [{id: 'a', az: 100, alt: 30}, {id: 'b', az: 20, alt: 30}, {id: 'c', az: 104, alt: 31}, {id: 'd', az: 200, alt: 40}];
+    const order = flowingOrder(items, item => ({azimuth: item.az, altitude: item.alt}), 0).map(item => item.id);
+    expect(order).toEqual(['b', 'a', 'd']);
   });
 });

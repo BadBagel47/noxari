@@ -5,7 +5,7 @@ import {clampViewPitch} from './groundView';
 import {commonConstellationIds, type FigureMode} from './constellations';
 import React, {useEffect, useLayoutEffect, useMemo, useRef, useState, useCallback} from 'react';
 import {createRoot} from 'react-dom/client';
-import {Search, Star, Compass, Bookmark, MapPin, Clock3, ChevronRight, Share2, X, LocateFixed, Globe2, Info, Check, MoreHorizontal, Maximize, Layers, Type, SquareDashed, Sparkles, Moon, Crosshair, Gauge, Smartphone, SlidersHorizontal, Brush, Grid2X2, Orbit, Rewind, FastForward, Download, NotebookPen, CheckCircle2, Trash2, Play} from 'lucide-react';
+import {Search, Star, Compass, Bookmark, MapPin, Clock3, ChevronRight, Share2, X, LocateFixed, Globe2, Info, Check, MoreHorizontal, Maximize, Layers, Type, SquareDashed, Sparkles, Moon, Crosshair, Gauge, Smartphone, SlidersHorizontal, Brush, Grid2X2, Orbit, Rewind, FastForward, Download, NotebookPen, CheckCircle2, Trash2, Play, Trees} from 'lucide-react';
 import {objects, zodiac, type SpaceObject, type Gear} from './data';
 import {candidateObjects} from './candidateObjects';
 import {defaultSkyGroups, type SkyGroup, type SkyGroups, type SkyLevel} from './skyLevel';
@@ -29,7 +29,7 @@ import {LANGUAGE_PREFERENCE_KEY, parseLanguagePreference, resolveLanguage, type 
 import {KindIcon, kindIconName} from './KindIcon';
 import {isCatalogStarPick} from './starPick';
 import {DemoOverlay, TourBar, TourStart} from './TourOverlay';
-import {cinematicPose, glideDuration, goalView, holdPose, tourStops, type TourMode, type TourSource} from './tour';
+import {cinematicPose, flowingOrder, glideDuration, goalView, holdPose, tourStops, type TourMode, type TourSource} from './tour';
 import {demoZoom, lookHint, objectFacts} from './objectFacts';
 import {useReducedMotion} from './useReducedMotion';
 import {namedStarObjects} from './namedStars';
@@ -169,6 +169,7 @@ function App() {
   const [showArt, setShowArt] = useState(false);
   const [showGrid, setShowGrid] = useState(false);
   const [showEcliptic, setShowEcliptic] = useState(false);
+  const [showLandscape, setShowLandscape] = useState(true);
   const milkyWay = useMilkyWay(showMilkyWay);
   const [skyMode, setSkyMode] = useState<'horizon' | 'map'>('horizon');
   const [viewDirection, setViewDirection] = useSkyFrameState<ViewDirection>(() => ({heading: 180, pitch: Math.atan(.76 * innerHeight / Math.max(innerWidth, innerHeight)) * 180 / Math.PI}), skyFrames);
@@ -343,9 +344,9 @@ function App() {
     if (phone.active) phone.takeManualControl();
     setSkyMode('horizon');
     const goalZoom = cinematic ? demoZoom(object) : Math.min(1.8, demoZoom(object));
-    // In the demo the object sits in the upper third of the screen, clear of the title card and photo. The offset
+    // In the demo the object sits a little above centre (≈40 % from the top), clear of the title card. The offset
     // is recomputed for the current zoom every frame, so zooming in and out stays anchored on the object.
-    const liftAt = (zoom: number) => cinematic ? Math.atan(.2 * innerHeight / (Math.max(innerWidth, innerHeight) / 2 * zoom)) * 180 / Math.PI : 0;
+    const liftAt = (zoom: number) => cinematic ? Math.atan(.1 * innerHeight / (Math.max(innerWidth, innerHeight) / 2 * zoom)) * 180 / Math.PI : 0;
     const centred = goalView(target), framed = (view: ViewDirection, zoom: number, weight = 1) => ({...view, pitch: clampViewPitch(view.pitch - liftAt(zoom) * weight)});
     if (reducedMotion) { cancelGlide(); setViewDirection(framed(centred, goalZoom)); zoomControl.current?.(goalZoom); if (done) setTimeout(done, 0); return true; }
     const from = live.current.view;
@@ -415,7 +416,9 @@ function App() {
   };
   const startTour = (mode: TourMode) => {
     const list = tourList(tourSource);
-    const {stops, skipped} = tourStops(list, time, location);
+    const found = tourStops(list, time, location);
+    // Saved lists keep the user's order; Tonight's picks become one smooth sweep without near-duplicates.
+    const stops = tourSource === 'tonight' ? flowingOrder(found.stops, object => objectPosition(object, time, location), viewDirection.heading) : found.stops, skipped = found.skipped;
     if (!list.length) { notify(tourSource === 'saved' ? t(lang, 'Save some objects first.', 'Spara några objekt först.') : t(lang, 'No suggestions tonight.', 'Inga förslag i natt.')); return; }
     if (!stops.length) { notify(t(lang, 'None of the objects is above the horizon right now.', 'Inget av objekten är över horisonten just nu.')); return; }
     if (skipped.length) notify(t(lang, `${skipped.length} below the horizon ${skipped.length === 1 ? 'is' : 'are'} skipped.`, `${skipped.length} objekt under horisonten hoppas över.`));
@@ -552,7 +555,7 @@ function App() {
   return <div className={`app sky-app${redMode ? ' red-mode' : ''}${tour?.mode === 'demo' ? ` demo-active${caption && !caption.leaving ? ' demo-landed' : ''}` : tour ? ' touring' : ''}`} ref={appRoot}>
     <div className="sky-workspace" ref={workspace}>
       <main className="sky-stage" aria-label={t(lang, 'Sky', 'Himlen')}>
-        <div className="view-switch" key={skyMode}>{skyMode === 'horizon' ? <HorizonView frames={skyFrames} selectedId={selected?.id} finderTarget={finderTarget} phone={phone} onFinderDetails={() => { if (finderTarget) { setSelected(finderTarget); openPanel('details'); } }} onStopFinder={() => { if (tourRef.current?.mode === 'point') stopTour(); else setFinderTarget(null); }} zoomControl={zoomControl} showFigures={showFigures} showFigureNames={showFigureNames} figureMode={figureMode} showBoundaries={showBoundaries} showArt={showArt} showGrid={showGrid} showEcliptic={showEcliptic} showMilkyWay={showMilkyWay} dynamicKey={issVersion} onSelectConstellation={id => { const object = mainObjects.find(item => item.id === `con-${id.toLowerCase()}`) ?? (id === 'Ori' ? objects.find(item => item.id === 'orion') : id === 'UMa' ? objects.find(item => item.id === 'ursa-major') : undefined); if (object) pickObject(object); }} skyLevel={skyLevel} skyGroups={skyGroups} extraObjects={extraObjects} milkyWay={milkyWay.texture} time={time} timeMode={timeMode} location={location} label={object => display(object, lang)} sunLabel={t(lang, 'Sun', 'Solen')} onSelect={pickObject} language={lang} view={viewDirection} onViewChange={manualView} onDragViewChange={dragView}/> : <SkyMap dynamicKey={issVersion} selectedId={selected?.id} showFigures={showFigures} showFigureNames={showFigureNames} figureMode={figureMode} showBoundaries={showBoundaries} showArt={showArt} showGrid={showGrid} showEcliptic={showEcliptic} skyLevel={skyLevel} skyGroups={skyGroups} extraObjects={extraObjects} milkyWay={showMilkyWay ? milkyWay.texture : null} time={time} location={location} label={object => display(object, lang)} language={lang} sunLabel={t(lang, 'Sun', 'Solen')} onSelect={pickObject}/>}</div>
+        <div className="view-switch" key={skyMode}>{skyMode === 'horizon' ? <HorizonView frames={skyFrames} selectedId={selected?.id} finderTarget={finderTarget} phone={phone} onFinderDetails={() => { if (finderTarget) { setSelected(finderTarget); openPanel('details'); } }} onStopFinder={() => { if (tourRef.current?.mode === 'point') stopTour(); else setFinderTarget(null); }} zoomControl={zoomControl} showFigures={showFigures} showFigureNames={showFigureNames} figureMode={figureMode} showBoundaries={showBoundaries} showArt={showArt} showGrid={showGrid} showEcliptic={showEcliptic} showMilkyWay={showMilkyWay} showLandscape={showLandscape} dynamicKey={issVersion} onSelectConstellation={id => { const object = mainObjects.find(item => item.id === `con-${id.toLowerCase()}`) ?? (id === 'Ori' ? objects.find(item => item.id === 'orion') : id === 'UMa' ? objects.find(item => item.id === 'ursa-major') : undefined); if (object) pickObject(object); }} skyLevel={skyLevel} skyGroups={skyGroups} extraObjects={extraObjects} milkyWay={milkyWay.texture} time={time} timeMode={timeMode} location={location} label={object => display(object, lang)} sunLabel={t(lang, 'Sun', 'Solen')} onSelect={pickObject} language={lang} view={viewDirection} onViewChange={manualView} onDragViewChange={dragView}/> : <SkyMap dynamicKey={issVersion} selectedId={selected?.id} showFigures={showFigures} showFigureNames={showFigureNames} figureMode={figureMode} showBoundaries={showBoundaries} showArt={showArt} showGrid={showGrid} showEcliptic={showEcliptic} skyLevel={skyLevel} skyGroups={skyGroups} extraObjects={extraObjects} milkyWay={showMilkyWay ? milkyWay.texture : null} time={time} location={location} label={object => display(object, lang)} language={lang} sunLabel={t(lang, 'Sun', 'Solen')} onSelect={pickObject}/>}</div>
       </main>
       <header className="sky-statusbar">
         <button className={`observation-chip ${timeMode}`} onClick={() => openPanel('observation')} aria-label={t(lang, 'Time & location', 'Tid och plats')}><MapPin size={15}/><span><strong>{location.name}</strong><small>{stamp}</small></span></button>
@@ -625,7 +628,7 @@ function App() {
             {panel === 'tonight' && <TonightPanel context={night} location={location} language={lang} gear={gear} onGearChange={setGear} ranked={ranked} renderCard={card} events={events} issPasses={nightPasses} issAgeDays={issVersion ? issElementAgeDays(time) : null} onShowPass={when => { setScrub(null); setTimeMode('fixed'); glideTime(when); pickObject(issObject); }} onShowTime={when => { setScrub(null); setTimeMode('fixed'); glideTime(when); closePanel(); }}/>}
       {panel === 'log' && <>{observationLog.log.length ? <><p className="panel-note">{t(lang, 'Objects you have marked as seen. Stored only on this device.', 'Objekt du har markerat som sedda. Sparas bara på den här enheten.')}</p><div className="object-list">{observationLog.log.map(entry => { const object = allObjects.find(item => item.id === entry.id); if (!object) return null; return <article className="object-row log-row" key={entry.id}><button className="row-main" onClick={() => { pickObject(object); openPanel('details'); }}><KindIcon className="card-icon" name={kindIconName(object)} size={24} color={object.color}/><span className="row-text"><strong>{display(object, lang)}</strong><small>{DateTime.fromISO(entry.at).setZone(location.timeZone).setLocale(lang).toFormat('d LLL yyyy · HH:mm')}{entry.note ? ` · ${entry.note}` : ''}</small></span></button></article>; })}</div></> : <div className="empty"><NotebookPen size={30}/><p>{t(lang, 'Nothing logged yet. Open an object’s details and choose Mark as seen.', 'Inget loggat ännu. Öppna ett objekts detaljer och välj Markera som sett.')}</p></div>}</>}
       {panel === 'tour' && <TourStart language={lang} source={tourSource} onSource={setTourSource} savedCount={allObjects.filter(object => saved.includes(object.id) && object.position).length} tonightCount={tourList('tonight').length} canPoint={canFollow} onStart={startTour}/>}
-      {panel === 'saved' && <>{saved.length ? <><button className="panel-action" onClick={() => { setTourSource('saved'); openPanel('tour'); }}><Play size={17}/>{t(lang, 'Start a tour', 'Starta visning')}</button><button className="panel-action" onClick={shareSavedList}><Share2 size={17}/>{t(lang, 'Share list', 'Dela listan')}</button><div className="object-list">{allObjects.filter(object => saved.includes(object.id)).map(object => card(object))}</div></> : <div className="empty"><Bookmark size={30}/><p>{t(lang, 'Nothing saved yet', 'Inget sparat ännu')}</p><button className="primary" onClick={() => openPanel('search')}>{t(lang, 'Search objects', 'Sök objekt')}</button></div>}</>}
+      {panel === 'saved' && <>{saved.length ? <><div className="panel-actions"><button className="panel-action" onClick={() => { setTourSource('saved'); openPanel('tour'); }}><Play size={17}/>{t(lang, 'Start a tour', 'Starta visning')}</button><button className="panel-action" onClick={shareSavedList}><Share2 size={17}/>{t(lang, 'Share list', 'Dela listan')}</button></div><div className="object-list">{allObjects.filter(object => saved.includes(object.id)).map(object => card(object))}</div></> : <div className="empty"><Bookmark size={30}/><p>{t(lang, 'Nothing saved yet', 'Inget sparat ännu')}</p><button className="primary" onClick={() => openPanel('search')}>{t(lang, 'Search objects', 'Sök objekt')}</button></div>}</>}
       {panel === 'shared' && <>{sharedList.length ? <><p className="panel-note">{t(lang, 'This shared list is read-only. Save the objects to add them to your own Saved list.', 'Den här delade listan är skrivskyddad. Spara objekten för att lägga till dem i din egen lista.')}</p><button className="panel-action" onClick={saveSharedList}><Bookmark size={17}/>{t(lang, 'Save all to my list', 'Spara alla i min lista')}</button><div className="object-list">{allObjects.filter(object => sharedList.includes(object.id)).map(object => card(object))}</div></> : <div className="empty"><p>{t(lang, 'This shared list is empty or invalid.', 'Den delade listan är tom eller ogiltig.')}</p><button className="primary" onClick={() => openPanel('search')}>{t(lang, 'Search objects', 'Sök objekt')}</button></div>}</>}
       {panel === 'more' && <div className="more-menu grouped">
         <h2 className="sheet-label">{t(lang, 'My objects', 'Mina objekt')}</h2>
@@ -656,6 +659,7 @@ function App() {
           <button aria-pressed={showFigures && showFigureNames} disabled={!showFigures} onClick={() => setShowFigureNames(value => !value)}><Type size={24}/>{t(lang, 'Names', 'Namn')}</button>
           <button aria-pressed={showBoundaries} onClick={() => setShowBoundaries(value => !value)}><SquareDashed size={24}/>{t(lang, 'Boundaries', 'Gränser')}</button>
           <button aria-pressed={showMilkyWay} onClick={() => setShowMilkyWay(value => !value)}><Sparkles size={24}/>{t(lang, 'Milky Way', 'Vintergatan')}</button>
+          <button aria-pressed={showLandscape} onClick={() => setShowLandscape(value => !value)}><Trees size={24}/>{t(lang, 'Landscape', 'Landskap')}</button>
           <button aria-pressed={showArt} onClick={() => setShowArt(value => !value)}><Brush size={24}/>{t(lang, 'Drawings', 'Teckningar')}</button>
           <button aria-pressed={showGrid} onClick={() => setShowGrid(value => !value)}><Grid2X2 size={24}/>{t(lang, 'Grid', 'Rutnät')}</button>
           <button aria-pressed={showEcliptic} onClick={() => setShowEcliptic(value => !value)}><Orbit size={24}/>{t(lang, 'Planets’ path', 'Planeternas väg')}</button>

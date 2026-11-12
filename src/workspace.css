@@ -473,3 +473,7 @@ html,body,#root{width:100%;height:100%;overflow:hidden}
 @media(orientation:landscape) and (max-height:500px){.sky-workspace .horizon-heading{top:auto;bottom:14px}}
 /* Location chip: a little more room on the right for a balanced shape. */
 .observation-chip{padding:8px 22px 8px 13px}
+/* Action buttons above lists: icon and text spaced, buttons apart, and clear of the list below. */
+.panel-action{display:inline-flex;align-items:center;gap:8px}
+.panel-actions{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 14px}.panel-actions .panel-action{margin-top:0}
+.sheet-body>.panel-action{margin-bottom:14px}

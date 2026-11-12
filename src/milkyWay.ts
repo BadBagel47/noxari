@@ -2,20 +2,30 @@ import {AstroTime, Observer, RotateVector, Rotation_HOR_EQJ, Vector} from 'astro
 import type {ObservingLocation} from './astronomy';
 import type {ViewDirection} from './skyProjection';
 
-export type MilkyWayTexture = {width: number; height: number; pixels: Uint8ClampedArray};
+/** `color` (F-056): RGB is the band's colour at full value and A its brightness; otherwise R is brightness (grey grid). */
+export type MilkyWayTexture = {width: number; height: number; pixels: Uint8ClampedArray; color?: boolean};
 const TAU = 2 * Math.PI;
+/** Opacity of the colour texture at full brightness (shared with the GPU shader). */
+export const MILKY_WAY_COLOR_STRENGTH = .4;
 
 // The generated grid has RA increasing to the right (periodic), Dec north at
 // the top. Bilinear samples cross the 0/24h seam without a texture discontinuity.
-export function milkyWaySample(texture: MilkyWayTexture, x: number, y: number, z: number) {
+export function milkyWaySample(texture: MilkyWayTexture, x: number, y: number, z: number, channel = texture.color ? 3 : 0) {
   const lon = (Math.atan2(y, x) + TAU) % TAU;
   const lat = Math.atan2(z, Math.hypot(x, y));
   const u = lon / TAU * texture.width - .5;
   const v = Math.max(0, Math.min(texture.height - 1, (.5 - lat / Math.PI) * texture.height - .5));
   const left = Math.floor(u), top = Math.floor(v), fx = u - left, fy = v - top;
-  const at = (col: number, row: number) => texture.pixels[(Math.min(texture.height - 1, row) * texture.width + (col + texture.width) % texture.width) * 4];
+  const at = (col: number, row: number) => texture.pixels[(Math.min(texture.height - 1, row) * texture.width + (col + texture.width) % texture.width) * 4 + channel];
   return (at(left, top) * (1 - fx) + at(left + 1, top) * fx) * (1 - fy)
     + (at(left, top + 1) * (1 - fx) + at(left + 1, top + 1) * fx) * fy;
+}
+
+/** Byte offset of the nearest texel for a J2000 direction. */
+export function milkyWayTexel(texture: MilkyWayTexture, x: number, y: number, z: number) {
+  const col = Math.floor((Math.atan2(y, x) + TAU) % TAU / TAU * texture.width) % texture.width;
+  const row = Math.max(0, Math.min(texture.height - 1, Math.floor((.5 - Math.atan2(z, Math.hypot(x, y)) / Math.PI) * texture.height)));
+  return (row * texture.width + col) * 4;
 }
 
 /** Columns are north, west, up in J2000, matching the CPU inverse-ray painter. */
@@ -73,8 +83,16 @@ export class MilkyWayPainter {
           n * north.y + w * west.y + u * up.y,
           n * north.z + w * west.z + u * up.z);
         const offset = (row * cols + col) * 4;
-        image.data[offset] = 132; image.data[offset + 1] = 154; image.data[offset + 2] = 180;
-        image.data[offset + 3] = value * .68;
+        if (texture.color) {
+          const x = n * north.x + w * west.x + u * up.x, y = n * north.y + w * west.y + u * up.y, z = n * north.z + w * west.z + u * up.z;
+          // Colour varies slowly; the nearest texel is enough (brightness above stays bilinear).
+          const texel = milkyWayTexel(texture, x, y, z);
+          image.data[offset] = texture.pixels[texel]; image.data[offset + 1] = texture.pixels[texel + 1]; image.data[offset + 2] = texture.pixels[texel + 2];
+          image.data[offset + 3] = value * MILKY_WAY_COLOR_STRENGTH;
+        } else {
+          image.data[offset] = 132; image.data[offset + 1] = 154; image.data[offset + 2] = 180;
+          image.data[offset + 3] = value * .68;
+        }
       }
       buffer.putImageData(image, 0, 0);
       this.key = key;

@@ -19,7 +19,6 @@ export function tourStops(objects: SpaceObject[], time: Date, location: Observin
 }
 
 const easeInOut = (k: number) => k < .5 ? 4 * k * k * k : 1 - (-2 * k + 2) ** 3 / 2;
-const easeOut = (k: number) => 1 - (1 - k) ** 3;
 
 /** Angular distance between two view directions (degrees). */
 export function separation(a: ViewDirection, b: ViewDirection) {
@@ -46,9 +45,10 @@ export function cinematicPose(k: number, from: ViewDirection, fromZoom: number, 
   const lift = cinematic ? Math.min(14, 3 + angle * .3) * Math.sin(Math.PI * t) : 0;
   const pitch = from.pitch + (goal.pitch - from.pitch) * eased + lift;
   const view = {heading: (from.heading + headingDelta * eased + 360) % 360, pitch: Math.max(-89.9, Math.min(85, pitch))};
-  // Long swings pull back to 1×; short hops still widen (half-way when cinematic).
+  // Long swings pull back to 1×; short hops still widen (half-way when cinematic). The pull-back is one smooth
+  // dip over the whole move (no stop half-way), on top of an eased zoom from start to goal.
   const near = Math.min(fromZoom, goalZoom), wide = near + (1 - near) * Math.max(cinematic ? .5 : 0, Math.min(1, angle / 25));
-  const zoom = t < .45 ? fromZoom + (wide - fromZoom) * easeOut(t / .45) : wide + (goalZoom - wide) * easeInOut((t - .45) / .55);
+  const zoom = fromZoom + (goalZoom - fromZoom) * eased - (near - wide) * Math.sin(Math.PI * t) ** 1.5;
   return {view, zoom: Math.max(1, Math.min(3, zoom))};
 }
 
@@ -60,4 +60,22 @@ export function holdPose(k: number, base: ViewDirection, baseZoom: number) {
 
 export function goalView(position: SkyPosition): ViewDirection {
   return {heading: position.azimuth, pitch: Math.max(-89.9, Math.min(89.9, position.altitude))};
+}
+
+/**
+ * F-046 follow-up: for lists without a user-chosen order (Tonight's picks), visit the objects
+ * as one sweep across the sky (by azimuth, starting nearest the current heading) and skip any
+ * object closer than `minSeparation` degrees to the one before it, so moves never just twitch.
+ */
+export function flowingOrder<T>(items: T[], position: (item: T) => {altitude: number; azimuth: number} | null, heading: number, minSeparation = 12) {
+  const placed = items.flatMap(item => { const p = position(item); return p ? [{item, p}] : []; });
+  // Clockwise from just left of the current heading, so the first move is short.
+  placed.sort((a, b) => ((a.p.azimuth - heading + 390) % 360) - ((b.p.azimuth - heading + 390) % 360));
+  const out: typeof placed = [];
+  for (const entry of placed) {
+    const last = out[out.length - 1];
+    if (last && separation({heading: last.p.azimuth, pitch: last.p.altitude}, {heading: entry.p.azimuth, pitch: entry.p.altitude}) < minSeparation) continue;
+    out.push(entry);
+  }
+  return out.map(entry => entry.item);
 }
