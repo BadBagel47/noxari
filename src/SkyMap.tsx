@@ -1,5 +1,8 @@
 import {MilkyWayPainter, type MilkyWayTexture} from './milkyWay';
 import {SkyMarkerPoint} from './KindIcon';
+import {ConstellationArtImages, constellationArtSky, drawConstellationArt} from './constellationArt';
+import {eclipticSky} from './ecliptic';
+import {namedStarObjects} from './namedStars';
 import {useEffect, useMemo, useRef, useState, type PointerEvent} from 'react';
 import {ConstellationDrawingCache, constellationSky, drawConstellations, type FigureMode} from './constellations';
 import {ConstellationReveal} from './constellationReveal';
@@ -26,16 +29,21 @@ type Props = {
   showFigureNames: boolean;
   figureMode: FigureMode;
   showBoundaries: boolean;
+  showArt: boolean;
+  showGrid: boolean;
+  showEcliptic: boolean;
   showCandidateCollection: boolean;
   milkyWay: MilkyWayTexture | null;
 };
 
-export function SkyMap({selectedId, time, location, label, language, sunLabel, onSelect, showFigures, showFigureNames, figureMode, showBoundaries, showCandidateCollection, milkyWay}: Props) {
+export function SkyMap({selectedId, time, location, label, language, sunLabel, onSelect, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showCandidateCollection, milkyWay}: Props) {
   const container = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const reveal = useRef(new ConstellationReveal());
   const figureCache = useRef(new ConstellationDrawingCache());
   const milkyWayPainter = useRef(new MilkyWayPainter());
+  const artImages = useRef(new ConstellationArtImages(import.meta.env.BASE_URL));
+  const [artLoaded, setArtLoaded] = useState(0);
   const reducedMotion = useReducedMotion();
   const [size, setSize] = useState({width: 0, height: 0});
   const [zoom, setZoom] = useState(1);
@@ -47,13 +55,15 @@ export function SkyMap({selectedId, time, location, label, language, sunLabel, o
   const figures = useMemo(() => constellationSky(catalog, figureMode), [catalog, figureMode]);
   const projectFigure = useMemo(() => (position: Parameters<typeof projectHorizontal>[0]) => projectHorizontal(position, size.width, size.height, zoom), [size.width, size.height, zoom]);
   const boundaries = useMemo(() => showBoundaries ? boundarySky(time, location) : [], [showBoundaries, time, location]);
+  const artSky = useMemo(() => showArt ? constellationArtSky(time, location, figureMode) : [], [showArt, time, location, figureMode]);
+  const ecliptic = useMemo(() => showEcliptic ? eclipticSky(time, location) : [], [showEcliptic, time, location]);
   const stars = useMemo(() => catalog.flatMap(star => {
     const point = projectHorizontal(star, size.width, size.height, zoom);
     return point ? [{...star, ...point}] : [];
   }), [catalog, size, zoom]);
   const objectSky = useMemo(() => {
     const resolve = objectPositioner(time, location);
-    return [...objects, ...(showCandidateCollection ? candidateObjects : [])].flatMap(object => {
+    return [...objects, ...namedStarObjects, ...(showCandidateCollection ? candidateObjects : [])].flatMap(object => {
       const position = resolve(object);
       const appearance = object.kind === 'Planet' ? solarAppearance(object, time) : null;
       return position ? [{object, position, appearance}] : [];
@@ -140,14 +150,14 @@ export function SkyMap({selectedId, time, location, label, language, sunLabel, o
 
       context.strokeStyle = 'rgba(141,189,225,.28)';
       context.lineWidth = 1;
-      for (const altitude of [0, 30, 60]) {
+      for (const altitude of showGrid ? [0, 30, 60] : [0]) {
         const radius = horizonRadius * (90 - altitude) / 90 * zoom;
         context.beginPath();
         context.arc(centerX, centerY, radius, 0, Math.PI * 2);
         context.stroke();
       }
       context.strokeStyle = 'rgba(141,189,225,.17)';
-      for (const bearing of [0, Math.PI / 2, Math.PI, Math.PI * 1.5]) {
+      for (const bearing of showGrid ? [0, Math.PI / 2, Math.PI, Math.PI * 1.5] : []) {
         context.beginPath();
         context.moveTo(centerX, centerY);
         context.lineTo(centerX + horizonRadius * zoom * Math.sin(bearing), centerY - horizonRadius * zoom * Math.cos(bearing));
@@ -166,7 +176,24 @@ export function SkyMap({selectedId, time, location, label, language, sunLabel, o
       context.fillStyle = '#7fa2c0';
       context.fillText(language === 'sv' ? 'Zenit' : 'Zenith', centerX, centerY - 7);
 
+      if (showEcliptic && ecliptic.length) {
+        context.save();
+        context.strokeStyle = 'rgba(242,201,138,.55)';
+        context.setLineDash([6, 5]);
+        context.lineWidth = 1.2;
+        context.beginPath();
+        let open = false;
+        for (const position of ecliptic) {
+          const point = projectHorizontal(position, width, height, zoom);
+          if (!point) { open = false; continue; }
+          if (open) context.lineTo(point.x, point.y); else context.moveTo(point.x, point.y);
+          open = true;
+        }
+        context.stroke();
+        context.restore();
+      }
       if (showBoundaries) drawBoundaries(context, boundaries, position => projectHorizontal(position, width, height, zoom), width, height, starVisibility);
+      if (showArt) drawConstellationArt(context, artSky, projectFigure, width, height, starVisibility * .38 * Math.max(.3, Math.min(1, 1.3 - .3 * zoom)), artImages.current, () => setArtLoaded(count => count + 1));
 
       const animating = showFigures && drawConstellations(context, figures, projectFigure, width, height, starVisibility, showFigureNames, {reveal: reveal.current, now: performance.now(), reducedMotion, entryInset: false}, figureCache.current);
       if (!showFigures) reveal.current.reset();
@@ -182,18 +209,12 @@ export function SkyMap({selectedId, time, location, label, language, sunLabel, o
           context.fill();
         }
         context.globalAlpha = 1;
-        if (starVisibility > 0.5) {
-          context.font = '13px system-ui, sans-serif';
-          context.fillStyle = '#a9c6df';
-          context.textAlign = 'left';
-          for (const star of stars) if (star.name && star.name !== 'Sirius') context.fillText(star.name, star.x + 5, star.y - 5);
-        }
       }
       if (animating) frame = requestAnimationFrame(render);
     };
     render();
     return () => cancelAnimationFrame(frame);
-  }, [projectFigure, size, zoom, stars, figures, boundaries, showFigures, showFigureNames, figureMode, showBoundaries, reducedMotion, sun.altitude, milkyWay, time, location]);
+  }, [projectFigure, size, zoom, stars, figures, boundaries, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, artSky, ecliptic, artLoaded, reducedMotion, sun.altitude, milkyWay, time, location]);
 
   return <div className="sky-canvas sky-map" ref={container} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={finishPointer} onPointerCancel={finishPointer} onLostPointerCapture={finishPointer} onClickCapture={event => { if (suppressClick.current && event.detail !== 0) { event.preventDefault(); event.stopPropagation(); } }}>
     <canvas ref={canvas} aria-label={language === 'sv' ? 'Beräknad zenitcentrerad himmel med egenrörelse och valbara stjärnbildsfigurer och IAU-gränser; horisonten är den yttre cirkeln. Nyp för att zooma.' : 'Calculated zenith-centered sky with proper motion and optional constellation figures and IAU boundaries; horizon is the outer circle. Pinch to zoom.'} role="img"/>

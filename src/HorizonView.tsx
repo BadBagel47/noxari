@@ -1,5 +1,9 @@
 import {horizonGrid} from './skyGrid';
 import {SkyMarkerPoint} from './KindIcon';
+import {ConstellationArtImages, constellationArtSky, drawConstellationArt} from './constellationArt';
+import {eclipticSky} from './ecliptic';
+import {LayerFades} from './layerFade';
+import {namedStarObjects} from './namedStars';
 import {MotionResolution} from './motionResolution';
 import {useSkyFrameState} from './useSkyFrames';
 import type {SkyFrames} from './skyFrames';
@@ -37,6 +41,9 @@ type Props = {
   showFigureNames: boolean;
   figureMode: FigureMode;
   showBoundaries: boolean;
+  showArt: boolean;
+  showGrid: boolean;
+  showEcliptic: boolean;
   showCandidateCollection: boolean;
   milkyWay: MilkyWayTexture | null;
   view: ViewDirection;
@@ -51,13 +58,20 @@ type Props = {
 const wrap = (degrees: number) => (degrees % 360 + 360) % 360;
 const cardinal = (heading: number, language: 'en' | 'sv') => (language === 'sv' ? ['N', 'NO', 'Ö', 'SO', 'S', 'SV', 'V', 'NV'] : ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'])[Math.round(wrap(heading) / 45) % 8];
 
-export function HorizonView({frames, selectedId, time, timeMode, location, label, sunLabel, onSelect, language, view, onViewChange, onDragViewChange, showFigures, showFigureNames, figureMode, showBoundaries, showCandidateCollection, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails}: Props) {
+export function HorizonView({frames, selectedId, time, timeMode, location, label, sunLabel, onSelect, language, view, onViewChange, onDragViewChange, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showCandidateCollection, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails}: Props) {
   const comparisonStatus = useSyncExternalStore(frames.comparison.subscribe, frames.comparison.getSnapshot);
   const [comparisonTrackers] = useState(() => ({current: {pass: -1, reveal: new ConstellationReveal(), cache: new ConstellationDrawingCache(), resolution: new MotionResolution()}}));
   const root = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const reveal = useRef(new ConstellationReveal());
   const figureCache = useRef(new ConstellationDrawingCache());
+  const artImages = useRef(new ConstellationArtImages(import.meta.env.BASE_URL));
+  const fades = useRef(new LayerFades<'grid' | 'boundaries' | 'figures' | 'art' | 'ecliptic'>());
+  // Keep data for a layer once it has been shown, so it can fade out instead of vanishing.
+  const shown = useRef({boundaries: false, art: false, ecliptic: false});
+  if (showBoundaries) shown.current.boundaries = true;
+  if (showArt) shown.current.art = true;
+  if (showEcliptic) shown.current.ecliptic = true;
   const milkyWayPainter = useRef(new MilkyWayPainter());
   const gpu = useRef<HorizonGpu | null>(null);
   const [performanceScene] = useState<PerformanceScene>(() => ({backend: 'canvas', reason: 'not-drawn', driver: '',
@@ -78,14 +92,16 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
   const milkyBasis = useMemo(() => milkyWayBasis(time, location), [time, location]);
   const sceneKey = `${time.getTime()}|${location.latitude}|${location.longitude}`;
   const figures = useMemo(() => constellationSky(stars, figureMode), [stars, figureMode]);
-  const boundaries = useMemo(() => showBoundaries ? boundarySky(time, location) : [], [showBoundaries, time, location]);
+  const boundaries = useMemo(() => shown.current.boundaries ? boundarySky(time, location) : [], [showBoundaries, time, location]);
+  const artSky = useMemo(() => shown.current.art ? constellationArtSky(time, location, figureMode) : [], [showArt, time, location, figureMode]);
+  const ecliptic = useMemo(() => shown.current.ecliptic ? eclipticSky(time, location) : [], [showEcliptic, time, location]);
   const preparedBoundaries = useMemo(() => boundaries.map(arc => prepareHorizontalDirections(arc)), [boundaries]);
   const sun = useMemo(() => positionAt(Body.Sun, time, location), [time, location]);
   const targetPosition = useMemo(() => finderTarget ? objectPosition(finderTarget, time, location) : null, [finderTarget, time, location]);
   const nextRise = useMemo(() => finderTarget && targetPosition && targetPosition.altitude < 0 ? nextObjectRise(finderTarget, time, location) : null, [finderTarget, targetPosition, time, location]);
   const objectSky = useMemo(() => {
     const resolve = objectPositioner(time, location);
-    return [...objects, ...(showCandidateCollection ? candidateObjects : [])].flatMap(object => {
+    return [...objects, ...namedStarObjects, ...(showCandidateCollection ? candidateObjects : [])].flatMap(object => {
       const position = resolve(object);
       const appearance = object.kind === 'Planet' ? solarAppearance(object, time) : null;
       return position ? [{object, position, appearance}] : [];
@@ -226,16 +242,28 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
         }
         context.stroke();
       };
-      context.strokeStyle = 'rgba(171,209,233,.17)';
-      context.lineWidth = 1;
-      for (const curve of horizonGrid(belowReveal > 0)) drawCurve(curve);
+      const fade = fades.current.step({grid: showGrid, boundaries: showBoundaries, figures: showFigures, art: showArt, ecliptic: showEcliptic}, now, reducedMotion || comparing);
+      if (fade.values.grid > 0) {
+        context.strokeStyle = `rgba(171,209,233,${.17 * fade.values.grid})`;
+        context.lineWidth = 1;
+        for (const curve of horizonGrid(belowReveal > 0)) drawCurve(curve);
+      }
+      if (fade.values.ecliptic > 0 && ecliptic.length) {
+        context.save();
+        context.strokeStyle = `rgba(242,201,138,${.55 * fade.values.ecliptic})`;
+        context.setLineDash([6, 5]);
+        context.lineWidth = 1.2;
+        drawCurve(ecliptic);
+        context.restore();
+      }
 
       measurement?.phase('grid');
-      if (showBoundaries) drawBoundaries(context, preparedBoundaries, projectBoundary, width, height, starVisibility);
+      if (fade.values.boundaries > 0) drawBoundaries(context, preparedBoundaries, projectBoundary, width, height, starVisibility * fade.values.boundaries);
+      if (fade.values.art > 0) drawConstellationArt(context, artSky, projectFigure, width, height, starVisibility * fade.values.art * .38 * Math.max(.3, Math.min(1, 1.45 - .45 * zoom)), artImages.current, () => frames.invalidate());
 
       measurement?.phase('boundaries');
-      const animating = showFigures && drawConstellations(context, figures, projectFigure, width, height, starVisibility, showFigureNames, {reveal: comparing ? trackers.reveal : reveal.current, now, reducedMotion}, comparing ? trackers.cache : figureCache.current);
-      if (!showFigures) reveal.current.reset();
+      const animating = fade.values.figures > 0 && drawConstellations(context, figures, projectFigure, width, height, starVisibility * fade.values.figures, showFigureNames, {reveal: comparing ? trackers.reveal : reveal.current, now, reducedMotion}, comparing ? trackers.cache : figureCache.current);
+      if (fade.values.figures <= 0) reveal.current.reset();
       measurement?.phase('figures');
 
       if (starVisibility > 0 || belowReveal > 0) {
@@ -257,17 +285,6 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
         }
       }
       measurement?.phase('stars');
-      if (starVisibility > .5 || belowReveal > .5) {
-        context.fillStyle = '#b9d4e8';
-        context.font = '13px system-ui, sans-serif';
-        for (const star of stars) {
-          if (!star.name || star.name === 'Sirius') continue;
-          if (projectedStarVisibility(sun.altitude, star.altitude, belowReveal) <= .5) continue;
-          const point = projectStar(star);
-          if (point && point.x < width - 85 && point.y > 20) context.fillText(star.name, point.x + 6, point.y - 6);
-        }
-      }
-
       context.font = 'bold 12px system-ui, sans-serif';
       context.textAlign = 'center';
       context.fillStyle = '#d5e9f4';
@@ -311,10 +328,10 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       frames.activePerformance.scene = performanceScene;
       if (comparing) frames.comparison.validateScene(performanceScene, sceneKey + `|${finderTarget?.id ?? ''}|${selectedId ?? ''}|${language}`, window.devicePixelRatio || 1);
       frames.performance.sceneChanged();
-      return Boolean(animating);
+      return Boolean(animating) || fade.animating;
     };
     frames.setRenderer(render);
-  }, [projectFigure, frames, size, view, zoom, stars, figures, boundaries, preparedBoundaries, showFigures, showFigureNames, figureMode, showBoundaries, reducedMotion, sun.altitude, milkyWay, milkyBasis, sceneKey, time, timeMode, location, performanceScene, phone.active, showCandidateCollection, comparisonStatus.active, selectedId, finderTarget, language]);
+  }, [projectFigure, frames, size, view, zoom, stars, figures, boundaries, preparedBoundaries, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, artSky, ecliptic, reducedMotion, sun.altitude, milkyWay, milkyBasis, sceneKey, time, timeMode, location, performanceScene, phone.active, showCandidateCollection, comparisonStatus.active, selectedId, finderTarget, language]);
 
   const move = (heading: number, pitch: number) => onViewChange(current => ({heading: wrap(current.heading + heading), pitch: clampViewPitch(current.pitch + pitch)}));
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {

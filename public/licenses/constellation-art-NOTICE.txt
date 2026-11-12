@@ -1,0 +1,20 @@
+Noxari – constellation drawings
+
+Source: Stellarium, "modern" sky culture illustrations
+  https://github.com/Stellarium/stellarium/tree/daace2add6a1bf886e8ee1934f51e9c69f818d18/skycultures/modern
+Authors: Stellarium team (sky culture authors as credited by Stellarium)
+License: Free Art License 1.3 (Licence Art Libre)
+  https://artlibre.org/licence/lal/en/
+  (per skycultures/modern/description.md at the commit above: "Illustrations: Free Art License")
+
+Modifications by Noxari: the 85 original grayscale PNG illustrations were
+resized to 384 px, recolored to a single light-blue tint with transparency
+derived from the original brightness, and saved as WebP
+(public/constellation-art/*.webp). Placement in the sky uses the three anchor
+stars published with each illustration. The modified images are distributed
+under the same Free Art License 1.3. Original file hashes are listed in
+data/stellarium-art/manifest.json; regenerate with
+scripts/prepare_constellation_art.py.
+
+Anchor star coordinates: HYG Database v4.1 (CC BY-SA 4.0),
+https://github.com/astronexus/HYG-Database

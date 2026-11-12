@@ -313,3 +313,60 @@ html,body,#root{width:100%;height:100%;overflow:hidden}
 .preview-actions button,.layer-tiles button,.menu-list>button,.quick-tools button,.wide-action{transition:background-color .15s,border-color .15s,transform .1s}
 .preview-actions button:active,.layer-tiles button:active,.menu-list>button:active,.quick-tools button:active,.wide-action:active{transform:scale(.97)}
 @media(hover:hover){.menu-list>button:hover{background:#1a2f48}.layer-tiles button:hover{border-color:#4d7598}}
+
+/* ===== F-025 step 2: compact object rows ===== */
+.object-list{display:flex;flex-direction:column;border:1px solid #2b4360;border-radius:14px;background:#14243a;overflow:hidden}
+.object-row{position:relative;display:grid;grid-template-columns:1fr auto;align-items:center;border-top:1px solid #22364f}
+.object-row:first-child{border-top:0}
+.object-row .row-main{display:flex;align-items:center;gap:12px;min-width:0;min-height:64px;padding:10px 6px 10px 12px;border:0;background:none;text-align:left;color:inherit}
+@media(hover:hover){.object-row .row-main:hover{background:#1a2f48}}
+.row-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.row-text strong{font-size:16px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row-text small{font-size:13px;color:#98b0c8;line-height:1.35}
+.mini-curve{flex-shrink:0}
+.object-row .save-btn{position:static;margin-right:10px}
+.sheet-body .object-row .save-btn{position:static;top:auto;right:auto}
+.row-extra{grid-column:1/-1;padding:0 14px 12px 64px}
+.row-extra .suggestion-summary{display:flex;flex-direction:column;gap:2px;font-size:13px;color:#b5c9dd}
+.row-extra .suggestion-summary strong{font-size:14px;color:#e3eefb}
+.curve-hint{color:#7f99b4}
+.results-count{margin:10px 2px}
+
+/* Tonight */
+.night-summary.compact{display:flex;gap:14px;align-items:flex-start;padding:14px;border:1px solid #2b4360;border-radius:14px;background:#14243a}
+.night-summary.compact>svg{flex-shrink:0;margin-top:2px;color:#f4ecd6}
+.night-summary.compact>div{display:flex;flex-direction:column;gap:3px}
+.night-summary.compact strong{font-size:17px}
+.night-summary.compact span{font-size:13px;color:#a9c1d8}
+.sheet-body .planning-note.panel-foot{margin-top:12px}
+.sheet-body .ranking-method,.sheet-body .outside-criteria{margin-top:12px}
+.sheet-body .outside-criteria .object-list{margin:4px 0 6px}
+
+/* Moon times in the object card use normal text color */
+.preview-below.moon-times{color:#c1d5e8}
+
+/* ===== F-027 time scrubber ===== */
+.time-scrubber{position:absolute;z-index:8;left:10px;right:10px;bottom:calc(92px + env(safe-area-inset-bottom));padding:10px 12px 12px;border:1px solid #4d7598;border-radius:18px;background:#0b2033f0;backdrop-filter:blur(10px);animation:card-in .24s cubic-bezier(.2,.8,.2,1)}
+.scrub-head{display:flex;align-items:center;gap:10px}
+.scrub-head strong{font-size:16px}
+.scrub-head span{flex:1;font-size:13px;color:#a9c1d8}
+.scrub-done{min-height:40px;padding:0 14px;border:0;border-radius:10px;background:#86cbef;color:#071728;font-weight:700}
+.scrub-row{display:flex;align-items:center;gap:6px;margin-top:8px}
+.scrub-row button{display:flex;align-items:center;gap:3px;min-width:44px;min-height:44px;padding:0 8px;border:1px solid #35506c;border-radius:10px;background:#1a2d45;font-size:13px;font-weight:600;color:#dcebf8;justify-content:center}
+.scrub-row input[type=range]{flex:1;min-width:60px;accent-color:#86cbef;height:44px}
+@media(min-width:761px) and (min-height:501px){.time-scrubber{left:calc(50% - 260px);right:auto;width:520px;bottom:calc(98px + env(safe-area-inset-bottom))}}
+@media(orientation:landscape) and (max-height:500px){.time-scrubber{left:auto;right:12px;width:min(420px,calc(100% - 120px));bottom:12px}}
+@media(prefers-reduced-motion:reduce){.time-scrubber{animation:none}}
+
+/* ===== F-034 introduction ===== */
+.intro-backdrop{position:absolute;inset:0;z-index:40;display:grid;place-items:center;padding:16px;background:#02091499}
+.intro-card{width:min(440px,100%);max-height:calc(100% - 32px);overflow:auto;padding:22px 20px 18px;border:1px solid #3a5470;border-radius:22px;background:#0f1d30f8;box-shadow:0 20px 60px #000a;animation:card-in .3s cubic-bezier(.2,.8,.2,1)}
+.intro-card h1{font-size:22px;margin:0}
+.intro-lead{margin:6px 0 14px;color:#a9c1d8;font-size:15px}
+.intro-card ul{list-style:none;margin:0 0 16px;padding:0;display:flex;flex-direction:column;gap:12px}
+.intro-card li{display:flex;gap:12px;align-items:flex-start}
+.intro-icon{display:grid;place-items:center;width:40px;height:40px;flex-shrink:0;border-radius:11px;background:#163150;color:#9fd6f5}
+.intro-card li strong{display:block;font-size:15px}
+.intro-card li small{display:block;font-size:13px;color:#a9c1d8;line-height:1.45;margin-top:2px}
+@media(prefers-reduced-motion:reduce){.intro-card{animation:none}}
+.sky-app.red-mode .intro-backdrop{z-index:40}
