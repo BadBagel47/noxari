@@ -1,5 +1,7 @@
 ## F-056 + F-057 + demo-uppföljning + B-012 (2026-11-12, Opus)
 
+**Publicering:** appcommit `75a47f7fa04e`, Actions lyckades; live-sidan serverar färgtexturen (1 281 302 byte).
+
 Användaren gav ”Kör” för ”Himlen steg 3” och Vintergatan i färg; jämförelsebilder mot användarens Stellarium-skärmbild (Uppsala, 12 nov 18:41, mot NO) togs före och efter varje steg.
 - **Bakgrund:** natthimlen nästan svart och neutral (#020409 → #0a111c), svagare neutral horisontdis; skymning/dag oförändrade. Marken mörkare.
 - **Stjärnor:** ny `stellarBrightness` (full styrka till V 2, 0,75 vid V 4, 0,45 vid V 5, 0,08 vid V 6,5; monoton), radiesteg upp till V 4 = 1,5 px, gloria till V 4 med starkare kärna för de ljusaste.
