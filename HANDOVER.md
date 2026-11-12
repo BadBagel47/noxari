@@ -1,3 +1,7 @@
+## F-041 stiltest — egna stjärnbildsteckningar (2026-11-12)
+
+Användaren gav ”Kör” för stiltestet (Opus). Fyra egna figurer (Orion, Stora björnen, Cassiopeja, Svanen) är ritade runt de riktiga stjärnpositionerna i två stilar: A fin linjekonst (guldton) och B mjuk silhuett (blå, svag fyllning och glöd). Endast skiss i `docs/design/constellation-art/`, ingen appkod ändrad. Väntar på användarens stilval; fortsatt arbete (fler figurer, eget lager i himlen, prestandakontroll) kräver nytt ”Kör”. F-025 steg 2 inväntar fortfarande ”Kör”.
+
 ## F-025 steg 1 + F-024 + F-038 + delar av F-037 — genomfört (2026-11-12)
 
 Användaren gav ”Kör” (rekommenderad modell Opus). Genomfört:
