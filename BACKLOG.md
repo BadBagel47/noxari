@@ -2,7 +2,9 @@
 
 ## F-023 — egen domän, publicerad
 
-- [ ] Slå på **Enforce HTTPS** i GitHub repo Settings → Pages och verifiera därefter att HTTP-adressen styr om till HTTPS.
+- [x] Slå på **Enforce HTTPS** i GitHub repo Settings → Pages och verifiera därefter att HTTP-adressen styr om till HTTPS.
+
+**Uppdatering 2026-11-12:** Användaren har slagit på Enforce HTTPS. Verifierat: `http://noxari.trythis.one/` ger 301 till `https://noxari.trythis.one/`, som svarar 200. Gamla `badbagel47.github.io`-adressen kunde inte kontrolleras från exekveringsmiljön (blockerad värd). F-023 klar.
 
 Cloudflare DNS CNAME är `noxari.trythis.one` → `badbagel47.github.io`. GitHub Pages custom domain och Actions repo variables är nu konfigurerade; behåll GitHub Pages som host. Actions bygger appen/labbet på rotbasen via `NOXARI_BASE_PATH=/` och `NOXARI_SITE_ORIGIN=https://noxari.trythis.one`. App, objektbilder, 256 EN/SV-preview-sidor, legacy `?object=`/`?list=`-flöden och GPU-labb använder samma domän. Publicerad commit `e7f160f7ba3ea659ff4ed4c170d0aee16e4bd6b9`, Actions run `42556072397` lyckades med tester och deploy. Nya domänens huvud-/labb-HTML, JS/CSS och M42 EN/SV previewer matchar rent lokalt rotbygge byte för byte; M42-bilden och alla kontrollerade URL:er svarar 200.
 
@@ -188,7 +190,7 @@ Användaren har **pausat B-001** och vill prioritera att färdigställa övrig f
 | **F-021** | Automatisk kvällsförhandsvisning under tester | **Klar — tillfällig teststandard** | Startar med befintlig mörkaste-lokala-natt-förhandsvisning som tillfällig teststandard. Behåll tydlig Kvällshimmel-märkning, Nu, säsong/polardag och manuella observationer. Ingen automatisk GPS/följning. Ändrar tidigare standard Nu/ingen automatisk förhandsvisning under testperioden. |
 | **F-022** | Svep tar över från telefonföljning | **Klar — gester/köprov verifierade** | Vid faktiskt enfingersdrag över 8 px, stoppa följning, avbryt köad sensorpublicering och använd samma svep direkt från senaste vy. Tapp/markörval och panel/sökning stoppar inte; pinch behåller följning. Testa både gester och samtidig sensor-/RAF-kö så första manuella rörelsen inte tappas eller skrivs över. Ändrar tidigare Stoppa-först-policy för svep. |
 
-| **F-023** | Publicering på noxari.trythis.one | **Publicerad — HTTPS-tvingning återstår** | Rotbygget ligger live på nya domänen; CI och bytejämförelse för huvudapp/labb/delningar passerade. `Enforce HTTPS` är ännu avstängd i Pages och gammal adress redirectar till HTTP. Användaren behöver aktivera HTTPS-tvingning och meddela oss för slutverifiering. Exportera/importera sparad objektlista före origin-byte. |
+| **F-023** | Publicering på noxari.trythis.one | **Klar — HTTPS tvingas (2026-11-12)** | Rotbygget ligger live på nya domänen; CI och bytejämförelse för huvudapp/labb/delningar passerade. `Enforce HTTPS` är ännu avstängd i Pages och gammal adress redirectar till HTTP. Användaren behöver aktivera HTTPS-tvingning och meddela oss för slutverifiering. Exportera/importera sparad objektlista före origin-byte. |
 
 ## Genomförda delar
 

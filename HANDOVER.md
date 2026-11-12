@@ -1,4 +1,6 @@
-## F-023 — egen domän, publicerad; HTTPS-tvingning kvar
+## F-023 — egen domän, publicerad med HTTPS-tvingning
+
+**Uppdatering 2026-11-12:** Användaren har slagit på Enforce HTTPS. Verifierat: `http://noxari.trythis.one/` ger 301 till `https://noxari.trythis.one/`, som svarar 200. Gamla `badbagel47.github.io`-adressen kunde inte kontrolleras från exekveringsmiljön (blockerad värd). F-023 klar.
 
 Användaren godkände aktivering med ”Kör”. Luna 6 High rekommenderades. Cloudflare CNAME pekar `noxari.trythis.one` → `badbagel47.github.io`. Användaren sparade GitHub Pages custom domain och Actions repo variables `NOXARI_BASE_PATH=/`, `NOXARI_SITE_ORIGIN=https://noxari.trythis.one`. Publicerad commit `e7f160f7ba3ea659ff4ed4c170d0aee16e4bd6b9`; [Actions run 42556072397](https://github.com/BadBagel47/noxari/actions/runs/42556072397) passerade tests/build/deploy.
 
