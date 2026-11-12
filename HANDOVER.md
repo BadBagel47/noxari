@@ -11,6 +11,8 @@ Genomfört (publicering och verifiering nedan):
 - **F-039 (del):** horisontförankrad nattgradient, skymningssken mot solen, bloom kring de ljusaste namngivna stjärnorna (färg efter spektralklass), månen med beräknad fas och riktning mot solen, starkare planetglöd, mörkare mark, Vintergatan dämpas där teckningar syns. Kvar: färg för alla stjärnor (stjärnurvalet saknar färgdata), planetskivor, horisontdis, textnivåer.
 - **F-040 Vintergatan:** ESO/S. Brunier-panoramat (CC BY 4.0) med stjärnorna bortfiltrerade, omprojicerat till J2000 (1440×720). Kredit i Om & källor och `public/licenses/milky-way-NOTICE.txt`; gamla konturrutnätet levereras inte längre.
 
+**Publicering:** appcommit `0392809fee9829c5d714cb1e0da5f3250ab2aa7a`, Actions 43164958760 lyckades (207 tester, bygge, ISS-element hämtade); live-sidan serverar servicearbetare, manifest, ikoner, `data/iss-tle.json` och Vintergatans licensnotis (HTTP 200).
+
 Miljö: en ny molnmiljö ”noxari” skapades (användaren godkände) med åtkomst till ESO, Open-Meteo och CelesTrak.
 
 Verifiering: 207 enhetstester, produktionsbygge, 15/15 funktionsflöden, etiketter 6/6, start/fokus 13/13, testinställningar 8/8 (testet skickar nu sensordata löpande under justering, som en riktig telefon; felet fanns även i förra versionen och berodde på att en enda händelse blev äldre än 500 ms i långsam bred testrendering — ingen appändring). Offline-omladdning kontrollerad i Chromium. Mätning (Canvas, 390×844 @2x, skriptat svep): median 18,1 ms/p95 25,3 ms med teckningar, 16,7/19,5 utan — i nivå med förra körningen. Ingen fysisk mobilkontroll. B-001/B-004 pausade, B-007 observeras. Ingen ny körning godkänd.
