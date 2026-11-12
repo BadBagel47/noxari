@@ -4,6 +4,8 @@ Användaren gav ”Kör”. Lager → ”Vad som syns på himlen”: **Blotta ö
 
 Kikarstjärnor: 52 894 HYG-stjärnor V 6,5–8,5 (`public/stars/binocular-v1.bin`, 264 kB, laddas först vid Kikare/Hela katalogen, inte förcachade men sparas offline efter första användning). Gräns V 7,0 vid 1× som stiger till 8,5 vid 2×, med intoning; samma resultat i GPU- och Canvas-vägen. Bara i Se dig omkring (stjärnkartan oförändrad). Ny zoom med mushjul/styrplatta och +/− (samma 1×–3×), så att datoranvändare når de svaga stjärnorna.
 
+**Publicering:** appcommit `38c2b63d7e55bbde407ad7da9dce688c2368027c`, Actions 43209472509 lyckades; live-sidan serverar stjärnfilen (264 478 byte) och ny servicearbetare.
+
 Verifiering: 214 enhetstester (nya: nivåer, grupper, stjärnfil, rotation mot katalogtransform, projektion, GPU-packning), fullt bygge, 15/15 funktionsflöden, etiketter 6/6, start/fokus, testinställningar 8/8. Skärmbilder: panel i tre nivåer, himmel med/utan kikarstjärnor i båda ritvägar. Mätning (Canvas/mjukvara, 390×844 @2x, skriptat svep): Blotta ögat 1× median 18,7 ms, Kikare 1× 21,3 ms; inzoomat 16,8 resp. 16,9 ms. Ingen fysisk mobilkontroll. B-001/B-004 pausade, B-007 observeras. F-042 (ISS-hämtning) inte startgodkänd.
 
 ## F-043 registrerad (2026-11-12)
