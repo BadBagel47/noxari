@@ -1,5 +1,6 @@
 import {AngleFromSun, AstroTime, Body, Constellation, Equator, EquatorFromVector, GeoVector, HelioVector, Horizon, Illumination, Observer, RotateVector, Rotation_ECL_EQJ, SearchRiseSet, Vector} from 'astronomy-engine';
 import {issState} from './iss';
+import {satelliteState} from './satellites';
 import {DateTime} from 'luxon';
 import type {SpaceObject} from './data';
 import {brightStars} from './generated/brightStars';
@@ -79,7 +80,7 @@ export function objectPositioner(time: Date, location: ObservingLocation) {
   const project = catalogHorizontalTransform(time, location);
   return (object: SpaceObject): SkyPosition | null => {
     if (!object.position) return null;
-    if (object.position.kind === 'satellite') return issState(time, location);
+    if (object.position.kind === 'satellite') return object.position.norad ? satelliteState(object.position.norad, time, location) : issState(time, location);
     if (object.position.kind === 'solar') return positionAt(Body[object.position.body], time, location);
     if (object.position.kind === 'keplerian') {
       const equatorial = keplerianState(object, time)?.equatorial;

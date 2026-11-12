@@ -3,6 +3,8 @@ import {SkyMarkerPoint} from './KindIcon';
 import {ConstellationArtImages, constellationArtSky, drawConstellationArt} from './constellationArt';
 import {constellationArt} from './generated/constellationArt';
 import {eclipticSky} from './ecliptic';
+import {satelliteCount, satelliteSky} from './satellites';
+import {drawObjectPath, movesAmongStars, nightKey, nightPath, starPathSamples, starPathSky} from './objectPath';
 import {namedStarObjects, namedStarShown} from './namedStars';
 import {issObject} from './issObject';
 import {useEffect, useMemo, useRef, useState, type PointerEvent} from 'react';
@@ -42,10 +44,14 @@ type Props = {
   skyGroups: SkyGroups;
   extraObjects?: SpaceObject[];
   milkyWay: MilkyWayTexture | null;
+  /** F-053: object whose track across the sky is drawn. */
+  pathObject?: SpaceObject | null;
+  showSatellites?: boolean;
+  satellitesKey?: number;
 };
 
 const noObjects: SpaceObject[] = [];
-export function SkyMap({selectedId, time, location, label, language, sunLabel, onSelect, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, dynamicKey, skyLevel, skyGroups, milkyWay, extraObjects = noObjects}: Props) {
+export function SkyMap({selectedId, time, location, label, language, sunLabel, onSelect, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, dynamicKey, skyLevel, skyGroups, milkyWay, extraObjects = noObjects, pathObject = null, showSatellites = false, satellitesKey = 0}: Props) {
   const container = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const reveal = useRef(new ConstellationReveal());
@@ -71,6 +77,14 @@ export function SkyMap({selectedId, time, location, label, language, sunLabel, o
   const boundaries = useMemo(() => showBoundaries ? boundarySky(time, location) : [], [showBoundaries, time, location]);
   const artSky = useMemo(() => showArt ? constellationArtSky(time, location, figureMode) : [], [showArt, time, location, figureMode]);
   const ecliptic = useMemo(() => showEcliptic ? eclipticSky(time, location) : [], [showEcliptic, time, location]);
+  const pathNightKey = nightKey(time);
+  const pathNight = useMemo(() => pathObject ? nightPath(pathObject, time, location) : null, [pathObject, pathNightKey, location]);
+  const pathStarKey = Math.floor(time.getTime() / (pathObject?.id === 'moon' ? 3_600_000 : 21_600_000));
+  const pathSamples = useMemo(() => movesAmongStars(pathObject) ? starPathSamples(pathObject!, time, location, language) : null, [pathObject, pathStarKey, location, language]);
+  const pathStars = useMemo(() => starPathSky(pathSamples, time, location), [pathSamples, time, location]);
+  const objectTrack = useMemo(() => pathNight ? {...pathNight, ...pathStars} : null, [pathNight, pathStars]);
+  // F-055: the map shows satellites at the shown time (the sky view animates them live).
+  const satellites = useMemo(() => showSatellites && satellitesKey > 0 && satelliteCount() && sun.altitude < -6 ? satelliteSky(time, location).filter(item => item.sunlit) : [], [showSatellites, satellitesKey, sun.altitude, time, location]);
   useEffect(() => { if (showArt) artImages.current.preload(constellationArt.map(art => art.id), () => setArtLoaded(count => count + 1)); }, [showArt]);
   const stars = useMemo(() => catalog.flatMap(star => {
     const point = projectHorizontal(star, size.width, size.height, zoom);
@@ -208,6 +222,20 @@ export function SkyMap({selectedId, time, location, label, language, sunLabel, o
         context.stroke();
         context.restore();
       }
+      if (satellites.length) {
+        context.save();
+        context.fillStyle = '#f2f6fb';
+        context.globalAlpha = .85;
+        for (const satellite of satellites) {
+          const point = projectHorizontal(satellite, width, height, zoom);
+          if (!point) continue;
+          context.beginPath();
+          context.arc(point.x, point.y, 1.6, 0, Math.PI * 2);
+          context.fill();
+        }
+        context.restore();
+      }
+      if (objectTrack) drawObjectPath(context, objectTrack, position => projectHorizontal(position, width, height, zoom), width, Math.max(.75, starVisibility));
       if (showBoundaries) drawBoundaries(context, boundaries, position => projectHorizontal(position, width, height, zoom), width, height, starVisibility);
       // Below-horizon mesh nodes still project (outside the circle) so cells are not dropped; the horizon circle clips them.
       if (showArt) { context.save(); context.beginPath(); context.arc(width / 2, height / 2, Math.min(width, height) * .44 * zoom, 0, Math.PI * 2); context.clip(); }
@@ -233,7 +261,7 @@ export function SkyMap({selectedId, time, location, label, language, sunLabel, o
     };
     render();
     return () => cancelAnimationFrame(frame);
-  }, [projectFigure, projectArtNode, size, zoom, stars, figures, boundaries, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, artSky, ecliptic, artLoaded, reducedMotion, sun.altitude, milkyWay, time, location]);
+  }, [projectFigure, projectArtNode, size, zoom, stars, figures, boundaries, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, artSky, ecliptic, artLoaded, reducedMotion, sun.altitude, milkyWay, time, location, objectTrack, satellites]);
 
   return <div className="sky-canvas sky-map" ref={container} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={finishPointer} onPointerCancel={finishPointer} onLostPointerCapture={finishPointer} onClickCapture={event => { if (suppressClick.current && event.detail !== 0) { event.preventDefault(); event.stopPropagation(); } }}>
     <canvas ref={canvas} aria-label={language === 'sv' ? 'Beräknad zenitcentrerad himmel med egenrörelse och valbara stjärnbildsfigurer och IAU-gränser; horisonten är den yttre cirkeln. Nyp för att zooma.' : 'Calculated zenith-centered sky with proper motion and optional constellation figures and IAU boundaries; horizon is the outer circle. Pinch to zoom.'} role="img"/>

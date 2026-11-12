@@ -3,9 +3,11 @@ import {SkyMarkerPoint} from './KindIcon';
 import {ConstellationArtImages, constellationArtSky, drawConstellationArt} from './constellationArt';
 import {constellationArt} from './generated/constellationArt';
 import {eclipticSky} from './ecliptic';
+import {drawObjectPath, movesAmongStars, nightKey, nightPath, starPathSamples, starPathSky} from './objectPath';
 import {LayerFades} from './layerFade';
 import {namedStarObjects, namedStarShown} from './namedStars';
 import {issObject} from './issObject';
+import {satelliteCount, satelliteObject, satelliteSky, type SatelliteSky} from './satellites';
 
 import {MotionResolution} from './motionResolution';
 import {useSkyFrameState} from './useSkyFrames';
@@ -73,13 +75,18 @@ type Props = {
   zoomControl?: {current: Dispatch<SetStateAction<number>> | null};
   /** F-050: a tapped catalogue star (not in the fixed object lists) shown as the selected marker. */
   extraObjects?: SpaceObject[];
+  /** F-053: object whose track across the sky is drawn (selected object, when the layer is on). */
+  pathObject?: SpaceObject | null;
+  /** F-055: moving satellite dots (version changes when new elements arrive). */
+  showSatellites?: boolean;
+  satellitesKey?: number;
 };
 
 const noObjects: SpaceObject[] = [];
 const wrap = (degrees: number) => (degrees % 360 + 360) % 360;
 const cardinal = (heading: number, language: 'en' | 'sv') => (language === 'sv' ? ['N', 'NO', 'Ö', 'SO', 'S', 'SV', 'V', 'NV'] : ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'])[Math.round(wrap(heading) / 45) % 8];
 
-export function HorizonView({frames, selectedId, time, timeMode, location, label, sunLabel, onSelect, language, view, onViewChange, onDragViewChange, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showMilkyWay, showLandscape = true, dynamicKey, onSelectConstellation, skyLevel, skyGroups, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails, zoomControl, extraObjects = noObjects}: Props) {
+export function HorizonView({frames, selectedId, time, timeMode, location, label, sunLabel, onSelect, language, view, onViewChange, onDragViewChange, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showMilkyWay, showLandscape = true, dynamicKey, onSelectConstellation, skyLevel, skyGroups, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails, zoomControl, extraObjects = noObjects, pathObject = null, showSatellites = false, satellitesKey = 0}: Props) {
   const comparisonStatus = useSyncExternalStore(frames.comparison.subscribe, frames.comparison.getSnapshot);
   const [comparisonTrackers] = useState(() => ({current: {pass: -1, reveal: new ConstellationReveal(), cache: new ConstellationDrawingCache(), resolution: new MotionResolution()}}));
   const root = useRef<HTMLDivElement>(null);
@@ -132,8 +139,30 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
   const boundaries = useMemo(() => shown.current.boundaries ? boundarySky(time, location) : [], [showBoundaries, time, location]);
   const artSky = useMemo(() => shown.current.art ? constellationArtSky(time, location, figureMode) : [], [showArt, time, location, figureMode]);
   const ecliptic = useMemo(() => shown.current.ecliptic ? eclipticSky(time, location) : [], [showEcliptic, time, location]);
+  // F-053: tonight's track per half hour of shown time; motion among stars per 6 h (Moon: per hour).
+  const pathNightKey = nightKey(time);
+  const pathNight = useMemo(() => pathObject ? nightPath(pathObject, time, location) : null, [pathObject, pathNightKey, location]);
+  const pathStarKey = Math.floor(time.getTime() / (pathObject?.id === 'moon' ? 3_600_000 : 21_600_000));
+  const pathSamples = useMemo(() => movesAmongStars(pathObject) ? starPathSamples(pathObject!, time, location, language) : null, [pathObject, pathStarKey, location, language]);
+  const pathStars = useMemo(() => starPathSky(pathSamples, time, location), [pathSamples, time, location]);
+  const objectTrack = useMemo(() => pathNight ? {...pathNight, ...pathStars} : null, [pathNight, pathStars]);
   const preparedBoundaries = useMemo(() => boundaries.map(arc => prepareHorizontalDirections(arc)), [boundaries]);
   const sun = useMemo(() => positionAt(Body.Sun, time, location), [time, location]);
+  // F-055: satellites move about 1°/s, so in live mode they use the wall clock, cached per 200 ms
+  // (shared by drawing and tap picking). A plain timer asks the shared scheduler for frames; no extra RAF.
+  const satelliteCache = useRef<{key: string; list: SatelliteSky[]}>({key: '', list: []});
+  const satellitesShown = showSatellites && satellitesKey > 0 && satelliteCount() > 0 && sun.altitude < -6 && !comparisonStatus.active;
+  const satellitesNow = () => {
+    const at = timeMode === 'live' ? Date.now() : time.getTime();
+    const key = `${Math.floor(at / 200)}|${location.latitude}|${location.longitude}|${satellitesKey}`;
+    if (satelliteCache.current.key !== key) satelliteCache.current = {key, list: satelliteSky(new Date(at), location)};
+    return satelliteCache.current.list;
+  };
+  useEffect(() => {
+    if (!satellitesShown || timeMode !== 'live') return;
+    const timer = window.setInterval(() => frames.invalidate(), reducedMotion ? 1000 : 250);
+    return () => window.clearInterval(timer);
+  }, [satellitesShown, timeMode, frames, reducedMotion]);
   const targetPosition = useMemo(() => finderTarget ? objectPosition(finderTarget, time, location) : null, [finderTarget, time, location]);
   const nextRise = useMemo(() => finderTarget && targetPosition && targetPosition.altitude < 0 ? nextObjectRise(finderTarget, time, location) : null, [finderTarget, targetPosition, time, location]);
   const objectSky = useMemo(() => {
@@ -405,6 +434,33 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
         }
         context.restore();
       }
+      if (satellitesShown) {
+        context.save();
+        context.font = '600 11px system-ui, sans-serif';
+        context.textAlign = 'left';
+        for (const satellite of satellitesNow()) {
+          const selectedSatellite = selectedId === `sat-${satellite.norad}`;
+          if (!satellite.sunlit && !selectedSatellite) continue;
+          const point = projectStar({...satellite, ...prepareHorizontalDirection(satellite)});
+          if (!point) continue;
+          context.globalAlpha = (satellite.sunlit ? .92 : .35) * Math.max(.4, starVisibility);
+          context.fillStyle = '#f2f6fb';
+          context.beginPath();
+          context.arc(point.x, point.y, 1.8, 0, Math.PI * 2);
+          context.fill();
+          if (selectedSatellite) {
+            context.strokeStyle = '#9fd3ff';
+            context.lineWidth = 1.5;
+            context.beginPath();
+            context.arc(point.x, point.y, 9, 0, Math.PI * 2);
+            context.stroke();
+            context.fillStyle = '#d9ecff';
+            context.fillText(satellite.name, point.x + 13, point.y + 4);
+          }
+        }
+        context.restore();
+      }
+      if (objectTrack) drawObjectPath(context, objectTrack, projectStar, width, Math.max(.75, starVisibility, belowReveal));
       measurement?.phase('stars');
       // F-057: decorative silhouette (hills and trees) standing on the horizon; fades away when looking down.
       if (showLandscape && horizonY > -height && horizonY < height * 1.6) {
@@ -468,7 +524,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       return Boolean(animating) || fade.animating || Boolean(artFading);
     };
     frames.setRenderer(render);
-  }, [projectFigure, projectArt, frames, size, view, zoom, stars, figures, boundaries, preparedBoundaries, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showMilkyWay, artSky, ecliptic, reducedMotion, sun.altitude, milkyWay, milkyBasis, sceneKey, time, timeMode, location, performanceScene, phone.active, showLandscape, skyLevel, skyGroups, faint, magnitudeLimit, comparisonStatus.active, selectedId, finderTarget, language]);
+  }, [projectFigure, projectArt, frames, size, view, zoom, stars, figures, boundaries, preparedBoundaries, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showMilkyWay, artSky, ecliptic, reducedMotion, sun.altitude, milkyWay, milkyBasis, sceneKey, time, timeMode, location, performanceScene, phone.active, showLandscape, skyLevel, skyGroups, faint, magnitudeLimit, comparisonStatus.active, selectedId, finderTarget, language, objectTrack, satellitesShown]);
 
   const move = (heading: number, pitch: number) => onViewChange(current => ({heading: wrap(current.heading + heading), pitch: clampViewPitch(current.pitch + pitch)}));
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
@@ -547,6 +603,14 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
           if (star.index === undefined || star.magnitude > tapLimit || (star.altitude < 0 && belowReveal <= 0)) continue;
           const point = projectTap(star);
           if (point) candidates.push({x: point.x, y: point.y, weight: starWeight(star.magnitude), key: `star-${star.index}`, index: star.index});
+        }
+      }
+      if (satellitesShown) {
+        const projectTap = createPerspectiveProjector(view, size.width, size.height, true, belowReveal > 0, zoom);
+        for (const satellite of satellitesNow()) {
+          if (!satellite.sunlit) continue;
+          const point = projectTap(satellite);
+          if (point) candidates.push({x: point.x, y: point.y, weight: 3, key: `sat-${satellite.norad}`, object: satelliteObject(satellite.norad, satellite.name)});
         }
       }
       const best = pickBest(candidates, x, y, pickRadius(event.pointerType, zoom));

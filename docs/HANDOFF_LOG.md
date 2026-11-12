@@ -2,6 +2,11 @@
 
 Tidigare `HANDOVER.md`, flyttad oförändrad vid anpassningen till agentregler v1.4 (2026-11-12). Aktuellt läge, beslut och nästa steg: [../HANDOFF.md](../HANDOFF.md). Sektionen ”Pending adaptation” nedan är genomförd.
 
+## Fortsatt logg efter v1.4-anpassningen
+
+- 2026-11-12 — F-046 + F-047 + F-048 (från HANDOFF.md): demoläge steg 2, telefonriktning under felsökning, 123 objektfoton.
+- 2026-11-12 — Körning ”A, B och D” (Opus): F-054 sökfält överst (`src/TopSearch.tsx`, `rankSearch`), F-052 kompakt kort + Wikipedia (`src/WikiSummary.tsx`, `src/wikiSummaryCore.ts`), F-053 objektets bana (`src/objectPath.ts`, ritas i HorizonView och SkyMap), F-055 satelliter (`src/satellites.ts`, `satrecState` i `src/iss.ts`, byggkopia `dist/data/visual-tle.json` från `scripts/fetch_iss_tle.mjs`). Bevis: 245 Vitest-tester (nya: wikiSummary, objectPath, satellites, topSearch); `verify_functional_flows` 15/15, `verify_test_defaults`, `verify_horizon_gpu` (förväntad startvinkel uppdaterad till F-057:s .76), `verify_label_stability`, `verify_startup_focus`, `verify_surface_comparison` passerar. `verify_performance_report`, `verify_gpu_resources`, `verify_gpu_prototype` faller även på koden före körningen (B-014). Wikipedia: engelska vägen verifierad i webbläsaren; sv.wikipedia.org spärras av testmiljöns proxy, svensk väg och reserv täcks av enhetstester. Satelliter: rörelse i läget Nu och tryck-val (t.ex. SL-16 R/B) verifierade med simulerad klocka 15:55 UTC; vid 21 lokal tid ligger nästan alla i jordskugga och visas därför inte (avsiktligt). Mjukvarurenderare — inga mobilmätningar.
+
 ## Agentregler och inventering
 
 - **Agentregler:** v1.4 inlästa 2026-11-12. Repot hade inte följt agentreglerna tidigare; anpassning pågår (se ”Pending adaptation”).

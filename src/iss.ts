@@ -27,20 +27,27 @@ export function issElementAgeDays(time: Date) {
   return (time.getTime() - epochMs) / 86_400_000;
 }
 
-/** Topocentric altitude/azimuth (degrees) and whether the station is in sunlight. */
-export function issState(time: Date, location: ObservingLocation): (SkyPosition & {sunlit: boolean}) | null {
-  if (!satrec) return null;
-  const pv = propagate(satrec, time);
-  const position = pv.position;
+/** Topocentric altitude/azimuth (degrees) and whether the satellite is in sunlight (cylindrical Earth shadow). */
+export function satrecState(record: SatRec, time: Date, location: ObservingLocation, sunDirection = sunUnit(time)): (SkyPosition & {sunlit: boolean}) | null {
+  const pv = propagate(record, time);
+  const position = pv?.position;
   if (!position || typeof position === 'boolean') return null;
   const observerGd = {longitude: location.longitude * Math.PI / 180, latitude: location.latitude * Math.PI / 180, height: 0};
   const look = ecfToLookAngles(observerGd, eciToEcf(position, gstime(time)));
-  const sun = GeoVector(Body.Sun, time, true);
-  const length = Math.hypot(sun.x, sun.y, sun.z);
-  const s = [sun.x / length, sun.y / length, sun.z / length];
+  const s = sunDirection;
   const dot = position.x * s[0] + position.y * s[1] + position.z * s[2];
   const perpendicular = Math.hypot(position.x - dot * s[0], position.y - dot * s[1], position.z - dot * s[2]);
   return {altitude: look.elevation * 180 / Math.PI, azimuth: ((look.azimuth * 180 / Math.PI) % 360 + 360) % 360, sunlit: dot > 0 || perpendicular > EARTH_RADIUS_KM};
+}
+
+export function sunUnit(time: Date): [number, number, number] {
+  const sun = GeoVector(Body.Sun, time, true);
+  const length = Math.hypot(sun.x, sun.y, sun.z);
+  return [sun.x / length, sun.y / length, sun.z / length];
+}
+
+export function issState(time: Date, location: ObservingLocation): (SkyPosition & {sunlit: boolean}) | null {
+  return satrec ? satrecState(satrec, time, location) : null;
 }
 
 /** Sub-satellite point, for tests and diagnostics. */

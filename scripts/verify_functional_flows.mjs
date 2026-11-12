@@ -18,7 +18,7 @@ async function close(p){if(await p.getByRole('button',{name:'Close panel',exact:
 async function more(p,name){await close(p);await p.getByRole('button',{name:'More',exact:true}).click();await p.getByRole('button',{name,exact:true}).click();assert.equal(await p.getByRole('dialog').count(),1);}
 async function layers(p){await close(p);await p.getByRole('button',{name:'Layers',exact:true}).click();assert.equal(await p.getByRole('dialog').count(),1);}
 async function advanced(p){if(!(await p.locator('details.advanced-location').evaluate(d=>d.open)))await p.locator('details.advanced-location summary').click();}
-async function search(p,query){await close(p);await p.getByRole('button',{name:'Search',exact:true}).click();await p.getByRole('button',{name:'Main catalog',exact:true}).click();await p.getByRole('button',{name:'All objects',exact:true}).click();await p.getByRole('textbox').fill(query);}
+async function search(p,query){await close(p);await p.getByRole('button',{name:'All results and filters',exact:true}).click();await p.getByRole('button',{name:'Main catalog',exact:true}).click();await p.getByRole('button',{name:'All objects',exact:true}).click();await p.getByRole('textbox').fill(query);}
 async function pick(p,query){await search(p,query);assert.equal(await p.locator('.row-main').count(),1);await p.locator('.row-main').click();}
 async function wait(){await new Promise(r=>setTimeout(r,60));}
 async function pinch(p,selector){const box=await p.locator(selector).boundingBox(),client=await p.context().newCDPSession(p),y=box.y+box.height*.55,cx=box.x+box.width*.5;
@@ -36,7 +36,7 @@ try {
    await p.getByRole('button',{name:'Other objects (1)',exact:true}).click();assert.equal(await p.locator('.row-main').count(),1);assert.match(await p.getByRole('dialog').innerText(),/2026 ED138/);
    await p.getByRole('button',{name:'Main catalog',exact:true}).click();await p.getByRole('button',{name:'All objects',exact:true}).click();await p.getByRole('textbox').fill('zzzz-no-such-object');assert.equal(await p.locator('.row-main').count(),0);
    await p.keyboard.press('Escape');assert.equal(await p.getByRole('dialog').count(),0);assert.ok(await p.evaluate(()=>!document.activeElement.closest('[inert]')));
-   await pick(p,'M31');assert.match(await p.locator('.object-preview').innerText(),/Andromeda/);await p.getByRole('button',{name:'Details',exact:true}).click();
+   await pick(p,'M31');assert.match(await p.locator('.object-preview').innerText(),/Andromeda/);await p.getByRole('button',{name:'More about the object',exact:true}).click();
    assert.match(await p.getByRole('dialog').innerText(),/Andromeda/);await p.locator('.object-photo img').scrollIntoViewIfNeeded();await p.waitForFunction(()=>document.querySelector('.object-photo img')?.naturalWidth>0);assert.equal(await p.locator('.object-photo img').evaluate(img=>img.complete&&img.naturalWidth>0),true);
    const links=await p.locator('.object-photo a').evaluateAll(els=>els.map(e=>e.href));assert.equal(links.length,2);
    await p.keyboard.press('Tab');assert.ok(await p.evaluate(()=>Boolean(document.activeElement.closest('[role=dialog]'))));
@@ -44,7 +44,7 @@ try {
   });
   await check('bookmark reload and object/list share round trip',viewport,async p=>{
    await pick(p,'M31');await p.getByRole('button',{name:'Save object',exact:true}).click();assert.equal(await p.getByRole('button',{name:'Remove bookmark',exact:true}).getAttribute('aria-pressed'),'true');
-   await p.getByRole('button',{name:'Details',exact:true}).click();await p.getByRole('dialog').getByRole('button',{name:'Share object',exact:true}).click();
+   await p.getByRole('button',{name:'More about the object',exact:true}).click();await p.getByRole('dialog').getByRole('button',{name:'Share object',exact:true}).click();
    let url=await p.evaluate(()=>window.__shares.at(-1).url);assert.match(url,/\/noxari\/share\/en\/m31\/$/);
    const response=await p.request.get(url);assert.equal(response.status(),200);const html=await response.text();assert.match(html,/og:title/);assert.match(html,/object=m31/);
    await p.evaluate(()=>Object.defineProperty(navigator,'share',{configurable:true,value:undefined}));await p.getByRole('dialog').getByRole('button',{name:'Share object',exact:true}).click();assert.equal(await p.evaluate(()=>window.__clipboard.at(-1)),url);
@@ -85,8 +85,8 @@ try {
   await p.getByRole('button',{name:'Use my location',exact:true}).click();await p.getByRole('combobox',{name:'Location',exact:true}).selectOption('Sydney');await p.evaluate(()=>window.__gps.at(-1).ok({coords:{latitude:0,longitude:0,accuracy:1}}));await p.waitForTimeout(80);assert.match(await p.locator('.observation-chip').innerText(),/Sydney/);await advanced(p);assert.equal(await p.getByRole('spinbutton',{name:'Latitude',exact:true}).inputValue(),'-33.8688');
  });
  await check('Swedish settings persistence and localized sharing',{width:390,height:844},async p=>{
-  await close(p);await p.getByRole('button',{name:'More',exact:true}).click();await p.getByRole('button',{name:'SV',exact:true}).click();await p.getByRole('button',{name:'Stäng panel',exact:true}).click();await p.reload();assert.equal(await p.getByRole('button',{name:'Sök',exact:true}).count(),1);
-  await p.getByRole('button',{name:'Sök',exact:true}).click();await p.getByRole('textbox').fill('Pluto');await p.locator('.row-main').click();await p.getByRole('button',{name:'Detaljer',exact:true}).click();await p.getByRole('dialog').getByRole('button',{name:'Dela objekt',exact:true}).click();assert.match(await p.evaluate(()=>window.__shares.at(-1).url),/\/share\/sv\/pluto\/$/);await p.screenshot({path:'/tmp/noxari-f009-sv-mobile.png'});
+  await close(p);await p.getByRole('button',{name:'More',exact:true}).click();await p.getByRole('button',{name:'SV',exact:true}).click();await p.getByRole('button',{name:'Stäng panel',exact:true}).click();await p.reload();assert.equal(await p.getByRole('button',{name:'Alla resultat och filter',exact:true}).count(),1);
+  await p.getByRole('button',{name:'Alla resultat och filter',exact:true}).click();await p.getByRole('textbox').fill('Pluto');await p.locator('.row-main').click();await p.getByRole('button',{name:'Mer om objektet',exact:true}).click();await p.getByRole('dialog').getByRole('button',{name:'Dela objekt',exact:true}).click();assert.match(await p.evaluate(()=>window.__shares.at(-1).url),/\/share\/sv\/pluto\/$/);await p.screenshot({path:'/tmp/noxari-f009-sv-mobile.png'});
  });
  assert.deepEqual(errors,[]);
 }finally {writeFileSync(process.env.QA_OUTPUT || '/tmp/noxari-f009-results.json',JSON.stringify({expectedBuild:process.env.EXPECTED_BUILD || null,results,pageErrors:errors},null,2));await browser.close();}

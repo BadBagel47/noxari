@@ -41,7 +41,7 @@ try {
  for(const viewport of [{width:390,height:844},{width:1280,height:800}]){
   const p=await pageFor({viewport});await now(p);await tracking(p);await emit(p,target.azimuth,target.altitude);await p.waitForTimeout(90);
   const sirius=p.locator('button.sky-object').filter({hasText:'Sirius'});assert.ok(await sirius.isVisible());await sirius.click();assert.equal(await p.getByRole('button',{name:'Stop following the phone',exact:true}).getAttribute('aria-pressed'),'true','object tap preserves following');await p.getByRole('button',{name:'Clear object',exact:true}).click();
-  await p.getByRole('button',{name:'Search',exact:true}).click();await p.getByRole('button',{name:'Close panel'}).click();assert.ok(await p.getByRole('button',{name:'Stop following the phone',exact:true}).isVisible());
+  await p.getByRole('button',{name:'All results and filters',exact:true}).click();await p.getByRole('button',{name:'Close panel'}).click();assert.ok(await p.getByRole('button',{name:'Stop following the phone',exact:true}).isVisible());
   const startX=viewport.width*.35,startY=viewport.height*.6;
   await p.mouse.move(startX,startY);await p.mouse.down();await p.mouse.move(startX+3,startY+1);await p.mouse.up();assert.ok(await p.getByRole('button',{name:'Stop following the phone',exact:true}).isVisible(),'tap jitter preserves following');
   const focal=await p.evaluate(()=>window.__focal);await pinch(p,150);await p.waitForTimeout(70);assert.ok((await p.evaluate(()=>window.__focal))>focal);assert.ok(await p.getByRole('button',{name:'Stop following the phone',exact:true}).isVisible(),'pinch keeps following');await pinch(p,50);await p.waitForTimeout(70);
