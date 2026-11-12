@@ -1,3 +1,13 @@
+## F-042 + F-044 + F-045 genomförda (2026-11-12, Opus)
+
+Användaren gav ”Kör alla tre”.
+- **F-042 ISS-data:** `src/issRefresh.ts` hämtar CelesTrak i webbläsaren när nyaste kopian är äldre än ett dygn, högst en gång per dygn och enhet (en timmes paus efter misslyckande), sparar i `noxari-iss-tle` och faller tillbaka på byggets kopia. Nyaste epok vinner. Ingen plats skickas (noterat i Om). Bygghämtningen finns kvar som reserv.
+- **F-044 Visning:** Mer → Visning & demo, Sparade → Starta visning, Ikväll → Visning av kvällens förslag. Lista: Mina sparade (Sparade-listans ordning) eller Kvällens förslag (tio bästa). Lägen: **Peka själv** (objektguiden + följning; avstängd med förklaring utan pekskärm), **Visa åt mig** (himlen glider, zoom högst 1,8×). En rad med Föregående/Nästa/Stoppa ersätter knappraden; objektkortet döljs. Objekt under horisonten hoppas över med notis. Stängs guiden avslutas visningen.
+- **F-045 Demoläge:** helskärm (om webbläsaren tillåter), kameran drar sig ut, sveper och zoomar in (`src/tour.ts`, längre sväng = längre och bredare rörelse), titelskylt med typ, namn, avstånd, storlek på himlen, ungefärlig verklig storlek och stjärnbild som tonas in i steg, framstegsprickar, 7 s per objekt och loop; tryck, Esc eller lämnad helskärm avslutar och zoomen återgår till 1×. Storlekar: `src/generated/messierSizes.ts` från samma pinnade OpenNGC (108/110), verklig storlek = avstånd × vinkel (≈); planeter/månen/dvärgplaneter med standarddiametrar och beräknat avstånd. Messierposterna är oförändrade. Reducerad rörelse: hopp i stället för glidning.
+Alla kamerarörelser går i den gemensamma bildruteloopen (`SkyFrames.setMotion`, zoom via `zoomControl`); ingen ny loop.
+
+Verifiering: 223 enhetstester (nya: ISS-hämtning, turstopp, kamerakurva, storlekar/fakta), fullt bygge, 15/15 funktionsflöden, etiketter, start/fokus, testinställningar. Webbläsarprov: alla tre lägen inkl. simulerad kompass för Peka själv, stopp, desktop med avstängd Peka själv. Ingen fysisk mobilkontroll. B-001/B-004 pausade, B-007 observeras. Ingen ny körning godkänd.
+
 ## F-044 och F-045 registrerade (2026-11-12)
 
 Användaren vill ha en visning: guidad tur genom sparade objekt med Nästa/Föregående/Stoppa, antingen genom att peka mobilen själv (inaktiverat på dator med förklaring) eller att himlen glider dit (F-044), samt ett separat självgående demoläge för helskärm (F-045). Tillägg: demoläget ska vara mer cinematiskt med zoomningar, tydligt namn, typ, avstånd och storlek (storlek kräver ny data från OpenNGC, se BACKLOG). Inväntar ”Kör”; rekommenderad modell Opus.

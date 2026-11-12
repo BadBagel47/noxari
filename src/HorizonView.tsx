@@ -67,12 +67,14 @@ type Props = {
   phone: ReturnType<typeof usePhoneOrientation>;
   onStopFinder: () => void;
   onFinderDetails: () => void;
+  /** F-044/F-045: lets guided tours animate the zoom inside the shared frame loop. */
+  zoomControl?: {current: Dispatch<SetStateAction<number>> | null};
 };
 
 const wrap = (degrees: number) => (degrees % 360 + 360) % 360;
 const cardinal = (heading: number, language: 'en' | 'sv') => (language === 'sv' ? ['N', 'NO', 'Ö', 'SO', 'S', 'SV', 'V', 'NV'] : ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'])[Math.round(wrap(heading) / 45) % 8];
 
-export function HorizonView({frames, selectedId, time, timeMode, location, label, sunLabel, onSelect, language, view, onViewChange, onDragViewChange, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showMilkyWay, dynamicKey, onSelectConstellation, skyLevel, skyGroups, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails}: Props) {
+export function HorizonView({frames, selectedId, time, timeMode, location, label, sunLabel, onSelect, language, view, onViewChange, onDragViewChange, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showMilkyWay, dynamicKey, onSelectConstellation, skyLevel, skyGroups, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails, zoomControl}: Props) {
   const comparisonStatus = useSyncExternalStore(frames.comparison.subscribe, frames.comparison.getSnapshot);
   const [comparisonTrackers] = useState(() => ({current: {pass: -1, reveal: new ConstellationReveal(), cache: new ConstellationDrawingCache(), resolution: new MotionResolution()}}));
   const root = useRef<HTMLDivElement>(null);
@@ -102,6 +104,11 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
   const suppressClick = useRef(false);
   const [normalZoom, setZoom] = useSkyFrameState(1, frames, 'zoom');
   const zoom = comparisonStatus.active ? 1 : normalZoom;
+  useLayoutEffect(() => {
+    if (!zoomControl) return;
+    zoomControl.current = setZoom;
+    return () => { if (zoomControl.current === setZoom) zoomControl.current = null; };
+  }, [zoomControl, setZoom]);
   const [size, setSize] = useState({width: 0, height: 0});
   const stars = useMemo(() => prepareHorizontalStars(horizontalStarCatalog(time, location)), [time, location]);
   // F-043: fainter binocular stars load on demand and rotate with one matrix per time change.

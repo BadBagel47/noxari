@@ -1,7 +1,6 @@
 // F-032: fetch current ISS orbital elements (CelesTrak GP data) at build time into dist/data/iss-tle.json.
-// CelesTrak does not allow direct browser requests (no CORS), so elements are as fresh as the latest
-// deploy; the app shows their age and warns when they are old. Fails softly: the app then reports
-// that pass data is unavailable.
+// The app also refreshes the elements itself from CelesTrak (F-042, CORS allowed); this build copy
+// is the offline/first-visit fallback. Fails softly: the app then reports that pass data is unavailable.
 import {mkdirSync, writeFileSync} from 'node:fs';
 
 const url = 'https://celestrak.org/NORAD/elements/gp.php?CATNR=25544&FORMAT=TLE';
