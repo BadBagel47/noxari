@@ -11,6 +11,8 @@ Användaren gav ”Kör” (rekommenderad modell Opus). Genomfört:
 - **F-024 rödfilter:** ett multiplikationslager (`mix-blend-mode:multiply`, #e01000) över hela appen, sparat lokalt. Inget CSS-filter på himlen. Skärmens ljusstyrka kan inte styras.
 - **F-037 (del):** paneler glider in/ut, vybyte tonar/zoomar, objektkort glider in, urvalsringen pulserar, Guidens centrering pulserar och vibrerar kort (Android, vid följning). Allt av vid reducerad rörelse. Ej gjort: lager-toning, mjuk Följ-start, mjuka tidsbyten (kräver ritlogik/sensorer; senare steg).
 
+**Andra rättningen (2026-11-12):** panelernas utseende följer nu skissen (handtag, rund stängknapp utan ram, ingen rubrikrand), språkväljaren är centrerad och kantlös, symbolerna är större (himmel 25 px, karta 18 px, listkort i 40 px-ruta). Bakgrundens oskärpa och dess animation är borttagna; endast en mörk toning tonas in — användaren rapporterade att himlen ”ryckte” när paneler öppnades på dator; mätning visade ingen förflyttning av himlen, så orsaken bedöms vara oskärpeanimationen. Sök/Ikväll-innehållet är oförändrat tills F-025 steg 2.
+
 **Rättning efter användarens skärmbild:** på breda skärmar (≥761 px bred och >500 px hög) används nu samma nedre rad och innehållshöga paneler nerifrån som på mobil; liggande mobil behåller vänsterlist men panelen öppnas från vänster. 15/15 flöden och 6/6 etikettprov passerar efter ändringen.
 
 **Publicering (första versionen):** appcommit `eb952806c130d7d88734379e9f003b53317b9e35`, GitHub Actions 43137695806 lyckades; https://noxari.trythis.one/ serverar bygget med samma commit-ID och de nya funktionerna.
