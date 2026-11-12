@@ -1,3 +1,7 @@
+## B-011 rättad; F-054–F-056 registrerade (2026-11-12)
+
+B-011: hela listraden ljusnar vid hovring/tryck. Nya förslag: F-054 sökfält direkt på himlen som i Stellarium, F-055 rörliga satelliter (CelesTrak visual-gruppen), F-056 Vintergatan i färg och högre upplösning m.m. Inväntar ”Kör” tillsammans med F-051–F-053.
+
 ## B-010 rättad (2026-11-12)
 
 Siffersökning (t.ex. ”81”) matchade siffror inne i långa katalogbeteckningar och gav 16 träffar. Nu matchar en ren siffra bara hela nummer (”81” → M81). Test i `tests/catalogSearch.test.ts`; 232 tester passerar.
