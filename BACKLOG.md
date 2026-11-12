@@ -247,7 +247,8 @@ Senast uppdaterad 2026-11-12. Bokstäverna gäller bara den senast visade listan
   - F-052 – Kompakt infokort med ”Mer” och Wikipedia-sammanfattning
 - **B** – starkt modell, hög nivå – Objektets bana (Prioritet: Medel)
   - F-053 – Banan över himlen under natten; planeters rörelse bland stjärnorna
-- **C** – standardmodell, medelnivå – Snabbknappar och integritet (Prioritet: Medel)
+- **C** – standardmodell, medelnivå – Snabbknappar, integritet och guidepil (Prioritet: Medel)
+  - B-013 – Hitta-pilen i objektguiden kan snurra ett helt varv
   - F-051 – Ihopfällbar snabbrad för visuella lager
   - F-058 – Integritetstext i Om
 - **D** – starkt modell, hög nivå – Rörliga satelliter (Prioritet: Låg)
