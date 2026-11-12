@@ -10,6 +10,8 @@ Användaren gav ”Kör 1-8”. Genomfört:
 7. **F-031 månen:** fas, belysning och upp/ned inom natten (eller ”nere/uppe hela natten”) i Ikväll; fas och upp/ned i månens objektkort (`src/moonInfo.ts`, Astronomy Engine, standardrefraktion).
 8. **F-034 introduktion:** kort välkomstkort första gången (lagras `noxari-intro-seen`), kan visas igen under Mer. Visas inte för automatiserade webbläsare (`navigator.webdriver`) så att testflöden inte blockeras.
 
+**Publicering:** appcommit `7020d3809282d182c63d0df56004cce5e20301e3`, Actions 43151390288 lyckades; live-sidan serverar bygget, teckningar och licensinformation (HTTP 200).
+
 **Verifiering:** 196 enhetstester (nya: ekliptika, affin placering, ankare, namngivna stjärnor, lagertoning, månfaser/upp-ned), TypeScript/produktionsbygge. Chromium: 15/15 funktionsflöden, etikettstabilitet 6/6, start/fokus alla, testinställningar/följning alla. Skärmbilder kontrollerade på mobil. Prestanda (Canvas-väg, mjukvarurendering i testmiljö, 390×844 @2x, skriptat svep): median ≈16,7 ms med och utan teckningar; p95 ≈22 ms med teckningar mot ≈17 ms utan. Ingen fysisk mobilmätning; användarens återkoppling behövs. B-001/B-004 pausade, B-007 observeras.
 
 **Användarnotering för senare (inte i denna körning):** användaren delade en skärmbild från Stellarium Web och vill att himlen känns mer levande — färgsättning, bakgrund och ”bloom” kring ljusa objekt. Tas upp tillsammans med F-039.
