@@ -1,3 +1,7 @@
+## Rättning F-041 — avskurna teckningar vid horisonten (2026-11-12)
+
+Användaren såg raka snitt i Lejonet och Enhörningen (hästen) när de stod lågt. Orsak: teckningarna ritas som rutnätstrianglar och en triangel hoppades över om någon nod låg under horisonten. Noder under horisonten projiceras nu ändå (marken täcker dem; i stjärnkartan klipps teckningen mot horisontcirkeln). Kontrollerat mot öster med lågt stående Lejonet/Enhörningen/Stora hund före och efter; 223 tester och 15/15 flöden passerar.
+
 ## F-042 + F-044 + F-045 genomförda (2026-11-12, Opus)
 
 Användaren gav ”Kör alla tre”.

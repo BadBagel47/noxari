@@ -60,6 +60,11 @@ export function SkyMap({selectedId, time, location, label, language, sunLabel, o
   const catalog = useMemo(() => horizontalStarCatalog(time, location), [time, location]);
   const figures = useMemo(() => constellationSky(catalog, figureMode), [catalog, figureMode]);
   const projectFigure = useMemo(() => (position: Parameters<typeof projectHorizontal>[0]) => projectHorizontal(position, size.width, size.height, zoom), [size.width, size.height, zoom]);
+  const projectArtNode = useMemo(() => (position: Parameters<typeof projectHorizontal>[0]) => {
+    if (position.altitude < -60) return null;
+    const radius = (90 - position.altitude) / 90 * Math.min(size.width, size.height) * .44 * zoom, angle = position.azimuth * Math.PI / 180;
+    return {x: size.width / 2 + radius * Math.sin(angle), y: size.height / 2 - radius * Math.cos(angle)};
+  }, [size.width, size.height, zoom]);
   const boundaries = useMemo(() => showBoundaries ? boundarySky(time, location) : [], [showBoundaries, time, location]);
   const artSky = useMemo(() => showArt ? constellationArtSky(time, location, figureMode) : [], [showArt, time, location, figureMode]);
   const ecliptic = useMemo(() => showEcliptic ? eclipticSky(time, location) : [], [showEcliptic, time, location]);
@@ -201,7 +206,10 @@ export function SkyMap({selectedId, time, location, label, language, sunLabel, o
         context.restore();
       }
       if (showBoundaries) drawBoundaries(context, boundaries, position => projectHorizontal(position, width, height, zoom), width, height, starVisibility);
-      const artFading = showArt && drawConstellationArt(context, artSky, projectFigure, width, height, starVisibility * .38 * Math.max(.3, Math.min(1, 1.3 - .3 * zoom)), artImages.current, () => setArtLoaded(count => count + 1));
+      // Below-horizon mesh nodes still project (outside the circle) so cells are not dropped; the horizon circle clips them.
+      if (showArt) { context.save(); context.beginPath(); context.arc(width / 2, height / 2, Math.min(width, height) * .44 * zoom, 0, Math.PI * 2); context.clip(); }
+      const artFading = showArt && drawConstellationArt(context, artSky, projectArtNode, width, height, starVisibility * .38 * Math.max(.3, Math.min(1, 1.3 - .3 * zoom)), artImages.current, () => setArtLoaded(count => count + 1));
+      if (showArt) context.restore();
 
       const animating = showFigures && drawConstellations(context, figures, projectFigure, width, height, starVisibility, showFigureNames, {reveal: reveal.current, now: performance.now(), reducedMotion, entryInset: false}, figureCache.current);
       if (!showFigures) reveal.current.reset();
@@ -222,7 +230,7 @@ export function SkyMap({selectedId, time, location, label, language, sunLabel, o
     };
     render();
     return () => cancelAnimationFrame(frame);
-  }, [projectFigure, size, zoom, stars, figures, boundaries, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, artSky, ecliptic, artLoaded, reducedMotion, sun.altitude, milkyWay, time, location]);
+  }, [projectFigure, projectArtNode, size, zoom, stars, figures, boundaries, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, artSky, ecliptic, artLoaded, reducedMotion, sun.altitude, milkyWay, time, location]);
 
   return <div className="sky-canvas sky-map" ref={container} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={finishPointer} onPointerCancel={finishPointer} onLostPointerCapture={finishPointer} onClickCapture={event => { if (suppressClick.current && event.detail !== 0) { event.preventDefault(); event.stopPropagation(); } }}>
     <canvas ref={canvas} aria-label={language === 'sv' ? 'Beräknad zenitcentrerad himmel med egenrörelse och valbara stjärnbildsfigurer och IAU-gränser; horisonten är den yttre cirkeln. Nyp för att zooma.' : 'Calculated zenith-centered sky with proper motion and optional constellation figures and IAU boundaries; horizon is the outer circle. Pinch to zoom.'} role="img"/>

@@ -152,6 +152,8 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
   const belowReveal = 1 - groundOpacity(view.pitch);
   const project = createPerspectiveProjector(view, size.width, size.height, true, belowReveal > 0, zoom);
   const projectFigure = useMemo(() => createPreparedPerspectiveProjector(view, size.width, size.height, false, belowReveal > 0, zoom), [view.heading, view.pitch, size.width, size.height, belowReveal > 0, zoom]);
+  // Drawings are cut into mesh cells; nodes below the horizon must still project, otherwise whole cells drop out and leave straight cuts. The ground covers them afterwards.
+  const projectArt = useMemo(() => createPreparedPerspectiveProjector(view, size.width, size.height, false, true, zoom), [view.heading, view.pitch, size.width, size.height, zoom]);
   const sunPoint = project(sun);
   // F-039: lit fraction and on-screen bright-limb angle for the Moon marker.
   const moonFraction = useMemo(() => Illumination(Body.Moon, time).phase_fraction, [time]);
@@ -328,7 +330,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
 
       measurement?.phase('grid');
       if (fade.values.boundaries > 0) drawBoundaries(context, preparedBoundaries, projectBoundary, width, height, starVisibility * fade.values.boundaries);
-      const artFading = fade.values.art > 0 && drawConstellationArt(context, artSky, projectFigure, width, height, starVisibility * fade.values.art * .46 * Math.max(.3, Math.min(1, 1.45 - .45 * zoom)), artImages.current, () => frames.invalidate(), view);
+      const artFading = fade.values.art > 0 && drawConstellationArt(context, artSky, projectArt, width, height, starVisibility * fade.values.art * .46 * Math.max(.3, Math.min(1, 1.45 - .45 * zoom)), artImages.current, () => frames.invalidate(), view);
 
       measurement?.phase('boundaries');
       const animating = fade.values.figures > 0 && drawConstellations(context, figures, projectFigure, width, height, starVisibility * fade.values.figures, showFigureNames, {reveal: comparing ? trackers.reveal : reveal.current, now, reducedMotion}, comparing ? trackers.cache : figureCache.current);
@@ -438,7 +440,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       return Boolean(animating) || fade.animating || Boolean(artFading);
     };
     frames.setRenderer(render);
-  }, [projectFigure, frames, size, view, zoom, stars, figures, boundaries, preparedBoundaries, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showMilkyWay, artSky, ecliptic, reducedMotion, sun.altitude, milkyWay, milkyBasis, sceneKey, time, timeMode, location, performanceScene, phone.active, skyLevel, skyGroups, faint, magnitudeLimit, comparisonStatus.active, selectedId, finderTarget, language]);
+  }, [projectFigure, projectArt, frames, size, view, zoom, stars, figures, boundaries, preparedBoundaries, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showMilkyWay, artSky, ecliptic, reducedMotion, sun.altitude, milkyWay, milkyBasis, sceneKey, time, timeMode, location, performanceScene, phone.active, skyLevel, skyGroups, faint, magnitudeLimit, comparisonStatus.active, selectedId, finderTarget, language]);
 
   const move = (heading: number, pitch: number) => onViewChange(current => ({heading: wrap(current.heading + heading), pitch: clampViewPitch(current.pitch + pitch)}));
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
