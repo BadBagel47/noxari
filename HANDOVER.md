@@ -1,3 +1,7 @@
+## B-010 rättad (2026-11-12)
+
+Siffersökning (t.ex. ”81”) matchade siffror inne i långa katalogbeteckningar och gav 16 träffar. Nu matchar en ren siffra bara hela nummer (”81” → M81). Test i `tests/catalogSearch.test.ts`; 232 tester passerar.
+
 ## F-052 och F-053 registrerade (2026-11-12)
 
 F-052: kompakt infokort med ”Mer” och Wikipedia-sammanfattning/länk (inspirerat av Stellarium, men mindre på mobil). F-053: visa objektets bana över himlen under natten med klockslag, och för planeter/månen rörelsen bland stjärnorna över längre tid. Inväntar ”Kör” (tillsammans med F-051).
