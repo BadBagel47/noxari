@@ -1,5 +1,7 @@
 ## Mobilåterkoppling 2026-11-12
 
+**Beslut 2026-11-12:** Användaren parkerar resterande F-009-mobilprov (delning, GPS, iOS m.m.) tills vidare. Inget nytt steg är godkänt; kvarvarande förslag är F-021 (ta bort tillfällig natthimmelsstart, Luna High) och B-004 (mjukare svep, Sol High).
+
 **Mobilåterkoppling 2026-11-12:** Användaren rapporterar att objektnamnen inte längre hoppar vid svep (B-003/F-008 klara) och att kompassföljningen fungerade vid första start (B-007). B-007 hålls under observation eftersom felet tidigare var intermittent; ett lyckat prov bevisar inte orsaken. Övriga F-009-mobilprov (iOS, delning, GPS, behörigheter) är inte bekräftade.
 
 ## F-023 — egen domän, publicerad med HTTPS-tvingning
