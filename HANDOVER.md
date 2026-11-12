@@ -1,3 +1,34 @@
+## Agentregler och inventering
+
+- **Agentregler:** v1.4 inlästa 2026-11-12. Repot hade inte följt agentreglerna tidigare; anpassning pågår (se ”Pending adaptation”).
+- **Inventory: 2026-11-12** — en gren (`main`), inga öppna PR:er eller issues, ingen agentspecifik regelfil (CLAUDE.md m.fl.). Full git-historik genomsökt: inga hemligheter, nycklar eller privata koordinater hittade (bara förvalda städer). `.gitignore` täcker `.env`.
+- **Publicering:** push till `main` → GitHub Actions (`.github/workflows/deploy.yml`) bygger och publicerar GitHub Pages på https://noxari.trythis.one/ (egen domän, HTTPS påtvingat). Agenten kan pusha direkt till `main`; ingen auto-merge-workflow behövs.
+- **Projektspråk:** engelska (README, kod, commits). Appens gränssnitt är tvåspråkigt EN/SV och följer enhetens språk (beslut 2026-11-12).
+- **Begränsningar i miljön (2026-11-12):** GitHub GraphQL (`gh pr/issue list`) och Pages-API är spärrade via proxyn; REST fungerar för PR/issues. Att lägga till schemalagd körning i workflow-filen nekades av behörighetsklassning. Molnmiljön ”noxari” har nätåtkomst till ESO, Open-Meteo, CelesTrak, Wikipedia/Commons och den publicerade sajten.
+- **Engångsåtgärder:** egen domän + Enforce HTTPS — klart (användaren, 2026-11-12). Daglig schemalagd publicering — ersatt av F-042 (behövs inte).
+
+### Pending adaptation (agentregler v1.4)
+
+Väntar på användarens godkännande (”Kör anpassning”, ”Kör 1”, ”Kör 1.2” …). ⚠️ = tar bort eller skriver över något (återställbart via git).
+
+1. **Regel- och dokumentfiler**
+   - 1.1 ⚠️ Byt namn HANDOVER.md → HANDOFF.md och korta den till nuläge, nästa steg, regelversion, projektspråk, publicering, beslut, mål/arbetssätt och dokumentkarta; den långa historiken flyttas oförändrad till docs/HANDOFF_LOG.md.
+   - 1.2 ⚠️ AGENTS.md: ta bort det som dubblerar de globala reglerna (svenska i chatten, korta svar, Kör-flöde, modellrekommendation, handoff-skötsel) och de körnings-/publiceringsloggar som redan finns i handoff-loggen; behåll projektreglerna (sensorer, rendering, data/licenser, kataloger) i kortad form. Modellnamn i regler ersätts med neutrala nivåer.
+   - 1.3 Dokumentkarta över docs/* i HANDOFF.md.
+2. **Backlog**
+   - 2.1 Lägg till prioritet (Hög/Medel/Låg) på öppna punkter.
+   - 2.2 ⚠️ Flytta klara punkter till en ”Klart”-sektion (inget raderas).
+   - 2.3 Status ”Pausad/Senare/Observeras” räknas som Parkerad; listas under ”Parkerat”.
+3. **ID-system**
+   - 3.1 Behåll F-/B- med separata nummerserier (fungerar, ~70 ID:n används i commits och dokument). Alternativ: en gemensam serie med B/F/D — avråds, gamla ID:n finns kvar i historiken.
+4. **Projektregler som krockar med de globala**
+   - 4.1 Handoff-detaljnivå — projektregel: varje steg loggas i HANDOVER med commit, testbevis m.m.; agentregel: HANDOFF kort (≈5 senaste), historik i git/loggdokument. Rekommendation: agentregeln (bevisen ligger kvar i docs och loggfilen).
+   - 4.2 Publicerings-/basväg — projektregel säger ”GitHub Pages at /noxari/”; verkligheten är egen domän i roten. Rekommendation: uppdatera projektregeln till nuläget.
+   - 4.3 Standardspråk — projektregel ”English interface with optional Swedish names”; beslut 2026-11-12 är enhetens språk (Auto/SV/EN). Rekommendation: uppdatera projektregeln till beslutet.
+   - 4.4 Buggfixar direkt — i den här sessionen rättades rapporterade småbuggar direkt; agentregeln säger att de samlas till en körning. Rekommendation: agentregeln (samla och föreslå), med undantag om användaren uttryckligen ber om direkt rättning.
+5. **Lagar och regler (fynd → backlog F-058)**
+   - 5.1 Lägg till en kort integritetstext i Om: vad som lagras lokalt (sparade, logg, plats, språk m.m.), vilka tredjepartstjänster som anropas (Open-Meteo efter samtycke, CelesTrak, Wikimedia-bilder, framöver Wikipedia) och att IP-adress då syns för dem; ingen spårning eller cookies. Lokal lagring bedöms som nödvändig för begärda funktioner (LEK 9:28) — ingen juridisk garanti.
+
 ## F-056 + F-057 + demo-uppföljning + B-012 (2026-11-12, Opus)
 
 **Publicering:** appcommit `75a47f7fa04e`, Actions lyckades; live-sidan serverar färgtexturen (1 281 302 byte).

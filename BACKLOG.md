@@ -231,7 +231,26 @@ Användaren har **pausat B-001** och vill prioritera att färdigställa övrig f
 | **F-055** | Satelliter som rör sig | **Förslag 2026-11-12** | Utöver ISS: CelesTraks grupp med ljusa/visuella satelliter (≈150) hämtas högst en gång per dygn (som F-042), beräknas med SGP4 och ritas som rörliga prickar när de är solbelysta och himlen mörk; tryck visar namn, höjd och nästa passage. Kräver kontinuerlig omritning bara medan satelliter syns (begränsad uppdateringstakt för batteri/B-004). Ev. tillval: Starlink-tåg. Inte startgodkänt. |
 | **F-056** | Vintergatan i färg och skärpa | **Klar 2026-11-12 — fysisk kontroll kvar** | Dagens Vintergata är en gråskaletextur 1440×720 (¼° per bildpunkt) som tonas blå, och blir därför suddig och ”målad” vid zoom. Förslag: färgversion av samma ESO-panorama (CC BY 4.0) i högre upplösning (t.ex. 4096×2048 WebP, laddas i bakgrunden), stjärnorna fortsatt bortfiltrerade, bättre kontrast i mörka stoftband; GPU- och Canvas-vägen samplar färg. Genomfört med ”Kör” (Opus): färgtextur 2880×1440 WebP ≈1,3 MB, korn och stoftband kvar, ljusa punktrester borttagna, grå reserv. Meteorer och luftglöd ej gjorda. |
 | **F-057** | Himlen steg 3: mindre ”klinisk” | **Klar 2026-11-12 — fysisk kontroll kvar** | Jämförelse med Stellarium Web (användarens skärmbilder, samma plats/tid): (1) stjärnor med upplevd ljusstyrka — ljusa stjärnor tydligt större vita skivor med mjuk gloria, medelljusa klart synliga prickar, svaga som fin textur (i dag är de flesta stjärnor svaga 1–2 px prickar); (2) mörkare, mer neutral natthimmel utan den kraftiga blå gradienten och ljusa horisontbandet, bara svag ljusförorening/luftglöd nära horisonten; (3) Vintergatan som kornig stjärnmassa i färg i stället för suddig blå dimma (F-056) och fler svaga stjärnor som textur; (4) landskapssiluett med träd/hus vid horisonten (valbar, dekorativ, inte lokal terräng). Genomfört med ”Kör” (Opus) i jämförelsesteg mot användarens Stellarium-bild: nästan svart neutral natthimmel, ny ljusstyrkekurva (full styrka till V 2, tydlig till V 4), gloria till V 4, dekorativ siluett med kullar, granar och lövträd (Lager → Landskap, på från start). Fler svaga stjärnor som textur ej gjort (kikarnivån finns). Demoläget fick samtidigt lägre placering (≈40 % från toppen), mjuk sammanhängande zoomkurva utan stopp halvvägs, och Kvällens förslag som ett svep i azimut utan grannar närmare än 12°. |
+| **F-058** | Integritetstext i Om | **Förslag 2026-11-12** | Fynd från agentreglernas lag-/regelgenomgång: kort text om lokal lagring (sparade, logg, plats, språk, samtycke, ISS-data), tredjepartsanrop (Open-Meteo efter samtycke, CelesTrak, Wikimedia, ev. Wikipedia) och att IP-adressen syns för dem; inga cookies eller spårning. Prioritet: Medel. |
 
 ## Genomförda delar
 
 360°-vy, telefonföljning, egenrörelse, stjärnbildsfigurer, planetpositioner, Ikväll, Guided Finder, helskärmslayout, Messierkatalog, IAU-gränser, interaktions-/läsbarhetsrättningar, Vintergatan och nedåtblick finns redan. Se `HANDOVER.md` för funktioner, begränsningar och testunderlag. Numreringen ovan används för det återstående arbetet från och med detta beslut.
+
+
+## Proposed runs
+
+Senast uppdaterad 2026-11-12. Bokstäverna gäller bara den senast visade listan.
+
+- **A** – starkt modell, hög nivå – Hitta och visa objekt (Prioritet: Hög)
+  - F-054 – Sökfält högst upp som i Stellarium; Sök-knappen tas bort
+  - F-052 – Kompakt infokort med ”Mer” och Wikipedia-sammanfattning
+- **B** – starkt modell, hög nivå – Objektets bana (Prioritet: Medel)
+  - F-053 – Banan över himlen under natten; planeters rörelse bland stjärnorna
+- **C** – standardmodell, medelnivå – Snabbknappar och integritet (Prioritet: Medel)
+  - F-051 – Ihopfällbar snabbrad för visuella lager
+  - F-058 – Integritetstext i Om
+- **D** – starkt modell, hög nivå – Rörliga satelliter (Prioritet: Låg)
+  - F-055 – Ljusa satelliter som rörliga prickar
+
+**Parkerat:** B-001 (riktningsdrift), B-004 (ryckighet), B-007 (första Följ – observeras), F-009 (mobiltester), F-010 (månkalibrering), F-011 (kamera/AR), resterande del av F-037 (mjuk Följ-start).

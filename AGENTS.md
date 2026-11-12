@@ -1,3 +1,7 @@
+> **Global agent rules:** follow https://raw.githubusercontent.com/BadBagel47/agent-rules/main/AGENTS.md (v1.4, read at the start of every session).
+> **Handoff:** `HANDOVER.md` (serves as HANDOFF.md until the pending adaptation renames it). **Backlog:** `BACKLOG.md` (incl. "Proposed runs").
+> The project rules below apply to this repo only; where they duplicate or conflict with the global agent rules, see "Pending adaptation" in HANDOVER.md.
+
 # Noxari development guidance
 
 ## Handover and user workflow
