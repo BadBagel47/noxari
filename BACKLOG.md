@@ -6,7 +6,8 @@ ID:n är permanenta (F-### funktioner, B-### buggar, separata serier — beslut 
 
 Senast uppdaterad 2026-11-13. Bokstäverna gäller bara den senast visade listan.
 
-Inga körklara förslag just nu.
+- **A** – strong model, medium level – Vintergatan: detalj tillbaka utan gungande brus (Prioritet: Medel)
+  - B-017 (Vintergatan blev mjukare efter B-015) – Lättare utjämning och finare raster så att Vintergatan får tillbaka fin struktur men fortfarande är lugn när man drar; du får en skarpare men stabil Vintergata
 
 **Parkerat:** B-001 (riktningsdrift), B-004 (ryckighet), B-007 (första Följ – observeras), F-009 (mobiltester), F-010 (månkalibrering), F-011 (kamera/AR), resterande del av F-037 (mjuk Följ-start).
 
@@ -14,8 +15,9 @@ Inga körklara förslag just nu.
 
 | ID | Bugg | Status | Prioritet | Avgränsning / klart när |
 | --- | --- | --- | --- | --- |
+| **B-017** | Vintergatan mjukare/mindre detaljer efter B-015 | **Förslag 2026-11-13** | Medel | Användaren: ”Ska den se ut sådär? Hade vi inte detaljer förut?” Jämförelse (samma vy, Chromium, mjukvarurenderare): utan förfilter syns fin kornig struktur men också flimmer; med förfilter (två pass) är bandet jämnare men finkornig detalj är borta, mörka stråk finns kvar. Förslag: hitta balans – lättare filter (ett pass) och/eller finare raster (t.ex. 480 i stället för 240 samplingar på långsidan, GPU och Canvas) så att detalj bevaras utan flimmer. Klart när: användaren tycker detaljnivån är tillbaka utan gungande brus, Canvas och GPU ser likadana ut, panorering är fortsatt jämn (mät i mjukvarurenderare, inte telefonresultat). |
 | **B-015** | Vintergatan ”gungar”/brusar när man drar runt himlen | **Klar 2026-11-13 — fysisk kontroll kvar** | Hög | Användaren (skärmbild, Brave på Mac, GPU-väg). Trolig orsak (kod läst, ej reproducerat): Vintergatan ritas först till ett grovt raster (≈240 px på långsidan) och samplas från den korniga färgtexturen (F-056, 2880×1440, 5 px median) med LINEAR utan mipmaps i `src/gpuSky.ts` (`texture()`, `milkyFragment`); varje grovpixel träffar ett enskilt korn som byter när vyn rör sig, så kornen flimrar. Canvasvägen (`src/milkyWay.ts`) har samma upplägg (bilinjär ljusstyrka, närmaste texel för färg). Rättning: mipmaps eller flera taps/oskärpa vid samplingen i båda vägarna så att rörelse blir stabil, utan att tappa skärpan när man zoomar. Klart när: panorering visar ingen flimrande kornighet i GPU och Canvas, bildkvaliteten i stillbild är oförändrad, tester och GPU/Canvas-jämförelse passerar. Mätning i mjukvarurenderare är inte telefonresultat. Gjort: texturen förfiltreras en gång vid laddning (`prefilterMilkyWay`, två 3-texels boxpass, ljusviktad färg, RA-wrap) så båda vägarna får lugn sampling utan kostnad per bildruta; kornbyten per 0,125° panorering minskade ca 2,4 → 0,8 (alfa, beräknat på den riktiga texturen). |
-| **B-016** | Vintergatan laddas inte hos användaren | **Väntar på svar 2026-11-13** | Medel | Filen serveras korrekt (200, identisk med repot) och laddar i Chromium. Behöver enhet/webbläsare och om felmeddelandet visas. Se skärmbilden för B-015: den nya Vintergatan laddar tydligen nu. Stäng om användaren bekräftar. |
+| **B-016** | Vintergatan laddas inte hos användaren | **Klar 2026-11-13 — laddar enligt användarens skärmbild; fråga nu om detaljer, se B-017** | Medel | Filen serveras korrekt (200, identisk med repot) och laddar i Chromium. Behöver enhet/webbläsare och om felmeddelandet visas. Se skärmbilden för B-015: den nya Vintergatan laddar tydligen nu. Stäng om användaren bekräftar. |
 
 ## Öppna funktioner
 
