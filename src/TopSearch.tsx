@@ -30,10 +30,12 @@ export function rankSearch(objects: SpaceObject[], query: string, limit = 8) {
  * F-054: Stellarium-style search field on the sky. Results appear while typing; choosing one
  * moves the sky to the object (via onPick). The full search sheet with filters stays one tap away.
  */
-export function TopSearch({language, objects, describe, onPick, onOpenFull}: {
+export function TopSearch({language, objects, describe, onPick, onOpenFull, context}: {
   language: Lang; objects: SpaceObject[];
   describe: (object: SpaceObject) => string;
   onPick: (object: SpaceObject) => void; onOpenFull: (query: string) => void;
+  /** F-070: place and time as a second line in the search capsule; tapping it opens Time & place. */
+  context?: {label: string; detail: string; tone: string; ariaLabel: string; onOpen: () => void};
 }) {
   const lang = language, listId = useId();
   const [query, setQuery] = useState('');
@@ -47,6 +49,7 @@ export function TopSearch({language, objects, describe, onPick, onOpenFull}: {
   return <div className="top-search" role="search" onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setOpen(false); }}>
     <div className="top-search-field">
       <Search size={18} aria-hidden="true"/>
+      <div className={`top-search-stack ${context && !open && !query ? 'with-context' : ''}`}>
       <input ref={input} value={query} placeholder={t(lang, 'Search…', 'Sök…')} aria-label={t(lang, 'Search the sky', 'Sök på himlen')}
         role="combobox" aria-expanded={showList} aria-controls={listId} aria-autocomplete="list" aria-activedescendant={showList && results[active] ? `${listId}-${active}` : undefined}
         onFocus={() => setOpen(true)} onChange={event => { setQuery(event.target.value); setOpen(true); }}
@@ -56,6 +59,8 @@ export function TopSearch({language, objects, describe, onPick, onOpenFull}: {
           else if (event.key === 'Enter' && results[active]) { event.preventDefault(); pick(results[active]); }
           else if (event.key === 'Escape') { event.preventDefault(); if (query) setQuery(''); else input.current?.blur(); setOpen(false); }
         }}/>
+      {context && !open && !query && <button className={`top-search-context ${context.tone}`} aria-label={context.ariaLabel} onClick={context.onOpen}><span>{context.label}</span> · <small>{context.detail}</small></button>}
+      </div>
       {query && <button className="top-search-clear" aria-label={t(lang, 'Clear search', 'Rensa sökning')} onClick={() => { setQuery(''); input.current?.focus(); }}><X size={16}/></button>}
       <button className="top-search-filter" aria-label={t(lang, 'All results and filters', 'Alla resultat och filter')} title={t(lang, 'All results and filters', 'Alla resultat och filter')} onClick={() => { onOpenFull(query); setQuery(''); setOpen(false); }}><SlidersHorizontal size={17}/></button>
     </div>

@@ -19,14 +19,14 @@ async function pageFor(sv=false) {
  await page.goto(base+'?skyRenderer=gpu'+(sv?'&lang=sv':''));
  await page.waitForFunction(()=>document.querySelector('.horizon-view')?.dataset.skyRenderer==='gpu');await page.waitForTimeout(1200);return page;
 }
-async function start(page,sv=false){await page.getByRole('button',{name:sv?'Mer':'More',exact:true}).click();await page.getByRole('button',{name:sv?'Prestandarapport':'Performance report',exact:true}).click();await page.getByRole('button',{name:sv?'Starta kontrollerad jämförelse':'Start controlled comparison',exact:true}).click();}
+async function start(page,sv=false){await page.getByRole('button',{name:sv?'Mer':'More',exact:true}).click();await page.locator('.more-advanced:not([open]) > summary').click().catch(()=>{});await page.getByRole('button',{name:sv?'Prestandarapport':'Performance report',exact:true}).click();await page.getByRole('button',{name:sv?'Starta kontrollerad jämförelse':'Start controlled comparison',exact:true}).click();}
 async function save(page,sv=false){const pending=page.waitForEvent('download');await page.getByRole('button',{name:sv?'Spara jämförelserapport':'Save comparison report',exact:true}).click();const download=await pending;assert.equal(download.suggestedFilename(),'noxari-surface-comparison.json');let data='';for await(const c of await download.createReadStream())data+=c;return JSON.parse(data);}
 try {
- const p=await pageFor();const original=await p.locator('.horizon-heading').textContent();const stamp=await p.locator('.observation-chip').textContent();
+ const p=await pageFor();const original=await p.locator('.horizon-heading').textContent();const stamp=await p.locator('.top-search-context').textContent();
  await p.evaluate(()=>{window.__sizes=[]});await start(p);
  await p.getByRole('button',{name:'View report',exact:true}).waitFor({timeout:65000});
  assert.ok((await p.locator('.performance-capture').textContent()).includes('Comparison complete'));
- assert.equal(await p.locator('.horizon-heading').textContent(),original);assert.equal(await p.locator('.observation-chip').textContent(),stamp);
+ assert.equal(await p.locator('.horizon-heading').textContent(),original);assert.equal(await p.locator('.top-search-context').textContent(),stamp);
  await p.getByRole('button',{name:'View report',exact:true}).click();const report=await save(p);
  console.log('Completed browser ABBA capture');assert.equal(report.valid,true);assert.equal(report.active,false);assert.deepEqual(report.runs.map(r=>r.policy),['exact','retained','retained','exact']);
  assert.deepEqual(report.runs.map(r=>r.report.frames.length),[240,240,240,240]);

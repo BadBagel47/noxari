@@ -79,7 +79,7 @@ describe('deeper Gaia layer (F-065)', () => {
     expect(starMagnitudeLimit('all', 3)).toBeCloseTo(11);
     expect(starMagnitudeLimit('all', 6)).toBeCloseTo(12);
     expect(starMagnitudeLimit('all', 50)).toBe(12);
-    expect(starMagnitudeLimit('binoculars', 50)).toBe(8.5);
+    expect(starMagnitudeLimit('eye', 50)).toBe(12);
     expect(tappableGaiaMagnitude(6, 12)).toBeCloseTo(12);
   });
 });

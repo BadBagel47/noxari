@@ -59,7 +59,8 @@ export function TonightPanel({context, location, language, gear, onGearChange, r
   const moonUp = samples.filter(sample => sample.moonAltitude > 0).length;
   const moonTimes = [inWindow(moon.rise) && `${sv ? 'upp' : 'rises'} ${clockTime(moon.rise!, location.timeZone)}`, inWindow(moon.set) && `${sv ? 'ned' : 'sets'} ${clockTime(moon.set!, location.timeZone)}`].filter(Boolean).join(' · ')
     || (moonUp === 0 ? (sv ? 'nere hela natten' : 'down all night') : moonUp === samples.length ? (sv ? 'uppe hela natten' : 'up all night') : '');
-  const gearOptions: ['eye' | 'binoculars' | 'all', string][] = [['eye', sv ? 'Ögat' : 'Eye'], ['binoculars', sv ? 'Kikare' : 'Binoculars'], ['all', sv ? 'Teleskop' : 'Telescope']];
+  // F-067: the same three choices (and names) as Detaljnivå in Layers.
+  const gearOptions: ['eye' | 'binoculars' | 'all', string][] = [['eye', sv ? 'Blotta ögat' : 'Naked eye'], ['binoculars', sv ? 'Kikare' : 'Binoculars'], ['all', sv ? 'Teleskop' : 'Telescope']];
   const tabs = <div className="segmented wide tonight-tabs" role="group" aria-label={sv ? 'Visa' : 'Show'}><button className={tab === 'tonight' ? 'chosen' : ''} aria-pressed={tab === 'tonight'} onClick={() => setTab('tonight')}>{sv ? 'I natt' : 'Tonight'}</button><button className={tab === 'upcoming' ? 'chosen' : ''} aria-pressed={tab === 'upcoming'} onClick={() => setTab('upcoming')}>{sv ? 'Kommande' : 'Upcoming'}</button></div>;
   const eventIcon: Record<SkyEvent['kind'], ReactNode> = {moonPhase: <Moon size={20}/>, lunarEclipse: <MoonStar size={20}/>, solarEclipse: <Sun size={20}/>, conjunction: <Sparkles size={20}/>, elongation: <Orbit size={20}/>, season: <CalendarDays size={20}/>, meteor: <KindIcon name="comet" size={22}/>};
   if (tab === 'upcoming') return <>
@@ -90,7 +91,7 @@ export function TonightPanel({context, location, language, gear, onGearChange, r
     <div className="list-head">
       <h2 className="sheet-label">{sv ? 'Bäst i natt' : 'Best tonight'} ({suggested.length})</h2>
     </div>
-    <div className="segmented wide gear-filter" role="group" aria-label={sv ? 'Utrustning' : 'Equipment'}>{gearOptions.map(([value, text]) => <button key={value} className={(gear === value || (value === 'all' && gear === 'telescope')) ? 'chosen' : ''} aria-pressed={gear === value || (value === 'all' && gear === 'telescope')} onClick={() => onGearChange(value)}>{text}</button>)}</div>
+    <div className="segmented wide gear-filter" role="group" aria-label={sv ? 'Detaljnivå' : 'Level of detail'}>{gearOptions.map(([value, text]) => <button key={value} className={(gear === value || (value === 'all' && gear === 'telescope')) ? 'chosen' : ''} aria-pressed={gear === value || (value === 'all' && gear === 'telescope')} onClick={() => onGearChange(value)}>{text}</button>)}</div>
     {suggested.length ? <div className="object-list">{suggested.map(item => renderCard(item.object, item))}</div> : <div className="empty"><p>{sv ? 'Inga objekt uppfyller kriterierna för denna natt och utrustning. Prova en annan natt eller plats.' : 'No targets meet the criteria for this night and equipment. Try another night or location.'}</p></div>}
     <p className="planning-note panel-foot"><Info size={15} aria-hidden="true"/>{sv ? 'Beräknat från höjd, mörker och månljus; tider är ungefärliga och gäller efter vald tid. Väder, terräng och ljusföroreningar ingår inte.' : 'Calculated from altitude, darkness and moonlight; times are approximate and after the selected time. Weather, terrain and light pollution are not included.'}</p>
     <div className="tonight-actions">

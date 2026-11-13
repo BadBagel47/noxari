@@ -17,7 +17,7 @@ async function setup(permission='granted'){
  await page.goto(base+'?skyRenderer=canvas');await page.clock.runFor(100);return page;
 }
 async function follow(page,panel=false){
- if(panel){await page.getByRole('button',{name:'More',exact:true}).click();await page.getByRole('button',{name:/^Phone direction/}).click();await page.getByRole('button',{name:'Follow phone',exact:true}).click();}
+ if(panel){await page.getByRole('button',{name:'More',exact:true}).click();await page.locator('.more-advanced:not([open]) > summary').click().catch(()=>{});await page.getByRole('button',{name:/^Phone direction/}).click();await page.getByRole('button',{name:'Follow phone',exact:true}).click();}
  else await page.getByRole('button',{name:'Follow the phone',exact:true}).click();
 }
 async function stable(page){
@@ -27,7 +27,7 @@ async function stable(page){
  }
 }
 async function report(page){
- await page.getByRole('button',{name:'More',exact:true}).click();await page.getByRole('button',{name:/^Phone direction/}).click();await page.locator('.direction-diagnostics summary').click();
+ await page.getByRole('button',{name:'More',exact:true}).click();await page.locator('.more-advanced:not([open]) > summary').click().catch(()=>{});await page.getByRole('button',{name:/^Phone direction/}).click();await page.locator('.direction-diagnostics summary').click();
  const event=page.waitForEvent('download');await page.getByRole('button',{name:'Download direction report',exact:true}).click();let json='';for await(const b of await(await event).createReadStream())json+=b;return JSON.parse(json);
 }
 try {

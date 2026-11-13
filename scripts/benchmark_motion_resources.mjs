@@ -30,7 +30,7 @@ try {
   const base=variant==='before'?process.env.BASELINE_URL:process.env.APP_URL;
   assert.ok(base,'Set BASELINE_URL and APP_URL to the production previews');
   await page.goto(base+'?skyRenderer=gpu');await page.getByRole('button',{name:'Time & location',exact:true}).click();await page.getByRole('button',{name:'Now',exact:true}).click();await page.getByRole('button',{name:'Close panel'}).click();await page.waitForTimeout(1300);
-  await page.getByRole('button',{name:'More',exact:true}).click();await page.getByRole('button',{name:'Performance report',exact:true}).click();
+  await page.getByRole('button',{name:'More',exact:true}).click();await page.locator('.more-advanced:not([open]) > summary').click().catch(()=>{});await page.getByRole('button',{name:'Performance report',exact:true}).click();
   await page.getByRole('button',{name:'Start recording',exact:true}).click();
   await page.evaluate(()=>{window.__resources.active=true;});
   for(let burst=0;burst<6;burst++){

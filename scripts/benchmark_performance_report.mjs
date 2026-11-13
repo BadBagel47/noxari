@@ -13,7 +13,7 @@ const rows=[];try{
    CanvasRenderingContext2D.prototype.setTransform=function(...a){if(this.canvas.closest('.horizon-view')&&window.__probe.active){const t=performance.now(),latest=window.__probe.latest;window.__probe.latest=null;queueMicrotask(()=>{window.__probe.draw.push(performance.now()-t);if(latest!==null)window.__probe.input.push(performance.now()-latest)})}return set.apply(this,a)};
   });
   await p.goto((process.env.APP_URL || 'http://127.0.0.1:4194/noxari/')+'?skyRenderer='+(process.env.SKY_RENDERER || 'auto'));await p.waitForTimeout(1300);
-  if(recording){await p.getByRole('button',{name:'More',exact:true}).click();await p.getByRole('button',{name:'Performance report',exact:true}).click();await p.getByRole('button',{name:'Start recording',exact:true}).click();}
+  if(recording){await p.getByRole('button',{name:'More',exact:true}).click();await p.locator('.more-advanced:not([open]) > summary').click().catch(()=>{});await p.getByRole('button',{name:'Performance report',exact:true}).click();await p.getByRole('button',{name:'Start recording',exact:true}).click();}
   await p.waitForTimeout(400);await p.mouse.move(170,400);await p.mouse.down();
   const metrics=await p.evaluate(async()=>{
    const root=document.querySelector('.horizon-view'),times=[];window.__probe.active=true;

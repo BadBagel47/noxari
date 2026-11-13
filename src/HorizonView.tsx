@@ -92,6 +92,9 @@ const noObjects: SpaceObject[] = [];
 const wrap = (degrees: number) => (degrees % 360 + 360) % 360;
 const cardinal = (heading: number, language: 'en' | 'sv') => (language === 'sv' ? ['N', 'NO', 'Ö', 'SO', 'S', 'SV', 'V', 'NV'] : ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'])[Math.round(wrap(heading) / 45) % 8];
 
+/** Zoom as shown on the control: one decimal below 10×. */
+const zoomLabel = (zoom: number, language: 'en' | 'sv') => `${zoom < 9.95 ? (Math.round(zoom * 10) / 10).toLocaleString(language === 'sv' ? 'sv-SE' : 'en-GB') : Math.round(zoom)}×`;
+
 export function HorizonView({frames, selectedId, time, timeMode, location, label, sunLabel, onSelect, language, view, onViewChange, onDragViewChange, showFigures, showFigureNames, figureMode, showBoundaries, showArt, showGrid, showEcliptic, showMilkyWay, showLandscape = true, dynamicKey, onSelectConstellation, skyLevel, skyGroups, milkyWay, finderTarget, phone, onStopFinder, onFinderDetails, zoomControl, extraObjects = noObjects, pathObject = null, pathMotion = false, showSatellites = false, satellitesKey = 0}: Props) {
   const comparisonStatus = useSyncExternalStore(frames.comparison.subscribe, frames.comparison.getSnapshot);
   const [comparisonTrackers] = useState(() => ({current: {pass: -1, reveal: new ConstellationReveal(), cache: new ConstellationDrawingCache(), resolution: new MotionResolution()}}));
@@ -141,15 +144,17 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
   const stars = useMemo(() => prepareHorizontalStars(horizontalStarCatalog(time, location)), [time, location]);
   // F-043: fainter binocular stars load on demand and rotate with one matrix per time change.
   const [faintData, setFaintData] = useState<FaintStars | null>(null);
+  // F-068: fainter stars follow the zoom on every level of detail.
+  const wantsFaint = starMagnitudeLimit(skyLevel, zoom) > 6.5;
   useEffect(() => {
-    if (skyLevel === 'eye' || faintData) return;
+    if (!wantsFaint || faintData) return;
     let live = true;
     loadFaintStars(import.meta.env.BASE_URL).then(data => { if (live) setFaintData(data); }).catch(() => {});
     return () => { live = false; };
-  }, [skyLevel, faintData]);
+  }, [wantsFaint, faintData]);
   const magnitudeLimit = starMagnitudeLimit(skyLevel, zoom);
-  // F-061: Gaia tiles around the view, only on the whole-catalogue level once zoomed past the binocular limit.
-  const gaiaWanted = skyLevel === 'all' && magnitudeLimit > 8.5;
+  // F-061/F-068: Gaia tiles around the view once zoomed past the binocular limit (any level of detail).
+  const gaiaWanted = magnitudeLimit > 8.5;
   const [gaiaIndex, setGaiaIndex] = useState<GaiaIndex | null>(null);
   // F-065: the deeper layer (11 < G ≤ 12, 5° tiles) once the limit passes G 11 (beyond 3×).
   const gaiaDeepWanted = gaiaWanted && magnitudeLimit > 11;
@@ -190,7 +195,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
     }, 220);
     return () => { live = false; window.clearTimeout(timer); };
   }, [gaiaIndex, gaiaTileList, gaiaWanted]);
-  const faintStars = useMemo(() => skyLevel === 'eye' ? null : mergeFaintStars(faintData, gaiaWanted ? gaiaTiles : []), [skyLevel, faintData, gaiaTiles, gaiaWanted]);
+  const faintStars = useMemo(() => mergeFaintStars(faintData, gaiaWanted ? gaiaTiles : []), [faintData, gaiaTiles, gaiaWanted]);
   const faint = useMemo(() => faintStars ? faintSky(faintStars, time, location) : null, [faintStars, time, location]);
   const faintGroups = useMemo(() => faintStars?.ci ? faintTintGroups(faintStars.ci) : null, [faintStars]);
   const milkyBasis = useMemo(() => milkyWayBasis(time, location), [time, location]);
@@ -777,6 +782,12 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
     {sunPoint && <span className="sky-object sky-sun" style={{left: sunPoint.x, top: sunPoint.y, opacity: sun.altitude < 0 ? belowReveal * .8 : 1}} role="img" aria-label={`${sunLabel}, ${language === 'sv' ? 'höjd' : 'altitude'} ${sun.altitude.toLocaleString(language === 'sv' ? 'sv-SE' : 'en-GB', {minimumFractionDigits: 1, maximumFractionDigits: 1})}°`}><span className="sky-point"/><span className="sky-object-label" aria-hidden="true" data-visible={labelPlacements.get('sun')?.visible ?? false} style={{left: `calc(50% + ${labelPlacements.get('sun')?.dx ?? 0}px)`, top: `calc(50% + ${labelPlacements.get('sun')?.dy ?? 32}px)`}}>{sunLabel}</span></span>}
     {finderTarget && targetPosition && <GuidedFinder object={finderTarget} position={targetPosition} nextRise={nextRise} location={location} view={view} width={size.width} height={size.height} language={language} phone={phone} sunAltitude={sun.altitude} zoom={zoom} onClose={onStopFinder} onDetails={onFinderDetails}/>}
     <div className="horizon-help">{language === 'sv' ? 'Dra för att se dig omkring · nyp eller skrolla för att zooma' : 'Drag to look around · pinch or scroll to zoom'}</div>
+    {/* F-068: visible zoom control (pinch, wheel and +/− keys still work). */}
+    <div className="zoom-pill" data-sky-controls role="group" aria-label={language === 'sv' ? 'Zoom' : 'Zoom'}>
+      <button onClick={() => setZoom(current => Math.min(MAX_SKY_ZOOM, current * 1.6))} disabled={zoom >= MAX_SKY_ZOOM} aria-label={language === 'sv' ? 'Zooma in' : 'Zoom in'}>+</button>
+      <button className="zoom-level" onClick={() => setZoom(1)} disabled={zoom <= 1.001} aria-label={language === 'sv' ? `Zoom ${zoomLabel(zoom, language)}, tryck för 1×` : `Zoom ${zoomLabel(zoom, language)}, tap for 1×`}>{zoomLabel(zoom, language)}</button>
+      <button onClick={() => setZoom(current => Math.max(1, current / 1.6))} disabled={zoom <= 1.001} aria-label={language === 'sv' ? 'Zooma ut' : 'Zoom out'}>−</button>
+    </div>
     <div className="horizon-controls" aria-label={language === 'sv' ? 'Styr vyn' : 'View controls'}>
       <button onClick={() => move(-30, 0)} aria-label={language === 'sv' ? 'Vrid åt vänster' : 'Turn left'}>←</button>
       <button onClick={() => move(0, 15)} aria-label={language === 'sv' ? 'Titta upp' : 'Look up'}>↑</button>

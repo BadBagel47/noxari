@@ -42,13 +42,14 @@ describe('F-043 sky levels', () => {
     expect(candidateObjects.some(object => shownAtSkyLevel(object, 'all', {...defaultSkyGroups, candidates: false}))).toBe(false);
   });
 
-  it('raises the star limit with zoom only above the naked-eye level and fades stars in', () => {
-    expect(starMagnitudeLimit('eye', 3)).toBe(6.5);
-    expect(starMagnitudeLimit('binoculars', 1)).toBe(7);
-    expect(starMagnitudeLimit('binoculars', 2)).toBe(8.5);
-    expect(starMagnitudeLimit('binoculars', 3)).toBe(8.5);
-    expect(starMagnitudeLimit('all', 2)).toBeCloseTo(8.5);
-    expect(starMagnitudeLimit('all', 3)).toBeCloseTo(11);
+  it('raises the star limit with zoom on every level (F-068) and fades stars in', () => {
+    for (const level of ['eye', 'binoculars', 'all'] as const) {
+      expect(starMagnitudeLimit(level, 1)).toBe(6.5);
+      expect(starMagnitudeLimit(level, 2)).toBeCloseTo(8.5);
+      expect(starMagnitudeLimit(level, 3)).toBeCloseTo(11);
+      expect(starMagnitudeLimit(level, 6)).toBeCloseTo(12);
+    }
+    expect(starMagnitudeLimit('eye', 1.5)).toBeGreaterThan(6.5);
     expect(starMagnitudeLimit('all', 2.5)).toBeGreaterThan(9);
     expect(faintStarFade(7.1, 7)).toBe(0);
     expect(faintStarFade(7, 7)).toBeCloseTo(.25);

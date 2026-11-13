@@ -6,7 +6,7 @@ const browser = await chromium.launch({executablePath: process.env.CHROMIUM_PATH
 const base = process.env.APP_URL || 'http://127.0.0.1:4194/noxari/';
 const allErrors = [], reports = [];
 const words = sv => sv ? {more:'Mer', report:'Prestandarapport', start:'Starta mätning', stop:'Stoppa mätning', save:'Spara prestandarapport'} : {more:'More', report:'Performance report', start:'Start recording', stop:'Stop recording', save:'Save performance report'};
-async function open(page, sv=false) { const w=words(sv);await page.getByRole('button',{name:w.more,exact:true}).click();await page.getByRole('button',{name:w.report,exact:true}).click(); }
+async function open(page, sv=false) { const w=words(sv);await page.getByRole('button',{name:w.more,exact:true}).click();await page.locator('.more-advanced:not([open]) > summary').click().catch(()=>{});await page.getByRole('button',{name:w.report,exact:true}).click(); }
 async function start(page, sv=false) {await open(page,sv);await page.getByRole('button',{name:words(sv).start,exact:true}).click();await page.locator('.performance-capture').waitFor();assert.equal(await page.getByRole('dialog').count(),0);}
 async function save(page, sv=false, stop=true) {
  if(stop)await page.getByRole('button',{name:words(sv).stop,exact:true}).click();
@@ -55,7 +55,7 @@ try {
  // Follow requests retain their source; the nested camera setter is not counted as manual input.
  const p=await pageFor({mode:'gpu'});await p.getByRole('button',{name:'Follow the phone',exact:true}).click();
  const emit=alpha=>p.evaluate(alpha=>window.dispatchEvent(new DeviceOrientationEvent('deviceorientation',{alpha,beta:90,gamma:0,absolute:false})),alpha);
- await emit(0);await p.waitForTimeout(80);await p.getByRole('button',{name:'More',exact:true}).click();await p.getByRole('button',{name:/^Phone direction/}).click();
+ await emit(0);await p.waitForTimeout(80);await p.getByRole('button',{name:'More',exact:true}).click();await p.locator('.more-advanced:not([open]) > summary').click().catch(()=>{});await p.getByRole('button',{name:/^Phone direction/}).click();
  await p.getByRole('dialog').getByRole('button',{name:'Align north',exact:true}).click();await p.getByRole('button',{name:'Close panel'}).click();await start(p);
  for(let i=1;i<=12;i++){await emit(360-i);await p.waitForTimeout(30);}
  const phone=await save(p);validate(phone);assert.ok(phone.frames.some(f=>f.inputs['phone-publication']>0));assert.ok(phone.frames.every(f=>f.inputs['manual-view']===0));

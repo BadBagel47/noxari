@@ -24,7 +24,7 @@
 ## Rendering and interaction
 - One shared `SkyFrames` scheduler draws everything; never add a separate drawing, animation or sensor-publication RAF. Camera moves (Show in sky, tours, demo, time glides) use `SkyFrames.setMotion`; never call `setMotion` from inside a motion step; tours read the latest view/time/place from refs. Respect reduced motion. Live satellites may only request frames from the scheduler with a plain timer (≈4/s, 1/s with reduced motion) while dots are shown.
 - Keep the GPU path with Canvas fallback (software renderers use Canvas) and matching output in both; keep the shader colour ramp in sync with `src/starColor.ts`.
-- Perspective is 90° on the longer axis at 1×; zoom 1–200× in Look around (map 1–2.5×) is a local projection scale shared by all layers; DSS sky images fade in from 3× (fully from 6×), Gaia stars reach G 11 at 3× and G 12 at 6× (second tile layer). Marker taps vs drags: 8 px threshold; a pan never selects; known objects win tap priority (`src/starPick.ts`).
+- Perspective is 90° on the longer axis at 1×; zoom 1–200× in Look around (map 1–2.5×) is a local projection scale shared by all layers; DSS sky images fade in from 3× (fully from 6×), Gaia stars reach G 11 at 3× and G 12 at 6× (second tile layer); the star limit follows zoom on every level of detail (F-068), the level only decides which objects are marked and suggested. Marker taps vs drags: 8 px threshold; a pan never selects; known objects win tap priority (`src/starPick.ts`).
 - Retest mobile panning after rendering changes and report measurements honestly (software-renderer numbers are not phone results).
 
 ## Phone sensors (B-001 parked)
