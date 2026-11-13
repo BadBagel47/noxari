@@ -6,13 +6,13 @@
 <style>
 /* Designförslag, ingen appkod. Tokens som skulle bli CSS-variabler i appen. */
 :root{
-  --bg:#05070b; --surface:rgba(13,16,23,.72); --surface-solid:#0d1017; --raised:rgba(255,255,255,.045);
+  --bg:#05070b; --surface:rgba(13,16,23,.58); --surface-solid:#0d1017; --raised:rgba(255,255,255,.045);
   --hair:rgba(255,255,255,.075); --hair-strong:rgba(255,255,255,.13);
   --text:#e9edf4; --text-2:#9aa3b2; --text-3:#5d6474;
   --accent:#a9c2ff; --accent-ink:#0a1124; --accent-soft:rgba(169,194,255,.12);
   --amber:#f3c76e; --green:#7fd6ab; --violet:#b9a6ff;
   --r-sheet:28px; --r-card:22px; --r-ctl:14px;
-  --blur:saturate(160%) blur(22px);
+  --blur:saturate(170%) blur(24px);
   --font:'Inter',-apple-system,'SF Pro Text','Segoe UI',system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -66,11 +66,11 @@ svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke
 .fact b.amber{color:var(--amber)}
 .actions{display:flex;gap:8px}
 .btn{height:46px;border-radius:var(--r-ctl);display:flex;align-items:center;justify-content:center;gap:8px;font-size:14.5px;font-weight:600;background:var(--raised);border:1px solid var(--hair);color:var(--text);padding:0 14px}
-.btn.primary{flex:1;background:var(--accent);color:var(--accent-ink);border:none}
+.btn.primary{flex:1;background:rgba(169,194,255,.16);color:#c8d7ff;border:1px solid rgba(169,194,255,.30)}
 .btn.icon{width:46px;padding:0}
 .btn.wide{flex:1}
 /* Ark */
-.sheet{position:absolute;left:0;right:0;bottom:0;top:118px;border-radius:var(--r-sheet) var(--r-sheet) 0 0;padding:10px 20px 0;z-index:6;background:rgba(10,12,18,.86);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-top:1px solid var(--hair-strong)}
+.sheet{position:absolute;left:0;right:0;bottom:0;top:118px;border-radius:var(--r-sheet) var(--r-sheet) 0 0;padding:10px 20px 0;z-index:6;background:rgba(10,12,18,.74);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-top:1px solid var(--hair-strong)}
 .grab{width:38px;height:5px;border-radius:3px;background:rgba(255,255,255,.18);margin:0 auto 14px}
 .sheet .title{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
 .sheet h3{font-size:24px;font-weight:650;letter-spacing:-.02em}
@@ -250,7 +250,7 @@ svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke
 <div class="tokens">
   <div class="tok"><h4>Ytor</h4>
     <div class="sw"><i style="background:#05070b"></i>Bakgrund #05070B</div>
-    <div class="sw"><i style="background:rgba(13,16,23,.72)"></i>Glas · 72 % + oskärpa 22 px</div>
+    <div class="sw"><i style="background:rgba(13,16,23,.58)"></i>Glas · 58 % + oskärpa 24 px (ark 74 %)</div>
     <div class="sw"><i style="background:rgba(255,255,255,.045)"></i>Upphöjd · vit 4,5 %</div>
     <div class="sw"><i style="background:rgba(255,255,255,.075)"></i>Hårlinje · vit 7,5 %</div></div>
   <div class="tok"><h4>Text och färg</h4>

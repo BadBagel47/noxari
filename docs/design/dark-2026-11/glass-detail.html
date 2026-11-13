@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<title>Noxari – glas och primärknapp (närbild)</title>
+<style>
+:root{--text:#e9edf4;--text-2:#9aa3b2;--text-3:#5d6474;--hair:rgba(255,255,255,.08);--hair-strong:rgba(255,255,255,.14);--raised:rgba(255,255,255,.05);--amber:#f3c76e;--font:'Inter',-apple-system,'SF Pro Text','Segoe UI',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0b0d12;font-family:var(--font);color:var(--text);padding:36px;-webkit-font-smoothing:antialiased}
+h1{font-size:22px;font-weight:650;letter-spacing:-.02em}
+p.lead{color:var(--text-2);font-size:14px;margin:6px 0 24px;max-width:1100px;line-height:1.5}
+.row{display:flex;gap:24px}
+.col{width:360px}
+.cap{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);font-weight:650;margin:0 0 10px 2px}
+.note{font-size:13px;color:var(--text-2);margin:10px 2px 0;line-height:1.45}
+/* Himmel med Vintergatan bakom kortet: samma skärmbild, förstorad på det ljusa partiet */
+.sky{position:relative;height:330px;border-radius:26px;overflow:hidden;background:url(sky-mw.png) center/cover no-repeat #05070b}
+.card{position:absolute;left:14px;right:14px;bottom:14px;border-radius:22px;padding:16px;border:1px solid var(--hair);
+  background:rgba(13,16,23,.58);backdrop-filter:saturate(170%) blur(24px);-webkit-backdrop-filter:saturate(170%) blur(24px);
+  box-shadow:0 12px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06)}
+.card.solid{background:#0f131b;backdrop-filter:none;-webkit-backdrop-filter:none}
+.head{display:flex;align-items:center;gap:12px}
+.planet{width:40px;height:40px;border-radius:13px;background:radial-gradient(circle at 35% 35%,#f7e3b5,#c59b55 60%,#6d5126)}
+h2{font-size:19px;font-weight:650;letter-spacing:-.015em}
+.sub{font-size:12.5px;color:var(--text-2);margin-top:2px}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:14px 0}
+.fact{background:var(--raised);border:1px solid var(--hair);border-radius:11px;padding:8px 9px}
+.fact small{display:block;font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;font-weight:650}
+.fact b{display:block;font-size:14px;font-weight:600;margin-top:2px}
+.fact b.amber{color:var(--amber)}
+.actions{display:flex;gap:7px}
+.btn{height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:600;background:var(--raised);border:1px solid var(--hair);color:var(--text)}
+.btn.icon{width:44px}
+.btn.primary{flex:1}
+svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+/* Varianter av primärknappen */
+.v0 .primary{background:#a9c2ff;color:#0a1124;border:none}                                   /* dagens skiss: stark */
+.v1 .primary{background:rgba(169,194,255,.16);color:#c8d7ff;border:1px solid rgba(169,194,255,.30)} /* tonad isblå – rekommendation */
+.v2 .primary{background:rgba(52,68,102,.72);color:#dfe7ff;border:1px solid rgba(255,255,255,.10)}  /* stålblå, dämpad fylld */
+.v3 .primary{background:rgba(243,199,110,.14);color:#f6d48c;border:1px solid rgba(243,199,110,.30)} /* tonad bärnsten */
+</style>
+</head>
+<body>
+<h1>Glas och primärknapp – närbild</h1>
+<p class="lead">Kortet ligger över Vintergatan (samma skärmbild från appen, förstorad) för att visa glaset: 58 % täckning, 24 px oskärpa och lätt mättnad, så att himlen syns suddigt igenom utan att texten tappar läsbarhet. Längst till vänster samma kort utan transparens som jämförelse. Under: fyra färgval för ”Visa på himlen”.</p>
+<div class="row">
+  <div class="col"><div class="cap">Utan glas (heltäckande)</div>
+    <div class="sky"><div class="card solid v1">
+      <div class="head"><div class="planet"></div><div><h2>Saturnus</h2><div class="sub">Planet · i Vattumannen</div></div></div>
+      <div class="facts"><div class="fact"><small>Höjd</small><b>24°</b></div><div class="fact"><small>Riktning</small><b>SV</b></div><div class="fact"><small>Bäst</small><b class="amber">20:54</b></div><div class="fact"><small>Magn.</small><b>0,5</b></div></div>
+      <div class="actions"><div class="btn primary"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>Visa på himlen</div><div class="btn icon"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg></div></div>
+    </div></div></div>
+  <div class="col"><div class="cap">Med glas (förslaget)</div>
+    <div class="sky"><div class="card v1">
+      <div class="head"><div class="planet"></div><div><h2>Saturnus</h2><div class="sub">Planet · i Vattumannen</div></div></div>
+      <div class="facts"><div class="fact"><small>Höjd</small><b>24°</b></div><div class="fact"><small>Riktning</small><b>SV</b></div><div class="fact"><small>Bäst</small><b class="amber">20:54</b></div><div class="fact"><small>Magn.</small><b>0,5</b></div></div>
+      <div class="actions"><div class="btn primary"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>Visa på himlen</div><div class="btn icon"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg></div></div>
+    </div></div>
+    <p class="note">Glaset används bara på kontroller som ligger över himlen (kort, sökfält, nedre rad, zoom). Stora ark (Lager, Ikväll) får 74 % täckning så att listorna förblir lugna.</p></div>
+</div>
+
+<div class="cap" style="margin-top:34px">Färg på ”Visa på himlen”</div>
+<div class="row">
+  <div class="col"><div class="sky" style="height:150px"><div class="card v0" style="padding:14px"><div class="actions"><div class="btn primary">Visa på himlen</div><div class="btn icon"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg></div></div></div></div>
+    <p class="note"><b>0 · Fylld isblå</b> (förra skissen). Tydligast, men lyser starkast på en mörk himmel och tar ögat från stjärnorna.</p></div>
+  <div class="col"><div class="sky" style="height:150px"><div class="card v1" style="padding:14px"><div class="actions"><div class="btn primary">Visa på himlen</div><div class="btn icon"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg></div></div></div></div>
+    <p class="note"><b>1 · Tonad isblå – rekommendation.</b> 16 % isblå yta, ljus isblå text och tunn kant. Fortfarande tydligt huvudval, men i samma låga ljusnivå som resten.</p></div>
+  <div class="col"><div class="sky" style="height:150px"><div class="card v2" style="padding:14px"><div class="actions"><div class="btn primary">Visa på himlen</div><div class="btn icon"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg></div></div></div></div>
+    <p class="note"><b>2 · Stålblå.</b> Dämpad fylld knapp (#344466). Lugnast, men skiljer sig mindre från övriga knappar.</p></div>
+  <div class="col"><div class="sky" style="height:150px"><div class="card v3" style="padding:14px"><div class="actions"><div class="btn primary">Visa på himlen</div><div class="btn icon"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg></div></div></div></div>
+    <p class="note"><b>3 · Tonad bärnsten.</b> Varm och nattvänlig, men bärnsten är reserverad för ”bäst/nu” och skulle då betyda två saker.</p></div>
+</div>
+</body>
+</html>

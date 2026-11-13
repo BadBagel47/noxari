@@ -19,8 +19,9 @@ Rekommenderad ordning: F-067 + F-068 (störst vinst), sedan F-069 + F-071, sedan
 
 ## 2. Designförslag ”Obsidian”
 
-- **Himlen först.** Kontrollerna flyter som mörkt glas (72 % täckning, 22 px oskärpa, 1 px hårlinje) över himlen; inga helfärgade paneler.
-- **En accent, en signal.** Isblå (#A9C2FF) för val och primärknapp; bärnsten (#F3C76E) bara för ”bäst/nu”. Övrigt i gråskala.
+- **Himlen först.** Kontrollerna flyter som mörkt glas (58 % täckning, 24 px oskärpa, lätt mättnad, 1 px hårlinje) så att himlen syns suddigt igenom; stora ark 74 %. Närbild: `glas-och-knapp.png` (`glass-detail.html`).
+- **En accent, en signal.** Isblå (#A9C2FF) för val; bärnsten (#F3C76E) bara för ”bäst/nu”. Övrigt i gråskala.
+- **Primärknapp** (”Visa på himlen”), justerad 2026-11-13 efter användarens synpunkt att den var för stark: tonad isblå (16 % isblå yta, text #C8D7FF, tunn kant) i stället för fylld. Jämförda alternativ: fylld isblå, stålblå, tonad bärnsten.
 - **Nedre rad** som flytande kapsel med fyra flikar och en liten punkt för aktiv flik; **toppen** en kapsel (sök + plats/tid) och en rund Följ-knapp.
 - **Objektkort** med fyra nyckeltal i rutor och en tydlig primärknapp (”Visa på himlen”) + ikonknappar.
 - **Ark** (Lager, Ikväll) med större rubriker, segmentkontroller, listor med reglage i stället för rutnät av rutor.
