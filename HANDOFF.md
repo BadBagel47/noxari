@@ -46,6 +46,7 @@ Inga körklara förslag; nya önskemål samlas i [BACKLOG.md](BACKLOG.md). Parke
 
 ## Begränsningar och engångsåtgärder
 
+- 2026-11-13: miljön ”noxari” fick tillgång till `cdsarc.cds.unistra.fr`, `tapvizier.cds.unistra.fr` och `gea.esac.esa.int` (F-061). Gaia-arkivet fungerar; CDS-värdarna svarar inte genom proxyn (tunneln stängs).
 - 2026-11-12: GitHub GraphQL (`gh pr/issue list`) och Pages-API är spärrade via proxyn; REST fungerar. Schemalagd körning i workflow-filen nekades av behörighetsklassning.
 - Molnmiljön ”noxari” har nätåtkomst till ESO, Open-Meteo, CelesTrak, Wikipedia/Commons (svenska Wikipedia nås inte från testmiljön; i appen fungerar den) och den publicerade sajten (godkänt av användaren).
 - Klart: egen domän + Enforce HTTPS (användaren, 2026-11-12). Ersatt/inte behövd: daglig schemalagd publicering (F-042 hämtar ISS-data i appen).
@@ -54,6 +55,7 @@ Inga körklara förslag; nya önskemål samlas i [BACKLOG.md](BACKLOG.md). Parke
 
 | Dokument | Innehåll |
 | --- | --- |
+| [docs/proposals/F-061-star-catalog.md](docs/proposals/F-061-star-catalog.md) | Underlag för katalog med svaga stjärnor (F-061 steg 2): antal, storlek, licens, rekommendation |
 | [AGENTS.md](AGENTS.md) | Hänvisning till globala agentregler + projektregler |
 | [BACKLOG.md](BACKLOG.md) | Buggar, funktioner, prioritet, körförslag, klart |
 | [README.md](README.md) | Produktbeskrivning, start, data och licenser |
