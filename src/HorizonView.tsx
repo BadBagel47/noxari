@@ -36,6 +36,7 @@ import {glowSprite} from './starGlow';
 import {landscapeHeight} from './landscape';
 import {starFill} from './starColor';
 import {milkyWayZoomFade} from './milkyWay';
+import {HipsPainter, MAX_SKY_ZOOM, hipsAlpha} from './hipsPainter';
 import {FAINT_TINTS, faintTintGroups} from './gaiaStars';
 import type {usePhoneOrientation} from './usePhoneOrientation';
 import {skyOverlayExclusions} from './objectLabels';
@@ -106,6 +107,12 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
   if (showEcliptic) shown.current.ecliptic = true;
   useEffect(() => { if (showArt) artImages.current.preload(constellationArt.map(art => art.id), () => frames.invalidate()); }, [showArt, frames]);
   const milkyWayPainter = useRef(new MilkyWayPainter());
+  // F-062: real sky images beyond 3×; tile arrivals request a new frame from the shared scheduler.
+  const hipsPainter = useRef<HipsPainter | null>(null);
+  hipsPainter.current ??= new HipsPainter(() => frames.invalidate());
+  const lastPose = useRef({key: '', at: 0});
+  const settleTimer = useRef<number | null>(null);
+  useEffect(() => () => { if (settleTimer.current) window.clearTimeout(settleTimer.current); }, []);
   const gpu = useRef<HorizonGpu | null>(null);
   const [performanceScene] = useState<PerformanceScene>(() => ({backend: 'canvas', reason: 'not-drawn', driver: '',
     preference: skyRendererPreference(window.location.search), width: 0, height: 0, dpr: 1, zoom: 1, starCount: 0,
@@ -245,7 +252,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
     return () => observer.disconnect();
   }, []);
 
-  // Mouse wheel / trackpad zoom (F-043: desktop users can reach fainter stars). Same 1×–3× range as pinch.
+  // Mouse wheel / trackpad zoom (F-043: desktop users can reach fainter stars). Same 1×–60× range as pinch (F-062).
   useEffect(() => {
     const element = root.current;
     if (!element) return;
@@ -253,7 +260,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       if (frames.comparison.active) return;
       event.preventDefault();
       const scale = Math.exp(-Math.max(-200, Math.min(200, event.deltaY * (event.deltaMode === 1 ? 33 : 1))) * .0015);
-      setZoom(current => Math.max(1, Math.min(3, current * scale)));
+      setZoom(current => Math.max(1, Math.min(MAX_SKY_ZOOM, current * scale)));
     };
     element.addEventListener('wheel', wheel, {passive: false});
     return () => element.removeEventListener('wheel', wheel);
@@ -381,6 +388,25 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
         }
       }
 
+      // F-062: DSS sky images fade in from 3× (fully from 6×), only in a dark sky. Coarser while the view moves.
+      const deep = hipsAlpha(zoom) * Math.max(starVisibility, belowReveal);
+      if (deep > 0 && hipsPainter.current) {
+        const poseKey = `${view.heading}|${view.pitch}|${zoom}`, nowMs = performance.now();
+        if (poseKey !== lastPose.current.key) lastPose.current = {key: poseKey, at: nowMs};
+        const moving = nowMs - lastPose.current.at < 180;
+        if (moving) {
+          if (settleTimer.current) window.clearTimeout(settleTimer.current);
+          settleTimer.current = window.setTimeout(() => { settleTimer.current = null; frames.invalidate(); }, 200);
+        }
+        hipsPainter.current.draw(context, time, location, view, zoom, width, height, deep, belowReveal > 0, moving);
+        context.save();
+        context.globalAlpha = .75 * deep;
+        context.font = '500 10px system-ui, sans-serif';
+        context.fillStyle = '#c9d6e6';
+        context.textAlign = 'left';
+        context.fillText(language === 'sv' ? 'Bild: DSS (STScI/NASA), färgad av CDS, via ESA ESASky' : 'Image: DSS (STScI/NASA), coloured by CDS, via ESA ESASky', 10, height - 10);
+        context.restore();
+      }
       measurement?.phase('milkyWay');
       const drawCurve = (samples: PreparedHorizontalDirection[]) => {
         context.beginPath();
@@ -419,7 +445,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       measurement?.phase('figures');
 
       if (starVisibility > 0 || belowReveal > 0) {
-        if (!renderer?.drawStars(context, width, height, dpr, view, starVisibility, belowReveal, zoom, magnitudeLimit)) {
+        if (!renderer?.drawStars(context, width, height, dpr, view, starVisibility, belowReveal, zoom, magnitudeLimit, 1 - .7 * hipsAlpha(zoom))) {
           for (const star of stars) {
             const visibility = projectedStarVisibility(sun.altitude, star.altitude, belowReveal);
             if (visibility <= 0) continue;
@@ -450,7 +476,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
                 const point = project(direction[i * 3], direction[i * 3 + 1], z);
                 if (!point) continue;
                 const magnitude = faint.magnitude[i];
-                context.globalAlpha = visibility * faintStarBrightness(magnitude) * faintStarFade(magnitude, magnitudeLimit);
+                context.globalAlpha = visibility * faintStarBrightness(magnitude) * faintStarFade(magnitude, magnitudeLimit) * (1 - .7 * hipsAlpha(zoom));
                 // A 1.6 px square matches the 0.8 px-radius point on screen and is much cheaper than an arc (F-061: many stars).
                 context.fillRect(point.x - .8, point.y - .8, 1.6, 1.6);
               }
@@ -601,7 +627,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       if (pinch.current && touchPoints.current.size >= 2) {
         const points = [...touchPoints.current.values()];
         const distance = Math.hypot(points[1].x - points[0].x, points[1].y - points[0].y);
-        if (pinch.current.distance > 0) setZoom(Math.max(1, Math.min(3, pinch.current.zoom * distance / pinch.current.distance)));
+        if (pinch.current.distance > 0) setZoom(Math.max(1, Math.min(MAX_SKY_ZOOM, pinch.current.zoom * distance / pinch.current.distance)));
         return;
       }
     }
@@ -699,7 +725,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       if (frames.comparison.active) {frames.comparison.cancel('user-interaction');event.preventDefault();event.stopPropagation();return;}
       delete event.currentTarget.dataset.pointerSteering;
       if (finderTarget && event.key === 'Escape') { event.preventDefault(); onStopFinder(); return; }
-      if ((event.key === '+' || event.key === '=' || event.key === '-') && event.target === event.currentTarget) { event.preventDefault(); setZoom(current => Math.max(1, Math.min(3, current * (event.key === '-' ? 1 / 1.25 : 1.25)))); return; }
+      if ((event.key === '+' || event.key === '=' || event.key === '-') && event.target === event.currentTarget) { event.preventDefault(); setZoom(current => Math.max(1, Math.min(MAX_SKY_ZOOM, current * (event.key === '-' ? 1 / 1.25 : 1.25)))); return; }
       const changes: Record<string, [number, number]> = {ArrowLeft: [-10, 0], ArrowRight: [10, 0], ArrowUp: [0, 8], ArrowDown: [0, -8]};
       const change = changes[event.key];
       if (change && event.target === event.currentTarget) { event.preventDefault(); move(...change); }

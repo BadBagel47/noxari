@@ -65,6 +65,7 @@ uniform float dpr;
 uniform vec2 visibility;
 uniform bool below;
 uniform float magnitudeLimit;
+uniform float faintDim;
 flat out float spriteSize;flat out vec2 tile;flat out float alpha;flat out vec3 tint;
 // F-049: same B–V colour ramp as src/starColor.ts.
 vec3 ramp(float ci){
@@ -87,7 +88,7 @@ void main(){
   // F-049: stars dim a little close to the horizon (atmospheric extinction look); sin(15°)≈0.259.
   if(direction.z>=0.0)alpha*=0.55+0.45*clamp(direction.z/0.259,0.0,1.0);
   // F-043: stars fainter than V 6.5 fade in as the zoom-dependent limit passes them.
-  if(magnitude>6.5)alpha*=magnitude>magnitudeLimit?0.0:clamp((magnitudeLimit-magnitude)/0.4+0.25,0.0,1.0);
+  if(magnitude>6.5)alpha*=(magnitude>magnitudeLimit?0.0:clamp((magnitudeLimit-magnitude)/0.4+0.25,0.0,1.0))*faintDim;
   spriteSize=ceil(radius*dpr+1.0)*2.0;gl_PointSize=spriteSize;tile=vec2(0.0);
   if(depth<=0.0||(direction.z<0.0&&!below)||alpha<=0.0){gl_Position=vec4(2.0,2.0,2.0,1.0);return;}
   float right=direction.y*ch-direction.x*sh;
@@ -315,7 +316,7 @@ export class GpuSky {
     this.copy(context, this.pixelWidth / dpr, this.pixelHeight / dpr);
   }
 
-  drawStars(context: CanvasRenderingContext2D, width: number, height: number, dpr: number, view: ViewDirection, starVisibility: number, belowReveal: number, zoom: number, magnitudeLimit = 6.5) {
+  drawStars(context: CanvasRenderingContext2D, width: number, height: number, dpr: number, view: ViewDirection, starVisibility: number, belowReveal: number, zoom: number, magnitudeLimit = 6.5, faintDim = 1) {
     this.surface(width, height, dpr);
     const atlas = this.starAtlas(dpr);
     const gl = this.gl;
@@ -331,6 +332,8 @@ export class GpuSky {
     gl.uniform2f(this.uniform(this.starsProgram, 'visibility'), starVisibility, belowReveal);
     gl.uniform1i(this.uniform(this.starsProgram, 'below'), Number(belowReveal > 0));
     gl.uniform1f(this.uniform(this.starsProgram, 'magnitudeLimit'), magnitudeLimit);
+    // F-062: faint stars step back where the DSS images (which show their own stars) take over.
+    gl.uniform1f(this.uniform(this.starsProgram, 'faintDim'), faintDim);
     // Faint stars are sorted by magnitude, so only the prefix up to the limit is submitted.
     gl.drawArrays(gl.POINTS, 0, this.starCount + (magnitudeLimit > 6.5 && this.sceneFaint ? faintCount(this.sceneFaint.magnitude, magnitudeLimit) : 0));
     this.copy(context, this.pixelWidth / dpr, this.pixelHeight / dpr);

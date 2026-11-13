@@ -1,0 +1,29 @@
+Noxari — deep-zoom sky images (F-062)
+
+Survey: Digitized Sky Survey (DSS2), colour composite "DSS colored" (HiPS ivo://CDS/P/DSS2/color),
+produced at the Space Telescope Science Institute (STScI) under U.S. Government grant NAG W-2166,
+coloured and HEALPix-tiled by CDS (Strasbourg; HiPS © CNRS/Unistra), fetched from the ESA ESASky
+mirror https://skies.esac.esa.int/DSSColor only when the eye-level view is zoomed in past 3×.
+
+Acknowledgement (from the survey): The Digitized Sky Surveys were produced at the Space Telescope
+Science Institute under U.S. Government grant NAG W-2166. The images of these surveys are based on
+photographic data obtained using the Oschin Schmidt Telescope on Palomar Mountain and the UK
+Schmidt Telescope. The plates were processed into the present compressed digital form with the
+permission of these institutions. The National Geographic Society - Palomar Observatory Sky Atlas
+(POSS-I) was made by the California Institute of Technology with grants from the National
+Geographic Society. The Second Palomar Observatory Sky Survey (POSS-II) was made by the California
+Institute of Technology with funds from the National Science Foundation, the National Geographic
+Society, the Sloan Foundation, the Samuel Oschin Foundation, and the Eastman Kodak Corporation. The
+Oschin Schmidt Telescope is operated by the California Institute of Technology and Palomar
+Observatory. The UK Schmidt Telescope was operated by the Royal Observatory Edinburgh, with funding
+from the UK Science and Engineering Research Council (later the UK Particle Physics and Astronomy
+Research Council), until 1988 June, and thereafter by the Anglo-Australian Observatory.
+Supplemental funding for sky-survey work at the ST ScI is provided by the European Southern
+Observatory.
+
+Terms: see https://archive.stsci.edu/dss/copyright.html. Noxari uses the images non-commercially
+with this acknowledgement. The terms page could not be opened from the build environment on
+2026-11-13 (certificate error) and is to be confirmed by the maintainer.
+
+Changes in Noxari: images are not stored; tiles are drawn with their sky background subtracted
+and blended over the app's own sky and stars.
