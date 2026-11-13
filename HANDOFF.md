@@ -65,6 +65,7 @@ Inga körklara förslag; nya önskemål samlas i [BACKLOG.md](BACKLOG.md). Parke
 
 | Dokument | Innehåll |
 | --- | --- |
+| [docs/design/dark-2026-11/README.md](docs/design/dark-2026-11/README.md) | UX-genomgång 2026-11-13 och designförslag ”Obsidian” (F-067–F-073) |
 | [docs/proposals/F-065-gaia-deeper.md](docs/proposals/F-065-gaia-deeper.md) | Underlag för Gaia-stjärnor djupare än G 11 (F-065) |
 | [docs/proposals/F-062-sky-imagery.md](docs/proposals/F-062-sky-imagery.md) | Underlag för djupzoom med himmelsbilder (F-062): källor, storlek, licens, integritet, alternativ |
 | [docs/proposals/F-061-star-catalog.md](docs/proposals/F-061-star-catalog.md) | Underlag för katalog med svaga stjärnor (F-061 steg 2): antal, storlek, licens, rekommendation |
