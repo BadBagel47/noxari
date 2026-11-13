@@ -1,6 +1,6 @@
-> **Global agent rules:** follow https://raw.githubusercontent.com/BadBagel47/agent-rules/main/AGENTS.md (read at the start of every session; this repo is adapted to v1.4).
+> **Global agent rules:** follow https://raw.githubusercontent.com/BadBagel47/agent-rules/main/AGENTS.md (read at the start of every session; this repo is adapted to v1.5).
 > **Handoff:** [HANDOFF.md](HANDOFF.md) (state, decisions, publishing, documentation map). **Backlog:** [BACKLOG.md](BACKLOG.md) (incl. "Proposed runs").
-> Below are the **project rules** for this repo only. The full earlier rule text (2026-10-29 → 2026-11-12) is in git history before the v1.4 adaptation commit and summarised in [docs/HANDOFF_LOG.md](docs/HANDOFF_LOG.md).
+> Below are the **project rules** for this repo only. The full earlier rule text (2026-10-29 → 2026-11-12) is in git history before the v1.5 adaptation commit and summarised in [docs/HANDOFF_LOG.md](docs/HANDOFF_LOG.md).
 
 # Noxari — project rules
 

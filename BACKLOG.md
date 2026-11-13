@@ -4,7 +4,7 @@ ID:n är permanenta (F-### funktioner, B-### buggar, separata serier — beslut 
 
 ## Proposed runs
 
-Senast uppdaterad 2026-11-12. Bokstäverna gäller bara den senast visade listan.
+Senast uppdaterad 2026-11-13. Bokstäverna gäller bara den senast visade listan.
 
 Inga körklara förslag just nu.
 
