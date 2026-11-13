@@ -76,6 +76,23 @@ const kindDisplay = (kind: SpaceObject['kind'], lang: Lang) => ({
 const formatNumber = (value: number, lang: Lang, maximumFractionDigits = 1) => new Intl.NumberFormat(lang === 'sv' ? 'sv-SE' : 'en-GB', {maximumFractionDigits, minimumFractionDigits: maximumFractionDigits}).format(value);
 const mainObjects = [...objects, issObject, ...namedStarObjects, ...constellationInfoObjects];
 const allObjects = [...mainObjects, ...candidateObjects];
+/**
+ * B-019: where the demo caption leaves free sky, as an offset of the free area's centre from the screen centre
+ * (dx > 0: right, dy > 0: up). Uses the card's measured box when it is shown, else the layout's typical size.
+ */
+function demoCaptionBox() {
+  const width = innerWidth, height = innerHeight;
+  // Same breakpoint as the side-card layout in obsidian.css.
+  const landscape = matchMedia('(min-width:700px),(orientation:landscape) and (min-width:568px)').matches;
+  const box = document.querySelector('.demo-caption')?.getBoundingClientRect();
+  const top = 64;
+  if (landscape) {
+    const right = box && box.width > 0 ? box.right : Math.min(380, width * .45) + 14;
+    return {dx: (right + 12 + width) / 2 - width / 2, dy: height / 2 - (top + height) / 2};
+  }
+  const cardTop = box && box.height > 0 ? box.top : height - Math.min(420, height * .45);
+  return {dx: 0, dy: height / 2 - (top + cardTop - 12) / 2};
+}
 /** F-069: eight-point compass name for an azimuth (degrees from north). */
 const compassPoint = (azimuth: number, lang: Lang) => (lang === 'sv' ? ['N', 'NO', 'O', 'SO', 'S', 'SV', 'V', 'NV'] : ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'])[Math.round(((azimuth % 360) + 360) % 360 / 45) % 8];
 const equipmentLabel = (gear: Gear, lang: Lang) => ({eye: t(lang, 'Naked eye', 'Blotta ögat'), binoculars: t(lang, 'Binoculars', 'Kikare'), telescope: t(lang, 'Telescope', 'Teleskop')}[gear]);
@@ -365,10 +382,19 @@ function App() {
     if (phone.active) phone.takeManualControl();
     setSkyMode('horizon');
     const goalZoom = cinematic ? demoZoom(object) : Math.min(1.8, demoZoom(object));
-    // In the demo the object sits a little above centre (≈40 % from the top), clear of the title card. The offset
-    // is recomputed for the current zoom every frame, so zooming in and out stays anchored on the object.
-    const liftAt = (zoom: number) => cinematic ? Math.atan(.1 * innerHeight / (Math.max(innerWidth, innerHeight) / 2 * zoom)) * 180 / Math.PI : 0;
-    const centred = goalView(target), framed = (view: ViewDirection, zoom: number, weight = 1) => ({...view, pitch: clampViewPitch(view.pitch - liftAt(zoom) * weight)});
+    // B-019: in the demo the object sits in the middle of the free sky beside the caption card – above it on a
+    // portrait screen, to its right in landscape. The offset follows the card's measured size and is recomputed
+    // for the current zoom every frame, so zooming in and out stays anchored on the object.
+    const offsetAt = (zoom: number) => {
+      if (!cinematic) return {lift: 0, shift: 0};
+      const focal = Math.max(innerWidth, innerHeight) / 2 * zoom, card = demoCaptionBox();
+      const angle = (pixels: number) => Math.atan(pixels / focal) * 180 / Math.PI;
+      return {lift: angle(card.dy), shift: angle(card.dx)};
+    };
+    const centred = goalView(target), framed = (view: ViewDirection, zoom: number, weight = 1) => {
+      const offset = offsetAt(zoom);
+      return {...view, heading: ((view.heading - offset.shift * weight) % 360 + 360) % 360, pitch: clampViewPitch(view.pitch - offset.lift * weight)};
+    };
     if (reducedMotion) { cancelGlide(); setViewDirection(framed(centred, goalZoom)); zoomControl.current?.(goalZoom); if (done) setTimeout(done, 0); return true; }
     const from = live.current.view;
     // The swing interpolates toward the object itself; the framing offset blends in with the move.

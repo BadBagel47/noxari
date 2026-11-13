@@ -66,14 +66,23 @@ export function DemoOverlay({language, caption, index, count, onStop}: {
   ] : [];
   return <div className="demo-overlay" role="button" tabIndex={0} aria-label={t(lang, 'End demo mode', 'Avsluta demoläget')}
     onPointerDown={event => { event.preventDefault(); onStop(); }} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ' || event.key === 'Escape') { event.preventDefault(); onStop(); } }}>
+    {/* B-019: one glass card (photo as a thumbnail beside the name); the camera frames the object in the free area. */}
     {caption && <div className={`demo-caption${caption.leaving ? ' leaving' : ''}`} key={caption.key} aria-live="polite">
-      {caption.photo && <figure className="demo-photo"><img src={caption.photo.src} alt="" decoding="async"/><figcaption>{t(lang, 'Photo', 'Foto')}: {caption.photo.credit} · {caption.photo.license} · {t(lang, 'long exposure', 'långexponering')}</figcaption></figure>}
-      <span className="demo-kicker"><KindIcon name={kindIconName(caption.object)} size={20} color={caption.object.color}/>{caption.type}</span>
-      <h2>{lang === 'sv' ? caption.object.sv : caption.object.en}</h2>
+      <div className="demo-head">
+        {caption.photo && <img className="demo-thumb" src={caption.photo.src} alt="" decoding="async"/>}
+        <div className="demo-titles">
+          <span className="demo-kicker"><KindIcon name={kindIconName(caption.object)} size={16} color={caption.object.color}/>{caption.type}</span>
+          <h2>{lang === 'sv' ? caption.object.sv : caption.object.en}</h2>
+          {caption.photo && <p className="demo-credit">{t(lang, 'Photo', 'Foto')}: {caption.photo.credit} · {caption.photo.license} · {t(lang, 'long exposure', 'långexponering')}</p>}
+        </div>
+      </div>
       {caption.look && <p className="demo-look"><LookSketch altitude={caption.look.altitude} azimuth={caption.look.azimuth} language={lang}/><span>{caption.look.text}</span></p>}
       <dl>{rows.filter(([, value]) => value).map(([label, value], row) => <div key={label} style={{animationDelay: `${450 + row * 160}ms`}}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
     </div>}
-    <div className="demo-progress" aria-hidden="true">{Array.from({length: count}, (_, i) => <i key={i} className={i === index ? 'on' : i < index ? 'done' : ''}/>)}</div>
+    <div className="demo-top" aria-hidden="true">
+      <div className="demo-progress">{Array.from({length: count}, (_, i) => <i key={i} className={i === index ? 'on' : i < index ? 'done' : ''}/>)}<b>{index + 1}</b>/{count}</div>
+      <span className="demo-end">{t(lang, 'End', 'Avsluta')} ✕</span>
+    </div>
     <p className={`demo-hint${hint ? '' : ' gone'}`}>{t(lang, 'Tap anywhere to end the demo', 'Tryck var som helst för att avsluta')}</p>
   </div>;
 }
@@ -83,7 +92,7 @@ function LookSketch({altitude, azimuth, language}: {altitude: number; azimuth: n
   const r = 20 * (90 - Math.max(0, Math.min(90, altitude))) / 90, a = azimuth * Math.PI / 180;
   const x = 24 + r * Math.sin(a), y = 24 - r * Math.cos(a);
   return <svg viewBox="0 0 48 48" width="44" height="44" aria-hidden="true">
-    <circle cx="24" cy="24" r="20" fill="#06152680" stroke="#9cc6e2" strokeOpacity=".6"/>
+    <circle cx="24" cy="24" r="20" fill="#0d101780" stroke="#ffffff" strokeOpacity=".28"/>
     <circle cx="24" cy="24" r="1.4" fill="#9cc6e2" opacity=".7"/>
     <text x="24" y="10" textAnchor="middle" fontSize="7" fill="#cfe3f2">{language === 'sv' ? 'N' : 'N'}</text>
     <circle className="demo-look-dot" cx={x} cy={y} r="3.4" fill="#ffd27a"/>
