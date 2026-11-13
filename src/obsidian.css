@@ -1,0 +1,164 @@
+/*
+ * F-073 "Obsidian": dark, sleek theme (design: docs/design/dark-2026-11/).
+ * Loaded after workspace.css and only restyles: floating controls are dark glass (58 % + 24 px blur)
+ * over the sky, sheets 74 %, one ice-blue accent for choices, amber only for "best/now". The red
+ * night mode keeps working because it multiplies the whole app (workspace.css).
+ */
+.sky-app{
+  --ob-bg:#05070b;
+  --ob-glass:rgba(13,16,23,.58);
+  --ob-sheet:rgba(10,12,18,.74);
+  --ob-blur:saturate(170%) blur(24px);
+  --ob-raised:rgba(255,255,255,.05);
+  --ob-raised-strong:rgba(255,255,255,.09);
+  --ob-hair:rgba(255,255,255,.08);
+  --ob-hair-strong:rgba(255,255,255,.14);
+  --ob-text:#e9edf4;
+  --ob-text-2:#9aa3b2;
+  --ob-text-3:#68707f;
+  --ob-accent:#a9c2ff;
+  --ob-accent-text:#c8d7ff;
+  --ob-accent-soft:rgba(169,194,255,.16);
+  --ob-accent-line:rgba(169,194,255,.30);
+  --ob-signal:#f3c76e;
+  --ob-shadow:0 12px 40px rgba(0,0,0,.35);
+  color:var(--ob-text);
+  font-feature-settings:"tnum" 1;
+}
+
+/* Floating controls over the sky */
+.sky-app .sky-statusbar button,
+.sky-app .top-search-field,
+.sky-app .quick-tools,
+.sky-app .quick-layers,
+.sky-app .object-preview,
+.sky-app .sky-workspace .horizon-heading,
+.sky-app .top-search-results,
+.sky-app .quick-layers-flash{
+  background:var(--ob-glass);
+  border:1px solid var(--ob-hair);
+  -webkit-backdrop-filter:var(--ob-blur);
+  backdrop-filter:var(--ob-blur);
+  box-shadow:var(--ob-shadow), inset 0 1px 0 rgba(255,255,255,.05);
+  color:var(--ob-text);
+}
+.sky-app .top-search-field{border-radius:24px;height:48px;padding-left:16px}
+.sky-app .top-search-field:focus-within{border-color:var(--ob-accent-line);background:rgba(13,16,23,.72)}
+.sky-app .top-search-field input::placeholder{color:var(--ob-text-2)}
+.sky-app .sky-statusbar .top-search-field button{color:var(--ob-text-2);background:none;border:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+.sky-app .sky-statusbar .top-search-field button:hover{background:var(--ob-raised)}
+.sky-app .top-search-results{border-radius:20px}
+.sky-app .sky-statusbar .top-search-results button{background:none;border:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+.sky-app .sky-statusbar .top-search-results button.active{background:var(--ob-raised-strong)}
+.sky-app .top-search-results button small,.sky-app .top-search-empty{color:var(--ob-text-2)}
+.sky-app .sky-statusbar .top-search-results .top-search-all{color:var(--ob-accent-text)}
+.sky-app .sky-statusbar button{border-radius:24px}
+.sky-app .observation-chip{border-radius:18px}
+.sky-app .observation-chip small{color:var(--ob-text-2)}
+.sky-app .observation-chip.fixed,.sky-app .observation-chip.preview{border-color:rgba(243,199,110,.32)}
+.sky-app .observation-chip.fixed small,.sky-app .observation-chip.preview small{color:var(--ob-signal)}
+.sky-app .follow-toggle{border-radius:24px}
+.sky-app .follow-toggle[aria-pressed="true"]{background:rgba(127,214,171,.16)!important;border-color:rgba(127,214,171,.4)!important;color:#bdf0d6!important}
+.sky-app .sky-workspace .horizon-heading{border-radius:16px;color:var(--ob-text-2)}
+
+/* Dock */
+.sky-app .quick-tools{border-radius:30px;padding:6px}
+.sky-app .quick-tools button{border-radius:22px;color:var(--ob-text-2);background:none}
+.sky-app .quick-tools button:hover,.sky-app .quick-tools button:focus-visible{background:var(--ob-raised);color:var(--ob-text)}
+.sky-app .quick-tools button.active{background:var(--ob-raised-strong);color:var(--ob-text)}
+.sky-app .quick-layers{border-radius:24px}
+.sky-app .quick-layers button{border-radius:16px;color:var(--ob-text-2)}
+.sky-app .quick-layers button[aria-pressed="true"]{background:var(--ob-accent-soft);color:var(--ob-accent-text)}
+.sky-app .quick-layers-toggle{color:var(--ob-text-2)}
+
+/* Object card */
+.sky-app .object-preview{border-radius:22px;padding:14px 14px 14px 16px}
+.sky-app .preview-title small,.sky-app .preview-summary{color:var(--ob-text-2)}
+.sky-app .preview-close{color:var(--ob-text-2)}
+.sky-app .preview-icon{background:var(--ob-raised);border:1px solid var(--ob-hair);border-radius:14px}
+.sky-app .preview-below{color:var(--ob-signal)}
+.sky-app .preview-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(64px,1fr));gap:7px;margin:12px 0 2px}
+.sky-app .preview-facts div{background:var(--ob-raised);border:1px solid var(--ob-hair);border-radius:12px;padding:7px 9px;min-width:0}
+.sky-app .preview-facts small{display:block;font-size:10.5px;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--ob-text-3)}
+.sky-app .preview-facts b{display:block;margin-top:2px;font-size:15px;font-weight:620;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sky-app .preview-facts b.signal{color:var(--ob-signal)}
+.sky-app .preview-summary{-webkit-line-clamp:1;margin-top:9px}
+.sky-app .preview-actions button{border-radius:14px;background:var(--ob-raised);border:1px solid var(--ob-hair);color:var(--ob-text)}
+.sky-app .preview-actions button:hover{background:var(--ob-raised-strong)}
+
+/* Primary action: tonal ice blue (alternative 1), not a bright fill */
+.sky-app .preview-actions button.primary,
+.sky-app .wide-action.primary,
+.sky-app .detail-actions button.primary,
+.sky-app .sheet-body .detail-actions button.primary{
+  background:var(--ob-accent-soft)!important;
+  color:var(--ob-accent-text)!important;
+  border:1px solid var(--ob-accent-line)!important;
+  font-weight:650!important;
+}
+.sky-app .preview-actions button.primary:hover,.sky-app .wide-action.primary:hover{background:rgba(169,194,255,.22)!important}
+
+/* Sheets */
+.sky-app .panel-backdrop::before{background:rgba(2,4,8,.35)}
+.sky-app .sky-sheet{background:var(--ob-sheet);border:1px solid var(--ob-hair-strong);border-bottom:0;border-radius:28px 28px 0 0;-webkit-backdrop-filter:var(--ob-blur);backdrop-filter:var(--ob-blur);box-shadow:0 -18px 60px rgba(0,0,0,.45);color:var(--ob-text)}
+.sky-app .sky-sheet::before{background:rgba(255,255,255,.18)}
+.sky-app .sheet-head h1{font-size:24px;font-weight:650;letter-spacing:-.02em}
+.sky-app .panel-close{color:var(--ob-text-2)}
+.sky-app .sheet-label{color:var(--ob-text-3);letter-spacing:.09em;font-size:11.5px}
+.sky-app .panel-note,.sky-app .chart-note,.sky-app .field-note,.sky-app .settings-note{color:var(--ob-text-2)}
+.sky-app .segmented{background:var(--ob-raised);border:1px solid var(--ob-hair);border-radius:14px;padding:4px}
+.sky-app .segmented button{border-radius:10px;color:var(--ob-text-2)}
+.sky-app .segmented button.chosen,.sky-app .segmented.wide button.chosen,.sky-app .menu-row .segmented button.chosen{background:rgba(255,255,255,.10);color:var(--ob-text);box-shadow:inset 0 0 0 1px var(--ob-hair-strong)}
+.sky-app .sheet-body .detail-actions button,.sky-app .wide-action,.sky-app .panel-action{background:var(--ob-raised);border:1px solid var(--ob-hair);border-radius:14px;color:var(--ob-text)}
+.sky-app .layer-tiles button{background:var(--ob-raised);border:1px solid var(--ob-hair);border-radius:16px;color:var(--ob-text-2)}
+.sky-app .layer-tiles button[aria-pressed="true"]{background:var(--ob-accent-soft);border-color:var(--ob-accent-line);color:var(--ob-accent-text)}
+.sky-app .layer-tiles button.red-tile[aria-pressed="true"]{background:#4a1414;border-color:#c25b5b;color:#ffd3d3}
+.sky-app .category{background:var(--ob-raised);border:1px solid var(--ob-hair);border-radius:17px;color:var(--ob-text-2)}
+.sky-app .category.selected{background:var(--ob-accent-soft);border-color:var(--ob-accent-line);color:var(--ob-accent-text)}
+.sky-app .toggle.on{background:var(--ob-accent)}
+.sky-app .menu-list,.sky-app .object-list{background:var(--ob-raised);border:1px solid var(--ob-hair);border-radius:16px;overflow:hidden}
+.sky-app .more-menu .menu-list>button,.sky-app .menu-row{border-color:var(--ob-hair)}
+.sky-app .object-row{border-top-color:var(--ob-hair)}
+.sky-app .object-row:first-child{border-top:0}
+.sky-app .row-text small,.sky-app .menu-text small{color:var(--ob-text-2)}
+.sky-app .notice,.sky-app .sheet-body .notice{background:var(--ob-raised);border:1px solid var(--ob-hair);color:var(--ob-text-2)}
+.sky-app .field-row input,.sky-app .field-row select,.sky-app .sheet-body .search-box{background:var(--ob-raised);border-color:var(--ob-hair)}
+.sky-app .stat-grid{border-color:var(--ob-hair)}
+.sky-app .stat-grid small{color:var(--ob-text-3)}
+
+/* F-069: calculation notes folded under the chart */
+.sky-app .calc-notes{margin-top:12px;border:1px solid var(--ob-hair);border-radius:14px;background:var(--ob-raised);padding:10px 14px}
+.sky-app .calc-notes>summary{font-size:14px;font-weight:600;color:var(--ob-text-2)}
+.sky-app .calc-notes .chart-note{margin-top:8px}
+
+/* F-072: Tonight – night summary with twilight timeline, then the list */
+.sky-app .night-summary.hero{display:block;border-radius:18px;padding:14px 16px;background:linear-gradient(135deg,rgba(169,194,255,.10),rgba(185,166,255,.05));border:1px solid var(--ob-hair)}
+.sky-app .night-summary.hero small{font-size:13px;color:var(--ob-text-2)}
+.sky-app .night-summary.hero strong{display:block;font-size:22px;font-weight:650;letter-spacing:-.02em;margin-top:2px}
+.night-timeline{display:flex;height:8px;border-radius:4px;overflow:hidden;margin:12px 0 6px;gap:1px}
+.night-timeline i{display:block;flex-basis:0}
+.night-timeline .day{background:#8fb3e8}.night-timeline .civil{background:#c47fd0}.night-timeline .twilight{background:#5d73c9}.night-timeline .dark{background:#1f2b55}
+.sky-app .night-legend{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--ob-text-3)}
+.sky-app .night-legend span:nth-child(2){text-align:center}
+.sky-app .night-legend span:last-child{text-align:right}
+.sky-app .list-head .sheet-label{margin-bottom:9px}
+.sky-app .gear-filter{margin-bottom:10px}
+.tonight-actions{display:flex;gap:8px;margin:14px 0 6px}
+.tonight-actions button{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border-radius:14px;background:var(--ob-raised,#1a2d45);border:1px solid var(--ob-hair,#35506c);color:inherit;font-weight:600;font-size:14px}
+
+/* Tonight list: the suggestion line sits quietly under each row */
+.sky-app .row-extra .suggestion-summary{background:none;border-left:2px solid var(--ob-accent-line);border-radius:0;margin:2px 0 4px;padding:2px 0 2px 12px;color:var(--ob-text-2)}
+.sky-app .suggestion-summary.muted{border-color:var(--ob-hair-strong);background:none}
+.sky-app .row-extra .suggestion-summary strong{color:var(--ob-text)}
+.sky-app .mini-curve{color:var(--ob-accent)}
+
+/* Wikipedia summary as a quiet card */
+.sky-app .wiki-summary{background:var(--ob-raised);border:1px solid var(--ob-hair);border-radius:16px}
+.sky-app .wiki-summary h3{color:var(--ob-text-3)}
+.sky-app .wiki-summary p{color:var(--ob-text)}
+.sky-app .wiki-summary .wiki-source,.sky-app .wiki-summary .wiki-source a{color:var(--ob-text-2)}
+.sky-app .card-icon{background:var(--ob-raised);border:1px solid var(--ob-hair)}
+.sky-app .sheet-body .save-btn,.sky-app .object-row .save-btn{background:var(--ob-raised);border:1px solid var(--ob-hair);color:var(--ob-text-2)}
+.sky-app .sheet-body .save-btn.active{color:var(--ob-accent-text);border-color:var(--ob-accent-line)}
+/* Low landscape screens: keep the card short (facts are also in the title line). */
+@media (orientation:landscape) and (max-height:500px){.sky-app .preview-facts{display:none}}
