@@ -32,7 +32,7 @@ Inga körklara förslag; nya önskemål samlas i [BACKLOG.md](BACKLOG.md). Parke
 
 ## Beslut
 
-- 2026-11-13 — Gaia DR3 (CC BY-NC 3.0 IGO, icke-kommersiell) används för svaga stjärnor till G 11 (F-061). Noxari ska vara icke-kommersiell så länge Gaia-data ingår; annonser, avgifter eller försäljning kräver tillstånd från ESA (data.licences@esa.int) eller att Gaia-stjärnorna tas bort.
+- 2026-11-13 — Gaia DR3 (CC BY-NC 3.0 IGO, icke-kommersiell) används för svaga stjärnor till G 11 (F-061). Noxari ska vara icke-kommersiell så länge Gaia-data ingår; annonser, avgifter eller försäljning kräver tillstånd från ESA (data.licences@esa.int) eller att Gaia-stjärnorna tas bort. Användaren 2026-11-13: inga planer på att göra Noxari kommersiell.
 - 2026-11-12 — ID-systemet behålls: F-### och B-### med separata nummerserier (ingen gemensam serie).
 - 2026-11-12 — Handoff kort enligt agentreglerna; detaljerad historik i docs/HANDOFF_LOG.md.
 - 2026-11-12 — Rapporterade buggar samlas och föreslås före rättning, utom när användaren uttryckligen ber om direkt rättning.
