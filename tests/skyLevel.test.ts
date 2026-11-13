@@ -46,7 +46,10 @@ describe('F-043 sky levels', () => {
     expect(starMagnitudeLimit('eye', 3)).toBe(6.5);
     expect(starMagnitudeLimit('binoculars', 1)).toBe(7);
     expect(starMagnitudeLimit('binoculars', 2)).toBe(8.5);
-    expect(starMagnitudeLimit('all', 3)).toBe(8.5);
+    expect(starMagnitudeLimit('binoculars', 3)).toBe(8.5);
+    expect(starMagnitudeLimit('all', 2)).toBeCloseTo(8.5);
+    expect(starMagnitudeLimit('all', 3)).toBeCloseTo(11);
+    expect(starMagnitudeLimit('all', 2.5)).toBeGreaterThan(9);
     expect(faintStarFade(7.1, 7)).toBe(0);
     expect(faintStarFade(7, 7)).toBeCloseTo(.25);
     expect(faintStarFade(6.6, 7)).toBe(1);

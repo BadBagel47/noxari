@@ -1,0 +1,26 @@
+Noxari — faint stars from Gaia DR3 (F-061)
+
+Source: ESA Gaia mission, Data Release 3 (gaiadr3.gaia_source), ESA Gaia archive
+https://gea.esac.esa.int/archive/ — https://www.cosmos.esa.int/web/gaia/dr3
+
+Credit: This app uses data from the European Space Agency (ESA) mission Gaia
+(https://www.cosmos.esa.int/gaia), processed by the Gaia Data Processing and Analysis
+Consortium (DPAC, https://www.cosmos.esa.int/web/gaia/dpac/consortium). Funding for the
+DPAC has been provided by national institutions, in particular the institutions
+participating in the Gaia Multilateral Agreement.
+
+Citations: Gaia Collaboration, T. Prusti et al. (2016), "The Gaia mission", A&A 595, A1.
+Gaia Collaboration, A. Vallenari et al. (2023), "Gaia Data Release 3: Summary of the
+content and survey properties", A&A 674, A1.
+
+Licence: CC BY-NC 3.0 IGO (https://creativecommons.org/licenses/by-nc/3.0/igo/), per
+https://www.cosmos.esa.int/web/gaia-users/license and the ESA Space Science Archives terms
+(https://www.cosmos.esa.int/web/esdc/terms-and-conditions). Non-commercial use only;
+commercial use requires authorisation from ESA (data.licences@esa.int). ESA does not
+endorse Noxari.
+
+Changes made for Noxari: stars with G <= 11 selected; positions moved from epoch 2016.0 to
+J2000 with Gaia proper motions; stars already shipped from HYG removed; positions,
+magnitude and BP-RP colour quantised and packed into sky tiles (public/stars/gaia-v1/), with
+source_id and parallax in separate detail files. Reproducible with
+scripts/generate_gaia_stars.py; provenance in data/gaia-stars/manifest.json.

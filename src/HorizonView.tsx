@@ -21,9 +21,10 @@ import {Body, Illumination} from 'astronomy-engine';
 import {nextObjectRise, objectPosition, objectPositioner, positionAt, showObjectMarker, solarAppearance, type ObservingLocation} from './astronomy';
 import {objects, type SpaceObject} from './data';
 import {candidateObjects} from './candidateObjects';
-import {objectWeight, pickBest, pickRadius, starObject, starWeight, tappableMagnitude, type PickCandidate} from './starPick';
+import {objectWeight, pickBest, pickRadius, starObject, starWeight, tappableGaiaMagnitude, tappableMagnitude, type PickCandidate} from './starPick';
 import {faintStarBrightness, faintStarFade, shownAtSkyLevel, starMagnitudeLimit, type SkyGroups, type SkyLevel} from './skyLevel';
 import {faintCount, faintSky, loadFaintStars, type FaintStars} from './binocularStars';
+import {gaiaStarObject, gaiaTilesNear, loadGaiaIndex, loadGaiaTile, mergeFaintStars, viewCentre, type GaiaIndex, type GaiaTile} from './gaiaStars';
 import {createDirectionProjector, createPerspectiveProjector, createPreparedPerspectiveProjector, horizontalStarCatalog, perspectiveFocal, prepareHorizontalDirection, prepareHorizontalDirections, prepareHorizontalStars, projectPerspective, type MapPoint, type PreparedHorizontalDirection, type ViewDirection} from './skyProjection';
 import {GuidedFinder} from './GuidedFinder';
 import {clampViewPitch, groundOpacity} from './groundView';
@@ -132,8 +133,39 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
     loadFaintStars(import.meta.env.BASE_URL).then(data => { if (live) setFaintData(data); }).catch(() => {});
     return () => { live = false; };
   }, [skyLevel, faintData]);
-  const faint = useMemo(() => skyLevel !== 'eye' && faintData ? faintSky(faintData, time, location) : null, [skyLevel, faintData, time, location]);
   const magnitudeLimit = starMagnitudeLimit(skyLevel, zoom);
+  // F-061: Gaia tiles around the view, only on the whole-catalogue level once zoomed past the binocular limit.
+  const gaiaWanted = skyLevel === 'all' && magnitudeLimit > 8.5;
+  const [gaiaIndex, setGaiaIndex] = useState<GaiaIndex | null>(null);
+  const [gaiaTiles, setGaiaTiles] = useState<GaiaTile[]>([]);
+  useEffect(() => {
+    if (!gaiaWanted || gaiaIndex) return;
+    let live = true;
+    loadGaiaIndex(import.meta.env.BASE_URL).then(index => { if (live) setGaiaIndex(index); }).catch(() => {});
+    return () => { live = false; };
+  }, [gaiaWanted, gaiaIndex]);
+  const aspect = size.width && size.height ? Math.min(size.width, size.height) / Math.max(size.width, size.height) : 1;
+  const gaiaKey = gaiaWanted && gaiaIndex ? `${Math.round(view.heading / 3)}|${Math.round(view.pitch / 3)}|${Math.round(zoom * 4)}|${Math.round(time.getTime() / 600_000)}|${location.latitude}|${location.longitude}|${aspect.toFixed(1)}` : '';
+  const gaiaTileList = useMemo(() => {
+    if (!gaiaKey || !gaiaIndex) return [];
+    const centre = viewCentre(view, time, location), half = 45 / zoom;
+    return gaiaTilesNear(gaiaIndex, centre.ra, centre.dec, Math.hypot(half, half * aspect) + 4).slice(0, 24);
+  }, [gaiaKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!gaiaIndex || !gaiaTileList.length) { if (!gaiaWanted) setGaiaTiles(current => current.length ? [] : current); return; }
+    let live = true;
+    // Wait for the pan to settle before fetching new tiles.
+    const timer = window.setTimeout(() => {
+      Promise.allSettled(gaiaTileList.map(tile => loadGaiaTile(import.meta.env.BASE_URL, gaiaIndex, tile))).then(results => {
+        if (!live) return;
+        const loaded = results.flatMap(result => result.status === 'fulfilled' ? [result.value] : []);
+        setGaiaTiles(current => current.length === loaded.length && current.every((tile, i) => tile === loaded[i]) ? current : loaded);
+      });
+    }, 220);
+    return () => { live = false; window.clearTimeout(timer); };
+  }, [gaiaIndex, gaiaTileList, gaiaWanted]);
+  const faintStars = useMemo(() => skyLevel === 'eye' ? null : mergeFaintStars(faintData, gaiaWanted ? gaiaTiles : []), [skyLevel, faintData, gaiaTiles, gaiaWanted]);
+  const faint = useMemo(() => faintStars ? faintSky(faintStars, time, location) : null, [faintStars, time, location]);
   const milkyBasis = useMemo(() => milkyWayBasis(time, location), [time, location]);
   const sceneKey = `${time.getTime()}|${location.latitude}|${location.longitude}`;
   const figures = useMemo(() => constellationSky(stars, figureMode), [stars, figureMode]);
@@ -410,9 +442,8 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
               if (!point) continue;
               const magnitude = faint.magnitude[i];
               context.globalAlpha = visibility * faintStarBrightness(magnitude) * faintStarFade(magnitude, magnitudeLimit);
-              context.beginPath();
-              context.arc(point.x, point.y, .8, 0, Math.PI * 2);
-              context.fill();
+              // A 1.6 px square matches the 0.8 px-radius point on screen and is much cheaper than an arc (F-061: many stars).
+              context.fillRect(point.x - .8, point.y - .8, 1.6, 1.6);
             }
           }
           context.globalAlpha = 1;
@@ -597,7 +628,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       const box = root.current.getBoundingClientRect();
       const x = event.clientX - box.left, y = event.clientY - box.top;
       // F-050: a tap on open sky picks the best marker or catalogue star nearby; known objects win over closer faint stars.
-      type Candidate = PickCandidate & {object?: SpaceObject; index?: number};
+      type Candidate = PickCandidate & {object?: SpaceObject; index?: number; gaia?: number};
       const candidates: Candidate[] = markers.map(({object, point}) => ({x: point.x, y: point.y, weight: objectWeight(object), key: object.id, object}));
       if (darkSkyVisibility(sun.altitude) > 0 || belowReveal > 0) {
         const projectTap = createPreparedPerspectiveProjector(view, size.width, size.height, true, belowReveal > 0, zoom), tapLimit = tappableMagnitude(zoom);
@@ -605,6 +636,18 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
           if (star.index === undefined || star.magnitude > tapLimit || (star.altitude < 0 && belowReveal <= 0)) continue;
           const point = projectTap(star);
           if (point) candidates.push({x: point.x, y: point.y, weight: starWeight(star.magnitude), key: `star-${star.index}`, index: star.index});
+        }
+      }
+      // F-061: zoomed in on the whole-catalogue level, faint Gaia stars can be tapped too (lowest priority).
+      const gaiaTapLimit = gaiaIndex && faint && faintStars ? tappableGaiaMagnitude(zoom, magnitudeLimit) : 0;
+      if (gaiaTapLimit > 0 && faint && faintStars && (darkSkyVisibility(sun.altitude) > 0 || belowReveal > 0)) {
+        const project = createDirectionProjector(view, size.width, size.height, zoom), direction = faint.direction;
+        const count = faintCount(faint.magnitude, gaiaTapLimit);
+        for (let i = 0; i < count; i++) {
+          const tag = faintStars.tag[i];
+          if (tag < 0 || (direction[i * 3 + 2] < 0 && belowReveal <= 0)) continue;
+          const point = project(direction[i * 3], direction[i * 3 + 1], direction[i * 3 + 2]);
+          if (point && Math.abs(point.x - x) < 40 && Math.abs(point.y - y) < 40) candidates.push({x: point.x, y: point.y, weight: .8, key: `gaia-${tag}`, gaia: tag});
         }
       }
       if (satellitesShown) {
@@ -618,6 +661,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       const best = pickBest(candidates, x, y, pickRadius(event.pointerType, zoom));
       if (best?.object) onSelect(best.object);
       else if (best?.index !== undefined) void starObject(best.index).then(onSelect);
+      else if (best?.gaia !== undefined && gaiaIndex) void gaiaStarObject(import.meta.env.BASE_URL, gaiaIndex, best.gaia).then(onSelect).catch(() => {});
       else if (showFigures && showFigureNames && onSelectConstellation) {
         // F-036: a tap near a constellation name opens that constellation's info.
         let nearest: {id: string; distance: number} | null = null;

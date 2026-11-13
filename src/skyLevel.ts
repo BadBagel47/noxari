@@ -35,9 +35,13 @@ export function shownAtSkyLevel(object: Pick<SpaceObject, 'kind' | 'gear'>, leve
 
 /** Extra-star magnitude limit grows with zoom, as in planetarium programs (binocular level only). */
 export const BINOCULAR_STAR_LIMIT = 8.5;
+/** F-061: the whole-catalogue level continues past 2× with Gaia stars, reaching G 11 at 3×. */
+export const GAIA_STAR_LIMIT = 11;
 export function starMagnitudeLimit(level: SkyLevel, zoom: number) {
   if (level === 'eye') return 6.5;
-  return Math.min(BINOCULAR_STAR_LIMIT, 7 + 1.5 * Math.log2(Math.max(1, zoom)));
+  const octaves = Math.log2(Math.max(1, zoom));
+  if (level === 'all' && octaves > 1) return Math.min(GAIA_STAR_LIMIT, BINOCULAR_STAR_LIMIT + (GAIA_STAR_LIMIT - BINOCULAR_STAR_LIMIT) * (octaves - 1) / (Math.log2(3) - 1));
+  return Math.min(BINOCULAR_STAR_LIMIT, 7 + 1.5 * octaves);
 }
 
 /** Base opacity for stars fainter than the bright catalog (V > 6.5): dimmer with magnitude. */
