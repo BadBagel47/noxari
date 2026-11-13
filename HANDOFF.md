@@ -11,9 +11,10 @@ En mobilförst, Stellarium-inspirerad planetariewebbapp (React/TypeScript/Vite) 
 
 ## Senaste ändringar
 
-1. 2026-11-13 — F-067 + F-068 + F-070 + F-071: ett val för detaljnivå, Lager som lista, zoom visar alltid mer detalj (synlig zoomkontroll), plats/tid i sökfältet, felsökning hopfälld i Mer; fysisk kontroll kvar.
-2. 2026-11-13 — F-073 + F-069 + F-072: ny mörk design ”Obsidian” (glas, tonad primärknapp), objektkort med nyckeltal och ”Detaljer”, detaljvy och Ikväll omordnade; fysisk kontroll kvar.
-3. 2026-11-13 — F-065: Gaia-stjärnor till G 12 (1,84 miljoner till) i finare rutor vid djupzoom; fysisk kontroll kvar.
+1. 2026-11-13 — B-019 + F-075: visningsläget med glaskort och fri yta för objektet; 177 Caldwell- och namngivna djuprymdsobjekt (t.ex. Irisnebulosan) sökbara på alla namn; fysisk kontroll kvar.
+2. 2026-11-13 — F-067 + F-068 + F-070 + F-071: ett val för detaljnivå, Lager som lista, zoom visar alltid mer detalj (synlig zoomkontroll), plats/tid i sökfältet, felsökning hopfälld i Mer; fysisk kontroll kvar.
+3. 2026-11-13 — F-073 + F-069 + F-072: ny mörk design ”Obsidian” (glas, tonad primärknapp), objektkort med nyckeltal och ”Detaljer”, detaljvy och Ikväll omordnade; fysisk kontroll kvar.
+4. 2026-11-13 — F-065: Gaia-stjärnor till G 12 (1,84 miljoner till) i finare rutor vid djupzoom; fysisk kontroll kvar.
 4. 2026-11-13 — F-063 + F-064 + F-066: himmelsbilder i GPU med förhandsbild, förhämtning och tre speglar, zoom till 200×, snabbare Vintergata i reservvägen; telefonmätning kvar.
 4. 2026-11-13 — F-062: djupzoom till 60× med riktiga DSS-himmelsbilder från 3×; fysisk kontroll kvar.
 4. 2026-11-13 — F-060 + F-061 steg 1: Vintergatan närmare ESO-fotot, marinblå himmel, glöd kring ljusa stjärnor, färgade svaga stjärnor; fysisk kontroll kvar.
@@ -37,6 +38,7 @@ Inga körklara förslag; nya önskemål samlas i [BACKLOG.md](BACKLOG.md). Parke
 
 ## Beslut
 
+- 2026-11-13 — F-075 (”Kör alla”): nya katalogposter godkända: Caldwell och namngivna djuprymdsobjekt ur samma OpenNGC-pin (be3cd6c…).
 - 2026-11-13 — F-067/F-068 (”Kör A och B”): ett gemensamt val för detaljnivå (Lager och Ikväll); stjärnor och himmelsbilder följer zoom på alla nivåer (ändrar F-043); nivån styr bara objektmarkeringar och förslag.
 - 2026-11-13 — F-063/F-064 (”Kör alla”): DSS-bilder hämtas från tre officiella speglar (MAST på AWS, ESA ESASky, IRSA); zoomgräns 200× i Se dig omkring. AGENTS.md och integritetstexten uppdaterade.
 - 2026-11-13 — F-062 (användaren, ”Kör A”): djupzoom upp till 60× i Se dig omkring med DSS2-färgbilder; bildrutor hämtas från ESA ESASky för det himmelsområde som syns när zoomen är över 3× (servern ser himmelsområde och IP, inte plats). DSS-villkoren (icke-kommersiellt med källhänvisning) godkända av användaren; STScI:s villkorssida kunde inte öppnas härifrån och ska bekräftas av användaren. Projektreglerna i AGENTS.md uppdaterade.

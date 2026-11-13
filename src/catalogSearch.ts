@@ -1,9 +1,11 @@
 import type {SpaceObject} from './data';
 
 export function catalogIdentifier(query: string) {
-  const match = query.trim().match(/^(messier|m|ngc|ic)\s*0*(\d+)$/i);
+  // F-075: Caldwell numbers ("C 4", "Caldwell 4") are exact identifiers too.
+  const match = query.trim().match(/^(messier|m|ngc|ic|caldwell|c)\s*0*(\d+)$/i);
   if (!match) return null;
-  return `${match[1].toLowerCase() === 'messier' ? 'm' : match[1].toLowerCase()}${Number(match[2])}`;
+  const prefix = match[1].toLowerCase();
+  return `${prefix === 'messier' ? 'm' : prefix === 'caldwell' ? 'c' : prefix}${Number(match[2])}`;
 }
 
 export function matchesCatalogQuery(object: SpaceObject, query: string) {

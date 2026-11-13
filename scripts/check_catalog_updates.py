@@ -19,6 +19,7 @@ from urllib.request import Request, urlopen
 import generate_bright_stars as bright_source
 import generate_boundaries as boundary_source
 import generate_messier as messier_source
+import generate_named_deepsky as named_source
 
 ROOT = Path(__file__).resolve().parents[1]
 API = 'https://api.github.com'
@@ -107,7 +108,9 @@ def stable_star_rows(rows):
 
 def check_openngc():
     repo = 'mattiaverga/OpenNGC'
-    print('\nOpenNGC (Messier source)')
+    print('\nOpenNGC (Messier, Caldwell and named deep-sky source)')
+    if named_source.COMMIT != messier_source.COMMIT or named_source.CHECKSUMS != messier_source.CHECKSUMS:
+        raise RuntimeError('F-075 named deep-sky generator must use the same OpenNGC pin as the Messier generator')
     any_change = False
     for filename, pinned_hash in messier_source.CHECKSUMS.items():
         path = 'database_files/' + filename

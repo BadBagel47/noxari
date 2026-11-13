@@ -1,16 +1,19 @@
 import {messierObjects} from './generated/messier';
+import {namedDeepSkyObjects} from './generated/namedDeepSky';
 import {majorSmallBodies} from './majorSmallBodies';
 
 export type Kind = 'Galaxy'|'Nebula'|'Star cluster'|'Planet'|'Moon'|'Dwarf planet'|'Asteroid'|'Star'|'Constellation'|'Double star'|'Asterism'|'Star cloud'|'Dwarf planet candidate'|'Satellite';
 export type Gear = 'eye'|'binoculars'|'telescope';
 export type SolarBody = 'Moon'|'Mercury'|'Venus'|'Mars'|'Jupiter'|'Saturn'|'Uranus'|'Neptune'|'Pluto';
 export type PositionSource = {kind:'satellite';norad?:number}|{kind:'fixed';raHours:number;decDegrees:number;distanceLy?:number}|{kind:'solar';body:SolarBody}|{kind:'keplerian';epochJD:number;semiMajorAxisAu:number;eccentricity:number;inclinationDegrees:number;ascendingNodeDegrees:number;argumentOfPerihelionDegrees:number;meanAnomalyDegrees:number;meanMotionDegreesPerDay:number;absoluteMagnitude?:number;phaseSlope?:number;jplSolutionId?:string};
-export type SpaceObject = {id:string;en:string;sv:string;kind:Kind;constellation:string;distance:string;magnitude:string;gear:Gear;description:string;descriptionSv:string;position?:PositionSource;demoAltitudes?:number[];color:string;size:number;aliases?:string[];catalogNumber?:number;subtype?:string;subtypeSv?:string;distanceSv?:string;magnitudeSv?:string;magnitudeBand?:string;catalogNote?:string;catalogNoteSv?:string;references?:{label:string;url:string}[]};
+export type SpaceObject = {id:string;en:string;sv:string;kind:Kind;constellation:string;distance:string;magnitude:string;gear:Gear;description:string;descriptionSv:string;position?:PositionSource;demoAltitudes?:number[];color:string;size:number;aliases?:string[];catalogNumber?:number;caldwell?:number;subtype?:string;subtypeSv?:string;distanceSv?:string;magnitudeSv?:string;magnitudeBand?:string;catalogNote?:string;catalogNoteSv?:string;references?:{label:string;url:string}[]};
 // Fixed positions are J2000/ICRS catalog centers. Metadata distances do not control their projection.
 // Only constellation cards retain example altitude curves; they have no single catalog center.
 
 export const objects:SpaceObject[] = [
 ...messierObjects,
+// F-075: Caldwell objects and named deep-sky objects outside Messier (OpenNGC).
+...namedDeepSkyObjects,
 {id:'mercury',en:'Mercury',sv:'Merkurius',kind:'Planet',constellation:'Varies',distance:'Varies with date',magnitude:'Variable',gear:'eye',description:'The innermost planet stays close to the Sun in our sky. Favorable appearances are brief, low in the west after sunset or in the east before sunrise.',descriptionSv:'Den innersta planeten håller sig nära solen på himlen. Gynnsamma tillfällen är korta, lågt i väster efter solnedgången eller i öster före soluppgången.',position:{kind:'solar',body:'Mercury'},color:'#d1b9a1',size:4},
 {id:'venus',en:'Venus',sv:'Venus',kind:'Planet',constellation:'Varies',distance:'Varies with date',magnitude:'Variable',gear:'eye',description:'The brightest planet, often called the evening or morning star. Its cloud-covered disk goes through phases as it orbits the Sun.',descriptionSv:'Den ljusstarkaste planeten, ofta kallad aftonstjärnan eller morgonstjärnan. Dess molntäckta skiva visar faser när den kretsar runt solen.',position:{kind:'solar',body:'Venus'},color:'#fff2c4',size:8},
 {id:'mars',en:'Mars',sv:'Mars',kind:'Planet',constellation:'Varies',distance:'Varies with date',magnitude:'Variable',gear:'eye',description:'The red planet shines with an orange-red hue. Its brightness and apparent size change greatly as the distance from Earth changes.',descriptionSv:'Den röda planeten lyser med orange-röd färg. Ljusstyrkan och den skenbara storleken varierar kraftigt med avståndet till jorden.',position:{kind:'solar',body:'Mars'},color:'#f49c7a',size:6},

@@ -23,7 +23,9 @@ export function rankSearch(objects: SpaceObject[], query: string, limit = 8) {
       : 3;
     scored.push({object, score});
   }
-  return scored.sort((a, b) => a.score - b.score).slice(0, limit).map(entry => entry.object);
+  // F-075: with many more catalogue objects, ties go to the solar system and named stars, then Messier, then the rest.
+  const tier = (object: SpaceObject) => ['Planet', 'Moon', 'Dwarf planet', 'Asteroid', 'Satellite'].includes(object.kind) ? 0 : object.kind === 'Star' ? 1 : object.id.startsWith('dso-') ? 3 : 2;
+  return scored.sort((a, b) => a.score - b.score || tier(a.object) - tier(b.object)).slice(0, limit).map(entry => entry.object);
 }
 
 /**
@@ -69,7 +71,7 @@ export function TopSearch({language, objects, describe, onPick, onOpenFull, cont
         onMouseEnter={() => setActive(index)} onMouseDown={event => event.preventDefault()} onClick={() => pick(object)}>
         <KindIcon name={kindIconName(object)} size={20} color={object.color}/>
         <span><strong>{lang === 'sv' ? object.sv : object.en}</strong><small>{describe(object)}</small></span>
-      </button>) : <p className="top-search-empty">{t(lang, 'No matches', 'Inga träffar')}</p>}
+      </button>) : <p className="top-search-empty">{t(lang, 'Not in Noxari’s catalogue', 'Finns inte i Noxaris katalog')}</p>}
       <button className="top-search-all" onMouseDown={event => event.preventDefault()} onClick={() => { onOpenFull(query); setQuery(''); setOpen(false); }}>{t(lang, 'All results and filters', 'Visa alla resultat och filter')}</button>
     </div>}
   </div>;

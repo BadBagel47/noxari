@@ -14,7 +14,7 @@ describe('complete, traceable Messier catalog', () => {
     expect(messierObjects).toHaveLength(110);
     expect(messierObjects.map(object => object.catalogNumber)).toEqual(Array.from({length: 110}, (_, i) => i + 1));
     expect(new Set(objects.map(object => object.id)).size).toBe(objects.length);
-    expect(objects).toHaveLength(127);
+    expect(objects).toHaveLength(127 + 177); // F-075: 177 Caldwell and named objects
     for (const id of ['m31', 'm45', 'm42', 'm13', 'm57', 'sirius', 'moon', 'orion', 'ursa-major']) expect(objects.some(object => object.id === id)).toBe(true);
   });
   it('retains valid J2000 centers and explicit source references for every entry', () => {
@@ -61,8 +61,8 @@ describe('catalog identity search', () => {
   it('searches common names, Swedish names and special object types', () => {
     expect(search('Krabbnebulosan')).toEqual(['m1']);
     expect(search('Whirlpool')).toEqual(['m51']);
-    expect(search('Spindle')).toEqual(['m102']);
-    expect(search('asterism')).toEqual(['m73']);
+    expect(search('Spindle')).toEqual(['m102', 'dso-ngc3115']); // M102's alias and Caldwell 53 both carry the name
+    expect(search('asterism')).toEqual(['m73', 'dso-cl399']); // F-075 adds Brocchi's Cluster (Cl 399)
     expect(search('stjärnmoln')).toEqual(['m24']);
   });
 });
@@ -86,7 +86,7 @@ describe('scalable fixed-object astrometry', () => {
   it('calculates a shared night and recommendations for the whole catalog without demo leakage', () => {
     const date = new Date('2026-01-15T18:00:00Z'), context = nightContext(date, stockholm);
     const curves = nightCatalog(objects, date, stockholm, context);
-    expect(curves.size).toBe(127);
+    expect(curves.size).toBe(127 + 177);
     for (const object of messierObjects) {
       const curve = curves.get(object.id)!;
       expect(curve.real).toBe(true);
@@ -95,9 +95,23 @@ describe('scalable fixed-object astrometry', () => {
       expect(curve.samples[0].time).toBe(context.samples[0].time);
     }
     const ranked = rankTonight(objects, curves, 'all', date);
-    expect(ranked).toHaveLength(125);
+    expect(ranked).toHaveLength(125 + 177);
     expect(ranked.find(item => item.object.id === 'm110')).toBeDefined();
     expect(ranked.find(item => item.object.id === 'orion')).toBeUndefined();
     expect(curves.get('m110')!.samples[20].altitude).toBeCloseTo(objectPosition(get(110), context.samples[20].time, stockholm)!.altitude, 10);
+  });
+});
+
+describe('Caldwell and named deep-sky objects (F-075)', () => {
+  it('finds the Iris Nebula by every name', () => {
+    for (const query of ['Iris Nebula', 'Irisnebulosan', 'NGC 7023', 'NGC7023', 'C 4', 'Caldwell 4', 'LBN 487']) expect(search(query)[0]).toBe('dso-ngc7023');
+  });
+  it('has all 109 Caldwell objects once, with Swedish names where established', async () => {
+    const {namedDeepSkyObjects} = await import('../src/generated/namedDeepSky');
+    const numbers = namedDeepSkyObjects.map(object => object.caldwell).filter(Boolean).sort((a, b) => a! - b!);
+    expect(numbers).toEqual(Array.from({length: 109}, (_, i) => i + 1));
+    expect(namedDeepSkyObjects.find(object => object.caldwell === 14)?.sv).toBe('Dubbelhopen i Perseus');
+    expect(namedDeepSkyObjects.find(object => object.caldwell === 41)?.gear).toBe('eye');
+    expect(namedDeepSkyObjects.every(object => !object.aliases?.some(alias => /^M ?\d+$/.test(alias)))).toBe(true);
   });
 });
