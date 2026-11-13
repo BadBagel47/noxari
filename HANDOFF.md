@@ -33,6 +33,7 @@ Inga körklara förslag; nya önskemål samlas i [BACKLOG.md](BACKLOG.md). Parke
 
 ## Beslut
 
+- 2026-11-13 — F-063/F-064 (”Kör alla”): DSS-bilder hämtas från tre officiella speglar (MAST på AWS, ESA ESASky, IRSA); zoomgräns 200× i Se dig omkring. AGENTS.md och integritetstexten uppdaterade.
 - 2026-11-13 — F-062 (användaren, ”Kör A”): djupzoom upp till 60× i Se dig omkring med DSS2-färgbilder; bildrutor hämtas från ESA ESASky för det himmelsområde som syns när zoomen är över 3× (servern ser himmelsområde och IP, inte plats). DSS-villkoren (icke-kommersiellt med källhänvisning) godkända av användaren; STScI:s villkorssida kunde inte öppnas härifrån och ska bekräftas av användaren. Projektreglerna i AGENTS.md uppdaterade.
 - 2026-11-13 — Gaia DR3 (CC BY-NC 3.0 IGO, icke-kommersiell) används för svaga stjärnor till G 11 (F-061). Noxari ska vara icke-kommersiell så länge Gaia-data ingår; annonser, avgifter eller försäljning kräver tillstånd från ESA (data.licences@esa.int) eller att Gaia-stjärnorna tas bort. Användaren 2026-11-13: inga planer på att göra Noxari kommersiell.
 - 2026-11-12 — ID-systemet behålls: F-### och B-### med separata nummerserier (ingen gemensam serie).
@@ -50,6 +51,7 @@ Inga körklara förslag; nya önskemål samlas i [BACKLOG.md](BACKLOG.md). Parke
 
 ## Begränsningar och engångsåtgärder
 
+- 2026-11-13: miljön fick även `irsa.ipac.caltech.edu`, `stpubdata.s3.us-east-1.amazonaws.com`, `casda.csiro.au` (DSS-speglar, F-063). CDS bildservrar (`alasky` för data, `alaskybis`) fungerar inte härifrån.
 - 2026-11-13: miljön fick även `www.cosmos.esa.int`, `alasky.cds.unistra.fr`, `aladin.cds.unistra.fr`, `archive.stsci.edu` och `www.legacysurvey.org` (F-061/F-062). `alasky` fungerar; `archive.stsci.edu` ger certifikatfel genom proxyn.
 - 2026-11-13: miljön ”noxari” fick tillgång till `cdsarc.cds.unistra.fr`, `tapvizier.cds.unistra.fr` och `gea.esac.esa.int` (F-061). Gaia-arkivet fungerar; CDS-värdarna svarar inte genom proxyn (tunneln stängs).
 - 2026-11-12: GitHub GraphQL (`gh pr/issue list`) och Pages-API är spärrade via proxyn; REST fungerar. Schemalagd körning i workflow-filen nekades av behörighetsklassning.
@@ -60,6 +62,7 @@ Inga körklara förslag; nya önskemål samlas i [BACKLOG.md](BACKLOG.md). Parke
 
 | Dokument | Innehåll |
 | --- | --- |
+| [docs/proposals/F-065-gaia-deeper.md](docs/proposals/F-065-gaia-deeper.md) | Underlag för Gaia-stjärnor djupare än G 11 (F-065) |
 | [docs/proposals/F-062-sky-imagery.md](docs/proposals/F-062-sky-imagery.md) | Underlag för djupzoom med himmelsbilder (F-062): källor, storlek, licens, integritet, alternativ |
 | [docs/proposals/F-061-star-catalog.md](docs/proposals/F-061-star-catalog.md) | Underlag för katalog med svaga stjärnor (F-061 steg 2): antal, storlek, licens, rekommendation |
 | [AGENTS.md](AGENTS.md) | Hänvisning till globala agentregler + projektregler |

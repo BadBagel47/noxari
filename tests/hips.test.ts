@@ -52,3 +52,13 @@ describe('hipsLocateFast', () => {
     }
   });
 });
+
+describe('HiPS loader helpers (F-063)', () => {
+  it('spreads tiles over the mirrors and finds all-sky preview pixels', async () => {
+    const {DSS_MIRRORS, allskyOffset, mirrorUrl} = await import('../src/hipsTiles');
+    expect(mirrorUrl(0, 6, 23611)).toBe(`${DSS_MIRRORS[0]}/Norder6/Dir20000/Npix23611.jpg`);
+    expect(mirrorUrl(4, 6, 1)).toContain(DSS_MIRRORS[1]);
+    // Tile 28 is in row 1, column 1 (27 per row); pixel (row 8, col 16) → (y 64 + 1, x 64 + 2).
+    expect(allskyOffset(28, (8 * 512 + 16) * 4)).toBe((65 * 1728 + 66) * 4);
+  });
+});

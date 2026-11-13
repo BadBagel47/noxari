@@ -98,6 +98,14 @@ export class HorizonGpu {
     return this.draw(gpu => gpu.drawMilkyWay(...args));
   }
 
+  /** F-063: false when HiPS is unavailable on this GPU (the caller paints with Canvas instead). */
+  drawHips(...args: Parameters<GpuSky['drawHips']>) {
+    if (!this.gpu?.available) return false;
+    this.gpu.invalidateSoon = this.invalidate;
+    try { return this.gpu.drawHips(...args); }
+    catch { return false; }
+  }
+
   drawStars(...args: Parameters<GpuSky['drawStars']>) {
     return this.draw(gpu => gpu.drawStars(...args));
   }

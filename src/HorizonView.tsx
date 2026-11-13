@@ -36,7 +36,8 @@ import {glowSprite} from './starGlow';
 import {landscapeHeight} from './landscape';
 import {starFill} from './starColor';
 import {milkyWayZoomFade} from './milkyWay';
-import {HipsPainter, MAX_SKY_ZOOM, hipsAlpha} from './hipsPainter';
+import {HIPS_BLACK, HipsPainter, MAX_SKY_ZOOM, hipsAlpha} from './hipsPainter';
+import {HipsTiles, wantedTiles} from './hipsTiles';
 import {FAINT_TINTS, faintTintGroups} from './gaiaStars';
 import type {usePhoneOrientation} from './usePhoneOrientation';
 import {skyOverlayExclusions} from './objectLabels';
@@ -108,9 +109,13 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
   useEffect(() => { if (showArt) artImages.current.preload(constellationArt.map(art => art.id), () => frames.invalidate()); }, [showArt, frames]);
   const milkyWayPainter = useRef(new MilkyWayPainter());
   // F-062: real sky images beyond 3×; tile arrivals request a new frame from the shared scheduler.
+  // F-063: one tile loader (mirrors, all-sky preview, prefetch) shared by the GPU shader and the Canvas painter.
+  const hipsTiles = useRef<HipsTiles | null>(null);
+  hipsTiles.current ??= new HipsTiles(() => frames.invalidate());
   const hipsPainter = useRef<HipsPainter | null>(null);
-  hipsPainter.current ??= new HipsPainter(() => frames.invalidate());
+  hipsPainter.current ??= new HipsPainter(hipsTiles.current);
   const lastPose = useRef({key: '', at: 0});
+  const lastZoom = useRef({zoom: 1, at: 0});
   const settleTimer = useRef<number | null>(null);
   useEffect(() => () => { if (settleTimer.current) window.clearTimeout(settleTimer.current); }, []);
   const gpu = useRef<HorizonGpu | null>(null);
@@ -388,23 +393,40 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
         }
       }
 
-      // F-062: DSS sky images fade in from 3× (fully from 6×), only in a dark sky. Coarser while the view moves.
+      // F-062/F-063: DSS sky images fade in from 3× (fully from 6×), only in a dark sky. The GPU draws them per
+      // pixel; the Canvas fallback paints a coarser picture while the view moves. Tiles around the view
+      // (with a margin, so neighbours arrive early) are requested on every frame; the loader skips known ones.
       const deep = hipsAlpha(zoom) * Math.max(starVisibility, belowReveal);
-      if (deep > 0 && hipsPainter.current) {
+      if (deep > 0 && hipsPainter.current && hipsTiles.current) {
         const poseKey = `${view.heading}|${view.pitch}|${zoom}`, nowMs = performance.now();
         if (poseKey !== lastPose.current.key) lastPose.current = {key: poseKey, at: nowMs};
         const moving = nowMs - lastPose.current.at < 180;
-        if (moving) {
+        const wanted = wantedTiles(view, zoom, time, location, width, height);
+        // While the zoom is changing, only the coarse preview level is fetched; the sharp level once it rests.
+        if (zoom !== lastZoom.current.zoom) lastZoom.current = {zoom, at: nowMs};
+        const zooming = nowMs - lastZoom.current.at < 300;
+        hipsTiles.current.want(zooming ? wanted.tiles.filter(tile => tile.order < wanted.order || wanted.order === 3) : wanted.tiles);
+        if (zooming) {
           if (settleTimer.current) window.clearTimeout(settleTimer.current);
-          settleTimer.current = window.setTimeout(() => { settleTimer.current = null; frames.invalidate(); }, 200);
+          settleTimer.current = window.setTimeout(() => { settleTimer.current = null; frames.invalidate(); }, 320);
         }
-        hipsPainter.current.draw(context, time, location, view, zoom, width, height, deep, belowReveal > 0, moving);
+        const loaded = wanted.tiles.flatMap(key => { const tile = hipsTiles.current!.get(key.order, key.tile); return tile ? [tile] : []; });
+        const hipsOnGpu = Boolean(renderer?.drawHips(context, width, height, Math.min(dpr, 1.5), view, zoom, milkyBasis, wanted.order, loaded, hipsTiles.current.allsky, deep, belowReveal > 0, HIPS_BLACK));
+        // Diagnostics for browser tests: which path drew the sky images.
+        if (root.current) root.current.dataset.hips = hipsOnGpu ? 'gpu' : 'canvas';
+        if (!hipsOnGpu) {
+          if (moving) {
+            if (settleTimer.current) window.clearTimeout(settleTimer.current);
+            settleTimer.current = window.setTimeout(() => { settleTimer.current = null; frames.invalidate(); }, 200);
+          }
+          hipsPainter.current.draw(context, time, location, view, zoom, width, height, deep, belowReveal > 0, moving, wanted.order);
+        }
         context.save();
         context.globalAlpha = .75 * deep;
         context.font = '500 10px system-ui, sans-serif';
         context.fillStyle = '#c9d6e6';
         context.textAlign = 'left';
-        context.fillText(language === 'sv' ? 'Bild: DSS (STScI/NASA), färgad av CDS, via ESA ESASky' : 'Image: DSS (STScI/NASA), coloured by CDS, via ESA ESASky', 10, height - 10);
+        context.fillText(language === 'sv' ? 'Bild: DSS (STScI/NASA), färgad av CDS' : 'Image: DSS (STScI/NASA), coloured by CDS', 10, height - 10);
         context.restore();
       }
       measurement?.phase('milkyWay');

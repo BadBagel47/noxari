@@ -6,6 +6,7 @@ import {MILKY_WAY_COLOR_STRENGTH, MILKY_WAY_RASTER} from './milkyWay';
 import {faintStarBrightness} from './skyLevel';
 import type {PerformanceFrame} from './skyPerformance';
 
+export const HIPS_SLOTS = 32;
 const quadVertex = `#version 300 es
 precision highp float;
 out vec2 uv;
@@ -47,6 +48,74 @@ uniform float zoom;
 uniform float visibility;
 void main(){color=texture(image,(uv-0.5)/zoom+0.5)*visibility;}
 `;
+
+// F-063: DSS2 HiPS tiles drawn per pixel. HEALPix loc2xyf (Górski et al. 2005) with continuous
+// coordinates for bilinear sampling; inside a tile, face y is the image column and face x the row.
+const hipsFragment = `#version 300 es
+precision highp float;precision highp int;precision highp sampler2DArray;
+in vec2 uv;out vec4 color;
+uniform sampler2DArray tiles;
+uniform sampler2D allsky;
+uniform bool hasAllsky;
+uniform mat3 horizontalToEquatorial;
+uniform vec2 viewport;
+uniform float focal;
+uniform vec4 pose;
+uniform bool below;
+uniform int order;
+uniform ivec2 slots[${HIPS_SLOTS}];
+uniform float black;
+const float PI=3.141592653589793;
+int interleave(int x,int y){int r=0;for(int b=0;b<9;b++){r|=((x>>b)&1)<<(2*b);r|=((y>>b)&1)<<(2*b+1);}return r;}
+// Face and continuous (x, y) on the face at resolution nside.
+void xyf(float z,float phi,float nside,out int face,out vec2 p){
+  float za=abs(z);float tt=mod(phi*2.0/PI,4.0);
+  if(za<=2.0/3.0){
+    float t1=nside*(0.5+tt),t2=nside*(z*0.75);
+    float jpf=t1-t2,jmf=t1+t2;
+    int ifp=int(floor(floor(jpf)/nside)),ifm=int(floor(floor(jmf)/nside));
+    face=ifp==ifm?(ifp|4):(ifp<ifm?ifp:ifm+8);
+    p=vec2(mod(jmf,nside),nside-mod(jpf,nside));
+  }else{
+    float ntt=min(3.0,floor(tt));float tp=tt-ntt;float tmp=nside*sqrt(3.0*(1.0-za));
+    float jpf=min(nside-0.001,tp*tmp),jmf=min(nside-0.001,(1.0-tp)*tmp);
+    if(z>=0.0){face=int(ntt);p=vec2(nside-jmf,nside-jpf);}else{face=int(ntt)+8;p=vec2(jpf,jmf);}
+  }
+}
+void main(){
+  vec2 pixel=vec2(uv.x,1.0-uv.y)*viewport;
+  float right=(pixel.x-viewport.x*0.5)/focal,above=(viewport.y*0.5-pixel.y)/focal;
+  float ch=pose.x,sh=pose.y,cp=pose.z,sp=pose.w;
+  vec3 hor=vec3(cp*ch-right*sh-above*sp*ch,-cp*sh-right*ch+above*sp*sh,sp+above*cp);
+  if(hor.z<0.0&&!below){color=vec4(0.0);return;}
+  vec3 eq=normalize(horizontalToEquatorial*hor);
+  float phi=atan(eq.y,eq.x);if(phi<0.0)phi+=2.0*PI;
+  vec3 rgb=vec3(0.0);bool found=false;
+  // Sharp level, then the preview level two steps coarser (the tiles the loader asks for), then all-sky.
+  for(int step=0;step<2&&!found;step++){
+    int k=step==0?order:max(3,order-2);if(step==1&&k==order)break;
+    float nside=exp2(float(k+9));int face;vec2 p;xyf(eq.z,phi,nside,face,p);
+    ivec2 t=clamp(ivec2(floor(p/512.0)),ivec2(0),ivec2((1<<k)-1));
+    int id=face*(1<<(2*k))+interleave(t.x,t.y);
+    for(int i=0;i<${HIPS_SLOTS};i++){
+      if(slots[i].x==k&&slots[i].y==id){
+        vec2 local=clamp(p-vec2(t)*512.0,vec2(0.5),vec2(511.5));
+        rgb=texture(tiles,vec3(local.y/512.0,local.x/512.0,float(i))).rgb;found=true;break;
+      }
+    }
+  }
+  if(!found&&hasAllsky){
+    int face;vec2 p;xyf(eq.z,phi,4096.0,face,p);
+    ivec2 t=clamp(ivec2(floor(p/512.0)),ivec2(0),ivec2(7));
+    int n=face*64+interleave(t.x,t.y);
+    vec2 local=clamp((p-vec2(t)*512.0)/8.0,vec2(0.5),vec2(63.5));
+    vec2 cell=vec2(float(n%27),float(n/27))*64.0;
+    rgb=texture(allsky,(cell+vec2(local.y,local.x))/vec2(1728.0,1856.0)).rgb;found=true;
+  }
+  if(!found){color=vec4(0.0);return;}
+  color=vec4(max(rgb-black,0.0),1.0);
+}`;
+
 // Reuse Canvas circle coverage in a small phase atlas: four radii, 16×16 subpixel phases.
 // This preserves the existing tiny-star brightness without per-frame arc/fill calls.
 const PHASES = 16, TILE = 16;
@@ -182,6 +251,16 @@ export class GpuSky {
   private rasterKey = '';
   private disposed = false;
   private uniforms = new Map<WebGLProgram, Map<string, WebGLUniformLocation>>();
+  // F-063: HiPS tile atlas (texture array), slot → tile id, and the all-sky preview texture.
+  private hipsProgram: WebGLProgram | null = null;
+  private hipsFailed = false;
+  private hipsArray: WebGLTexture | null = null;
+  private hipsAllsky: WebGLTexture | null = null;
+  private hipsAllskySource: HTMLImageElement | null = null;
+  private hipsSlots: string[] = Array(HIPS_SLOTS).fill('');
+  private hipsSlotUse: number[] = Array(HIPS_SLOTS).fill(0);
+  private hipsSlotImages: (HTMLImageElement | null)[] = Array(HIPS_SLOTS).fill(null);
+  private hipsTick = 0;
 
   constructor(readonly canvas: HTMLCanvasElement, retainSurface?: boolean) {
     const gl = canvas.getContext('webgl2', {alpha: true, premultipliedAlpha: true, antialias: false, preserveDrawingBuffer: false});
@@ -315,6 +394,82 @@ export class GpuSky {
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     this.copy(context, this.pixelWidth / dpr, this.pixelHeight / dpr);
   }
+
+  /**
+   * F-063: draw DSS2 tiles for the view. `tiles` are the wanted tiles (most important first) with the
+   * images already loaded; returns false if HiPS drawing is unavailable on this GPU (the Canvas painter
+   * is used instead, without giving up the rest of the GPU path).
+   */
+  drawHips(context: CanvasRenderingContext2D, width: number, height: number, dpr: number, view: ViewDirection, zoom: number, basis: Float32Array,
+           order: number, tiles: {order: number; tile: number; image: HTMLImageElement}[], allsky: HTMLImageElement | null, alpha: number, below: boolean, black: number) {
+    if (this.hipsFailed) return false;
+    const gl = this.gl;
+    try {
+      if (!this.hipsProgram) {
+        this.hipsProgram = this.program(quadVertex, hipsFragment);
+        this.hipsArray = gl.createTexture();
+        if (!this.hipsArray) throw new Error('HiPS texture');
+        this.textures.add(this.hipsArray);
+        gl.bindTexture(gl.TEXTURE_2D_ARRAY, this.hipsArray);
+        gl.texStorage3D(gl.TEXTURE_2D_ARRAY, 1, gl.RGB8, 512, 512, HIPS_SLOTS);
+        for (const [name, value] of [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D_ARRAY, name, value);
+        this.hipsAllsky = this.texture(false);
+      }
+    } catch { this.hipsFailed = true; return false; }
+    // Upload tiles not yet in a slot; evict the least recently used slots that are not wanted now.
+    const tick = ++this.hipsTick, wanted = new Set(tiles.map(tile => `${tile.order}/${tile.tile}`));
+    gl.bindTexture(gl.TEXTURE_2D_ARRAY, this.hipsArray);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    let uploads = 0;
+    for (const tile of tiles) {
+      const id = `${tile.order}/${tile.tile}`;
+      let slot = this.hipsSlots.indexOf(id);
+      if (slot >= 0 && this.hipsSlotImages[slot] !== tile.image) slot = -1;
+      if (slot < 0) {
+        if (uploads >= 6) continue; // spread uploads over frames so panning stays smooth
+        let oldest = -1;
+        for (let i = 0; i < HIPS_SLOTS; i++) if (!wanted.has(this.hipsSlots[i]) && (oldest < 0 || this.hipsSlotUse[i] < this.hipsSlotUse[oldest])) oldest = i;
+        if (oldest < 0) break;
+        slot = oldest;
+        gl.texSubImage3D(gl.TEXTURE_2D_ARRAY, 0, 0, 0, slot, 512, 512, 1, gl.RGB, gl.UNSIGNED_BYTE, tile.image);
+        this.hipsSlots[slot] = id; this.hipsSlotImages[slot] = tile.image; uploads++;
+      }
+      this.hipsSlotUse[slot] = tick;
+    }
+    if (uploads >= 6) this.invalidateSoon?.();
+    if (allsky && allsky !== this.hipsAllskySource) {
+      gl.bindTexture(gl.TEXTURE_2D, this.hipsAllsky);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, allsky);
+      this.hipsAllskySource = allsky;
+    }
+    this.surface(width, height, dpr);
+    const program = this.hipsProgram;
+    gl.disable(gl.BLEND);gl.useProgram(program);gl.bindVertexArray(this.quad);
+    gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D_ARRAY, this.hipsArray);
+    gl.uniform1i(this.uniform(program, 'tiles'), 0);
+    gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D, this.hipsAllsky);
+    gl.uniform1i(this.uniform(program, 'allsky'), 1);
+    gl.uniform1i(this.uniform(program, 'hasAllsky'), Number(Boolean(this.hipsAllskySource)));
+    gl.uniformMatrix3fv(this.uniform(program, 'horizontalToEquatorial'), false, basis);
+    gl.uniform2f(this.uniform(program, 'viewport'), width, height);
+    gl.uniform1f(this.uniform(program, 'focal'), Math.max(width, height) / 2 * zoom);
+    gl.uniform1i(this.uniform(program, 'below'), Number(below));
+    gl.uniform1i(this.uniform(program, 'order'), order);
+    gl.uniform1f(this.uniform(program, 'black'), black / 255);
+    gl.uniform2iv(this.uniform(program, 'slots'), new Int32Array(this.hipsSlots.flatMap(id => { if (!id) return [-1, -1]; const [o, t] = id.split('/').map(Number); return [o, t]; })));
+    this.pose(program, view);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.activeTexture(gl.TEXTURE0);
+    context.save();
+    context.globalAlpha = alpha;
+    context.globalCompositeOperation = 'lighter';
+    this.copy(context, this.pixelWidth / dpr, this.pixelHeight / dpr);
+    context.restore();
+    return true;
+  }
+
+  /** Set by the owner: request another frame (used while tile uploads are spread over frames). */
+  invalidateSoon: (() => void) | null = null;
 
   drawStars(context: CanvasRenderingContext2D, width: number, height: number, dpr: number, view: ViewDirection, starVisibility: number, belowReveal: number, zoom: number, magnitudeLimit = 6.5, faintDim = 1) {
     this.surface(width, height, dpr);

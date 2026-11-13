@@ -2,8 +2,11 @@ Noxari — deep-zoom sky images (F-062)
 
 Survey: Digitized Sky Survey (DSS2), colour composite "DSS colored" (HiPS ivo://CDS/P/DSS2/color),
 produced at the Space Telescope Science Institute (STScI) under U.S. Government grant NAG W-2166,
-coloured and HEALPix-tiled by CDS (Strasbourg; HiPS © CNRS/Unistra), fetched from the ESA ESASky
-mirror https://skies.esac.esa.int/DSSColor only when the eye-level view is zoomed in past 3×.
+coloured and HEALPix-tiled by CDS (Strasbourg; HiPS © CNRS/Unistra), fetched from the official
+mirrors at MAST (https://stpubdata.s3.us-east-1.amazonaws.com/mast/skybackgrounds/DSSColor),
+ESA ESASky (https://skies.esac.esa.int/DSSColor) and IRSA
+(https://irsa.ipac.caltech.edu/data/hips/CDS/DSS2/color) only when the eye-level view is zoomed in
+past 3× (F-062/F-063); the all-sky preview Norder3/Allsky.jpg loads first.
 
 Acknowledgement (from the survey): The Digitized Sky Surveys were produced at the Space Telescope
 Science Institute under U.S. Government grant NAG W-2166. The images of these surveys are based on
