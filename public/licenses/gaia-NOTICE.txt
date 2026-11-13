@@ -19,7 +19,8 @@ https://www.cosmos.esa.int/web/gaia-users/license and the ESA Space Science Arch
 commercial use requires authorisation from ESA (data.licences@esa.int). ESA does not
 endorse Noxari.
 
-Changes made for Noxari: stars with G <= 11 selected; positions moved from epoch 2016.0 to
+Changes made for Noxari: stars with G <= 11 (public/stars/gaia-v1/) and 11 < G <= 12 in finer
+tiles (public/stars/gaia12-v1/, F-065) selected; positions moved from epoch 2016.0 to
 J2000 with Gaia proper motions; stars already shipped from HYG removed; positions,
 magnitude and BP-RP colour quantised and packed into sky tiles (public/stars/gaia-v1/), with
 source_id and parallax in separate detail files. Reproducible with

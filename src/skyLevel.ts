@@ -37,9 +37,12 @@ export function shownAtSkyLevel(object: Pick<SpaceObject, 'kind' | 'gear'>, leve
 export const BINOCULAR_STAR_LIMIT = 8.5;
 /** F-061: the whole-catalogue level continues past 2× with Gaia stars, reaching G 11 at 3×. */
 export const GAIA_STAR_LIMIT = 11;
+export const GAIA_DEEP_LIMIT = 12;
 export function starMagnitudeLimit(level: SkyLevel, zoom: number) {
   if (level === 'eye') return 6.5;
   const octaves = Math.log2(Math.max(1, zoom));
+  // F-065: beyond 3× the deeper Gaia layer takes the limit on to G 12 at 6×.
+  if (level === 'all' && zoom > 3) return Math.min(GAIA_DEEP_LIMIT, GAIA_STAR_LIMIT + (GAIA_DEEP_LIMIT - GAIA_STAR_LIMIT) * Math.log2(zoom / 3));
   if (level === 'all' && octaves > 1) return Math.min(GAIA_STAR_LIMIT, BINOCULAR_STAR_LIMIT + (GAIA_STAR_LIMIT - BINOCULAR_STAR_LIMIT) * (octaves - 1) / (Math.log2(3) - 1));
   return Math.min(BINOCULAR_STAR_LIMIT, 7 + 1.5 * octaves);
 }

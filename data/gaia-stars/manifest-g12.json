@@ -1,0 +1,22 @@
+{
+ "source": "Gaia DR3 (gaiadr3.gaia_source)",
+ "tap": "https://gaia.ari.uni-heidelberg.de/tap/sync",
+ "query": "SELECT source_id, ra, dec, phot_g_mean_mag, bp_rp, parallax, pmra, pmdec FROM gaiadr3.gaia_source WHERE phot_g_mean_mag <= {limit}{lower} AND source_id >= {low} AND source_id < {high}",
+ "gRange": [
+  11.0,
+  12.0
+ ],
+ "bandDegrees": 5,
+ "chunks": "192 x source_id range 36028797018963968",
+ "license": "CC BY-NC 3.0 IGO",
+ "licenseUrl": "https://www.cosmos.esa.int/web/gaia-users/license",
+ "credit": "ESA/Gaia/DPAC; Gaia Collaboration et al. (2016), (2023)",
+ "rows": 1840588,
+ "rowsSha256": "28669716b30049cbd276496f16953e7a062be0749be3070a5857a6fb0f475999",
+ "removedAsHyg": 0,
+ "stars": 1840588,
+ "tiles": 1654,
+ "bytes": 29462640,
+ "outputsSha256": "4a7cb3fb079cbb934db19937df7fa26a98b2809ac9243d02aa7d5ba7a2a99f73",
+ "output": "public/stars/gaia12-v1/"
+}

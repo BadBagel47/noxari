@@ -26,7 +26,7 @@ export const pickRadius = (pointerType: string, zoom: number) => (pointerType ==
 /** Faint stars crowd the sky at 1×; only clearly visible stars are tappable until the user zooms in. */
 export const tappableMagnitude = (zoom: number) => Math.min(6.5, 4.8 + 1.7 * (Math.max(1, zoom) - 1));
 /** F-061: Gaia stars can be tapped once the view is zoomed in (2.4× and more), up to the drawn limit. */
-export const tappableGaiaMagnitude = (zoom: number, limit: number) => zoom < 2.4 ? 0 : Math.min(limit, 9 + 2 * (Math.min(3, zoom) - 2.4) / .6);
+export const tappableGaiaMagnitude = (zoom: number, limit: number) => zoom < 2.4 ? 0 : Math.min(limit, zoom <= 3 ? 9 + 2 * (zoom - 2.4) / .6 : 11 + Math.log2(zoom / 3));
 
 /** Lowest distance-per-weight within each candidate's weighted reach (heavier candidates reach further). */
 export function pickBest<T extends PickCandidate>(candidates: T[], x: number, y: number, radius: number): T | null {

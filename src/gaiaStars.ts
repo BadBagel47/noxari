@@ -10,17 +10,21 @@ import type {ViewDirection} from './skyProjection';
  * the view is zoomed in past the binocular limit, and only around the view; details (Gaia id,
  * parallax) only when a star is tapped. Nothing is precached and nothing about the place is sent.
  */
-export const GAIA_PATH = 'stars/gaia-v1/';
-export type GaiaIndex = {version: number; bandDegrees: number; cells: number[]; counts: number[]; magnitudeBase: number; magnitudeScale: number; colourScale: number; limitG: number};
-export type GaiaTile = {tile: number; count: number; equatorial: Float32Array; magnitude: Float32Array; colour: Uint8Array};
-/** Combined faint stars: `tag` is −1 for HYG binocular stars, else tile·2²⁰ + index in the tile. */
+/** Layer 0: G ≤ 11 in 10° tiles (F-061). Layer 1: 11 < G ≤ 12 in 5° tiles, loaded deeper in (F-065). */
+export const GAIA_LAYERS = ['stars/gaia-v1/', 'stars/gaia12-v1/'];
+export const GAIA_PATH = GAIA_LAYERS[0];
+export type GaiaIndex = {version: number; bandDegrees: number; cells: number[]; counts: number[]; magnitudeBase: number; magnitudeScale: number; colourScale: number; limitG: number; layer?: number};
+export type GaiaTile = {tile: number; layer?: number; count: number; equatorial: Float32Array; magnitude: Float32Array; colour: Uint8Array};
+/** Combined faint stars: `tag` is −1 for HYG binocular stars, else ((layer·4096 + tile)·2¹⁴) + index in the tile. */
 export type TaggedFaintStars = FaintStars & {tag: Int32Array};
 
 const RAD = Math.PI / 180;
 const NEUTRAL_CI = .45;
 /** Approximate B−V from a packed Gaia BP−RP byte (255 = unknown), for star tint only. */
 export const gaiaColourIndex = (packed: number, scale = 50) => packed === 255 ? NEUTRAL_CI : Math.max(-.3, Math.min(2, .8 * (packed / scale - .5)));
-const TAG = 1 << 20;
+const TAG = 1 << 14, LAYER = 4096;
+/** Splits a Gaia tag into layer, tile and index (see TaggedFaintStars). */
+export const gaiaTagParts = (tag: number) => { const global = Math.floor(tag / TAG); return {layer: Math.floor(global / LAYER), tile: global % LAYER, index: tag % TAG}; };
 export const tileStarts = (index: GaiaIndex) => index.cells.reduce<number[]>((starts, _, band) => [...starts, band ? starts[band - 1] + index.cells[band - 1] : 0], []);
 
 /** Tile number, band and RA cell for a J2000 position in degrees. */
@@ -75,14 +79,14 @@ export function decodeGaiaTile(index: GaiaIndex, tile: number, buffer: ArrayBuff
     magnitude[i] = index.magnitudeBase + view.getUint8(offset + 4) / index.magnitudeScale;
     colour[i] = view.getUint8(offset + 5);
   }
-  return {tile, count, equatorial, magnitude, colour};
+  return {tile, layer: index.layer ?? 0, count, equatorial, magnitude, colour};
 }
 
 /** Binocular stars plus loaded Gaia tiles, sorted by magnitude so renderers can draw a prefix. */
 export function mergeFaintStars(binocular: FaintStars | null, tiles: GaiaTile[]): TaggedFaintStars | null {
   const sources: {equatorial: Float32Array; magnitude: Float32Array; count: number; tag: (i: number) => number; ci: (i: number) => number}[] = [];
   if (binocular) sources.push({...binocular, tag: () => -1, ci: () => NEUTRAL_CI});
-  for (const tile of tiles) sources.push({...tile, tag: i => tile.tile * TAG + i, ci: i => gaiaColourIndex(tile.colour[i])});
+  for (const tile of tiles) sources.push({...tile, tag: i => ((tile.layer ?? 0) * LAYER + tile.tile) * TAG + i, ci: i => gaiaColourIndex(tile.colour[i])});
   if (!sources.length) return null;
   const count = sources.reduce((sum, source) => sum + source.count, 0);
   const order = new Uint32Array(count), keys = new Float32Array(count), owner = new Uint16Array(count), local = new Uint32Array(count);
@@ -116,31 +120,38 @@ export function viewCentre(view: ViewDirection, time: Date, location: ObservingL
   return {ra: ((Math.atan2(v.y, v.x) / RAD) + 360) % 360, dec: Math.asin(Math.max(-1, Math.min(1, v.z))) / RAD};
 }
 
-let indexPending: Promise<GaiaIndex> | null = null;
-export function loadGaiaIndex(base: string) {
-  indexPending ??= fetch(`${base}${GAIA_PATH}index.json`).then(response => { if (!response.ok) throw new Error(String(response.status)); return response.json(); });
-  indexPending.catch(() => { indexPending = null; });
-  return indexPending;
-}
-
-const tiles = new Map<number, Promise<GaiaTile>>();
-export function loadGaiaTile(base: string, index: GaiaIndex, tile: number) {
-  let pending = tiles.get(tile);
+const indexPending = new Map<number, Promise<GaiaIndex>>();
+export function loadGaiaIndex(base: string, layer = 0) {
+  let pending = indexPending.get(layer);
   if (!pending) {
-    pending = fetch(`${base}${GAIA_PATH}t${tile}.bin`).then(response => { if (!response.ok) throw new Error(String(response.status)); return response.arrayBuffer(); }).then(buffer => decodeGaiaTile(index, tile, buffer));
-    tiles.set(tile, pending);
-    pending.catch(() => tiles.delete(tile));
+    pending = fetch(`${base}${GAIA_LAYERS[layer]}index.json`).then(response => { if (!response.ok) throw new Error(String(response.status)); return response.json(); })
+      .then((index: GaiaIndex) => ({...index, layer}));
+    indexPending.set(layer, pending);
+    pending.catch(() => indexPending.delete(layer));
   }
   return pending;
 }
 
-const details = new Map<number, Promise<DataView>>();
-function loadDetails(base: string, tile: number) {
-  let pending = details.get(tile);
+const tiles = new Map<string, Promise<GaiaTile>>();
+export function loadGaiaTile(base: string, index: GaiaIndex, tile: number) {
+  const layer = index.layer ?? 0, key = `${layer}/${tile}`;
+  let pending = tiles.get(key);
   if (!pending) {
-    pending = fetch(`${base}${GAIA_PATH}d${tile}.bin`).then(response => { if (!response.ok) throw new Error(String(response.status)); return response.arrayBuffer(); }).then(buffer => new DataView(buffer));
-    details.set(tile, pending);
-    pending.catch(() => details.delete(tile));
+    pending = fetch(`${base}${GAIA_LAYERS[layer]}t${tile}.bin`).then(response => { if (!response.ok) throw new Error(String(response.status)); return response.arrayBuffer(); }).then(buffer => decodeGaiaTile(index, tile, buffer));
+    tiles.set(key, pending);
+    pending.catch(() => tiles.delete(key));
+  }
+  return pending;
+}
+
+const details = new Map<string, Promise<DataView>>();
+function loadDetails(base: string, layer: number, tile: number) {
+  const key = `${layer}/${tile}`;
+  let pending = details.get(key);
+  if (!pending) {
+    pending = fetch(`${base}${GAIA_LAYERS[layer]}d${tile}.bin`).then(response => { if (!response.ok) throw new Error(String(response.status)); return response.arrayBuffer(); }).then(buffer => new DataView(buffer));
+    details.set(key, pending);
+    pending.catch(() => details.delete(key));
   }
   return pending;
 }
@@ -150,9 +161,10 @@ const colourWords = (bpRp: number | null, sv: boolean) => bpRp === null ? '' : b
 const markerColour = (bpRp: number | null) => bpRp === null ? '#e3f1ff' : bpRp < .5 ? '#cfe0ff' : bpRp < .9 ? '#f4f1e8' : bpRp < 1.3 ? '#ffe2b0' : '#ffc78a';
 
 /** The selectable object for a tapped Gaia star (tag from mergeFaintStars). */
-export async function gaiaStarObject(base: string, index: GaiaIndex, tag: number): Promise<SpaceObject> {
-  const tileNumber = Math.floor(tag / TAG), i = tag % TAG;
-  const [tile, detail] = await Promise.all([loadGaiaTile(base, index, tileNumber), loadDetails(base, tileNumber)]);
+export async function gaiaStarObject(base: string, indexes: (GaiaIndex | null)[], tag: number): Promise<SpaceObject> {
+  const {layer, tile: tileNumber, index: i} = gaiaTagParts(tag), index = indexes[layer];
+  if (!index) throw new Error('Gaia index not loaded');
+  const [tile, detail] = await Promise.all([loadGaiaTile(base, index, tileNumber), loadDetails(base, layer, tileNumber)]);
   const sourceId = detail.getBigInt64(i * 10, true).toString(), parallax = detail.getUint16(i * 10 + 8, true) / 100;
   const x = tile.equatorial[i * 3], y = tile.equatorial[i * 3 + 1], z = tile.equatorial[i * 3 + 2];
   const raHours = ((Math.atan2(y, x) / RAD + 360) % 360) / 15, decDegrees = Math.asin(z) / RAD;

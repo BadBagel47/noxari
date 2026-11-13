@@ -151,6 +151,9 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
   // F-061: Gaia tiles around the view, only on the whole-catalogue level once zoomed past the binocular limit.
   const gaiaWanted = skyLevel === 'all' && magnitudeLimit > 8.5;
   const [gaiaIndex, setGaiaIndex] = useState<GaiaIndex | null>(null);
+  // F-065: the deeper layer (11 < G ≤ 12, 5° tiles) once the limit passes G 11 (beyond 3×).
+  const gaiaDeepWanted = gaiaWanted && magnitudeLimit > 11;
+  const [gaiaDeepIndex, setGaiaDeepIndex] = useState<GaiaIndex | null>(null);
   const [gaiaTiles, setGaiaTiles] = useState<GaiaTile[]>([]);
   useEffect(() => {
     if (!gaiaWanted || gaiaIndex) return;
@@ -158,19 +161,28 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
     loadGaiaIndex(import.meta.env.BASE_URL).then(index => { if (live) setGaiaIndex(index); }).catch(() => {});
     return () => { live = false; };
   }, [gaiaWanted, gaiaIndex]);
+  useEffect(() => {
+    if (!gaiaDeepWanted || gaiaDeepIndex) return;
+    let live = true;
+    loadGaiaIndex(import.meta.env.BASE_URL, 1).then(index => { if (live) setGaiaDeepIndex(index); }).catch(() => {});
+    return () => { live = false; };
+  }, [gaiaDeepWanted, gaiaDeepIndex]);
+  const gaiaIndexes = useMemo(() => [gaiaIndex, gaiaDeepIndex], [gaiaIndex, gaiaDeepIndex]);
   const aspect = size.width && size.height ? Math.min(size.width, size.height) / Math.max(size.width, size.height) : 1;
-  const gaiaKey = gaiaWanted && gaiaIndex ? `${Math.round(view.heading / 3)}|${Math.round(view.pitch / 3)}|${Math.round(zoom * 4)}|${Math.round(time.getTime() / 600_000)}|${location.latitude}|${location.longitude}|${aspect.toFixed(1)}` : '';
+  const gaiaKey = gaiaWanted && gaiaIndex ? `${Math.round(view.heading / 3)}|${Math.round(view.pitch / 3)}|${Math.round(zoom * 4)}|${Math.round(time.getTime() / 600_000)}|${location.latitude}|${location.longitude}|${aspect.toFixed(1)}|${gaiaDeepWanted && gaiaDeepIndex ? 1 : 0}` : '';
   const gaiaTileList = useMemo(() => {
     if (!gaiaKey || !gaiaIndex) return [];
-    const centre = viewCentre(view, time, location), half = 45 / zoom;
-    return gaiaTilesNear(gaiaIndex, centre.ra, centre.dec, Math.hypot(half, half * aspect) + 4).slice(0, 24);
+    const centre = viewCentre(view, time, location), half = 45 / zoom, radius = Math.hypot(half, half * aspect) + 4;
+    const list = gaiaTilesNear(gaiaIndex, centre.ra, centre.dec, radius).slice(0, 24).map(tile => ({index: gaiaIndex, tile}));
+    if (gaiaDeepWanted && gaiaDeepIndex) list.push(...gaiaTilesNear(gaiaDeepIndex, centre.ra, centre.dec, Math.hypot(half, half * aspect) + 2).slice(0, 36).map(tile => ({index: gaiaDeepIndex, tile})));
+    return list;
   }, [gaiaKey]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!gaiaIndex || !gaiaTileList.length) { if (!gaiaWanted) setGaiaTiles(current => current.length ? [] : current); return; }
     let live = true;
     // Wait for the pan to settle before fetching new tiles.
     const timer = window.setTimeout(() => {
-      Promise.allSettled(gaiaTileList.map(tile => loadGaiaTile(import.meta.env.BASE_URL, gaiaIndex, tile))).then(results => {
+      Promise.allSettled(gaiaTileList.map(({index, tile}) => loadGaiaTile(import.meta.env.BASE_URL, index, tile))).then(results => {
         if (!live) return;
         const loaded = results.flatMap(result => result.status === 'fulfilled' ? [result.value] : []);
         setGaiaTiles(current => current.length === loaded.length && current.every((tile, i) => tile === loaded[i]) ? current : loaded);
@@ -727,7 +739,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       const best = pickBest(candidates, x, y, pickRadius(event.pointerType, zoom));
       if (best?.object) onSelect(best.object);
       else if (best?.index !== undefined) void starObject(best.index).then(onSelect);
-      else if (best?.gaia !== undefined && gaiaIndex) void gaiaStarObject(import.meta.env.BASE_URL, gaiaIndex, best.gaia).then(onSelect).catch(() => {});
+      else if (best?.gaia !== undefined && gaiaIndex) void gaiaStarObject(import.meta.env.BASE_URL, gaiaIndexes, best.gaia).then(onSelect).catch(() => {});
       else if (showFigures && showFigureNames && onSelectConstellation) {
         // F-036: a tap near a constellation name opens that constellation's info.
         let nearest: {id: string; distance: number} | null = null;

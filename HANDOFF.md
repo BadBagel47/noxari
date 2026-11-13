@@ -11,9 +11,10 @@ En mobilförst, Stellarium-inspirerad planetariewebbapp (React/TypeScript/Vite) 
 
 ## Senaste ändringar
 
-1. 2026-11-13 — F-063 + F-064 + F-066: himmelsbilder i GPU med förhandsbild, förhämtning och tre speglar, zoom till 200×, snabbare Vintergata i reservvägen; telefonmätning kvar.
-2. 2026-11-13 — F-062: djupzoom till 60× med riktiga DSS-himmelsbilder från 3×; fysisk kontroll kvar.
-3. 2026-11-13 — F-060 + F-061 steg 1: Vintergatan närmare ESO-fotot, marinblå himmel, glöd kring ljusa stjärnor, färgade svaga stjärnor; fysisk kontroll kvar.
+1. 2026-11-13 — F-065: Gaia-stjärnor till G 12 (1,84 miljoner till) i finare rutor vid djupzoom; fysisk kontroll kvar.
+2. 2026-11-13 — F-063 + F-064 + F-066: himmelsbilder i GPU med förhandsbild, förhämtning och tre speglar, zoom till 200×, snabbare Vintergata i reservvägen; telefonmätning kvar.
+3. 2026-11-13 — F-062: djupzoom till 60× med riktiga DSS-himmelsbilder från 3×; fysisk kontroll kvar.
+4. 2026-11-13 — F-060 + F-061 steg 1: Vintergatan närmare ESO-fotot, marinblå himmel, glöd kring ljusa stjärnor, färgade svaga stjärnor; fysisk kontroll kvar.
 4. 2026-11-13 — F-061 steg 2: Gaia DR3-stjärnor till G 11 på nivån Hela katalogen vid inzoomning, tryckbara med Gaia-kort; fysisk kontroll kvar.
 5. 2026-11-13 — B-017 + B-018: Vintergatan får tillbaka detalj (ett filterpass, raster 360), landskapets trädtoppar provas på fast rutnät; fysisk kontroll kvar.
 5. 2026-11-13 — B-015: Vintergatstexturen förfiltreras vid laddning så att kornen inte gungar vid panorering (GPU och Canvas); fysisk kontroll kvar.
@@ -52,6 +53,7 @@ Inga körklara förslag; nya önskemål samlas i [BACKLOG.md](BACKLOG.md). Parke
 
 ## Begränsningar och engångsåtgärder
 
+- 2026-11-13: ESA:s Gaia-arkiv svarade 429 (”maximum number of jobs per user … (50)” för anonyma användare); `gaia.ari.uni-heidelberg.de` (samma Gaia DR3, radgräns 100 000) tillagd i miljön och använd för F-065.
 - 2026-11-13: miljön fick även `irsa.ipac.caltech.edu`, `stpubdata.s3.us-east-1.amazonaws.com`, `casda.csiro.au` (DSS-speglar, F-063). CDS bildservrar (`alasky` för data, `alaskybis`) fungerar inte härifrån.
 - 2026-11-13: miljön fick även `www.cosmos.esa.int`, `alasky.cds.unistra.fr`, `aladin.cds.unistra.fr`, `archive.stsci.edu` och `www.legacysurvey.org` (F-061/F-062). `alasky` fungerar; `archive.stsci.edu` ger certifikatfel genom proxyn.
 - 2026-11-13: miljön ”noxari” fick tillgång till `cdsarc.cds.unistra.fr`, `tapvizier.cds.unistra.fr` och `gea.esac.esa.int` (F-061). Gaia-arkivet fungerar; CDS-värdarna svarar inte genom proxyn (tunneln stängs).

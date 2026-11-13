@@ -43,7 +43,7 @@ describe('Gaia tiles (F-061)', () => {
     const a = decodeGaiaTile(index, 5, tile([[0, 0, 100, 0], [0, 0, 200, 0]]));
     const merged = mergeFaintStars(binocular, [a])!;
     [7, 8, 8.4, 10].forEach((value, i) => expect(merged.magnitude[i]).toBeCloseTo(value, 5));
-    expect(Array.from(merged.tag)).toEqual([-1, 5 * 2 ** 20, -1, 5 * 2 ** 20 + 1]);
+    expect(Array.from(merged.tag)).toEqual([-1, 5 * 2 ** 14, -1, 5 * 2 ** 14 + 1]);
     expect(mergeFaintStars(null, [])).toBeNull();
   });
   it('looks straight up at the celestial pole from the north pole', () => {
@@ -65,5 +65,21 @@ describe('faint star tints (F-061)', () => {
     expect(FAINT_TINTS[2]).toBe(.45);
     expect(gaiaColourIndex(255)).toBe(.45);
     expect(gaiaColourIndex(Math.round((.82 + .5) * 50))).toBeCloseTo(.66, 1);
+  });
+});
+
+describe('deeper Gaia layer (F-065)', () => {
+  it('keeps layer, tile and index apart in tags', async () => {
+    const {gaiaTagParts} = await import('../src/gaiaStars');
+    expect(gaiaTagParts(((1 * 4096 + 1650) * 2 ** 14) + 9000)).toEqual({layer: 1, tile: 1650, index: 9000});
+    expect(gaiaTagParts(5 * 2 ** 14 + 1)).toEqual({layer: 0, tile: 5, index: 1});
+  });
+  it('raises the whole-catalogue limit to G 12 at 6× and makes those stars tappable', async () => {
+    const {starMagnitudeLimit} = await import('../src/skyLevel');
+    expect(starMagnitudeLimit('all', 3)).toBeCloseTo(11);
+    expect(starMagnitudeLimit('all', 6)).toBeCloseTo(12);
+    expect(starMagnitudeLimit('all', 50)).toBe(12);
+    expect(starMagnitudeLimit('binoculars', 50)).toBe(8.5);
+    expect(tappableGaiaMagnitude(6, 12)).toBeCloseTo(12);
   });
 });
