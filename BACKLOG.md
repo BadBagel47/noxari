@@ -6,7 +6,8 @@ ID:n är permanenta (F-### funktioner, B-### buggar, separata serier — beslut 
 
 Senast uppdaterad 2026-11-13. Bokstäverna gäller bara den senast visade listan.
 
-Inga körklara förslag just nu.
+- **A** – strong model, medium level – Vintergata närmare originalfotot (Prioritet: Medel)
+  - F-060 (Vintergatan närmare originalet) – Gör Vintergatan kraftigare, mer detaljerad och med tydligare mörka stoftband, jämförd mot ESO-fotot; ger en himmel som liknar det du ser på bilden
 
 **Parkerat:** B-001 (riktningsdrift), B-004 (ryckighet), B-007 (första Följ – observeras), F-009 (mobiltester), F-010 (månkalibrering), F-011 (kamera/AR), resterande del av F-037 (mjuk Följ-start).
 
@@ -23,6 +24,7 @@ Inga körklara förslag just nu.
 
 | ID | Funktion | Status | Prioritet | Omfattning / klart när |
 | --- | --- | --- | --- | --- |
+| **F-060** | Vintergatan närmare originalfotot | **Förslag 2026-11-13** | Medel | Användaren: Noxaris Vintergata är ”inte i närheten” av ESO-panoramat (eso0932a). Orsak (avsiktligt i F-056): ljusstyrkan trimmas (allt under 55:e percentilen försvinner), färgen avmättas 45 %, ljusa stjärnor ersätts med lokal median och lagret ritas med högst 40 % opacitet över en mörk himmel; dessutom nu lätt utjämnad (B-015/B-017). Förslag: kraftigare och mer detaljerad Vintergata – t.ex. lägre trösklar, mindre avmättning, högre styrka och mörka stoftband tydligare – med reglage-fri standard som ser mer ut som fotot men utan att dränka stjärnorna. Kräver regenerering av texturen (`scripts/generate_milky_way_color.py`, pinnad källa och kontrollsumma oförändrade; kräver användarens godkännande enligt dataregeln) och jämförelse sida vid sida med originalet. Klart när: användaren godkänner utseendet mot originalet, GPU/Canvas lika, panorering lugn. |
 | **F-059** | Objektets bana: bara kvällens väg som standard | **Klar 2026-11-12** | Medel | Användaren (skärmbild med Vesta): den orange slingan (rörelse bland stjärnorna) plus ekliptikan blev för många spår. Förslag: Lager → Objektets bana visar bara kvällens väg (blå streckad med klockslag). Rörelsen bland stjärnorna slås på per tillfälle med en knapp i objektets beskrivning under ”Mer” (”Visa rörelse bland stjärnorna”), med kort förklaring av retrograd slinga; av igen när man väljer ett annat objekt. Kontrollerat: Vestas slinga 2026 är korrekt (framåt till aug, bakåt aug–dec, framåt igen). Gjort: knapp under ”Mer”, asteroider/dvärgplaneter ±3 månader. Ej gjort: datumetiketter som undviker andra objekts namn (de undviker bara varandra). |
 
 ## Parkerat
