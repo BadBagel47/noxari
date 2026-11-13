@@ -383,13 +383,21 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       }
 
       measurement?.phase('background');
+      // F-066: whether the view is moving (Canvas painters draw coarser and get one redraw once it rests).
+      const poseKey = `${view.heading}|${view.pitch}|${zoom}`, nowMs = performance.now();
+      if (poseKey !== lastPose.current.key) lastPose.current = {key: poseKey, at: nowMs};
+      const viewMoving = nowMs - lastPose.current.at < 180;
+      if (viewMoving && renderer?.backend !== 'gpu') {
+        if (settleTimer.current) window.clearTimeout(settleTimer.current);
+        settleTimer.current = window.setTimeout(() => { settleTimer.current = null; frames.invalidate(); }, 200);
+      }
       const fade = fades.current.step({grid: showGrid, boundaries: showBoundaries, figures: showFigures, art: showArt, ecliptic: showEcliptic, milkyWay: showMilkyWay}, now, reducedMotion || comparing);
       if (milkyWay && fade.values.milkyWay > 0) {
         // F-039: the Milky Way steps back a little where drawings are shown, so they read on top.
         // F-060: as in planetarium programs the glow steps back when zooming in, so resolved stars read on top of it.
         const visibility = Math.max(0, Math.min(1, (-sun.altitude - 8) / 10)) * fade.values.milkyWay * (1 - .25 * fade.values.art) * milkyWayZoomFade(zoom);
         if (!renderer?.drawMilkyWay(context, width, height, dpr, view, visibility, belowReveal > 0, zoom, milkyBasis, sceneKey)) {
-          milkyWayPainter.current.draw(context, milkyWay, time, location, width, height, visibility, view, belowReveal > 0, zoom);
+          milkyWayPainter.current.draw(context, milkyWay, time, location, width, height, visibility, view, belowReveal > 0, zoom, viewMoving);
         }
       }
 
@@ -398,9 +406,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       // (with a margin, so neighbours arrive early) are requested on every frame; the loader skips known ones.
       const deep = hipsAlpha(zoom) * Math.max(starVisibility, belowReveal);
       if (deep > 0 && hipsPainter.current && hipsTiles.current) {
-        const poseKey = `${view.heading}|${view.pitch}|${zoom}`, nowMs = performance.now();
-        if (poseKey !== lastPose.current.key) lastPose.current = {key: poseKey, at: nowMs};
-        const moving = nowMs - lastPose.current.at < 180;
+        const moving = viewMoving;
         const wanted = wantedTiles(view, zoom, time, location, width, height);
         // While the zoom is changing, only the coarse preview level is fetched; the sharp level once it rests.
         if (zoom !== lastZoom.current.zoom) lastZoom.current = {zoom, at: nowMs};

@@ -83,12 +83,14 @@ export class MilkyWayPainter {
   private key = '';
   private texture: MilkyWayTexture | null = null;
 
-  draw(context: CanvasRenderingContext2D, texture: MilkyWayTexture, time: Date, location: ObservingLocation, width: number, height: number, visibility: number, view: ViewDirection | null, belowHorizon = false, zoom = 1) {
+  draw(context: CanvasRenderingContext2D, texture: MilkyWayTexture, time: Date, location: ObservingLocation, width: number, height: number, visibility: number, view: ViewDirection | null, belowHorizon = false, zoom = 1, moving = false) {
     if (visibility <= 0 || width <= 0 || height <= 0) return;
-    const key = [time.getTime(), location.latitude, location.longitude, width, height, view?.heading, view?.pitch, belowHorizon].join('|');
+    // F-066: a coarser field while the view moves (the caller redraws once it rests), full detail at rest.
+    const samples = moving ? 240 : MILKY_WAY_RASTER;
+    const key = [time.getTime(), location.latitude, location.longitude, width, height, view?.heading, view?.pitch, belowHorizon, samples].join('|');
     if (!this.canvas || this.key !== key || this.texture !== texture) {
       this.canvas ??= document.createElement('canvas');
-      const scale = Math.max(width, height) / MILKY_WAY_RASTER;
+      const scale = Math.max(width, height) / samples;
       const cols = Math.max(1, Math.round(width / scale)), rows = Math.max(1, Math.round(height / scale));
       this.canvas.width = cols; this.canvas.height = rows;
       const buffer = this.canvas.getContext('2d')!;
@@ -100,6 +102,7 @@ export class MilkyWayPainter {
       const heading = (view?.heading ?? 0) * Math.PI / 180, pitch = (view?.pitch ?? 0) * Math.PI / 180;
       const ch = Math.cos(heading), sh = Math.sin(heading), cp = Math.cos(pitch), sp = Math.sin(pitch);
       const radius = Math.min(cols, rows) * .44, focal = Math.max(cols, rows) / 2;
+      const px = texture.pixels, tw = texture.width, th = texture.height, channel = texture.color ? 3 : 0;
       for (let row = 0; row < rows; row++) for (let col = 0; col < cols; col++) {
         const dx = col + .5 - cols / 2, dy = rows / 2 - row - .5;
         let n: number, w: number, u: number;
@@ -115,16 +118,20 @@ export class MilkyWayPainter {
           n = Math.cos(alt) * Math.cos(az); w = -Math.cos(alt) * Math.sin(az); u = Math.sin(alt);
         }
         if (u < 0 && !belowHorizon) continue;
-        const value = milkyWaySample(texture,
-          n * north.x + w * west.x + u * up.x,
-          n * north.y + w * west.y + u * up.y,
-          n * north.z + w * west.z + u * up.z);
+        const x = n * north.x + w * west.x + u * up.x, y = n * north.y + w * west.y + u * up.y, z = n * north.z + w * west.z + u * up.z;
+        // F-066: one longitude/latitude per sample for both the bilinear brightness and the nearest colour
+        // (same result as milkyWaySample + milkyWayTexel, without computing the angles twice).
+        const lon = (Math.atan2(y, x) + TAU) % TAU, lat = Math.atan2(z, Math.hypot(x, y));
+        const tu = lon / TAU * tw - .5, tv = Math.max(0, Math.min(th - 1, (.5 - lat / Math.PI) * th - .5));
+        const left = Math.floor(tu), top = Math.floor(tv), fx = tu - left, fy = tv - top;
+        const c0 = (left + tw) % tw, c1 = (left + 1 + tw) % tw, r0 = top * tw, r1 = Math.min(th - 1, top + 1) * tw;
+        const value = (px[(r0 + c0) * 4 + channel] * (1 - fx) + px[(r0 + c1) * 4 + channel] * fx) * (1 - fy)
+          + (px[(r1 + c0) * 4 + channel] * (1 - fx) + px[(r1 + c1) * 4 + channel] * fx) * fy;
         const offset = (row * cols + col) * 4;
         if (texture.color) {
-          const x = n * north.x + w * west.x + u * up.x, y = n * north.y + w * west.y + u * up.y, z = n * north.z + w * west.z + u * up.z;
           // Colour varies slowly; the nearest texel is enough (brightness above stays bilinear).
-          const texel = milkyWayTexel(texture, x, y, z);
-          image.data[offset] = texture.pixels[texel]; image.data[offset + 1] = texture.pixels[texel + 1]; image.data[offset + 2] = texture.pixels[texel + 2];
+          const texel = (Math.max(0, Math.min(th - 1, Math.floor((.5 - lat / Math.PI) * th))) * tw + Math.floor(lon / TAU * tw) % tw) * 4;
+          image.data[offset] = px[texel]; image.data[offset + 1] = px[texel + 1]; image.data[offset + 2] = px[texel + 2];
           image.data[offset + 3] = value * MILKY_WAY_COLOR_STRENGTH;
         } else {
           image.data[offset] = 132; image.data[offset + 1] = 154; image.data[offset + 2] = 180;
