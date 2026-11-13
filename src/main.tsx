@@ -94,6 +94,10 @@ function demoCaptionBox() {
   return {dx: 0, dy: height / 2 - (top + cardTop - 12) / 2};
 }
 /** F-069: eight-point compass name for an azimuth (degrees from north). */
+/** F-076: a phone or tablet that can offer device orientation (touch, secure page). Not a sensor check. */
+function canAutoFollow() {
+  return window.isSecureContext && typeof DeviceOrientationEvent !== 'undefined' && !!window.matchMedia?.('(pointer: coarse)').matches;
+}
 const compassPoint = (azimuth: number, lang: Lang) => (lang === 'sv' ? ['N', 'NO', 'O', 'SO', 'S', 'SV', 'V', 'NV'] : ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'])[Math.round(((azimuth % 360) + 360) % 360 / 45) % 8];
 const equipmentLabel = (gear: Gear, lang: Lang) => ({eye: t(lang, 'Naked eye', 'Blotta ögat'), binoculars: t(lang, 'Binoculars', 'Kikare'), telescope: t(lang, 'Telescope', 'Teleskop')}[gear]);
 const presets: ObservingLocation[] = [
@@ -492,6 +496,9 @@ function App() {
   const startFinder = (object: SpaceObject) => {
     if (!object.position) return;
     setSelected(object); setPanel(null); setSkyMode('horizon'); setFinderTarget(object);
+    // F-076: the guide is for aiming the phone, so start following in the same tap (same start as the Följ button).
+    // Only on touch devices that can offer orientation; on a computer the guide stays manual without a sensor error.
+    if (!phone.active && canAutoFollow()) { cancelGlide(); skyFrames.comparison.cancel('user-interaction'); void phone.start(); }
     requestAnimationFrame(() => document.querySelector<HTMLDivElement>('.horizon-view')?.focus({preventScroll: true}));
   };
   const cancelGps = () => { gpsRequest.current++; setGpsPending(false); setGpsMessage(''); };

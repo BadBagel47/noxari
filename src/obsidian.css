@@ -224,3 +224,36 @@
 }
 @media (orientation:landscape) and (max-height:430px){.demo-thumb{width:56px;height:56px}.sky-app .demo-caption h2{font-size:22px}.sky-app .demo-look{margin:8px 0}}
 @media(prefers-reduced-motion:reduce){.demo-thumb{animation-duration:.01ms!important;animation-delay:0s!important}}
+
+/* B-020: Guided Finder in the same glass as the object card; green stays the "centred" status */
+.sky-app .finder-hud{
+  background:var(--ob-glass);
+  border:1px solid var(--ob-hair);
+  -webkit-backdrop-filter:var(--ob-blur);
+  backdrop-filter:var(--ob-blur);
+  box-shadow:var(--ob-shadow), inset 0 1px 0 rgba(255,255,255,.05);
+  border-radius:22px;
+  padding:14px 14px 14px 16px;
+  color:var(--ob-text-2);
+}
+.sky-app .finder-hud .finder-title strong{color:var(--ob-text);font-size:17px;font-weight:650;letter-spacing:-.01em}
+.sky-app .finder-hud .finder-title>div>span{color:var(--ob-text-2);font-size:13px}
+.sky-app .finder-hud-actions button{border-radius:14px;background:var(--ob-raised);border:1px solid var(--ob-hair);color:var(--ob-text);padding:8px 12px}
+.sky-app .finder-hud-actions button:hover{background:var(--ob-raised-strong)}
+.sky-app .finder-hud>strong{color:var(--ob-signal);font-weight:650}
+.sky-app .is-centered .finder-hud>strong{color:#98e5bd}
+.sky-app .is-below .finder-hud>strong{color:#f1c6ad}
+.sky-app .finder-hud .finder-offsets{gap:6px;margin-top:8px;padding-right:0}
+.sky-app .finder-hud .finder-offsets span{background:var(--ob-raised);border:1px solid var(--ob-hair);border-radius:10px;padding:3px 9px;color:var(--ob-text);font-variant-numeric:tabular-nums}
+.sky-app .finder-hud .finder-offsets span:last-child{color:var(--ob-text-2)}
+.sky-app .finder-hud .finder-twilight{color:var(--ob-signal)}
+.sky-app .finder-reticle{border-color:rgba(233,237,244,.62)}
+.sky-app .finder-orbit-arrow{color:var(--ob-signal)}
+.sky-app .finder-orbit-arrow svg{fill:var(--ob-signal)}
+.sky-app .finder-target-ring{border-color:rgba(243,199,110,.9);background:rgba(243,199,110,.08)}
+.sky-app .finder-target-ring span{
+  top:28px;padding:3px 10px;border-radius:999px;
+  background:rgba(13,16,23,.66);border:1px solid var(--ob-hair);
+  -webkit-backdrop-filter:var(--ob-blur);backdrop-filter:var(--ob-blur);
+  color:var(--ob-signal);font-weight:600;
+}

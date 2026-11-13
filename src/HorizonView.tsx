@@ -258,7 +258,16 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
   const moonFraction = useMemo(() => Illumination(Body.Moon, time).phase_fraction, [time]);
   const sunScreen = projectPerspective(sun, view, size.width, size.height, false, true, zoom);
   const moonPhase = (point: MapPoint) => ({fraction: moonFraction, angle: sunScreen ? Math.atan2(sunScreen.y - point.y, sunScreen.x - point.x) * 180 / Math.PI : 0});
-  const labelExclusions = useMemo(() => skyOverlayExclusions(root.current), [size.width, size.height, selectedId, finderTarget, phone.status, language]);
+  const overlayExclusions = useMemo(() => skyOverlayExclusions(root.current), [size.width, size.height, selectedId, finderTarget, phone.status, language]);
+  // B-020: keep other labels off the Guided Finder ring and its name tag (drawn by GuidedFinder, 16–40 px below the target).
+  const finderPoint = finderTarget && targetPosition && targetPosition.altitude >= 0 ? projectPerspective(targetPosition, view, size.width, size.height, false, false, zoom) : null;
+  const finderName = finderTarget ? (language === 'sv' ? finderTarget.sv : finderTarget.en) : '';
+  const finderX = finderPoint ? Math.round(finderPoint.x) : null, finderY = finderPoint ? Math.round(finderPoint.y) : null;
+  const labelExclusions = useMemo(() => {
+    if (finderX === null || finderY === null) return overlayExclusions;
+    const half = Math.min(170, [...finderName].length * 7.4 + 22) / 2;
+    return [...overlayExclusions, {left: finderX - 16, right: finderX + 16, top: finderY - 16, bottom: finderY + 16}, {left: finderX - half, right: finderX + half, top: finderY + 14, bottom: finderY + 42}];
+  }, [overlayExclusions, finderX, finderY, finderName]);
   const labelPlacements = useObjectLabels([
     ...markers.map(({object, point}) => ({id: object.id, text: label(object), x: point.x, y: point.y, priority: object.id === selectedId ? 1000 : object.kind === 'Moon' ? 800 : object.kind === 'Planet' ? 700 : 300})),
     ...(sunPoint ? [{id: 'sun', text: sunLabel, x: sunPoint.x, y: sunPoint.y, priority: 900}] : []),

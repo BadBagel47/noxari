@@ -11,19 +11,11 @@ En mobilförst, Stellarium-inspirerad planetariewebbapp (React/TypeScript/Vite) 
 
 ## Senaste ändringar
 
-1. 2026-11-13 — B-019 + F-075: visningsläget med glaskort och fri yta för objektet; 177 Caldwell- och namngivna djuprymdsobjekt (t.ex. Irisnebulosan) sökbara på alla namn; fysisk kontroll kvar.
-2. 2026-11-13 — F-067 + F-068 + F-070 + F-071: ett val för detaljnivå, Lager som lista, zoom visar alltid mer detalj (synlig zoomkontroll), plats/tid i sökfältet, felsökning hopfälld i Mer; fysisk kontroll kvar.
-3. 2026-11-13 — F-073 + F-069 + F-072: ny mörk design ”Obsidian” (glas, tonad primärknapp), objektkort med nyckeltal och ”Detaljer”, detaljvy och Ikväll omordnade; fysisk kontroll kvar.
-4. 2026-11-13 — F-065: Gaia-stjärnor till G 12 (1,84 miljoner till) i finare rutor vid djupzoom; fysisk kontroll kvar.
-4. 2026-11-13 — F-063 + F-064 + F-066: himmelsbilder i GPU med förhandsbild, förhämtning och tre speglar, zoom till 200×, snabbare Vintergata i reservvägen; telefonmätning kvar.
-4. 2026-11-13 — F-062: djupzoom till 60× med riktiga DSS-himmelsbilder från 3×; fysisk kontroll kvar.
-4. 2026-11-13 — F-060 + F-061 steg 1: Vintergatan närmare ESO-fotot, marinblå himmel, glöd kring ljusa stjärnor, färgade svaga stjärnor; fysisk kontroll kvar.
-4. 2026-11-13 — F-061 steg 2: Gaia DR3-stjärnor till G 11 på nivån Hela katalogen vid inzoomning, tryckbara med Gaia-kort; fysisk kontroll kvar.
-5. 2026-11-13 — B-017 + B-018: Vintergatan får tillbaka detalj (ett filterpass, raster 360), landskapets trädtoppar provas på fast rutnät; fysisk kontroll kvar.
-5. 2026-11-13 — B-015: Vintergatstexturen förfiltreras vid laddning så att kornen inte gungar vid panorering (GPU och Canvas); fysisk kontroll kvar.
-5. 2026-11-12 — F-059: objektets bana visar bara kvällens väg som standard; rörelsen bland stjärnorna slås på med knapp under ”Mer”.
-5. 2026-11-12 — F-054 + F-052 + F-053 + F-055: sökfält högst upp, kompakt kort med ”Mer” och Wikipedia, objektets bana, rörliga satelliter.
-5. 2026-11-12 — Anpassning till agentregler v1.4: denna fil (historiken i docs/HANDOFF_LOG.md), kortade projektregler, ny backlogstruktur, integritetstext i Om (F-058).
+1. 2026-11-13 — B-020 + F-076: objektguiden i Obsidian-glas (kort, knappar, namnskylt som inte krockar med andra etiketter) och Guida slår på Följ i samma tryck på telefon; på dator stannar guiden i manuellt läge; fysisk kontroll kvar.
+2. 2026-11-13 — B-019 + F-075: visningsläget med glaskort och fri yta för objektet; 177 Caldwell- och namngivna djuprymdsobjekt (t.ex. Irisnebulosan) sökbara på alla namn; fysisk kontroll kvar.
+3. 2026-11-13 — F-067 + F-068 + F-070 + F-071: ett val för detaljnivå, Lager som lista, zoom visar alltid mer detalj (synlig zoomkontroll), plats/tid i sökfältet, felsökning hopfälld i Mer; fysisk kontroll kvar.
+4. 2026-11-13 — F-073 + F-069 + F-072: ny mörk design ”Obsidian” (glas, tonad primärknapp), objektkort med nyckeltal och ”Detaljer”, detaljvy och Ikväll omordnade; fysisk kontroll kvar.
+5. 2026-11-13 — F-065: Gaia-stjärnor till G 12 (1,84 miljoner till) i finare rutor vid djupzoom; fysisk kontroll kvar.
 
 Full historik med testbevis och commits: [docs/HANDOFF_LOG.md](docs/HANDOFF_LOG.md) och git.
 
@@ -55,6 +47,7 @@ Inga körklara förslag; nya önskemål samlas i [BACKLOG.md](BACKLOG.md). Parke
 - 2026-11-12 — Sök som i Stellarium: sökfält högst upp, Sök-knappen i knappraden borttagen; filter nås från fältet. Objektkortet är kompakt med ”Mer” för allt övrigt inklusive Wikipedia (bara artikelnamnet skickas).
 - 2026-11-12 — Objektets bana och satelliter är på från start (syns bara med valt objekt respektive solbelysta satelliter i mörker); båda kan slås av under Lager.
 - 2026-11-12 — Demoläge: sparade listor behåller användarens ordning; Kvällens förslag ordnas som ett svep och närliggande objekt hoppas över.
+- 2026-11-13 — Objektguiden (Guida/Objektguide) slår på Följ i samma tryck på pekskärmsenheter med säker sida (F-076, användarens önskemål); samma start som Följ-knappen, sensorlogiken oförändrad. På dator stannar guiden i manuellt läge utan sensorförsök. Att avsluta guiden stänger inte av Följ.
 
 ## Begränsningar och engångsåtgärder
 

@@ -32,13 +32,20 @@ export function GuidedFinder({object, position, nextRise, location, view, width,
   const altitude = `${guidance.altitudeDelta < 0 ? '↓' : '↑'} ${number(Math.abs(guidance.altitudeDelta))}°`;
   const status = guidance.belowHorizon ? (sv ? 'Under horisonten' : 'Below horizon') : guidance.centered ? (sv ? 'Centrerat i vyn' : 'Centered in view') : (sv ? 'Rikta mot objektet' : 'Point toward target');
 
+  // F-076: the guide starts following by itself on phones; otherwise it says how to aim manually.
+  const mode = phone.status === 'tracking' ? (sv ? 'Följer telefonen' : 'Following phone')
+    : phone.status === 'paused' ? (sv ? 'Följning pausad' : 'Following paused')
+    : ['requesting', 'waiting', 'retrying'].includes(phone.status) ? (sv ? 'Startar följning…' : 'Starting to follow…')
+    : phone.status === 'align' || phone.status === 'recalibrate' ? (sv ? 'Följer – kalibrera norr' : 'Following – align north')
+    : (sv ? 'Manuell vy · dra mot pilen' : 'Manual view · drag toward the arrow');
+
   return <div className={`guided-finder ${guidance.centered ? 'is-centered' : ''} ${guidance.belowHorizon ? 'is-below' : ''}`}>
     <div className="finder-reticle" aria-hidden="true">
       {!guidance.centered && !guidance.belowHorizon && <span className="finder-orbit-arrow" style={{transform: `translate(-50%,-50%) rotate(${arrowRotation}deg)`}}><ArrowUp size={24}/></span>}
     </div>
     {!guidance.belowHorizon && inView && <div className="finder-target-ring" style={{left: point.x, top: point.y}} aria-hidden="true"><span>{name}</span></div>}
     <div className="finder-readout finder-hud" data-sky-controls>
-      <div className="finder-title"><div><strong>{name}</strong><span>{phone.status === 'tracking' ? (sv ? 'Telefonföljning' : 'Following phone') : phone.status === 'paused' ? (sv ? 'Följning pausad' : 'Following paused') : (sv ? 'Manuell vy' : 'Manual view')}</span></div><div className="finder-hud-actions"><button onClick={onDetails}>{sv ? 'Detaljer' : 'Details'}</button><button aria-label={sv ? 'Avsluta objektguiden' : 'Stop Guided Finder'} onClick={onClose}><X size={18}/></button></div></div>
+      <div className="finder-title"><div><strong>{name}</strong><span>{mode}</span></div><div className="finder-hud-actions"><button onClick={onDetails}>{sv ? 'Detaljer' : 'Details'}</button><button aria-label={sv ? 'Avsluta objektguiden' : 'Stop Guided Finder'} onClick={onClose}><X size={18}/></button></div></div>
       <strong role="status">{status}{guidance.centered ? ` (≤${CENTER_TOLERANCE}°)` : ''}</strong>
       {guidance.belowHorizon ? <p>{sv ? 'Höjd' : 'Altitude'} {number(position.altitude, 1)}°. {riseStamp ? `${sv ? 'Nästa geometriska uppgång' : 'Next geometric rise'} ≈ ${riseStamp}` : (sv ? 'Ingen uppgång hittad under kommande 48 timmar.' : 'No rise found in the next 48 hours.')}</p>
         : !guidance.centered && <div className="finder-offsets"><span>{sv ? 'Vrid' : 'Turn'} {heading}</span><span>{sv ? 'Luta' : 'Tilt'} {altitude}</span><span>{sv ? 'Avstånd i vinkel' : 'Angular distance'} {number(guidance.separation, 1)}°</span></div>}
