@@ -6,9 +6,11 @@ import type {ViewDirection} from './skyProjection';
 export type MilkyWayTexture = {width: number; height: number; pixels: Uint8ClampedArray; color?: boolean};
 const TAU = 2 * Math.PI;
 /** Opacity of the colour texture at full brightness (shared with the GPU shader). */
-export const MILKY_WAY_COLOR_STRENGTH = .4;
+export const MILKY_WAY_COLOR_STRENGTH = .7;
 /** Samples on the long axis of the Milky Way raster (shared with the GPU path). B-017: 360 keeps more detail than 240. */
 export const MILKY_WAY_RASTER = 360;
+/** F-060: full strength at 1×, about half at 3× (the band is a backdrop; zoomed in, stars matter). */
+export const milkyWayZoomFade = (zoom: number) => 1 / (1 + .5 * (Math.max(1, zoom) - 1));
 
 /**
  * B-015: the colour texture keeps the grain of unresolved star clouds (≈0.125° per texel) but both

@@ -35,6 +35,8 @@ import {darkSkyVisibility, projectedStarVisibility, starRadius, stellarBrightnes
 import {glowSprite} from './starGlow';
 import {landscapeHeight} from './landscape';
 import {starFill} from './starColor';
+import {milkyWayZoomFade} from './milkyWay';
+import {FAINT_TINTS, faintTintGroups} from './gaiaStars';
 import type {usePhoneOrientation} from './usePhoneOrientation';
 import {skyOverlayExclusions} from './objectLabels';
 import {useObjectLabels} from './useObjectLabels';
@@ -166,6 +168,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
   }, [gaiaIndex, gaiaTileList, gaiaWanted]);
   const faintStars = useMemo(() => skyLevel === 'eye' ? null : mergeFaintStars(faintData, gaiaWanted ? gaiaTiles : []), [skyLevel, faintData, gaiaTiles, gaiaWanted]);
   const faint = useMemo(() => faintStars ? faintSky(faintStars, time, location) : null, [faintStars, time, location]);
+  const faintGroups = useMemo(() => faintStars?.ci ? faintTintGroups(faintStars.ci) : null, [faintStars]);
   const milkyBasis = useMemo(() => milkyWayBasis(time, location), [time, location]);
   const sceneKey = `${time.getTime()}|${location.latitude}|${location.longitude}`;
   const figures = useMemo(() => constellationSky(stars, figureMode), [stars, figureMode]);
@@ -325,10 +328,10 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       // F-039: darker zenith and a soft glow toward the horizon, anchored to the real horizon line.
       const skyTop = Math.min(0, horizonY - height * 1.4), skyBottom = Math.max(horizonY, 1);
       const sky = context.createLinearGradient(0, skyTop, 0, skyBottom);
-      // F-057: a near-black, neutral night sky (only a faint lift toward the horizon); twilight/day keep their blue.
-      sky.addColorStop(0, daylight ? `rgb(${Math.round(2 + 56 * daylight)},${Math.round(4 + 102 * daylight)},${Math.round(9 + 171 * daylight)})` : '#020409');
-      sky.addColorStop(.62, daylight ? `rgb(${Math.round(4 + 70 * daylight)},${Math.round(8 + 116 * daylight)},${Math.round(15 + 177 * daylight)})` : '#03070e');
-      sky.addColorStop(1, daylight ? `rgb(${Math.round(9 + 89 * daylight)},${Math.round(14 + 130 * daylight)},${Math.round(24 + 184 * daylight)})` : '#0a111c');
+      // F-061 step 1: a deep navy night sky like a dark site (F-057 was near-black), lighter toward the horizon; twilight/day keep their blue.
+      sky.addColorStop(0, daylight ? `rgb(${Math.round(10 + 48 * daylight)},${Math.round(19 + 87 * daylight)},${Math.round(34 + 146 * daylight)})` : '#0a1322');
+      sky.addColorStop(.62, daylight ? `rgb(${Math.round(13 + 61 * daylight)},${Math.round(24 + 100 * daylight)},${Math.round(41 + 151 * daylight)})` : '#0d1829');
+      sky.addColorStop(1, daylight ? `rgb(${Math.round(22 + 76 * daylight)},${Math.round(35 + 109 * daylight)},${Math.round(58 + 150 * daylight)})` : '#16233a');
       context.fillStyle = sky;
       context.fillRect(0, 0, width, height);
       const twilight = sun.altitude > -18 && sun.altitude < 4 ? Math.min(1, (sun.altitude + 18) / 16) : 0;
@@ -371,7 +374,8 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
       const fade = fades.current.step({grid: showGrid, boundaries: showBoundaries, figures: showFigures, art: showArt, ecliptic: showEcliptic, milkyWay: showMilkyWay}, now, reducedMotion || comparing);
       if (milkyWay && fade.values.milkyWay > 0) {
         // F-039: the Milky Way steps back a little where drawings are shown, so they read on top.
-        const visibility = Math.max(0, Math.min(1, (-sun.altitude - 8) / 10)) * fade.values.milkyWay * (1 - .25 * fade.values.art);
+        // F-060: as in planetarium programs the glow steps back when zooming in, so resolved stars read on top of it.
+        const visibility = Math.max(0, Math.min(1, (-sun.altitude - 8) / 10)) * fade.values.milkyWay * (1 - .25 * fade.values.art) * milkyWayZoomFade(zoom);
         if (!renderer?.drawMilkyWay(context, width, height, dpr, view, visibility, belowReveal > 0, zoom, milkyBasis, sceneKey)) {
           milkyWayPainter.current.draw(context, milkyWay, time, location, width, height, visibility, view, belowReveal > 0, zoom);
         }
@@ -431,37 +435,45 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
             context.fill();
           }
           if (faint && magnitudeLimit > 6.5) {
-            context.fillStyle = '#e3f1ff';
+            const tint = faint.ci;
             const project = createDirectionProjector(view, width, height, zoom);
             const count = faintCount(faint.magnitude, magnitudeLimit), direction = faint.direction;
-            for (let i = 0; i < count; i++) {
-              const z = direction[i * 3 + 2];
-              const visibility = z < 0 ? Math.max(starVisibility, belowReveal) : starVisibility;
-              if (visibility <= 0 || (z < 0 && belowReveal <= 0)) continue;
-              const point = project(direction[i * 3], direction[i * 3 + 1], z);
-              if (!point) continue;
-              const magnitude = faint.magnitude[i];
-              context.globalAlpha = visibility * faintStarBrightness(magnitude) * faintStarFade(magnitude, magnitudeLimit);
-              // A 1.6 px square matches the 0.8 px-radius point on screen and is much cheaper than an arc (F-061: many stars).
-              context.fillRect(point.x - .8, point.y - .8, 1.6, 1.6);
+            // F-061: one pass per colour group, so the fill colour changes a handful of times per frame, not per star.
+            for (let group = 0; group < FAINT_TINTS.length; group++) {
+              if (tint && !faintGroups) break;
+              context.fillStyle = tint ? starFill(FAINT_TINTS[group]) : '#e3f1ff';
+              for (let i = 0; i < count; i++) {
+                if (faintGroups && faintGroups[i] !== group) continue;
+                const z = direction[i * 3 + 2];
+                const visibility = z < 0 ? Math.max(starVisibility, belowReveal) : starVisibility;
+                if (visibility <= 0 || (z < 0 && belowReveal <= 0)) continue;
+                const point = project(direction[i * 3], direction[i * 3 + 1], z);
+                if (!point) continue;
+                const magnitude = faint.magnitude[i];
+                context.globalAlpha = visibility * faintStarBrightness(magnitude) * faintStarFade(magnitude, magnitudeLimit);
+                // A 1.6 px square matches the 0.8 px-radius point on screen and is much cheaper than an arc (F-061: many stars).
+                context.fillRect(point.x - .8, point.y - .8, 1.6, 1.6);
+              }
+              if (!faintGroups) break;
             }
           }
           context.globalAlpha = 1;
         }
       }
-      // F-039/F-049: soft glow around the brighter stars (V ≤ 3), tinted by colour index, from cached sprites.
+      // F-039/F-049/F-061: soft glow around the brighter stars (V ≤ 3.8), tinted by colour index, from cached sprites.
       if (starVisibility > 0 || belowReveal > 0) {
         context.save();
         context.globalCompositeOperation = 'lighter';
         for (const star of stars) {
-          if (star.magnitude > 3.2) continue;
+          if (star.magnitude > 3.8) continue;
           const visibility = projectedStarVisibility(sun.altitude, star.altitude, belowReveal);
           if (visibility <= 0) continue;
           const point = projectStar(star);
           if (!point) continue;
-          const strength = Math.min(1, (3.4 - star.magnitude) / 4.4);
-          const radius = (6 + 26 * strength * strength) * Math.sqrt(zoom);
-          context.globalAlpha = Math.min(1, .3 + .7 * strength) * visibility;
+          // F-061 step 1: a halo that grows with brightness and with zoom (as in Stellarium), still only a soft light.
+          const strength = Math.min(1, (4.7 - star.magnitude) / 6);
+          const radius = (5 + 46 * strength * strength) * Math.sqrt(zoom);
+          context.globalAlpha = Math.min(1, .22 + .78 * strength) * visibility;
           context.drawImage(glowSprite(star.ci), point.x - radius, point.y - radius, radius * 2, radius * 2);
         }
         context.restore();

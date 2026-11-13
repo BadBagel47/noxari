@@ -56,3 +56,14 @@ describe('Gaia tiles (F-061)', () => {
     expect(tappableGaiaMagnitude(2.7, 9.8)).toBeLessThanOrEqual(9.8);
   });
 });
+
+describe('faint star tints (F-061)', () => {
+  it('maps colour indices to five groups and keeps neutral stars in the neutral group', async () => {
+    const {FAINT_TINTS, faintTintGroups, gaiaColourIndex} = await import('../src/gaiaStars');
+    const groups = faintTintGroups(new Float32Array([-.2, .3, .45, 1, 2]));
+    expect(Array.from(groups)).toEqual([0, 1, 2, 3, 4]);
+    expect(FAINT_TINTS[2]).toBe(.45);
+    expect(gaiaColourIndex(255)).toBe(.45);
+    expect(gaiaColourIndex(Math.round((.82 + .5) * 50))).toBeCloseTo(.66, 1);
+  });
+});

@@ -46,7 +46,8 @@ export function starMagnitudeLimit(level: SkyLevel, zoom: number) {
 
 /** Base opacity for stars fainter than the bright catalog (V > 6.5): dimmer with magnitude. */
 export function faintStarBrightness(magnitude: number) {
-  return .3 * Math.max(.4, 1 - (magnitude - 6.5) * .3);
+  // F-061: still dimmer with magnitude (monotonic), but visible over the navy sky down to G 11.
+  return Math.max(.16, .42 - (magnitude - 6.5) * .058);
 }
 /** Fade stars in as the zoom-dependent limit passes them, so they do not pop in. */
 export function faintStarFade(magnitude: number, limit: number) {

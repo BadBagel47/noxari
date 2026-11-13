@@ -7,9 +7,10 @@ import type {ObservingLocation} from './astronomy';
  * J2000 unit vectors; one 3×3 rotation per time change gives horizontal
  * directions, so no per-star objects are allocated.
  */
-export type FaintStars = {count: number; equatorial: Float32Array; magnitude: Float32Array};
+/** `ci` (F-061): approximate B−V per star when known (Gaia); HYG binocular stars are drawn neutral. */
+export type FaintStars = {count: number; equatorial: Float32Array; magnitude: Float32Array; ci?: Float32Array};
 /** Horizontal directions (cosAlt·cosAz, cosAlt·sinAz, sinAlt) per star, same as the GPU star attribute. */
-export type FaintSky = {count: number; direction: Float32Array; magnitude: Float32Array};
+export type FaintSky = {count: number; direction: Float32Array; magnitude: Float32Array; ci?: Float32Array};
 
 export function decodeFaintStars(buffer: ArrayBuffer): FaintStars {
   const view = new DataView(buffer);
@@ -50,7 +51,7 @@ export function faintSky(stars: FaintStars, time: Date, location: ObservingLocat
     direction[i * 3 + 1] = -(rot[0][1] * x + rot[1][1] * y + rot[2][1] * z);
     direction[i * 3 + 2] = rot[0][2] * x + rot[1][2] * y + rot[2][2] * z;
   }
-  return {count, direction, magnitude: stars.magnitude};
+  return {count, direction, magnitude: stars.magnitude, ci: stars.ci};
 }
 
 /** Number of stars at or brighter than the limit (magnitudes are sorted). */

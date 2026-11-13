@@ -17,6 +17,9 @@ export type GaiaTile = {tile: number; count: number; equatorial: Float32Array; m
 export type TaggedFaintStars = FaintStars & {tag: Int32Array};
 
 const RAD = Math.PI / 180;
+const NEUTRAL_CI = .45;
+/** Approximate B−V from a packed Gaia BP−RP byte (255 = unknown), for star tint only. */
+export const gaiaColourIndex = (packed: number, scale = 50) => packed === 255 ? NEUTRAL_CI : Math.max(-.3, Math.min(2, .8 * (packed / scale - .5)));
 const TAG = 1 << 20;
 export const tileStarts = (index: GaiaIndex) => index.cells.reduce<number[]>((starts, _, band) => [...starts, band ? starts[band - 1] + index.cells[band - 1] : 0], []);
 
@@ -77,9 +80,9 @@ export function decodeGaiaTile(index: GaiaIndex, tile: number, buffer: ArrayBuff
 
 /** Binocular stars plus loaded Gaia tiles, sorted by magnitude so renderers can draw a prefix. */
 export function mergeFaintStars(binocular: FaintStars | null, tiles: GaiaTile[]): TaggedFaintStars | null {
-  const sources: {equatorial: Float32Array; magnitude: Float32Array; count: number; tag: (i: number) => number}[] = [];
-  if (binocular) sources.push({...binocular, tag: () => -1});
-  for (const tile of tiles) sources.push({...tile, tag: i => tile.tile * TAG + i});
+  const sources: {equatorial: Float32Array; magnitude: Float32Array; count: number; tag: (i: number) => number; ci: (i: number) => number}[] = [];
+  if (binocular) sources.push({...binocular, tag: () => -1, ci: () => NEUTRAL_CI});
+  for (const tile of tiles) sources.push({...tile, tag: i => tile.tile * TAG + i, ci: i => gaiaColourIndex(tile.colour[i])});
   if (!sources.length) return null;
   const count = sources.reduce((sum, source) => sum + source.count, 0);
   const order = new Uint32Array(count), keys = new Float32Array(count), owner = new Uint16Array(count), local = new Uint32Array(count);
@@ -93,14 +96,15 @@ export function mergeFaintStars(binocular: FaintStars | null, tiles: GaiaTile[])
   for (let i = 0; i < count; i++) buckets[Math.round(keys[i] * 100) - low + 1]++;
   for (let b = 1; b < buckets.length; b++) buckets[b] += buckets[b - 1];
   for (let i = 0; i < count; i++) order[buckets[Math.round(keys[i] * 100) - low]++] = i;
-  const equatorial = new Float32Array(count * 3), magnitude = new Float32Array(count), tag = new Int32Array(count);
+  const equatorial = new Float32Array(count * 3), magnitude = new Float32Array(count), tag = new Int32Array(count), ci = new Float32Array(count);
   for (let k = 0; k < count; k++) {
     const j = order[k], source = sources[owner[j]], i = local[j];
     equatorial[k * 3] = source.equatorial[i * 3]; equatorial[k * 3 + 1] = source.equatorial[i * 3 + 1]; equatorial[k * 3 + 2] = source.equatorial[i * 3 + 2];
     magnitude[k] = keys[j];
     tag[k] = source.tag(i);
+    ci[k] = source.ci(i);
   }
-  return {count, equatorial, magnitude, tag};
+  return {count, equatorial, magnitude, tag, ci};
 }
 
 /** J2000 RA/Dec (degrees) at the centre of the view. */
@@ -170,6 +174,14 @@ export async function gaiaStarObject(base: string, index: GaiaIndex, tag: number
       {label: 'Gaia archive', url: 'https://gea.esac.esa.int/archive/'},
     ],
   };
+}
+
+/** F-061: five tint groups for faint stars in the Canvas path (blue-white … orange); same colour index the GPU uses. */
+export const FAINT_TINTS = [0, .25, .45, .8, 1.4];
+export function faintTintGroups(ci: Float32Array) {
+  const groups = new Uint8Array(ci.length);
+  for (let i = 0; i < ci.length; i++) { const c = ci[i]; groups[i] = c < .12 ? 0 : c < .35 ? 1 : c < .62 ? 2 : c < 1.1 ? 3 : 4; }
+  return groups;
 }
 
 export const isGaiaStarPick = (object: Pick<SpaceObject, 'id'>) => object.id.startsWith('gaia-');

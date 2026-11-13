@@ -22,7 +22,7 @@ function decode(url: string, color: boolean) {
 }
 /** F-056: the colour panorama (≈1.3 MB) first; the small grey grid stays as a fallback. */
 function loadTexture() {
-  pending ??= decode(`${import.meta.env.BASE_URL}sky/milky-way-color-v1.webp`, true)
+  pending ??= decode(`${import.meta.env.BASE_URL}sky/milky-way-color-v2.webp`, true)
     .catch(() => decode(textureUrl, false))
     .catch(error => { pending = undefined; throw error; });
   return pending;

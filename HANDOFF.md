@@ -11,11 +11,11 @@ En mobilförst, Stellarium-inspirerad planetariewebbapp (React/TypeScript/Vite) 
 
 ## Senaste ändringar
 
-1. 2026-11-13 — F-061 steg 2: Gaia DR3-stjärnor till G 11 på nivån Hela katalogen vid inzoomning, tryckbara med Gaia-kort; fysisk kontroll kvar.
-2. 2026-11-13 — B-017 + B-018: Vintergatan får tillbaka detalj (ett filterpass, raster 360), landskapets trädtoppar provas på fast rutnät; fysisk kontroll kvar.
-3. 2026-11-13 — B-015: Vintergatstexturen förfiltreras vid laddning så att kornen inte gungar vid panorering (GPU och Canvas); fysisk kontroll kvar.
-4. 2026-11-12 — F-059: objektets bana visar bara kvällens väg som standard; rörelsen bland stjärnorna slås på med knapp under ”Mer”.
-5. 2026-11-12 — B-013 + F-051 + B-014: guidepilen vrider sig kortaste vägen, ihopfällbar snabbrad för lager i knappraden, tre diagnosskript uppdaterade och passerar.
+1. 2026-11-13 — F-060 + F-061 steg 1: Vintergatan närmare ESO-fotot, marinblå himmel, glöd kring ljusa stjärnor, färgade svaga stjärnor; fysisk kontroll kvar.
+2. 2026-11-13 — F-061 steg 2: Gaia DR3-stjärnor till G 11 på nivån Hela katalogen vid inzoomning, tryckbara med Gaia-kort; fysisk kontroll kvar.
+3. 2026-11-13 — B-017 + B-018: Vintergatan får tillbaka detalj (ett filterpass, raster 360), landskapets trädtoppar provas på fast rutnät; fysisk kontroll kvar.
+4. 2026-11-13 — B-015: Vintergatstexturen förfiltreras vid laddning så att kornen inte gungar vid panorering (GPU och Canvas); fysisk kontroll kvar.
+5. 2026-11-12 — F-059: objektets bana visar bara kvällens väg som standard; rörelsen bland stjärnorna slås på med knapp under ”Mer”.
 5. 2026-11-12 — F-054 + F-052 + F-053 + F-055: sökfält högst upp, kompakt kort med ”Mer” och Wikipedia, objektets bana, rörliga satelliter.
 5. 2026-11-12 — Anpassning till agentregler v1.4: denna fil (historiken i docs/HANDOFF_LOG.md), kortade projektregler, ny backlogstruktur, integritetstext i Om (F-058).
 

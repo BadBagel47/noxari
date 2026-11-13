@@ -5,7 +5,7 @@ import {readdirSync, readFileSync, statSync, writeFileSync} from 'node:fs';
 import {join, relative} from 'node:path';
 
 const dist = new URL('../dist/', import.meta.url).pathname;
-const skip = [/^share\//, /^stars\//, /^images\/objects\//, /^labs\//, /^sw\.js$/, /\.map$/, /^data\//];
+const skip = [/^sky\/milky-way-color-v1\.webp$/, /^share\//, /^stars\//, /^images\/objects\//, /^labs\//, /^sw\.js$/, /\.map$/, /^data\//];
 const files = [];
 const walk = dir => { for (const name of readdirSync(dir)) { const path = join(dir, name); if (statSync(path).isDirectory()) walk(path); else files.push(relative(dist, path).split('\\').join('/')); } };
 walk(dist);

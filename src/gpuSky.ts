@@ -142,7 +142,7 @@ export function packStars(stars: PreparedHorizontalStar[], faint: FaintSky | nul
   ], index * STRIDE));
   if (faint) for (let i = 0, offset = stars.length * STRIDE; i < faint.count; i++, offset += STRIDE) {
     packed[offset] = faint.direction[i * 3];packed[offset + 1] = faint.direction[i * 3 + 1];packed[offset + 2] = faint.direction[i * 3 + 2];
-    packed[offset + 3] = .8;packed[offset + 4] = faintStarBrightness(faint.magnitude[i]);packed[offset + 5] = faint.magnitude[i];packed[offset + 6] = .45;
+    packed[offset + 3] = .8;packed[offset + 4] = faintStarBrightness(faint.magnitude[i]);packed[offset + 5] = faint.magnitude[i];packed[offset + 6] = faint.ci ? faint.ci[i] : .45;
   }
   return packed;
 }
