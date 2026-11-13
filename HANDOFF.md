@@ -1,6 +1,6 @@
 # Noxari — handoff
 
-- **Agentregler:** anpassat till v1.5 (2026-11-13; ändring från v1.4: körförslag beskriver per ID vad som görs och vad det ger). Globala regler: https://raw.githubusercontent.com/BadBagel47/agent-rules/main/AGENTS.md
+- **Agentregler:** anpassat till v1.6 (2026-11-13; ändring från v1.5: rapporter undviker onödiga tekniska detaljer och anger verifieringsnivå i klartext). Globala regler: https://raw.githubusercontent.com/BadBagel47/agent-rules/main/AGENTS.md
 - **Inventory: 2026-11-12** — en gren (`main`), inga öppna PR:er/issues, inga agentspecifika regelfiler, inga hemligheter eller privata koordinater i git-historiken (`.gitignore` täcker `.env`).
 - **Projektspråk:** engelska (README, kod, commits, issues). Appens gränssnitt är tvåspråkigt EN/SV och följer enhetens språk (Auto/SV/EN).
 - **Publicering:** push till `main` → GitHub Actions (`.github/workflows/deploy.yml`, tester + bygge) → GitHub Pages på https://noxari.trythis.one/ (egen domän, HTTPS påtvingat). Agenten pushar direkt till `main`; auto-merge-workflow behövs inte.
