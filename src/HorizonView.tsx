@@ -471,7 +471,8 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
         context.fillStyle = daylight > .4 ? '#1c3340' : '#020407';
         context.beginPath();
         let started = false;
-        for (let azimuth = view.heading - sweep; azimuth <= view.heading + sweep; azimuth += step) {
+        // B-018: sample on a fixed azimuth grid so tree tops keep their shape while the view moves.
+        for (let azimuth = Math.floor((view.heading - sweep) / step) * step; azimuth <= view.heading + sweep + step; azimuth += step) {
           const point = projectPerspective({altitude: landscapeHeight((azimuth + 360) % 360), azimuth: (azimuth + 360) % 360}, view, width, height, false, true, zoom);
           if (!point) continue;
           if (started) context.lineTo(point.x, point.y); else { context.moveTo(point.x, Math.max(horizonY, height) + 2); context.lineTo(point.x, point.y); started = true; }

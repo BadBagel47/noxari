@@ -2,7 +2,7 @@ import type {MilkyWayTexture} from './milkyWay';
 import type {PreparedHorizontalStar, ViewDirection} from './skyProjection';
 import {starRadius, stellarBrightness} from './skyVisibility';
 import {faintCount, type FaintSky} from './binocularStars';
-import {MILKY_WAY_COLOR_STRENGTH} from './milkyWay';
+import {MILKY_WAY_COLOR_STRENGTH, MILKY_WAY_RASTER} from './milkyWay';
 import {faintStarBrightness} from './skyLevel';
 import type {PerformanceFrame} from './skyPerformance';
 
@@ -281,7 +281,7 @@ export class GpuSky {
   drawMilkyWay(context: CanvasRenderingContext2D, width: number, height: number, dpr: number, view: ViewDirection, visibility: number, below: boolean, zoom: number, basis: Float32Array, sceneKey: string) {
     if (visibility <= 0) return;
     const gl = this.gl;
-    const scale = Math.max(width, height) / 240;
+    const scale = Math.max(width, height) / MILKY_WAY_RASTER;
     const cols = Math.max(1, Math.round(width / scale)), rows = Math.max(1, Math.round(height / scale));
     const key = [sceneKey, width, height, view.heading, view.pitch, below].join('|');
     if (this.rasterKey !== key) {

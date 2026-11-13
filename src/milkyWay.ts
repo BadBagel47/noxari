@@ -7,15 +7,17 @@ export type MilkyWayTexture = {width: number; height: number; pixels: Uint8Clamp
 const TAU = 2 * Math.PI;
 /** Opacity of the colour texture at full brightness (shared with the GPU shader). */
 export const MILKY_WAY_COLOR_STRENGTH = .4;
+/** Samples on the long axis of the Milky Way raster (shared with the GPU path). B-017: 360 keeps more detail than 240. */
+export const MILKY_WAY_RASTER = 360;
 
 /**
  * B-015: the colour texture keeps the grain of unresolved star clouds (≈0.125° per texel) but both
- * painters sample it into a raster of at most 240 samples on the long axis (≈0.375° per sample). Without
+ * painters sample it into a raster of at most 360 samples on the long axis (≈0.25° per sample). Without
  * filtering each sample hits one grain, and the grain changes as the view moves, which shimmers. One
- * prefilter at load (two 3-texel box passes, wrapped in RA, colour weighted by brightness) makes the
+ * prefilter at load (one 3-texel box pass, wrapped in RA, colour weighted by brightness) makes the
  * result stable while panning in both the GPU and Canvas paths, and costs nothing per frame.
  */
-export function prefilterMilkyWay(texture: MilkyWayTexture, passes = 2): MilkyWayTexture {
+export function prefilterMilkyWay(texture: MilkyWayTexture, passes = 1): MilkyWayTexture {
   if (!texture.color) return texture;
   const {width, height} = texture;
   let source: Uint8ClampedArray = texture.pixels, target: Uint8ClampedArray = new Uint8ClampedArray(source.length);
@@ -72,7 +74,7 @@ export function milkyWayBasis(time: Date, location: ObservingLocation) {
 }
 
 // An inverse ray lookup avoids polygon edges stretching across the camera or
-// horizon. The field is cached between animation-only repaints. At most 240
+// horizon. The field is cached between animation-only repaints. At most 360
 // samples on the long axis keep orientation updates responsive on mobile.
 export class MilkyWayPainter {
   private canvas: HTMLCanvasElement | null = null;
@@ -84,7 +86,7 @@ export class MilkyWayPainter {
     const key = [time.getTime(), location.latitude, location.longitude, width, height, view?.heading, view?.pitch, belowHorizon].join('|');
     if (!this.canvas || this.key !== key || this.texture !== texture) {
       this.canvas ??= document.createElement('canvas');
-      const scale = Math.max(width, height) / 240;
+      const scale = Math.max(width, height) / MILKY_WAY_RASTER;
       const cols = Math.max(1, Math.round(width / scale)), rows = Math.max(1, Math.round(height / scale));
       this.canvas.width = cols; this.canvas.height = rows;
       const buffer = this.canvas.getContext('2d')!;
