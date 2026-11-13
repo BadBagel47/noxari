@@ -8,6 +8,39 @@ const TAU = 2 * Math.PI;
 /** Opacity of the colour texture at full brightness (shared with the GPU shader). */
 export const MILKY_WAY_COLOR_STRENGTH = .4;
 
+/**
+ * B-015: the colour texture keeps the grain of unresolved star clouds (≈0.125° per texel) but both
+ * painters sample it into a raster of at most 240 samples on the long axis (≈0.375° per sample). Without
+ * filtering each sample hits one grain, and the grain changes as the view moves, which shimmers. One
+ * prefilter at load (two 3-texel box passes, wrapped in RA, colour weighted by brightness) makes the
+ * result stable while panning in both the GPU and Canvas paths, and costs nothing per frame.
+ */
+export function prefilterMilkyWay(texture: MilkyWayTexture, passes = 2): MilkyWayTexture {
+  if (!texture.color) return texture;
+  const {width, height} = texture;
+  let source: Uint8ClampedArray = texture.pixels, target: Uint8ClampedArray = new Uint8ClampedArray(source.length);
+  for (let pass = 0; pass < passes * 2; pass++) {
+    const horizontal = pass % 2 === 0;
+    // Horizontal passes read rows; vertical passes read columns clamped at the poles.
+    const length = horizontal ? width : height, lines = horizontal ? height : width;
+    for (let line = 0; line < lines; line++) {
+      const index = (position: number) => (horizontal ? line * width + position : position * width + line) * 4;
+      for (let position = 0; position < length; position++) {
+        let r = 0, g = 0, b = 0, a = 0, count = 0;
+        for (let d = -1; d <= 1; d++) {
+          const near = horizontal ? (position + d + length) % length : Math.max(0, Math.min(length - 1, position + d)), i = index(near), alpha = source[i + 3];
+          r += source[i] * alpha; g += source[i + 1] * alpha; b += source[i + 2] * alpha; a += alpha; count++;
+        }
+        const o = index(position);
+        if (a > 0) { target[o] = r / a; target[o + 1] = g / a; target[o + 2] = b / a; } else { target[o] = source[o]; target[o + 1] = source[o + 1]; target[o + 2] = source[o + 2]; }
+        target[o + 3] = a / count;
+      }
+    }
+    [source, target] = [target, source === texture.pixels ? new Uint8ClampedArray(source.length) : source];
+  }
+  return {...texture, pixels: source as MilkyWayTexture['pixels']};
+}
+
 // The generated grid has RA increasing to the right (periodic), Dec north at
 // the top. Bilinear samples cross the 0/24h seam without a texture discontinuity.
 export function milkyWaySample(texture: MilkyWayTexture, x: number, y: number, z: number, channel = texture.color ? 3 : 0) {

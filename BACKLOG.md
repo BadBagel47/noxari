@@ -6,8 +6,7 @@ ID:n är permanenta (F-### funktioner, B-### buggar, separata serier — beslut 
 
 Senast uppdaterad 2026-11-13. Bokstäverna gäller bara den senast visade listan.
 
-- **A** – strong model, medium level – Vintergatan utan gungande brus (Prioritet: Hög)
-  - B-015 (Vintergatan gungar vid panorering) – Jämna ut samplingen av Vintergatstexturen i GPU- och Canvasvägen så att kornen inte flimrar när man drar; ger en lugn himmel utan att Vintergatan blir suddig
+Inga körklara förslag just nu.
 
 **Parkerat:** B-001 (riktningsdrift), B-004 (ryckighet), B-007 (första Följ – observeras), F-009 (mobiltester), F-010 (månkalibrering), F-011 (kamera/AR), resterande del av F-037 (mjuk Följ-start).
 
@@ -15,7 +14,7 @@ Senast uppdaterad 2026-11-13. Bokstäverna gäller bara den senast visade listan
 
 | ID | Bugg | Status | Prioritet | Avgränsning / klart när |
 | --- | --- | --- | --- | --- |
-| **B-015** | Vintergatan ”gungar”/brusar när man drar runt himlen | **Förslag 2026-11-13** | Hög | Användaren (skärmbild, Brave på Mac, GPU-väg). Trolig orsak (kod läst, ej reproducerat): Vintergatan ritas först till ett grovt raster (≈240 px på långsidan) och samplas från den korniga färgtexturen (F-056, 2880×1440, 5 px median) med LINEAR utan mipmaps i `src/gpuSky.ts` (`texture()`, `milkyFragment`); varje grovpixel träffar ett enskilt korn som byter när vyn rör sig, så kornen flimrar. Canvasvägen (`src/milkyWay.ts`) har samma upplägg (bilinjär ljusstyrka, närmaste texel för färg). Rättning: mipmaps eller flera taps/oskärpa vid samplingen i båda vägarna så att rörelse blir stabil, utan att tappa skärpan när man zoomar. Klart när: panorering visar ingen flimrande kornighet i GPU och Canvas, bildkvaliteten i stillbild är oförändrad, tester och GPU/Canvas-jämförelse passerar. Mätning i mjukvarurenderare är inte telefonresultat. |
+| **B-015** | Vintergatan ”gungar”/brusar när man drar runt himlen | **Klar 2026-11-13 — fysisk kontroll kvar** | Hög | Användaren (skärmbild, Brave på Mac, GPU-väg). Trolig orsak (kod läst, ej reproducerat): Vintergatan ritas först till ett grovt raster (≈240 px på långsidan) och samplas från den korniga färgtexturen (F-056, 2880×1440, 5 px median) med LINEAR utan mipmaps i `src/gpuSky.ts` (`texture()`, `milkyFragment`); varje grovpixel träffar ett enskilt korn som byter när vyn rör sig, så kornen flimrar. Canvasvägen (`src/milkyWay.ts`) har samma upplägg (bilinjär ljusstyrka, närmaste texel för färg). Rättning: mipmaps eller flera taps/oskärpa vid samplingen i båda vägarna så att rörelse blir stabil, utan att tappa skärpan när man zoomar. Klart när: panorering visar ingen flimrande kornighet i GPU och Canvas, bildkvaliteten i stillbild är oförändrad, tester och GPU/Canvas-jämförelse passerar. Mätning i mjukvarurenderare är inte telefonresultat. Gjort: texturen förfiltreras en gång vid laddning (`prefilterMilkyWay`, två 3-texels boxpass, ljusviktad färg, RA-wrap) så båda vägarna får lugn sampling utan kostnad per bildruta; kornbyten per 0,125° panorering minskade ca 2,4 → 0,8 (alfa, beräknat på den riktiga texturen). |
 | **B-016** | Vintergatan laddas inte hos användaren | **Väntar på svar 2026-11-13** | Medel | Filen serveras korrekt (200, identisk med repot) och laddar i Chromium. Behöver enhet/webbläsare och om felmeddelandet visas. Se skärmbilden för B-015: den nya Vintergatan laddar tydligen nu. Stäng om användaren bekräftar. |
 
 ## Öppna funktioner

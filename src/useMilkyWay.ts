@@ -1,6 +1,6 @@
 import {useEffect, useState} from 'react';
 import textureUrl from './generated/milkyWay.png';
-import type {MilkyWayTexture} from './milkyWay';
+import {prefilterMilkyWay, type MilkyWayTexture} from './milkyWay';
 
 let pending: Promise<MilkyWayTexture> | undefined;
 function decode(url: string, color: boolean) {
@@ -12,7 +12,8 @@ function decode(url: string, color: boolean) {
         canvas.width = image.width; canvas.height = image.height;
         const context = canvas.getContext('2d')!;
         context.drawImage(image, 0, 0);
-        resolve({width: image.width, height: image.height, pixels: context.getImageData(0, 0, image.width, image.height).data, color});
+        const raw: MilkyWayTexture = {width: image.width, height: image.height, pixels: context.getImageData(0, 0, image.width, image.height).data, color};
+        resolve(color ? prefilterMilkyWay(raw) : raw);
       } catch (error) { reject(error); }
     };
     image.onerror = () => reject(new Error('Milky Way texture could not be loaded'));
