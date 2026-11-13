@@ -48,6 +48,7 @@ Inga körklara förslag; nya önskemål samlas i [BACKLOG.md](BACKLOG.md). Parke
 
 ## Begränsningar och engångsåtgärder
 
+- 2026-11-13: miljön fick även `www.cosmos.esa.int`, `alasky.cds.unistra.fr`, `aladin.cds.unistra.fr`, `archive.stsci.edu` och `www.legacysurvey.org` (F-061/F-062). `alasky` fungerar; `archive.stsci.edu` ger certifikatfel genom proxyn.
 - 2026-11-13: miljön ”noxari” fick tillgång till `cdsarc.cds.unistra.fr`, `tapvizier.cds.unistra.fr` och `gea.esac.esa.int` (F-061). Gaia-arkivet fungerar; CDS-värdarna svarar inte genom proxyn (tunneln stängs).
 - 2026-11-12: GitHub GraphQL (`gh pr/issue list`) och Pages-API är spärrade via proxyn; REST fungerar. Schemalagd körning i workflow-filen nekades av behörighetsklassning.
 - Molnmiljön ”noxari” har nätåtkomst till ESO, Open-Meteo, CelesTrak, Wikipedia/Commons (svenska Wikipedia nås inte från testmiljön; i appen fungerar den) och den publicerade sajten (godkänt av användaren).
@@ -57,6 +58,7 @@ Inga körklara förslag; nya önskemål samlas i [BACKLOG.md](BACKLOG.md). Parke
 
 | Dokument | Innehåll |
 | --- | --- |
+| [docs/proposals/F-062-sky-imagery.md](docs/proposals/F-062-sky-imagery.md) | Underlag för djupzoom med himmelsbilder (F-062): källor, storlek, licens, integritet, alternativ |
 | [docs/proposals/F-061-star-catalog.md](docs/proposals/F-061-star-catalog.md) | Underlag för katalog med svaga stjärnor (F-061 steg 2): antal, storlek, licens, rekommendation |
 | [AGENTS.md](AGENTS.md) | Hänvisning till globala agentregler + projektregler |
 | [BACKLOG.md](BACKLOG.md) | Buggar, funktioner, prioritet, körförslag, klart |
