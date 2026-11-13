@@ -23,13 +23,16 @@ HYG v4.1: 8 922 stjärnor till V 6,5 (alltid) + 52 894 kikarstjärnor V 6,5–8,
 | Nya stjärnor utöver HYG ≤ 8,5 | ≈ 0,47 milj. | ≈ 1,2 milj. | ≈ 3,0 milj. |
 | Uppskattad storlek (rutor, 6–8 byte/stjärna) | ≈ 3–4 MB | ≈ 8–10 MB | ≈ 20–25 MB |
 | I kortet vid tryck | Tycho-nummer, magnitud, färg | Gaia DR3-nummer, magnitud, färg, avstånd (från parallax), rörelse | som G 11 |
-| Licens | Ingen uttrycklig licens hittad; ESA/CDS begär källhänvisning (Høg m.fl. 2000). **Ej verifierad** | ESA anger Gaia-data som CC BY-SA 3.0 IGO med citering av Gaia Collaboration 2016 och 2023 (DR3). Citeringskravet bekräftat i DR3-dokumentationen; **licenssidan kunde inte öppnas härifrån – verifieras före hämtning** | som G 11 |
+| Licens | Ingen uttrycklig licens hittad; ESA/CDS begär källhänvisning (Høg m.fl. 2000). **Ej verifierad**; Tycho-2 bygger på ESA:s Hipparcos-uppdrag, så ESA:s arkivvillkor (CC BY-NC 3.0 IGO) kan gälla | **CC BY-NC 3.0 IGO (icke-kommersiell)**, verifierat 2026-11-13 på ESA:s Gaia-licenssida och ESA:s villkor för rymdvetenskapliga arkiv: fri användning med källhänvisning; kommersiell användning kräver tillstånd från ESA (data.licences@esa.int) | som G 11 |
 | Mobil | Lätt | Rutor laddas bara för synlig del vid inzoomning | Tungt; troligen för mycket för telefon |
 
 Uppskattningarna av storlek är beräknade, inte mätta. Den verkliga storleken mäts när generatorn finns.
 
+## Rättelse 2026-11-13
+Första versionen angav Gaia som CC BY-SA 3.0 IGO (från minnet). ESA:s licenssida (https://www.cosmos.esa.int/web/gaia-users/license) anger **CC BY-NC 3.0 IGO**. Det är en icke-kommersiell licens, strängare än övriga datakällor i Noxari (CC BY / CC BY-SA). Kör B pausades innan något hämtades, för att användaren ska kunna ta ställning.
+
 ## Rekommendation
-Gaia DR3, stjärnor 8,5 < G ≤ 11, uppdelade i himmelsrutor som laddas först vid inzoomning (inte förcachade, som kikarstjärnorna i dag). Det ger ungefär 20 gånger fler stjärnor än nu, riktiga avstånd och id i kortet, och licensen är känd (efter verifiering). HYG behålls för ljusa stjärnor, eftersom Gaia mäter dem dåligt (mättnad).
+Gaia DR3, stjärnor 8,5 < G ≤ 11, uppdelade i himmelsrutor som laddas först vid inzoomning (inte förcachade, som kikarstjärnorna i dag). Det ger ungefär 20 gånger fler stjärnor än nu, riktiga avstånd och id i kortet, och licensen är känd (icke-kommersiell, se rättelsen). HYG behålls för ljusa stjärnor, eftersom Gaia mäter dem dåligt (mättnad).
 
 ## Vad som krävs innan kod
 1. Användarens val av alternativ.
