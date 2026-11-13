@@ -29,7 +29,7 @@ export class HipsPainter {
 
   constructor(private onTile: () => void, private base = DSS_HIPS.url) {}
 
-  private tile(order: number, tile: number): Uint8ClampedArray | null {
+  private tile(order: number, tile: number, fetch = true): Uint8ClampedArray | null {
     const id = `${order}/${tile}`;
     const entry = this.tiles.get(id);
     if (entry && typeof entry === 'object') {
@@ -38,7 +38,7 @@ export class HipsPainter {
       this.used.push(id);
       return entry.pixels;
     }
-    if (!entry) this.request(order, tile, id);
+    if (!entry && fetch) this.request(order, tile, id);
     return null;
   }
 
@@ -113,7 +113,8 @@ export class HipsPainter {
         let pixel: Uint8ClampedArray | null = null, offset = 0;
         for (const k of order > 3 ? [order, order - 2 < 3 ? 3 : order - 2] : [order]) {
           const tile = hipsLocateFast(ra, sinDec, k, located);
-          pixel = this.tile(k, tile);
+          // While zooming or panning only the coarse preview order is fetched; sharp tiles once the view rests.
+          pixel = this.tile(k, tile, !moving || k !== order || order === 3);
           if (pixel) { offset = located[0]; break; }
           if (k === order) complete = false;
         }
