@@ -11,17 +11,17 @@ En mobilförst, Stellarium-inspirerad planetariewebbapp (React/TypeScript/Vite) 
 
 ## Senaste ändringar
 
-1. 2026-11-13 — B-020 + F-076: objektguiden i Obsidian-glas (kort, knappar, namnskylt som inte krockar med andra etiketter) och Guida slår på Följ i samma tryck på telefon; på dator stannar guiden i manuellt läge; fysisk kontroll kvar.
-2. 2026-11-13 — B-019 + F-075: visningsläget med glaskort och fri yta för objektet; 177 Caldwell- och namngivna djuprymdsobjekt (t.ex. Irisnebulosan) sökbara på alla namn; fysisk kontroll kvar.
-3. 2026-11-13 — F-067 + F-068 + F-070 + F-071: ett val för detaljnivå, Lager som lista, zoom visar alltid mer detalj (synlig zoomkontroll), plats/tid i sökfältet, felsökning hopfälld i Mer; fysisk kontroll kvar.
-4. 2026-11-13 — F-073 + F-069 + F-072: ny mörk design ”Obsidian” (glas, tonad primärknapp), objektkort med nyckeltal och ”Detaljer”, detaljvy och Ikväll omordnade; fysisk kontroll kvar.
-5. 2026-11-13 — F-065: Gaia-stjärnor till G 12 (1,84 miljoner till) i finare rutor vid djupzoom; fysisk kontroll kvar.
+1. 2026-11-14 — B-001 upptagen igen: användarens riktningsrapport analyserad (hopp −55° och +116° vid automatisk rättning); förslag att följa kompassströmmen direkt väntar på godkännande; fynden rapporterade till geo-kit. Ingen kod ändrad.
+2. 2026-11-13 — B-020 + F-076: objektguiden i Obsidian-glas (kort, knappar, namnskylt som inte krockar med andra etiketter) och Guida slår på Följ i samma tryck på telefon; på dator stannar guiden i manuellt läge; fysisk kontroll kvar.
+3. 2026-11-13 — B-019 + F-075: visningsläget med glaskort och fri yta för objektet; 177 Caldwell- och namngivna djuprymdsobjekt (t.ex. Irisnebulosan) sökbara på alla namn; fysisk kontroll kvar.
+4. 2026-11-13 — F-067 + F-068 + F-070 + F-071: ett val för detaljnivå, Lager som lista, zoom visar alltid mer detalj (synlig zoomkontroll), plats/tid i sökfältet, felsökning hopfälld i Mer; fysisk kontroll kvar.
+5. 2026-11-13 — F-073 + F-069 + F-072: ny mörk design ”Obsidian” (glas, tonad primärknapp), objektkort med nyckeltal och ”Detaljer”, detaljvy och Ikväll omordnade; fysisk kontroll kvar.
 
 Full historik med testbevis och commits: [docs/HANDOFF_LOG.md](docs/HANDOFF_LOG.md) och git.
 
 ## Nästa steg
 
-Inga körklara förslag; nya önskemål samlas i [BACKLOG.md](BACKLOG.md). Parkerat: se backloggen. Fysisk mobilkontroll av allt från 2026-11-12 väntar på användaren.
+Körning A (B-001, följ kompassen direkt) väntar på användarens godkännande; se [BACKLOG.md](BACKLOG.md). Parkerat: se backloggen. Fysisk mobilkontroll av allt från 2026-11-12 väntar på användaren.
 
 ## Mål och arbetssätt
 
@@ -48,6 +48,7 @@ Inga körklara förslag; nya önskemål samlas i [BACKLOG.md](BACKLOG.md). Parke
 - 2026-11-12 — Objektets bana och satelliter är på från start (syns bara med valt objekt respektive solbelysta satelliter i mörker); båda kan slås av under Lager.
 - 2026-11-12 — Demoläge: sparade listor behåller användarens ordning; Kvällens förslag ordnas som ett svep och närliggande objekt hoppas över.
 - 2026-11-13 — Objektguiden (Guida/Objektguide) slår på Följ i samma tryck på pekskärmsenheter med säker sida (F-076, användarens önskemål); samma start som Följ-knappen, sensorlogiken oförändrad. På dator stannar guiden i manuellt läge utan sensorförsök. Att avsluta guiden stänger inte av Följ.
+- 2026-11-14 — B-001 (riktningsfel med Följ) tas upp igen på användarens begäran; analys först, ändring av sensorlogiken först efter godkänt förslag. Fynd rapporteras också till geo-kit (publikt: bara sammanfattade mätvärden, inga råa loggar).
 
 ## Begränsningar och engångsåtgärder
 

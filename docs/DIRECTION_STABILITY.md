@@ -1,6 +1,41 @@
 # Direction stability and recalibration
 
-**2026-10-31 status: B-001 — paused by the user.** Prioritize the remaining functionality in [BACKLOG.md](../BACKLOG.md). Keep the deployed sensor implementation and the evidence below. Physical automatic-recovery validation and long-term pointing accuracy remain incomplete; this is not a resolved-bug declaration. Resume investigation only after an explicit user decision.
+**2026-11-14 status: B-001 — taken up again by the user.** A new physical report was analysed (section below). No sensor code has been changed by that analysis; the proposal waits for the user's approval in [BACKLOG.md](../BACKLOG.md). Earlier status (2026-10-31): paused by the user; the deployed implementation and the evidence below were kept.
+
+## Physical report analysis, 2026-11-14
+
+The user reported that following "changed direction hard several times with an error message" while using the Guided Finder (which starts following since F-076) and supplied a local report from the Android phone in Brave. Only aggregate measurements are stored here; the report itself is not committed. The session stream counts were 7,615 received events and 3,652 usable directions. The report holds 9 transitions, 2 frozen incident windows and the last 400 samples; times below are seconds on the page clock.
+
+**What the tracker did**
+
+| Time | Event |
+| --- | --- |
+| 48.2 | Initial compass anchor; stored offset (compass heading minus relative heading) 221.2°. |
+| 54.2 | Disagreement candidate: displayed heading 15°, 57° away from the compass. The candidate kept being cancelled by movement. |
+| 73.2–74.7 | Candidate confirmed after 1.5 s of stillness; automatic re-anchor moved the displayed heading 15° → 320° (−55°) in one step. The view had been 44–57° from the compass for about 20.5 s. |
+| 75.2–78.7 | Offset steady at 165.6–166.0° (39 matched pairs). |
+| 95.9–98.5 | Disagreement already −94°, growing to −115° while the relative stream was almost still. |
+| 99.7–102.0 | Candidate and second automatic re-anchor: 310° → 66° (+116°) in one step, 27 s after the first. |
+| 99.4–127.6 | Offset 280.3–284.1° in both recorded parts of this 28 s span (99.4–105.5 and 117.9–127.6, 182 matched pairs; the 12 s between them is not in the report) although pitch went +6° → −14°, roll +10° → −17° and the heading 20°. |
+| 127.7–128.3 | One fast tilt (pitch −14° → −52° in about 0.25 s): the offset changed 43° in 0.4 s and was still 26° off 4.5 s later. A third disagreement (28°) was pending when the report was saved at 133 s. |
+
+**What the two streams did**
+
+- During ordinary movement both streams moved together: a 27° swing and return in 3 s, and a 10° step, kept the offset within about 1° apart from one roll-linked transient of 10° that returned to the same value within 2 s. Tilt agreed within 0.5° throughout (2.3° right after the fast tilt). So both streams respond at gyro speed; the north-referenced stream is not a slow filtered compass.
+- When the phone was held still the offset was constant to a few tenths of a degree (for example 165.6–166.0° over 3.5 s and 282.4–284.1° over 9.7 s).
+- The offset changed in episodes: 221° → 166° during the first 64° turn (6 s), 166° → 282° somewhere in an unrecorded 17 s gap after the first jump, and +43° in the fast tilt. In two episodes the north-referenced heading then crept toward a new value at 5–9°/s for 2–4 s while the relative stream was still.
+- The current guards did not help with this pattern: a compass that creeps a few degrees per second passes the "within 3° for 1.2 s" stability test, the candidate needed 1.5 s of stillness (so a moving user stays wrong for a long time), and the correction is a single step of whatever the difference has grown to.
+
+**What it means, and how certain it is**
+
+- The report cannot say which stream pointed at true north; it has no ground truth. It shows only that the two disagree by tens of degrees after turns and fast movements, and that the disagreement is then steady.
+- The better-supported reading is that the relative stream loses its direction in fast movement and the north-referenced stream is right once it has settled: the user confirmed twice in October that returning to the compass gave the correct real direction, the owner's other projects follow the north-referenced stream on the same phone, and here the offset was the same before and after a 12 s gap with large tilt changes in between. A badly calibrated compass at the start of the session cannot be excluded as the cause of the first two episodes.
+- Under that reading the stored-offset model is the wrong one for this phone: the view was more than 25° from the compass for at least 32 of the 85 s after the first anchor, and each correction arrived late and as a jump. The corrections themselves were steps toward the better value, which is why they felt like the compass "changing direction hard".
+- Simulated browser sensors cannot reproduce this; it needs a check on the phone.
+
+**Proposal (waiting for approval):** follow the north-referenced stream directly with light smoothing, as geo-kit does, and keep the relative stream only as a fallback when no north-referenced data arrives. See B-001 in the backlog. The findings are also reported to geo-kit (`docs/FINDINGS.md` there).
+
+## Background, 2026-10-29 to 2026-10-31
 
 The user approved this bounded stability fix after reporting over 100° of yaw error after figure-eight movements while Google Maps returned a stable direction. A subsequent Android/Brave report captures an already uncertain session; startup and the onset of the original error remain unrecorded. This implementation guards the reproduced failure paths and exposes a local report for physical validation. It does not establish instrument accuracy or claim that every browser exposes an independent compass.
 
