@@ -6,7 +6,7 @@ ID:n är permanenta (F-### funktioner, B-### buggar, separata serier — beslut 
 
 Senast uppdaterad 2026-11-13. Bokstäverna gäller bara den senast visade listan.
 
-**A — B-001 riktningshopp med Följ (upptaget igen 2026-11-14 efter användarens ja)** (starkt modell). (1) Gå igenom användarens riktningsrapport från 2026-11-14 och koden för kompass, rörelsesensor och automatisk rättning; ta reda på varför de blir oense och varför rättningen hoppar 55–116° på en gång. (2) Kom tillbaka med ett förslag innan något ändras, t.ex. mjuk glidning vid rättning och tydlig riktning i kortet. (3) Rapportera fynden till `BadBagel47/geo-kit` (publikt repo: bara sammanfattade fynd, inga råa loggar eller platsuppgifter). Ingen ändring av sensorlogiken utan godkännande av förslaget.
+**A — B-001 riktningshopp med Följ (upptaget igen 2026-11-14 efter användarens ja)** (stark modell). (1) Gå igenom användarens riktningsrapport från 2026-11-14 och koden för kompass, rörelsesensor och automatisk rättning; ta reda på varför de blir oense och varför rättningen hoppar 55–116° på en gång. (2) Kom tillbaka med ett förslag innan något ändras, t.ex. mjuk glidning vid rättning och tydlig riktning i kortet. (3) Rapportera fynden till `BadBagel47/geo-kit` (publikt repo: bara sammanfattade fynd, inga råa loggar eller platsuppgifter). Ingen ändring av sensorlogiken utan godkännande av förslaget.
 
 F-074 (designrepo) väntar tills designen är spikad.
 
