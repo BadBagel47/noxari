@@ -79,7 +79,7 @@ export function SkyMap({selectedId, time, location, label, language, sunLabel, o
   const artSky = useMemo(() => showArt ? constellationArtSky(time, location, figureMode) : [], [showArt, time, location, figureMode]);
   const ecliptic = useMemo(() => showEcliptic ? eclipticSky(time, location) : [], [showEcliptic, time, location]);
   const pathNightKey = nightKey(time);
-  const pathNight = useMemo(() => pathObject ? nightPath(pathObject, time, location) : null, [pathObject, pathNightKey, location]);
+  const pathNight = useMemo(() => pathObject ? nightPath(pathObject, time, location, language) : null, [pathObject, pathNightKey, location, language]);
   const pathStarKey = Math.floor(time.getTime() / (pathObject?.id === 'moon' ? 3_600_000 : 21_600_000));
   const pathSamples = useMemo(() => pathMotion && movesAmongStars(pathObject) ? starPathSamples(pathObject!, time, location, language) : null, [pathObject, pathMotion, pathStarKey, location, language]);
   const pathStars = useMemo(() => starPathSky(pathSamples, time, location), [pathSamples, time, location]);
@@ -236,7 +236,7 @@ export function SkyMap({selectedId, time, location, label, language, sunLabel, o
         }
         context.restore();
       }
-      if (objectTrack) drawObjectPath(context, objectTrack, position => projectHorizontal(position, width, height, zoom), width, Math.max(.75, starVisibility));
+      if (objectTrack) { const project = (position: Parameters<typeof projectHorizontal>[0]) => projectHorizontal(position, width, height, zoom); drawObjectPath(context, objectTrack, {mark: project, line: project}, width, height, Math.max(.75, starVisibility)); }
       if (showBoundaries) drawBoundaries(context, boundaries, position => projectHorizontal(position, width, height, zoom), width, height, starVisibility);
       // Below-horizon mesh nodes still project (outside the circle) so cells are not dropped; the horizon circle clips them.
       if (showArt) { context.save(); context.beginPath(); context.arc(width / 2, height / 2, Math.min(width, height) * .44 * zoom, 0, Math.PI * 2); context.clip(); }

@@ -25,6 +25,9 @@ Tidigare `HANDOVER.md`, flyttad oförändrad vid anpassningen till agentregler v
 - 2026-11-14 — Flyttat från HANDOFF.md: 2026-11-13 — F-065: Gaia-stjärnor till G 12 (1,84 miljoner till) i finare rutor vid djupzoom; fysisk kontroll kvar.
 - 2026-11-14 — B-001-analys (stark modell): parade nordrefererade och relativa avläsningar ur rapporten (473 par inom 40 ms), skillnaden per tidsfönster, övergångar och incidentfönster; resultat i docs/DIRECTION_STABILITY.md (avsnittet 2026-11-14). Rapporten ligger kvar hos användaren.
 
+- 2026-11-20 — Flyttat från HANDOFF.md: 2026-11-13 — F-073 + F-069 + F-072: ny mörk design ”Obsidian” (glas, tonad primärknapp), objektkort med nyckeltal och ”Detaljer”, detaljvy och Ikväll omordnade; fysisk kontroll kvar.
+- 2026-11-20 — B-021 + F-077 (Opus, ”Kör B”): `drawObjectPath(context, path, {mark, line}, width, height, alpha)` i `src/objectPath.ts`; `nightPath(..., language)` med `hourLabel` och `ahead`; anrop i `HorizonView.tsx` (ej klippande `createPreparedPerspectiveProjector`) och `SkyMap.tsx`. 270 tester, funktionsflöden 15/15.
+
 ## Agentregler och inventering
 
 - **Agentregler:** v1.4 inlästa 2026-11-12. Repot hade inte följt agentreglerna tidigare; anpassning pågår (se ”Pending adaptation”).

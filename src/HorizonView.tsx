@@ -206,7 +206,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
   const ecliptic = useMemo(() => shown.current.ecliptic ? eclipticSky(time, location) : [], [showEcliptic, time, location]);
   // F-053: tonight's track per half hour of shown time; motion among stars per 6 h (Moon: per hour).
   const pathNightKey = nightKey(time);
-  const pathNight = useMemo(() => pathObject ? nightPath(pathObject, time, location) : null, [pathObject, pathNightKey, location]);
+  const pathNight = useMemo(() => pathObject ? nightPath(pathObject, time, location, language) : null, [pathObject, pathNightKey, location, language]);
   const pathStarKey = Math.floor(time.getTime() / (pathObject?.id === 'moon' ? 3_600_000 : 21_600_000));
   const pathSamples = useMemo(() => pathMotion && movesAmongStars(pathObject) ? starPathSamples(pathObject!, time, location, language) : null, [pathObject, pathMotion, pathStarKey, location, language]);
   const pathStars = useMemo(() => starPathSky(pathSamples, time, location), [pathSamples, time, location]);
@@ -584,7 +584,7 @@ export function HorizonView({frames, selectedId, time, timeMode, location, label
         }
         context.restore();
       }
-      if (objectTrack) drawObjectPath(context, objectTrack, projectStar, width, Math.max(.75, starVisibility, belowReveal));
+      if (objectTrack) drawObjectPath(context, objectTrack, {mark: projectStar, line: createPreparedPerspectiveProjector(view, width, height, false, belowReveal > 0, zoom)}, width, height, Math.max(.75, starVisibility, belowReveal));
       measurement?.phase('stars');
       // F-057: decorative silhouette (hills and trees) standing on the horizon; fades away when looking down.
       if (showLandscape && horizonY > -height && horizonY < height * 1.6) {
