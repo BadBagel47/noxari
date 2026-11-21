@@ -50,6 +50,7 @@ Körning A (B-001, följ kompassen direkt) väntar på användarens godkännande
 - 2026-11-13 — Objektguiden (Guida/Objektguide) slår på Följ i samma tryck på pekskärmsenheter med säker sida (F-076, användarens önskemål); samma start som Följ-knappen, sensorlogiken oförändrad. På dator stannar guiden i manuellt läge utan sensorförsök. Att avsluta guiden stänger inte av Följ.
 - 2026-11-14 — B-001 (riktningsfel med Följ) tas upp igen på användarens begäran; analys först, ändring av sensorlogiken först efter godkänt förslag. Fynd rapporteras också till geo-kit (publikt: bara sammanfattade mätvärden, inga råa loggar).
 - 2026-11-21 — Startvy (ändrar F-021): appen startar på Nu när solen har gått ner, annars på Kvällshimmel (F-078, väntar på bygget).
+- 2026-11-21 — Inget ”&” i rubriker, knappar eller andra texter i appen; skriv ”och” / ”and” (användarens beslut, projektregel i AGENTS.md).
 
 ## Begränsningar och engångsåtgärder
 

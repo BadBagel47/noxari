@@ -54,7 +54,7 @@ try {
    await p.getByRole('button',{name:'Remove bookmark',exact:true}).click();assert.match(await p.getByRole('dialog').innerText(),/Nothing saved yet/);
   });
   await check('Finder show-in-sky centering, stop and below-horizon guard',viewport,async p=>{
-   await p.getByRole('button',{name:'Time & location',exact:true}).click();await p.getByRole('button',{name:'Now',exact:true}).click();await close(p);
+   await p.getByRole('button',{name:'Time and location',exact:true}).click();await p.getByRole('button',{name:'Now',exact:true}).click();await close(p);
    await pick(p,'M31');await p.getByRole('button',{name:'Guide',exact:true}).click();assert.equal(await p.locator('.guided-finder').count(),1);
    await p.locator('.finder-hud').getByRole('button',{name:'Details',exact:true}).click();assert.equal(await p.getByRole('dialog').getByRole('button',{name:'Show in sky',exact:true}).isEnabled(),true);await p.getByRole('dialog').getByRole('button',{name:'Show in sky',exact:true}).click();await p.locator('.guided-finder.is-centered').waitFor();assert.equal(await p.locator('.finder-orbit-arrow').count(),0);
    await p.getByRole('button',{name:'Stop Guided Finder',exact:true}).click();assert.equal(await p.locator('.guided-finder').count(),0);
@@ -68,7 +68,7 @@ try {
   });
  }
  await check('timezones, fixed/Now/preview, coordinate validation and persistence',{width:390,height:844},async p=>{
-  await p.getByRole('button',{name:'Time & location',exact:true}).click();await p.getByRole('button',{name:'Now',exact:true}).click();assert.match(await p.locator('.top-search-context').innerText(),/Now/);
+  await p.getByRole('button',{name:'Time and location',exact:true}).click();await p.getByRole('button',{name:'Now',exact:true}).click();assert.match(await p.locator('.top-search-context').innerText(),/Now/);
   await p.locator('input[type=datetime-local]').fill('2026-01-20T20:00');assert.match(await p.locator('.top-search-context').innerText(),/Selected time/);
   await p.getByRole('combobox',{name:'Location',exact:true}).selectOption('London');assert.equal(await p.locator('input[type=datetime-local]').inputValue(),'2026-01-20T19:00');
   await advanced(p);await p.getByRole('spinbutton',{name:'Latitude',exact:true}).fill('91');await p.getByRole('button',{name:'Apply',exact:true}).click();assert.match(await p.locator('.toast').innerText(),/latitude/);assert.match(await p.locator('.top-search-context').innerText(),/London/);
@@ -78,7 +78,7 @@ try {
   await p.getByRole('button',{name:'Tonight (darkest)',exact:true}).click();assert.match(await p.locator('.top-search-context').innerText(),/Night preview/);await p.reload();assert.match(await p.locator('.top-search-context').innerText(),/Custom coordinates/);
  });
  await check('GPS opt in, denial/timeout/success and stale-result cancellation',{width:390,height:844},async p=>{
-  assert.equal(await p.evaluate(()=>window.__gps.length),0);await p.getByRole('button',{name:'Time & location',exact:true}).click();
+  assert.equal(await p.evaluate(()=>window.__gps.length),0);await p.getByRole('button',{name:'Time and location',exact:true}).click();
   await p.getByRole('button',{name:'Use my location',exact:true}).click();await p.evaluate(()=>window.__gps.at(-1).error({code:1}));await p.locator('.gps-status').filter({hasText:/denied/}).waitFor();assert.match(await p.locator('.gps-status').innerText(),/denied/);
   await p.getByRole('button',{name:'Use my location',exact:true}).click();await p.evaluate(()=>window.__gps.at(-1).error({code:3}));await p.locator('.gps-status').filter({hasText:/timed out/}).waitFor();assert.match(await p.locator('.gps-status').innerText(),/timed out/);
   await p.getByRole('button',{name:'Use my location',exact:true}).click();await p.evaluate(()=>window.__gps.at(-1).ok({coords:{latitude:51.5,longitude:-.1,accuracy:12}}));await p.locator('.top-search-context').filter({hasText:/Device location/}).waitFor();assert.match(await p.locator('.top-search-context').innerText(),/Device location/);assert.match(await p.locator('.gps-status').innerText(),/12 m/);

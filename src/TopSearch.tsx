@@ -36,7 +36,7 @@ export function TopSearch({language, objects, describe, onPick, onOpenFull, cont
   language: Lang; objects: SpaceObject[];
   describe: (object: SpaceObject) => string;
   onPick: (object: SpaceObject) => void; onOpenFull: (query: string) => void;
-  /** F-070: place and time as a second line in the search capsule; tapping it opens Time & place. */
+  /** F-070: place and time as a second line in the search capsule; tapping it opens Time and place. */
   context?: {label: string; detail: string; tone: string; ariaLabel: string; onOpen: () => void};
 }) {
   const lang = language, listId = useId();
